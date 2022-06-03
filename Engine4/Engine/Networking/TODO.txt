@@ -1,0 +1,11 @@
+﻿Connection
+
+Mesh sync, if needed
+Instance data sync
+Entity creationg/destruction sync
+Entity component sync
+
+Rendering an entity:
+	Hard coded? A certain component type will render a mesh3, with entity3 instance data using the transform component. Antoher will render a mesh2, with entity2 instance data.
+		Rendering should not be something a server should bother with, so the client must be able to handle rendering with the information it has
+	Another way?

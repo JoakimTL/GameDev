@@ -1,0 +1,91 @@
+﻿Engine 4 TODO
+
+Thread based work, queue work for specific threads
+Rendering
+	Silk.Net
+	Scenesetting
+	Baseclasses
+		Mesh
+			Buffer
+			VAO
+		Shader
+			Source
+			Pipeline
+			Program
+			Bundle
+		Texture
+			
+		Framebuffer
+
+	EDI
+		Renderable2
+		Renderable3
+
+		Mesh generation
+			Text Rendering
+				Done right, fuck yeah
+			Icosphere
+			Bezier Lines
+				Using ogl lines or custom ones?
+
+
+	
+	2D
+		UI
+	3D
+		UI?
+		Lighting
+			Shadows
+	https://jcgt.org/published/0002/02/09/
+	http://casual-effects.blogspot.com/2014/03/weighted-blended-order-independent.html
+
+	Scenes
+		Unsorted scene, used for 3d
+			Uses sceneobjects
+		Sorted scene, used for 2d
+			Uses sorted sceneobjects (sceneobjects with a layer property)
+	SceneObject
+		Mesh (Sceneobjects with same shader and same VAO is bundled together)
+		Material (does not affect where the object is placed in rendering)
+		Shader (Sceneobjects with same shader is bundled together)
+		Transparent (bool)
+		SortedSceneObject
+			Layer
+Networking
+	Client
+	Server
+Physics
+	Collision
+		GJK
+		EPA
+	Mechanics
+		Volume density calculation
+	Collision and Mechanics should be separated, and only combined when wanted
+Entity Component System
+	Dependency tree
+	Integrating networking
+	Integrating physics
+	Integrating rendering
+Oddities
+	Bezier Curves
+	Pipelines
+
+
+
+
+Physics and rendering
+	Mesh collision?
+
+
+
+
+
+
+
+x Particles
+x Weighted transparency
+Lights
+Collision
+Entity System
+UI
+Model Animation

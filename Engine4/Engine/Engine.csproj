@@ -1,0 +1,240 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<PlatformTarget>x64</PlatformTarget>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="res\shaders\frag.frag" />
+	  <None Remove="res\shaders\gBuffer.frag" />
+	  <None Remove="res\shaders\geom\geometry3.frag" />
+	  <None Remove="res\shaders\geom\geometry3.vert" />
+	  <None Remove="res\shaders\geom\geometry3directional.frag" />
+	  <None Remove="res\shaders\geom\geometry3directionaltransparent.frag" />
+	  <None Remove="res\shaders\geom\geometry3transparent.frag" />
+	  <None Remove="res\shaders\geom\particle2.frag" />
+	  <None Remove="res\shaders\geom\particle2.vert" />
+	  <None Remove="res\shaders\geom\particle3.frag" />
+	  <None Remove="res\shaders\geom\particle3.vert" />
+	  <None Remove="res\shaders\light\directional.vert" />
+	  <None Remove="res\shaders\light\directionalNoShadow.frag" />
+	  <None Remove="res\shaders\light\directionalShadow.frag" />
+	  <None Remove="res\shaders\light\lightCalculation.glsl" />
+	  <None Remove="res\shaders\light\point.vert" />
+	  <None Remove="res\shaders\light\pointNoShadow.frag" />
+	  <None Remove="res\shaders\pfx.frag" />
+	  <None Remove="res\shaders\pfx.vert" />
+	  <None Remove="res\shaders\pfx\blurRed.frag" />
+	  <None Remove="res\shaders\vert.vert" />
+	  <None Remove="res\textures\BlankBlack.png" />
+	  <None Remove="res\textures\BlankWhite.png" />
+	  <None Remove="res\textures\button195.png" />
+	  <None Remove="res\textures\button40.png" />
+	  <None Remove="res\textures\button4x1.png" />
+	  <None Remove="res\textures\button60.png" />
+	  <None Remove="res\textures\button95.png" />
+	  <None Remove="res\textures\buttonMap120.png" />
+	  <None Remove="res\textures\dudv.png" />
+	  <None Remove="res\textures\fonts\calibri.fnt" />
+	  <None Remove="res\textures\fonts\calibri.png" />
+	  <None Remove="res\textures\fonts\default.fnt" />
+	  <None Remove="res\textures\fonts\default.png" />
+	  <None Remove="res\textures\fonts\verdana.fnt" />
+	  <None Remove="res\textures\fonts\verdana.png" />
+	  <None Remove="res\textures\heightmap.png" />
+	  <None Remove="res\textures\heightmap2.png" />
+	  <None Remove="res\textures\particle1.png" />
+	  <None Remove="res\textures\particle2.png" />
+	  <None Remove="res\textures\particles.png" />
+	  <None Remove="res\textures\pDiff.png" />
+	  <None Remove="res\textures\pGlow.png" />
+	  <None Remove="res\textures\Star.png" />
+	  <None Remove="res\textures\test.png" />
+	  <None Remove="res\textures\test2.png" />
+	  <None Remove="res\textures\textfield80.png" />
+	  <None Remove="res\textures\textfieldMap95.png" />
+	  <None Remove="res\textures\tickmark.png" />
+	  <None Remove="res\textures\voxMap.png" />
+	  <None Remove="res\textures\voxMapNormal.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="res\shaders\frag.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\geometry3directional.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\geometry3directionaltransparent.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\particle3.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\particle3.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\particle2.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\particle2.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\geometry3transparent.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\geometry3.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\geometry3.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\light\pointNoShadow.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\light\point.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\light\directionalShadow.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\light\lightCalculation.glsl">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\light\directionalNoShadow.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\light\directional.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\pfx.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\gBuffer.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\pfx.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\pfx\blurRed.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\vert.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\BlankBlack.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\BlankWhite.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\button195.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\button40.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\button4x1.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\button60.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\button95.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\buttonMap120.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\dudv.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\fonts\calibri.fnt">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\fonts\calibri.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\fonts\default.fnt">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\fonts\default.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\fonts\verdana.fnt">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\fonts\verdana.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\heightmap.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\heightmap2.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\particle1.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\particle2.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\particles.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\pDiff.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\pGlow.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\Star.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\test.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\test2.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\textfield80.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\textfieldMap95.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\tickmark.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\voxMap.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\voxMapNormal.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Modularity\ECS\Systems\" />
+		<Folder Include="Physics\Collision\" />
+		<Folder Include="Physics\Mechanics\" />
+		<Folder Include="Rendering\ShaderBundles\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="OpenGL.Net" Version="0.8.4">
+			<NoWarn>NU1701</NoWarn>
+		</PackageReference>
+		<PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\EngineLogging\EngineLogging.csproj" />
+		<ProjectReference Include="..\GLFW\GLFW.csproj" />
+	</ItemGroup>
+
+</Project>

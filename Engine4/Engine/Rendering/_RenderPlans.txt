@@ -1,0 +1,34 @@
+﻿
+Meshes:
+
+Needs {
+	VAO
+	VBOs {
+		Indirect data
+		Mesh data {
+			Vertex data
+			Index data
+		}
+		Instance Data
+	}
+}
+
+BufferObject {
+	Allocated memory on CPU side
+	Can be read from by multiple threads at once
+	Can only be written to by one thread at once
+	Tightly controlled data. Cannot be accessed without creating a partition.
+	Events fire indicating changes has been made to the allocated memory, listeners can do with it what they want.
+	A method to read from the pointer without accessing the pointer outside the buffer must exist.
+}
+
+VBO {
+	Allocated memory on GPU side
+	Can only be written to. The data in the VBO comes from BufferObjects. It is synchronized every frame.
+	Listens to the bufferobject, any changes registered is enqueued, and each frame the queue is emptied.
+
+}
+
+Vao {
+	Instead of defining VAO based on struct types, define them based on VAO prototype factories, constructing parts of a VAO. A mesh should have the vertex data setup, while the scene data should have the instance data setup
+}
