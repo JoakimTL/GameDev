@@ -1,0 +1,9 @@
+﻿namespace Engine.Rendering.Standard.Scenes;
+
+public class OpenSceneObject<V, SD> : ClosedSceneObject<V, SD> where V : unmanaged where SD : unmanaged {
+	public new void SetMesh( BufferedMesh? newMesh ) => base.SetMesh( newMesh );
+
+	public new void SetSceneData( SceneInstanceData<SD>? newSceneData ) => base.SetSceneData( newSceneData );
+
+	public new void SetShaders( ShaderBundle? newShaderBundle ) => base.SetShaders( newShaderBundle );
+}

@@ -1,0 +1,12 @@
+﻿
+Specs:
+	- Automatic LOD, a chunk further away should not have the same amount of detail as a close chunk.
+	- Chunks should be SMALL, 16x16x16. Indirect multidraw will reduce overhead
+	- Multithreaded generation
+	- Chunks can be partially loaded. (A chunk far away containing only one voxel of data)
+
+	- Demand -> Supply -> Fulfill demand
+		- An order can be placed. If the order can be fulfilled immediately, it will be.
+		- If the order can't be fulfilled, it will be prioritized and fulfilled as quickly as possible.
+		- When the order is fulfilled, the demander can use the chunk data.
+		- Handling cases wwhere data will be returned later must be done.
