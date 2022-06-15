@@ -1,4 +1,6 @@
-﻿namespace Engine.Modularity.ECS;
+﻿using Engine.Structure;
+
+namespace Engine.Modularity.ECS;
 public abstract class UpdateableComponent : Component, IUpdateable {
 
 	public bool Active { get; protected set; }

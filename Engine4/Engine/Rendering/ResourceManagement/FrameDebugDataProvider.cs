@@ -1,4 +1,5 @@
 ﻿using Engine.Rendering.Utilities;
+using Engine.Structure;
 
 namespace Engine.Rendering.ResourceManagement;
 

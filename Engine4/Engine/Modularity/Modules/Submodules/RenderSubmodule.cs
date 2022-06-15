@@ -16,7 +16,9 @@ public class RenderSubmodule : Submodule {
 
 	private void Initialized() {
 		Resources.Render.Window.WindowEvents.Closing += WindowClosing;
+		//TODO: Remove and let client choose.
 		Resources.Render.PipelineManager.AddPipeline<Render3Pipeline>();
+		Resources.Render.PipelineManager.AddPipeline<RenderUIPipeline>();
 	}
 
 	private void WindowClosing() => Remove();

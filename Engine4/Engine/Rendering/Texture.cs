@@ -7,6 +7,7 @@ using SixLabors.ImageSharp.Memory;
 using System.Runtime.CompilerServices;
 using Engine.Rendering.Disposal;
 using Engine.Rendering.ResourceManagement;
+using Engine.Time;
 
 namespace Engine.Rendering;
 public class Texture : DisposableIdentifiable {
@@ -17,10 +18,11 @@ public class Texture : DisposableIdentifiable {
 	public int Levels => this._sizes.Length;
 	public uint TextureID { get; private set; }
 	public bool Resident { get; private set; }
+	public float LastBind { get; private set; }
 
 	protected override string UniqueNameTag => $"{this.TextureID},{this._handle}";
 
-	public Texture( string name, TextureTarget target, Vector2i[] sizes, InternalFormat format, params (TextureParameterName, int)[] parameters ) : base(name) {
+	public Texture( string name, TextureTarget target, Vector2i[] sizes, InternalFormat format, params (TextureParameterName, int)[] parameters ) : base( name ) {
 		if ( sizes.Length == 0 )
 			throw new ArgumentOutOfRangeException( nameof( sizes ), "Must be greater than zero" );
 		this.Target = target;
@@ -71,8 +73,10 @@ public class Texture : DisposableIdentifiable {
 	/// Makes the texture resident.
 	/// </summary>
 	public void DirectBind() {
-		if ( this.Resident )
+		if ( this.Resident ) {
+			this.LastBind = Clock32.StartupTime;
 			return;
+		}
 
 		this.LogLine( $"Made resident!", Log.Level.LOW );
 		this.Resident = true;
@@ -92,7 +96,7 @@ public class Texture : DisposableIdentifiable {
 	}
 
 	protected override bool OnDispose() {
-		if (!Resources.Render.InThread) {
+		if ( !Resources.Render.InThread ) {
 			Resources.Render.ContextDiposer.Add( new TextureDisposal( this.FullName, this._handle, this.TextureID, this.Resident ) );
 			return true;
 		}

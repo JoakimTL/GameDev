@@ -1,4 +1,4 @@
-﻿namespace Engine;
+﻿namespace Engine.Structure;
 
 public interface IUpdateable {
 	bool Active { get; }

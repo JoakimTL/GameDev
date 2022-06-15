@@ -16,6 +16,7 @@ public unsafe class VoxelChunkData : DisposableIdentifiable {
 		this._bytesUsed = this.ActualVolume * sizeof( ushort );
 		this._voxelData = (ushort*) NativeMemory.AllocZeroed( this._bytesUsed );
 		this.Initialized = false;
+		this.AllAir = true;
 	}
 
 	public uint ActualLength { get; private set; }
@@ -25,6 +26,7 @@ public unsafe class VoxelChunkData : DisposableIdentifiable {
 	public uint VoxelSize { get; private set; }
 	public bool Initialized { get; private set; }
 	public bool Freed { get; private set; }
+	public bool AllAir { get; private set; }
 	public int Users { get; private set; }
 	public ReadOnlySpan<ushort> Ids => new( this._voxelData, (int) this.ActualVolume );
 
@@ -71,8 +73,16 @@ public unsafe class VoxelChunkData : DisposableIdentifiable {
 		}
 		if ( this.Freed )
 			return;
-		fixed ( ushort* srcPtr = ids )
+		fixed ( ushort* srcPtr = ids ) {
 			Unsafe.CopyBlock( this._voxelData, srcPtr, this._bytesUsed );
+			this.AllAir = true;
+			for ( int i = 0; i < this.ActualVolume; i++ ) {
+				if ( srcPtr[ i ] != 0 ) {
+					this.AllAir = false;
+					break;
+				}
+			}
+		}
 		this.Initialized = true;
 	}
 

@@ -5,12 +5,20 @@ using Engine.Data.Datatypes.Transforms;
 using Engine.Modularity.Modules;
 using Engine.Modularity.Modules.Submodules;
 using Engine.Rendering.Colors;
+using Engine.Rendering.Framebuffers;
 using Engine.Rendering.InputHandling;
 using Engine.Rendering.Pipelines;
 using Engine.Rendering.Shaders;
 using Engine.Rendering.Standard.Scenes;
+using Engine.Rendering.Standard.Scenes.VerletParticles.Systems;
+using Engine.Rendering.Standard.UI;
+using Engine.Rendering.Standard.UI.Standard;
+using Engine.Rendering.Standard.UI.Standard.Text;
 using Engine.Rendering.Standard.VertexArrayObjects.Layouts;
+using Engine.Structure;
 using GLFW;
+using OpenGL;
+using TestPlatform.Verlet;
 using TestPlatform.Voxels2.Data.WorldGen;
 
 namespace TestPlatform;
@@ -24,6 +32,8 @@ public class VoxelTestSubmodule : Submodule {
 
 	private Voxels2.Data.VoxelWorld? _world;
 	private Voxels2.Render.VoxelWorldRenderer? _worldRenderer;
+
+	//private VerletParticleSystem3<VerletParticle>? _verletParticles;
 
 	public VoxelTestSubmodule() : base( true ) {
 		OnInitialization += Initialized;
@@ -39,6 +49,14 @@ public class VoxelTestSubmodule : Submodule {
 			return;
 		}
 
+		Button b = new Button();
+		b.Activate();
+		Resources.Render.Get<UIManager>().Add( b );
+
+		TextContainer tc = new( new Font( "res/textures/fonts/calibri" ), "this is a test\nobviously it's not going to work properly at the moment, but we'll get it fixed!\nthe quick brown fox jumps over the lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 0.02f );
+		tc.Update();
+		Console.WriteLine( string.Join( '\n', tc.Lines.Select(p => p.ToString()) ) );
+
 		Resources.Render.Window.MouseEvents.ButtonPressed += ButtonPress;
 		Resources.Render.Window.MouseEvents.ButtonReleased += ButtonRelease;
 		Resources.Render.Window.MouseEvents.MovedHidden += MovedHidden;
@@ -48,7 +66,7 @@ public class VoxelTestSubmodule : Submodule {
 		this._origin.SetSceneData( new Engine.Rendering.Standard.SceneInstanceData<Entity3SceneData>( 1, 1 ) );
 		Transform3 model1 = new() {
 			Translation = new Vector3( 0, 0, 0 ),
-			Scale = new Vector3( 0.25f )
+			Scale = new Vector3( 4 )
 		};
 		this._origin.SceneData?.SetInstance( 0, new Entity3SceneData() {
 			ModelMatrix = model1.Matrix,
@@ -67,9 +85,36 @@ public class VoxelTestSubmodule : Submodule {
 		this._worldRenderer = new Voxels2.Render.VoxelWorldRenderer( this._world, 32, 4 );
 		this._world.Add( this._worldRenderer );
 
-		this._pipeline.Scenes.Add( new SceneRenderer( this._scene ) );
+		/*this._verletParticles = new VerletParticleSystem3<VerletParticle>( 512, 16 );
+		this._verletParticles.SetActiveParticles( 512 );
+		this._verletParticles.Updated += VerletConstraints.GlobalUpdate;
+		this._verletParticles.SubUpdate += VerletConstraints.AddGravity;
+		this._verletParticles.SubUpdate += VerletConstraints.IncreaseTemperature;
+		this._verletParticles.SubUpdate += VerletConstraints.TemperatureBleed;
+		this._verletParticles.SubUpdate += VerletConstraints.ForceFromTemperature;
+		this._verletParticles.SubUpdate += VerletConstraints.KeepInScene;
+		this._verletParticles.SubUpdate += VerletConstraints.Collision;
+		this._verletParticles.SubUpdate += VerletConstraints.Resolve;
+		this._scene.AddSceneObject( this._verletParticles );*/
+
+		this._pipeline.Scenes.Add( new SceneRenderer( this._scene, blendActivationFunction: Transparency ) );
 		this._pipeline.Scenes.Add( this._worldRenderer.SceneRender );
 
+	}
+
+	private void Transparency( bool transparent ) {
+		if ( transparent ) {
+			Gl.Enable( EnableCap.Blend );
+			Gl.BlendFunc( GeometryBuffer.TransparencyColorTextureTarget, BlendingFactor.One, BlendingFactor.One );
+			Gl.BlendFunc( GeometryBuffer.TransparencyRevealTextureTarget, BlendingFactor.Zero, BlendingFactor.OneMinusSrcColor );
+			Gl.BlendEquation( BlendEquationMode.FuncAdd );
+			Gl.DepthFunc( DepthFunction.Less );
+			Gl.DepthMask( false );
+		} else {
+			Gl.Disable( EnableCap.Blend );
+			Gl.DepthFunc( DepthFunction.Less );
+			Gl.DepthMask( true );
+		}
 	}
 
 	private void Update( float time, float deltaTime ) {
@@ -95,8 +140,9 @@ public class VoxelTestSubmodule : Submodule {
 			return;
 		if ( this._worldRenderer is null )
 			return;
-		this._world.Update();
-		this._worldRenderer.Update( this._pipeline.View.Translation );
+		//this._world.Update();
+		//this._worldRenderer.Update( this._pipeline.View.Translation );
+		//this._verletParticles?.Update( time, deltaTime );
 
 		Resources.Render.FrameDebugData.TitleInfo += $"[Avg. draw time: {( Voxels2.Render.VoxelChunkFaceRenderer.DrawTime / Voxels2.Render.VoxelChunkFaceRenderer.DrawCount * 1000 ):N2}ms][{this._worldRenderer.SceneCount},{this._worldRenderer.SceneValidCount},{this._worldRenderer.SceneRenderStages}]/[{this._world?.CHunksInGen}/{this._world?.ChunksInLodQueue}::{this._worldRenderer?.DisplayData}";
 	}
@@ -123,7 +169,7 @@ public class VoxelTestSubmodule : Submodule {
 		if ( button == MouseButton.Left ) {
 			if ( this._pipeline is not null && this._world is not null ) {
 				Vector3i cameraVoxelTranlsation = this._world.ToVoxelCoordinate( this._pipeline.View.Translation );
-				this._world?.SetVolumeId( cameraVoxelTranlsation - 10, cameraVoxelTranlsation + 10, ( voxel ) => (voxel - cameraVoxelTranlsation).AsFloat.Length() < 10 ? 0 : null );
+				this._world?.SetVolumeId( cameraVoxelTranlsation - 10, cameraVoxelTranlsation + 10, ( voxel ) => ( voxel - cameraVoxelTranlsation ).AsFloat.Length() < 10 ? 0 : null );
 			}
 		}
 	}

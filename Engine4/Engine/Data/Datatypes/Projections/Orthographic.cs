@@ -60,6 +60,7 @@ public class Orthographic : MatrixProviderBase {
 		private Vector2 _scale;
 
 		public Dynamic( Vector2 scale, float zNear, float zFar ) : base( Resources.Render.Window.AspectRatioVector * scale, zNear, zFar ) {
+			this._scale = scale;
 			Resources.Render.Window.WindowEvents.Resized += WindowResized;
 		}
 

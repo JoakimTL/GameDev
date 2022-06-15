@@ -91,7 +91,7 @@ public class VoxelWorldRenderer : DisposableIdentifiable, IChunkCriteriaProducer
 				renderer.SetChunk( chunk );
 			} else {
 				renderer = new VoxelChunkFaceRenderer( this, chunk );
-				renderer.NeedNewDraw += ChunkNeedNewDraw;
+				renderer.NeedRedraw += ChunkNeedNewDraw;
 				renderer.Redrawn += RedrawChunk;
 				this._newChunkDrawRenderQueue.TryAdd( renderer );
 				this._renderers.Add( chunk.ChunkPosition, renderer );
@@ -102,7 +102,7 @@ public class VoxelWorldRenderer : DisposableIdentifiable, IChunkCriteriaProducer
 	private void ChunkNeedNewDraw( VoxelChunkFaceRenderer renderer ) => this._newChunkDrawRenderQueue.Add( renderer );
 
 	private Vector3i[] GeneratePriorityMap( int chunkViewRange ) {
-		int actualSize = (chunkViewRange * 2) + 1;
+		int actualSize = ( chunkViewRange * 2 ) + 1;
 		Vector3i[] map = new Vector3i[ actualSize * actualSize * actualSize ];
 		int index = 0;
 		for ( int y = -chunkViewRange; y <= chunkViewRange; y++ )
@@ -116,8 +116,8 @@ public class VoxelWorldRenderer : DisposableIdentifiable, IChunkCriteriaProducer
 	private int MapComparator( Vector3i x, Vector3i y ) {
 		Vector3i absA = Vector3i.Abs( x );
 		Vector3i absB = Vector3i.Abs( y );
-		int distA = Math.Max( Math.Max( absA.X, absA.Y ), absA.Z );
-		int distB = Math.Max( Math.Max( absB.X, absB.Y ), absB.Z );
+		int distA = ( ( absA.X + absA.Z ) * 2 ) + ( absA.Y * 3 );
+		int distB = ( ( absB.X + absB.Z ) * 2 ) + ( absB.Y * 3 );
 		return distA - distB;
 	}
 
@@ -141,8 +141,7 @@ public class VoxelWorldRenderer : DisposableIdentifiable, IChunkCriteriaProducer
 	//Chunk updated -> added to queue in world render -> render thread redraws thread -> redrawn -> updated to gpu
 	//When a redrawn is triggered, a queue in the world render is enqueued, the update method will clear them
 
-	public bool GetNextChunkTranslation( out Vector3i chunkTranslation ) {
-		Vector3i cameraChunkTranslation = this.World.ToChunkCoordinate( this._lastCameraLocation );
+	public bool GetNextChunkTranslation( Vector3i cameraChunkTranslation, out Vector3i chunkTranslation ) {
 		if ( this._lastCameraChunkTranslation != cameraChunkTranslation ) {
 			this._lastCameraChunkTranslation = cameraChunkTranslation;
 			this._chunkCheckIndex = 0;
@@ -167,14 +166,9 @@ public class VoxelWorldRenderer : DisposableIdentifiable, IChunkCriteriaProducer
 		this._worldModelData.DirectWrite( this.World.GetWorldModelData() );
 		this._lastCameraLocation = cameraLocation;
 		Vector3i cameraChunkTranslation = this.World.ToChunkCoordinate( cameraLocation );
-		if ( this._lastCameraChunkTranslation != cameraChunkTranslation ) {
-			this._lastCameraChunkTranslation = cameraChunkTranslation;
-			this._chunkCheckIndex = 0;
-		}
-
-		if ( GetNextChunkTranslation( out Vector3i chunkTranslation ) )
+		if ( GetNextChunkTranslation( cameraChunkTranslation, out Vector3i chunkTranslation ) )
 			if ( this.World.TryGetChunk( chunkTranslation, true, out VoxelChunk? chunk ) ) {
-
+				//WorldChunkGenerated(chunk);
 			}
 
 		try {

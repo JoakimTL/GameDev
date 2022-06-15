@@ -1,6 +1,6 @@
 ﻿using OpenGL;
 
-namespace Engine.Rendering.Lighting;
+namespace Engine.Rendering.Framebuffers;
 
 public class LightBuffer : Framebuffer {
 

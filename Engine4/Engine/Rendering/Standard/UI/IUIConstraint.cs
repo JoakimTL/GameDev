@@ -2,7 +2,7 @@
 
 namespace Engine.Rendering.Standard.UI;
 
-public interface IUIConstraint {
+public interface IUIConstraint<T> where T : class {
 	int ExecutionOrder { get; }
-	void Apply( float time, float deltaTime, Transform2 transform );
+	void Apply( float time, float deltaTime, T data );
 }

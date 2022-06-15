@@ -11,6 +11,7 @@ using Engine.Rendering.Pipelines;
 using Engine.Rendering.Shaders;
 using Engine.Rendering.Standard.Scenes;
 using Engine.Rendering.Standard.VertexArrayObjects.Layouts;
+using Engine.Structure;
 using GLFW;
 
 namespace TestPlatform;

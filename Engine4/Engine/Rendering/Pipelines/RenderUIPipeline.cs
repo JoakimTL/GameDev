@@ -1,15 +1,65 @@
-﻿using Engine.Structure;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
+using Engine.Data.Datatypes.Composite;
+using Engine.Data.Datatypes.Projections;
+using Engine.Data.Datatypes.Views;
+using Engine.Rendering.Data;
+using Engine.Rendering.Standard;
+using Engine.Rendering.Standard.Scenes;
+using Engine.Rendering.Standard.UI;
+using Engine.Structure;
+using OpenGL;
 
 namespace Engine.Rendering.Pipelines;
 
 [ProcessAfter( typeof( Render2Pipeline ), typeof( IRenderPipeline ) )]
 public class RenderUIPipeline : DisposableIdentifiable, IRenderPipeline {
-	public RenderUIPipeline() : base() {
 
+	private readonly SceneRenderer _uiSceneRenderer;
+	private readonly UIManager _uiManager;
+	private readonly View2 _uiView;
+	private readonly Orthographic.Dynamic _projection;
+	private readonly Camera _camera;
+	private DataBlockCollection _uiRenderData;
+	public readonly UniformBlock SceneCameraBlock;
+
+	public RenderUIPipeline() {
+		this._uiManager = Resources.Render.Get<UIManager>();
+		this._uiView = new();
+		this._projection = new Orthographic.Dynamic( new Vector2( 2 ), -1, 1 );
+		this._camera = new Camera( this._uiView, this._projection );
+		this._uiRenderData = new DataBlockCollection( this.SceneCameraBlock = new UniformBlock( "SceneCameraBlock", (uint) Marshal.SizeOf<SceneCameraBlock>(), ShaderType.VertexShader ) );
+		this._uiSceneRenderer = new SceneRenderer( this._uiManager.Scene, this._uiRenderData, BlendFunc );
 	}
 
-	public void RenderFrame() => throw new NotImplementedException();
-	public void DrawToScreen() => throw new NotImplementedException();
+	private void BlendFunc( bool transparent ) {
+		if ( transparent ) {
+			Gl.Enable( EnableCap.Blend );
+			Gl.BlendFunc( BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha );
+			Gl.BlendEquation( BlendEquationMode.FuncAdd );
+			Gl.DepthFunc( DepthFunction.Less );
+			Gl.DepthMask( false );
+		} else {
+			Gl.Disable( EnableCap.Blend );
+			Gl.DepthFunc( DepthFunction.Less );
+			Gl.DepthMask( true );
+		}
+	}
+
+	public void RenderFrame() {
+		Vector2 cameraRotationRight = new( MathF.Cos( this._uiView.Rotation ), MathF.Sin( this._uiView.Rotation ) );
+		Vector2 cameraRotationUp = new( -cameraRotationRight.Y, cameraRotationRight.X );
+		Console.WriteLine();
+		Console.WriteLine( this._uiView.Matrix );
+		Console.WriteLine( this._projection.Matrix );
+		Console.WriteLine( this._camera.Matrix );
+		Console.WriteLine();
+		this.SceneCameraBlock.DirectWrite( new SceneCameraBlock( this._camera.Matrix, new Vector3( cameraRotationUp, 0 ), new Vector3( cameraRotationRight, 0 ) ) );
+	}
+
+	public void DrawToScreen() {
+		this._uiSceneRenderer.Render( this._uiRenderData );
+	}
 
 	protected override bool OnDispose() {
 		return true;

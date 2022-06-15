@@ -8,7 +8,7 @@ public abstract class ShaderBundle : Identifiable {
 
 	public abstract bool UsesTransparency { get; }
 
-	public ShaderBundle( string name, params (uint renderMode, ShaderPipeline shader)[] shadersCombos ) : base( name ) {
+	public ShaderBundle( params (uint renderMode, ShaderPipeline shader)[] shadersCombos ) {
 		this._shaders = new Dictionary<uint, ShaderPipeline>();
 		if ( GetType().GetCustomAttributes( typeof( IdentificationAttribute ), false ).FirstOrDefault() is IdentificationAttribute attribute )
 			SetGuid( attribute.Guid );

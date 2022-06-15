@@ -1,0 +1,5 @@
+﻿
+Scaling of text is controlled by transform scaling (scaling of bounds) and text scale (scaling of characters inside bounds)
+	- Think of transform scaling as resizing an image and text scaling as choosing the font size.
+
+

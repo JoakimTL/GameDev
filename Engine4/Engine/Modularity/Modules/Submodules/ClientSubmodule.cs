@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Engine.Modularity.Modules.Singletons;
 using Engine.Networking;
+using Engine.Structure;
 
 namespace Engine.Modularity.Modules.Submodules;
 

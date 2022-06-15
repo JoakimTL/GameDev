@@ -1,11 +1,11 @@
 ﻿using System.Numerics;
-using Engine;
 using Engine.Modularity.ECS;
 using Engine.Modularity.ECS.Components;
 using Engine.Modularity.ECS.Networking;
 using Engine.Modularity.Modules;
 using Engine.Modularity.Modules.Submodules;
 using Engine.Networking;
+using Engine.Structure;
 using TestPlatform.Systems;
 
 namespace TestPlatform;

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Engine.Data;
+using Engine.Structure;
 
 namespace Engine.Modularity.ECS;
 public class Entity : Identifiable, IUpdateable {

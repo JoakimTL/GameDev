@@ -5,7 +5,7 @@ using GLFW;
 
 namespace Engine.Rendering.Standard.UI;
 
-public class UIElement : Identifiable {
+public abstract class UIElement : Identifiable {
 
 	/*
 	 * Mouse events
@@ -29,7 +29,7 @@ public class UIElement : Identifiable {
 	 * - Collision detection
 	 */
 
-	private IUIConstraint? _constraint;
+	private IUIConstraint<Transform2>? _transformConstraint;
 	private ISceneObject? _sceneObject;
 	private readonly Transform2 _transform;
 	private readonly HashSet<UIElement> _children;
@@ -41,7 +41,8 @@ public class UIElement : Identifiable {
 	public IReadOnlyCollection<UIElement> Children => this._children;
 
 	#region Events
-	public event Action<UIElement>? Updated;
+	public event Action<UIElement, float, float>? Updated;
+	public event Action<UIElement>? TransformsUpdated;
 	public event Action<UIElement, UIElement?>? ParentSet;
 	public event Action<UIElement, UIElement>? ChildAdded;
 	public event Action<UIElement, UIElement>? ChildRemoved;
@@ -67,7 +68,7 @@ public class UIElement : Identifiable {
 	public UIElement() {
 		this._transform = new Transform2();
 		this._sceneObject = null;
-		this._constraint = null;
+		this._transformConstraint = null;
 		this._children = new HashSet<UIElement>();
 		this.Parent = null;
 		this.Active = false;
@@ -148,7 +149,7 @@ public class UIElement : Identifiable {
 			ChildRemoved?.Invoke( this, e );
 	}
 
-	public void SetConstraint( IUIConstraint constriant ) => this._constraint = constriant;
+	public void SetConstraint( IUIConstraint<Transform2> constriant ) => this._transformConstraint = constriant;
 
 	protected void SetSceneObject( ISceneObject sceneObject ) {
 		if ( this._sceneObject is not null )
@@ -162,8 +163,9 @@ public class UIElement : Identifiable {
 		if ( !this.Active )
 			return;
 
-		Updated?.Invoke( this );
-		this._constraint?.Apply( time, deltaTime, this._transform );
+		Updated?.Invoke( this, time, deltaTime );
+		this._transformConstraint?.Apply( time, deltaTime, this._transform );
+		TransformsUpdated?.Invoke( this );
 	}
 
 	public void OnKeyReleased( Keys key, ModifierKeys mods, int scanCode ) {

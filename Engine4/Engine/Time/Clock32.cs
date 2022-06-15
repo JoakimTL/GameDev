@@ -24,7 +24,7 @@ public class Clock32 : Identifiable {
 	public static float SystemTime => Stopwatch.GetTimestamp() * _invFreq;
 
 	/// <summary>
-	/// The time since startup. This clock always starts at 0.
+	/// The time since startup. Always starts at 0.
 	/// </summary>
 	public static float StartupTime => Clock64.Watch.ElapsedTicks * _invFreq;
 
@@ -61,7 +61,6 @@ public class Clock32 : Identifiable {
 		this._talliedTime += GetSessionTime();
 		this._speed = value;
 		if ( !this._paused )
-			//Unpaused!
 			this._lastPause = StartupTime;
 	}
 

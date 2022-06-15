@@ -20,6 +20,8 @@
 	  <None Remove="res\shaders\geom\particle2.vert" />
 	  <None Remove="res\shaders\geom\particle3.frag" />
 	  <None Remove="res\shaders\geom\particle3.vert" />
+	  <None Remove="res\shaders\geom\particle3verlet.frag" />
+	  <None Remove="res\shaders\geom\particle3verlet.vert" />
 	  <None Remove="res\shaders\light\directional.vert" />
 	  <None Remove="res\shaders\light\directionalNoShadow.frag" />
 	  <None Remove="res\shaders\light\directionalShadow.frag" />
@@ -29,6 +31,8 @@
 	  <None Remove="res\shaders\pfx.frag" />
 	  <None Remove="res\shaders\pfx.vert" />
 	  <None Remove="res\shaders\pfx\blurRed.frag" />
+	  <None Remove="res\shaders\ui\uiShader.frag" />
+	  <None Remove="res\shaders\ui\uiShader.vert" />
 	  <None Remove="res\shaders\vert.vert" />
 	  <None Remove="res\textures\BlankBlack.png" />
 	  <None Remove="res\textures\BlankWhite.png" />
@@ -70,6 +74,12 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="res\shaders\geom\geometry3directionaltransparent.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\particle3verlet.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\particle3verlet.vert">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="res\shaders\geom\particle3.frag">
@@ -123,6 +133,12 @@
 	  <Content Include="res\shaders\pfx\blurRed.frag">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	  <Content Include="res\shaders\ui\uiShader.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\ui\uiShader.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="res\shaders\vert.vert">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
@@ -157,18 +173,6 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="res\textures\fonts\calibri.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="res\textures\fonts\default.fnt">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="res\textures\fonts\default.png">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="res\textures\fonts\verdana.fnt">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="res\textures\fonts\verdana.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="res\textures\heightmap.png">
@@ -220,8 +224,8 @@
 
 	<ItemGroup>
 		<Folder Include="Modularity\ECS\Systems\" />
-		<Folder Include="Physics\Collision\" />
-		<Folder Include="Physics\Mechanics\" />
+		<Folder Include="Physics\Collision\D2\" />
+		<Folder Include="Physics\Mechanical\" />
 		<Folder Include="Rendering\ShaderBundles\" />
 	</ItemGroup>
 

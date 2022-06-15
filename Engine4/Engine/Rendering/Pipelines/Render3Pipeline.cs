@@ -52,17 +52,16 @@ public class Render3Pipeline : DisposableIdentifiable, IRenderPipeline {
 
 		Resources.Render.FrameDebugData.TitleInfo = $"{this.View.Translation} .. {( System.Numerics.Vector3.Dot( -System.Numerics.Vector3.Normalize( this.View.Translation ), this.View.Rotation.Forward() ) + 1 ) * 50:N3}%";
 
-		Resources.Render.Window.Bind();
-		Gl.ClearColor( 0, 0, 0, 0 );
-		Gl.Clear( ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
-		Gl.Enable( EnableCap.Blend );
-		Gl.Disable( EnableCap.DepthTest );
-		Gl.Disable( EnableCap.CullFace );
-		this._pfxBlock.DirectWrite( new PFXBlock(
-			this.Lights.LightBufferTextureHandle,
-			0,
-			0
-		) );
+	}
+
+	public void DrawToScreen() {
+		this._pfxBlock.DirectWrite( 
+			new PFXBlock(
+				this.Lights.LightBufferTextureHandle,
+				0,
+				0
+			)
+		);
 		RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.Get<TestPFX2Shader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
 		if ( Resources.Render.Window.KeyboardEvents[ GLFW.Keys.R ] ) {
 			this._pfxBlock.DirectWrite( new PFXBlock(
@@ -84,6 +83,7 @@ public class Render3Pipeline : DisposableIdentifiable, IRenderPipeline {
 			) );
 			RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.Get<TestPFX2Shader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
 		}
+
 		/*if ( RenderResourceManager.Window.KeyboardEvents[ GLFW.Keys.U ] ) {
 			this._pfxBlock.DirectWrite( new PFXBlock(
 				this.GeometryBuffer.GlowTexture?.GetHandleDirect() ?? 0,
@@ -140,38 +140,6 @@ public class Render3Pipeline : DisposableIdentifiable, IRenderPipeline {
 			) );
 			RenderUtils.RenderPFX( RenderResourceManager.Context.Shader.Pipelines.Get<TestPFX2Shader>(), RenderResourceManager.Context.Mesh2.SquarePFX, this._pfxUniforms );
 		}*/
-		Gl.Disable( EnableCap.Blend );
-	}
-
-	public void DrawToScreen() {
-		this._pfxBlock.DirectWrite( 
-			new PFXBlock(
-				this.Lights.LightBufferTextureHandle,
-				0,
-				0
-			)
-		);
-		RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.Get<TestPFX2Shader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
-		if ( Resources.Render.Window.KeyboardEvents[ GLFW.Keys.R ] ) {
-			this._pfxBlock.DirectWrite( new PFXBlock(
-				this.GeometryBuffer.DiffuseTexture?.GetHandleDirect() ?? 0,
-				this.GeometryBuffer.TransparencyColorTexture?.GetHandleDirect() ?? 0,
-				this.GeometryBuffer.TransparencyRevealTexture?.GetHandleDirect() ?? 0
-			) );
-			RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.Get<TestPFXShader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
-		}
-		if ( Resources.Render.Window.KeyboardEvents[ GLFW.Keys.Y ] )
-			this._normal = true;
-		if ( Resources.Render.Window.KeyboardEvents[ GLFW.Keys.Home ] )
-			this._normal = false;
-		if ( this._normal ) {
-			this._pfxBlock.DirectWrite( new PFXBlock(
-				this.GeometryBuffer.NormalTexture?.GetHandleDirect() ?? 0,
-				0,
-				0
-			) );
-			RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.Get<TestPFX2Shader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
-		}
 	}
 
 	public struct PFXBlock {

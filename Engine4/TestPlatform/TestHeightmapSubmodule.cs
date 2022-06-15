@@ -1,8 +1,8 @@
-﻿using Engine;
-using Engine.Modularity.Modules;
+﻿using Engine.Modularity.Modules;
 using Engine.Modularity.Modules.Submodules;
 using Engine.Rendering.Standard.Scenes;
 using Engine.Rendering.Standard.VertexArrayObjects.Layouts;
+using Engine.Structure;
 
 namespace TestPlatform;
 

@@ -1,4 +1,5 @@
-﻿using Engine.Time;
+﻿using Engine.Structure;
+using Engine.Time;
 
 namespace Engine.Modularity.Modules;
 

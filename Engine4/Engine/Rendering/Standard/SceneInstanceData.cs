@@ -35,6 +35,7 @@ public class SceneInstanceData<SD> : DisposableIdentifiable where SD : unmanaged
 	}
 
 	public SD GetInstance( uint index ) => this._dataSegment.Read<SD>( index * (uint) Marshal.SizeOf<SD>() );
+	public ReadOnlySpan<SD> GetInstances( uint startIndex, uint count ) => this._dataSegment.Read<SD>( startIndex * (uint) Marshal.SizeOf<SD>(), count );
 
 	public void SetInstance( uint index, SD value ) => this._dataSegment.Write( index * (uint) Marshal.SizeOf<SD>(), value );
 	public void SetInstances( uint index, Span<SD> values ) => this._dataSegment.Write( index * (uint) Marshal.SizeOf<SD>(), values );

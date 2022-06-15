@@ -12,7 +12,6 @@ public class VoxelChunkFaceRenderer : Identifiable {
 	public static float DrawTime => _drawTime;
 	public static int DrawCount => _drawCount;
 
-	public event Action<VoxelChunkFaceRenderer>? NeedNewDraw;
 	public event Action<VoxelChunkFaceRenderer>? NeedRedraw;
 	public event Action<VoxelChunkFaceRenderer, IReadOnlyList<VoxelFaceData[]>>? Redrawn;
 
@@ -51,6 +50,8 @@ public class VoxelChunkFaceRenderer : Identifiable {
 	public bool Redraw() {
 		this._lastDrawn = Clock32.StartupTime;
 		if ( this._chunk.IsValid() ) {
+			if ( this._chunk.Data.AllAir )
+				return true; //Might cause Multithread problems?
 			bool valid = true;
 			for ( int i = 0; i < 6; i++ ) {
 				bool inbounds = this._worldRenderer.World.TryGetChunk( this._chunk.ChunkPosition + GetDirectionVector( (VoxelFaceDirection) i ), true, out VoxelChunk? neighbour );

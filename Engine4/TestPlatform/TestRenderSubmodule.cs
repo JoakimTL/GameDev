@@ -13,8 +13,12 @@ using Engine.Rendering.Standard;
 using Engine.Rendering.Standard.Scenes;
 using Engine.Rendering.Standard.Scenes.Particles;
 using Engine.Rendering.Standard.Scenes.Particles.Systems;
+using Engine.Rendering.Standard.Scenes.VerletParticles;
+using Engine.Rendering.Standard.Scenes.VerletParticles.Systems;
 using Engine.Rendering.Standard.VertexArrayObjects.Layouts;
+using Engine.Structure;
 using GLFW;
+using TestPlatform.Verlet;
 
 namespace TestPlatform;
 
@@ -36,6 +40,7 @@ public class TestRenderSubmodule : Submodule {
 	//private Voxels.Rendering.VoxelWorldRenderManager _worldRender;
 	private Voxels2.Data.VoxelWorld _world;
 	private Voxels2.Render.VoxelWorldRenderer _worldRender;
+	private VerletParticleSystem3<VerletParticle> _verletParticles;
 
 	//private Voxels.World.FiniteVoxelWorld _world2;
 	//private Voxels.Rendering.VoxelWorldRenderManager _worldRender2;

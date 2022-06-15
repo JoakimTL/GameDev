@@ -71,7 +71,7 @@ public class VoxelWorld : DisposableIdentifiable {
 	}
 
 	private void QueueChunkGenInitialization( VoxelChunk chunk ) {
-		this._lodQueues[ chunk.LodLevel ].Enqueue( chunk );
+		this._lodQueues[ Math.Min( chunk.LodLevel, this._lodQueues.Length - 1 ) ].Enqueue( chunk );
 		this._lodQueueEvent.Set();
 	}
 
@@ -119,9 +119,9 @@ public class VoxelWorld : DisposableIdentifiable {
 
 	private void InitializeChunk( VoxelChunk chunk ) {
 		VoxelChunkData data = chunk.Data;
-		data.AddUser();
 		if ( data.Initialized )
 			return;
+		data.AddUser();
 		int length = (int) data.ActualLength;
 		int voxelSize = (int) data.VoxelSize;
 		Span<ushort> initGenData = stackalloc ushort[ length * length * length ];
@@ -218,8 +218,8 @@ public class VoxelWorld : DisposableIdentifiable {
 					if ( TryGetChunk( (chunkX, chunkY, chunkZ), false, out VoxelChunk? chunk ) && chunk is not null ) {
 						Vector3i startLocal = Vector3i.Max( chunk.ToLocalPosition( voxelVolume.Min ), 0 );
 						Vector3i endLocal = Vector3i.Min( chunk.ToLocalPosition( voxelVolume.Max ), (int) VoxelChunk.Length - 1 );
-						for ( int localY = startLocal.Y; localY <= endLocal.Y; localY++ ) 
-							for ( int localZ = startLocal.Z; localZ <= endLocal.Z; localZ++ ) 
+						for ( int localY = startLocal.Y; localY <= endLocal.Y; localY++ )
+							for ( int localZ = startLocal.Z; localZ <= endLocal.Z; localZ++ )
 								for ( int localX = startLocal.X; localX <= endLocal.X; localX++ ) {
 									Vector3i local = (localX, localY, localZ);
 									ushort? newId = id( local + chunk.VoxelPosition );

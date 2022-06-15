@@ -32,3 +32,5 @@ VBO {
 Vao {
 	Instead of defining VAO based on struct types, define them based on VAO prototype factories, constructing parts of a VAO. A mesh should have the vertex data setup, while the scene data should have the instance data setup
 }
+
+SceneObjects should have a bind

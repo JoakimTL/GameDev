@@ -11,7 +11,10 @@ public class Mesh3Manager : Identifiable, IContextInitializable {
 	private VertexMesh<Vector3>? _cubePfx;
 	private VertexMesh<Vertex3>? _boxY;
 	private VertexMesh<Vertex3>? _boxZ;
-	private VertexMesh<Vertex3>? _icosphere;
+	private VertexMesh<Vertex3>? _icosphere0;
+	private VertexMesh<Vertex3>? _icosphere1;
+	private VertexMesh<Vertex3>? _icosphere2;
+	private VertexMesh<Vertex3>? _icosphere3;
 	private VertexMesh<Vertex3>? _faceUp;
 	private VertexMesh<Vertex3>? _faceDown;
 	private VertexMesh<Vertex3>? _faceRight;
@@ -22,7 +25,10 @@ public class Mesh3Manager : Identifiable, IContextInitializable {
 	public VertexMesh<Vector3> CubePfx => this._cubePfx ?? throw new NullReferenceException( "Manager not initialized!" );
 	public VertexMesh<Vertex3> BoxY => this._boxY ?? throw new NullReferenceException( "Manager not initialized!" );
 	public VertexMesh<Vertex3> BoxZ => this._boxZ ?? throw new NullReferenceException( "Manager not initialized!" );
-	public VertexMesh<Vertex3> Icosphere => this._icosphere ?? throw new NullReferenceException( "Manager not initialized!" );
+	public VertexMesh<Vertex3> Icosphere0 => this._icosphere0 ?? throw new NullReferenceException( "Manager not initialized!" );
+	public VertexMesh<Vertex3> Icosphere1 => this._icosphere1 ?? throw new NullReferenceException( "Manager not initialized!" );
+	public VertexMesh<Vertex3> Icosphere2 => this._icosphere2 ?? throw new NullReferenceException( "Manager not initialized!" );
+	public VertexMesh<Vertex3> Icosphere3 => this._icosphere3 ?? throw new NullReferenceException( "Manager not initialized!" );
 	public VertexMesh<Vertex3> FaceUp => this._faceUp ?? throw new NullReferenceException( "Manager not initialized!" );
 	public VertexMesh<Vertex3> FaceDown => this._faceDown ?? throw new NullReferenceException( "Manager not initialized!" );
 	public VertexMesh<Vertex3> FaceRight => this._faceRight ?? throw new NullReferenceException( "Manager not initialized!" );
@@ -275,7 +281,13 @@ public class Mesh3Manager : Identifiable, IContextInitializable {
 			}
 		);
 
-		this._icosphere = Utilities.MeshGenerator.GenerateIcosphere( 3 );
+		this._icosphere0 = Utilities.MeshGenerator.GenerateIcosphere( 0 );
+
+		this._icosphere1 = Utilities.MeshGenerator.GenerateIcosphere( 1 );
+
+		this._icosphere2 = Utilities.MeshGenerator.GenerateIcosphere( 2 );
+
+		this._icosphere3 = Utilities.MeshGenerator.GenerateIcosphere( 3 );
 
 		this._faceUp = VertexMeshUtilities.Mesh3.CreateNormalized( "faceUp",
 			new Vertex3[] {

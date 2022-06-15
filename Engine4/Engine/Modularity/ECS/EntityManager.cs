@@ -1,5 +1,6 @@
 ﻿using Engine.Data;
 using Engine.Modularity.Modules;
+using Engine.Structure;
 
 namespace Engine.Modularity.ECS;
 public class EntityManager : ModuleSingletonBase, IUpdateable {

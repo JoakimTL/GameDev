@@ -4,6 +4,7 @@ using System.Reflection;
 using Engine.Modularity.ECS.Networking.Packets;
 using Engine.Modularity.Modules;
 using Engine.Networking;
+using Engine.Structure;
 
 namespace Engine.Modularity.ECS.Networking;
 public class EntityNetworkManager : ModuleSingletonBase, IPacketListener, IUpdateable {

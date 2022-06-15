@@ -1,4 +1,6 @@
-﻿namespace Engine.Rendering.ResourceManagement;
+﻿using Engine.Structure;
+
+namespace Engine.Rendering.ResourceManagement;
 public class ContextUpdateManager : Identifiable, IUpdateable {
 
 	private readonly Queue<WeakReference<IContextUpdateable>> _dead;
