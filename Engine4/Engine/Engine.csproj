@@ -31,6 +31,8 @@
 	  <None Remove="res\shaders\pfx.frag" />
 	  <None Remove="res\shaders\pfx.vert" />
 	  <None Remove="res\shaders\pfx\blurRed.frag" />
+	  <None Remove="res\shaders\ui\textShader.frag" />
+	  <None Remove="res\shaders\ui\textShader.vert" />
 	  <None Remove="res\shaders\ui\uiShader.frag" />
 	  <None Remove="res\shaders\ui\uiShader.vert" />
 	  <None Remove="res\shaders\vert.vert" />
@@ -131,6 +133,12 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="res\shaders\pfx\blurRed.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\ui\textShader.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\ui\textShader.vert">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="res\shaders\ui\uiShader.frag">

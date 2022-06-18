@@ -1,5 +1,35 @@
 ﻿
 Scaling of text is controlled by transform scaling (scaling of bounds) and text scale (scaling of characters inside bounds)
 	- Think of transform scaling as resizing an image and text scaling as choosing the font size.
+- Text rendering requires rendering to separate texture then rendering that texture.
 
 
+- Linebreak causes new line
+- Spaces can cause new line
+- Wordwrap modes
+	- None (No wrapping at all)
+	- Auto (Scales the text to best fit the bounds, best suited for short texts)
+	- Word (Wraps at the end of words)
+	- Letter (Wraps whenever needed, might split words. This will give the text a rectangular shape)
+- Selection
+	- Selection will be multiple boxes that indicate what text has been chosen.
+	- Holding alt while selecting will enable the rectangular selection shape (try it in vs2022)
+	- Selection can be disabled
+		- Discern between normal and rectangular selection?
+	- Selection can be hidden
+		- Discern between normal and rectangular selection?
+	- Selected text can be copied into clipboard
+		- With rectangular selection, new lines and spaces are added to maintain rectangular look when pasted. (assumed monospacing when adding spaces)
+- Cursor
+	- When text is clicked, the cursor position changes.
+	- Arrow navigation for cursor
+		- Holding CTRL allows the cursor to jump from word to word, rather than letter to letter
+		- Holding CTRL+ALT allows the cursor to jump to the start of the line (left arrow) or end of the line (right arrow)
+		- Holding SHIFT creates a selection
+		- Holding SHIFT+ALT creates a rectangular selection
+	- Cursor can be disabled
+		- Disabled means the cursor can't be moved and clicking doesn't move it.
+	- Cursor can be hidden
+		- Hidden means the cursor is still there, but not visible
+- Readonly mode
+- Colorize and stylize text

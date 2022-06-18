@@ -15,7 +15,7 @@ public class TextContainer {
 
 	private readonly Font _font;
 	private List<Line> _lines;
-	public IReadOnlyList<Line> Lines => _lines;
+	public IReadOnlyList<Line> Lines => this._lines;
 	public float Textscale { get; private set; }
 	public string Text { get; private set; }
 	public bool Monospaced { get; private set; }
@@ -23,11 +23,13 @@ public class TextContainer {
 	public HorizontalAlignment HorizontalAlignment { get; private set; }
 	public VerticalAlignment VerticalAlignment { get; private set; }
 	public WordWrapMode WordWrapMode { get; private set; }
+	public uint MaxCharacters { get; private set; }
+
 	private bool _updated;
 
 	/// <param name="width">The number of monospaced character a line can fit. Characters can have varying width if not monospaced, which means more can fit in the same line.</param>
 	/// <param name="monospaced">If true all letters will have the same width.</param>
-	public TextContainer( Font font, string text, float textscale, bool monospaced = false, bool kerned = true, HorizontalAlignment horizontalAlignment = HorizontalAlignment.CENTER, VerticalAlignment verticalAlignment = VerticalAlignment.CENTER, WordWrapMode wordWrapMode = WordWrapMode.WrapWords ) {
+	public TextContainer( Font font, string text, float textscale, bool monospaced = false, bool kerned = true, HorizontalAlignment horizontalAlignment = HorizontalAlignment.CENTER, VerticalAlignment verticalAlignment = VerticalAlignment.CENTER, WordWrapMode wordWrapMode = WordWrapMode.WrapWords, uint maxCharacters = 512 ) {
 		this._font = font;
 		this._lines = new();
 		this.Text = text;
@@ -37,74 +39,83 @@ public class TextContainer {
 		this.HorizontalAlignment = horizontalAlignment;
 		this.VerticalAlignment = verticalAlignment;
 		this.WordWrapMode = wordWrapMode;
-		_updated = true;
+		this.MaxCharacters = maxCharacters;
+		this._updated = true;
 	}
 
 	public void SetText( string text ) {
-		if ( text == Text )
+		if ( text == this.Text )
 			return;
-		Text = text;
-		_updated = true;
+		this.Text = text;
+		this._updated = true;
 	}
 
 	public void SetTextscale( float textscale ) {
-		if ( textscale == Textscale )
+		if ( textscale == this.Textscale )
 			return;
-		Textscale = textscale;
-		_updated = true;
+		this.Textscale = textscale;
+		this._updated = true;
 	}
 
 	public void SetMonospaced( bool monospaced ) {
-		if ( monospaced == Monospaced )
+		if ( monospaced == this.Monospaced )
 			return;
-		Monospaced = monospaced;
-		_updated = true;
+		this.Monospaced = monospaced;
+		this._updated = true;
 	}
 
 	public void SetKerning( bool kerned ) {
-		if ( kerned == Kerned )
+		if ( kerned == this.Kerned )
 			return;
-		Kerned = kerned;
-		_updated = true;
+		this.Kerned = kerned;
+		this._updated = true;
 	}
 
 	public void SetAlignment( HorizontalAlignment horizontalAlignment ) {
-		if ( horizontalAlignment == HorizontalAlignment )
+		if ( horizontalAlignment == this.HorizontalAlignment )
 			return;
-		HorizontalAlignment = horizontalAlignment;
-		_updated = true;
+		this.HorizontalAlignment = horizontalAlignment;
+		this._updated = true;
 	}
 
 	public void SetAlignment( VerticalAlignment verticalAlignment ) {
-		if ( verticalAlignment == VerticalAlignment )
+		if ( verticalAlignment == this.VerticalAlignment )
 			return;
-		VerticalAlignment = verticalAlignment;
-		_updated = true;
+		this.VerticalAlignment = verticalAlignment;
+		this._updated = true;
 	}
 
 	public void SetWrapMode( WordWrapMode wordWrapMode ) {
-		if ( wordWrapMode == WordWrapMode )
+		if ( wordWrapMode == this.WordWrapMode )
 			return;
-		WordWrapMode = wordWrapMode;
-		_updated = true;
+		this.WordWrapMode = wordWrapMode;
+		this._updated = true;
+	}
+
+	public void SetMaxCharacters( uint maxCharacters ) {
+		if ( maxCharacters == this.MaxCharacters )
+			return;
+		bool shouldUpdate = maxCharacters < this.MaxCharacters;
+		this.MaxCharacters = maxCharacters;
+		this._updated = shouldUpdate;
 	}
 
 	/// <returns>True if updated, false if not.</returns>
 	public bool Update() {
-		if ( !_updated )
+		if ( !this._updated )
 			return false;
-		_updated = false;
+		this._updated = false;
 
 		//Turn text into lines of characters to be rendered.
-		ReadOnlySpan<char> text = Text;
-		_lines.Clear();
+		ReadOnlySpan<char> text = this.Text.AsSpan()[ ..Math.Min( (int) this.MaxCharacters, this.Text.Length ) ];
+		this._lines.Clear();
 		Line currentLine = GetEmptyLine();
 		Word currentWord = new();
-		FontCharacter bindCharacter = _font.Characters[ '-' ];
+		FontCharacter bindCharacter = this._font.Characters[ '-' ];
 		for ( int i = 0; i < text.Length; i++ ) {
 			char c = text[ i ];
 			char nC = i < text.Length - 1 ? text[ i + 1 ] : '\n';
-			FontCharacter fC = _font.Characters[ c ];
+			FontCharacter fC = this._font.Characters[ c ];
 			/*
 			- Linebreak causes new line
 			- Spaces can cause new line
@@ -146,7 +157,7 @@ public class TextContainer {
 					currentLine = GetEmptyLine();
 					break;
 				case ' ':
-					if ( WordWrapMode == WordWrapMode.WrapLetter || WordWrapMode == WordWrapMode.WrapWords ) {
+					if ( this.WordWrapMode == WordWrapMode.WrapLetter || this.WordWrapMode == WordWrapMode.WrapWords ) {
 						if ( currentLine.Width + currentWord.Width >= 0.99998474122f )
 							currentLine = GetEmptyLine();
 					}
@@ -157,10 +168,10 @@ public class TextContainer {
 					break;
 				default:
 					float width = GetWidth( fC, nC );
-					if ( WordWrapMode == WordWrapMode.WrapLetter ) {
+					if ( this.WordWrapMode == WordWrapMode.WrapLetter ) {
 						currentWord.AddCharacter( fC, width );
 						// width added to line, width of current word, width of a monospaced character (the binding sign)
-						if ( currentLine.Width + currentWord.Width + Textscale >= 0.99998474122f ) {
+						if ( currentLine.Width + currentWord.Width + this.Textscale >= 0.99998474122f ) {
 							if ( currentWord.Characters.Count > 1 ) {
 								currentWord.AddCharacter( bindCharacter, GetWidth( bindCharacter, '\n' ) );
 								currentLine.AddWord( currentWord );
@@ -181,23 +192,23 @@ public class TextContainer {
 
 	private float GetWidth( FontCharacter currentCharacter, char nextCharacter ) {
 		int xAdvance;
-		if ( Monospaced ) {
-			xAdvance = _font.Metadata.MaxWidth;
+		if ( this.Monospaced ) {
+			xAdvance = this._font.Metadata.MaxWidth;
 		} else {
 			xAdvance = currentCharacter.XAdvance;
 		}
-		if ( Kerned )
-			xAdvance += _font.GetKerning( currentCharacter.Character, nextCharacter );
-		return xAdvance * _font.Metadata.InverseMaxWidth * Textscale;
+		if ( this.Kerned )
+			xAdvance += this._font.GetKerning( currentCharacter.Character, nextCharacter );
+		return xAdvance * this._font.Metadata.InverseMaxWidth * this.Textscale;
 	}
 
 	private Line GetEmptyLine() {
-		for ( int i = 0; i < _lines.Count; i++ ) {
-			if ( _lines[ i ].Count == 0 )
-				return _lines[ i ];
+		for ( int i = 0; i < this._lines.Count; i++ ) {
+			if ( this._lines[ i ].Count == 0 )
+				return this._lines[ i ];
 		}
 		Line nLine = new();
-		_lines.Add( nLine );
+		this._lines.Add( nLine );
 		return nLine;
 	}
 }
@@ -206,20 +217,20 @@ public class Word {
 
 	private readonly List<FontCharacter> _characters;
 	public float Width { get; private set; }
-	public IReadOnlyList<FontCharacter> Characters => _characters;
+	public IReadOnlyList<FontCharacter> Characters => this._characters;
 
 	public Word() {
-		_characters = new List<FontCharacter>();
+		this._characters = new List<FontCharacter>();
 	}
 
 	public void Clear() {
-		_characters.Clear();
-		Width = 0;
+		this._characters.Clear();
+		this.Width = 0;
 	}
 
 	public void AddCharacter( FontCharacter fontCharacter, float characterWidth ) {
-		_characters.Add( fontCharacter );
-		Width += characterWidth;
+		this._characters.Add( fontCharacter );
+		this.Width += characterWidth;
 	}
 }
 
@@ -228,28 +239,28 @@ public class Line {
 	private readonly List<FontCharacter> _characters;
 	public float Width { get; private set; }
 
-	public int Count => _characters.Count;
+	public int Count => this._characters.Count;
 
 	public Line() {
-		_characters = new List<FontCharacter>();
+		this._characters = new List<FontCharacter>();
 	}
 
 	public void Clear() {
-		_characters.Clear();
-		Width = 0;
+		this._characters.Clear();
+		this.Width = 0;
 	}
 
 	public void AddCharacter( FontCharacter fontCharacter, float characterWidth ) {
-		_characters.Add( fontCharacter );
-		Width += characterWidth;
+		this._characters.Add( fontCharacter );
+		this.Width += characterWidth;
 	}
 
 	public void AddWord( Word word ) {
-		_characters.AddRange( word.Characters );
-		Width += word.Width;
+		this._characters.AddRange( word.Characters );
+		this.Width += word.Width;
 	}
 
-	public override string ToString() => new( _characters.Select( p => p.Character ).ToArray() );
+	public override string ToString() => new( this._characters.Select( p => p.Character ).ToArray() );
 }
 
 public class FontMetadata : Identifiable {
@@ -263,16 +274,16 @@ public class FontMetadata : Identifiable {
 		int minOffset = int.MaxValue;
 		int maxHeight = 0;
 		foreach ( FontCharacter c in font.Characters.Values ) {
-			if ( c.XAdvance > MaxWidth )
-				MaxWidth = c.XAdvance;
+			if ( c.XAdvance > this.MaxWidth )
+				this.MaxWidth = c.XAdvance;
 			if ( c.Offset.Y < minOffset )
 				minOffset = c.Offset.Y;
 			if ( c.Size.Y > maxHeight )
 				maxHeight = c.Size.Y;
 		}
-		InverseMaxWidth = 1f / MaxWidth;
-		MaxHeight = maxHeight - minOffset;
-		InverseMaxHeight = 1f / MaxHeight;
+		this.InverseMaxWidth = 1f / this.MaxWidth;
+		this.MaxHeight = maxHeight - minOffset;
+		this.InverseMaxHeight = 1f / this.MaxHeight;
 	}
 }
 
@@ -297,7 +308,7 @@ public class Font : Identifiable {
 		ReadFontInformation( out IReadOnlyList<string> characterData, out IReadOnlyList<string> kerningData );
 		LoadCharacters( characterData );
 		LoadKerning( kerningData );
-		Metadata = new( this );
+		this.Metadata = new( this );
 	}
 
 	public int GetKerning( char first, char second ) => this._kerningValues.TryGetValue( first, out var dict ) ? dict.TryGetValue( second, out var value ) ? value : 0 : 0;

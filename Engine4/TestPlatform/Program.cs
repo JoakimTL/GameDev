@@ -178,16 +178,16 @@ Startup.Start(
 	new[] { typeof( Render2Submodule ), typeof( Render3Submodule ), typeof( TestRenderSubmodule ) } )
 );
 */
-/*
+
 Startup.Start(
 	ModuleGenerator.CreateModule(
 		"Test", 0, true,
 		ModuleGenerator.GetRenderSubmodules(),
 		new[] { typeof(RenderSubmodule), typeof(VoxelTestSubmodule)}
 	)
-);*/
+);
 
-
+/*
 Console.WriteLine( new string( '_', 100 ) );
 
 string text = "this is a test\nobviously it's not going to work properly at the moment, but we'll get it fixed!\nthe quick brown fox jumps over the lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur? At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat. ";
@@ -196,3 +196,32 @@ tc.Update();
 Console.WriteLine( string.Join( '\n', tc.Lines.Select( p => p.ToString() ) ) );
 
 Console.WriteLine( new string( '_', 100 ) );
+*/
+
+/*
+double avg = 0;
+for ( int i = 0; i < 100; i++ ) {
+	double price = 30000;
+	double stocks = 0;
+	double investment = 0;
+	Random r = new();
+	for ( int y = 0; y < 30; y++ ) {
+		for ( int m = 0; m < 12; m++ ) {
+			double monthInvest = 1000;
+			stocks += monthInvest / price;
+			investment += monthInvest;
+			price *= 1 + ( .1 + ( r.NextDouble() * 0.25 - 0.125 ) ) / 12;
+		}
+	}
+
+	Console.WriteLine( stocks );
+	Console.WriteLine( investment );
+	Console.WriteLine( stocks * price );
+	Console.WriteLine( stocks * price - investment );
+	Console.WriteLine( ( stocks * price - investment ) * ( 1 - 0.34 ) );
+
+	avg += ( stocks * price - investment ) * ( 1 - 0.34 ) + investment;
+}
+
+Console.WriteLine( $"Avg return + investment: {avg / 100}" );
+*/
