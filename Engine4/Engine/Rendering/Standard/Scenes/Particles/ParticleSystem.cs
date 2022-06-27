@@ -32,4 +32,6 @@ public class ParticleSystem<V, SD> : ClosedSceneObject<V, SD> where V : unmanage
 			this.SceneData.SetActiveInstances( (uint) this._particles.Count );
 		}
 	}
+
+	public override void Bind() { }
 }

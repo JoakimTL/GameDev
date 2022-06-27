@@ -68,6 +68,9 @@ public abstract class Scene : DisposableIdentifiable, IScene {
 		ShaderBundle? currentShader = null;
 		VertexArrayObject? currentVAO = null;
 
+		for ( int i = 0; i < _sceneObjects.Count; i++ )
+			_sceneObjects[ i ].Bind();
+
 		for ( int i = 0; i < this._renderStages.Count; i++ ) {
 			RenderStage stage = this._renderStages[ i ];
 			ShaderBundle newShaderBundle = stage.Shaders;

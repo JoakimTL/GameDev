@@ -56,6 +56,8 @@ public class VoxelSceneObject : ClosedSceneObject<Vertex3, VoxelFaceData> {
 		}
 		return (uint) span.Length;
 	}
+	public override void Bind() { }
+
 	private class RenderRange {
 		public uint Start;
 		public uint End;

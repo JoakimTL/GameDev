@@ -46,7 +46,7 @@ public abstract class RenderedUIElement<DATA, SHADER, V, SD> : UIElement where D
 internal class TestRenderConstraint : IUIConstraint<ButtonData> {
 	public int ExecutionOrder => 0;
 
-	public void Apply( float time, float deltaTime, ButtonData data ) => data.Color = new Vector4( MathF.Sin( time * 16 ) / 2 + .5f, MathF.Sin( time * 16 + MathF.PI * 2 / 3f ) / 2 + .5f, MathF.Sin( time * 16 + MathF.PI * 4 / 3f ) / 2 + .5f, 1 );
+	public void Apply( float time, float deltaTime, ButtonData data ) => data.Color = new Vector4( MathF.Sin( time  ) / 2 + .5f, MathF.Sin( time + MathF.PI * 2 / 3f ) / 2 + .5f, MathF.Sin( time  + MathF.PI * 4 / 3f ) / 2 + .5f, 1 );
 }
 
 internal class TestConstraint : IUIConstraint<Transform2> {

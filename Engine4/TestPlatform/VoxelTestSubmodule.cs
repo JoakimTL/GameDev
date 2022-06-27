@@ -49,13 +49,13 @@ public class VoxelTestSubmodule : Submodule {
 			return;
 		}
 
+		string text = "this is a test\nobviously it's not going to work properly at the moment, but we'll get it fixed!\nthe quick brown fox jumps over the lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 		Button b = new Button();
 		b.Activate();
-		Resources.Render.Get<UIManager>().Add( b );
-
-		TextContainer tc = new( new Font( "res/textures/fonts/calibri" ), "this is a test\nobviously it's not going to work properly at the moment, but we'll get it fixed!\nthe quick brown fox jumps over the lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 0.02f );
-		tc.Update();
-		Console.WriteLine( string.Join( '\n', tc.Lines.Select(p => p.ToString()) ) );
+		//Resources.Render.Get<UIManager>().Add( b );
+		Label lbl = new( new Font( "res/textures/fonts/calibri" ), "|cf6ff|H|g0.5,0.1|ei|cffff|s|g0.3,0.5|ann", 0.05f );
+		lbl.Activate();
+		Resources.Render.Get<UIManager>().Add( lbl );
 
 		Resources.Render.Window.MouseEvents.ButtonPressed += ButtonPress;
 		Resources.Render.Window.MouseEvents.ButtonReleased += ButtonRelease;

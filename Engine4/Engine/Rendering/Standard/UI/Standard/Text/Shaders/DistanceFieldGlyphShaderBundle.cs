@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 namespace Engine.Rendering.Standard.UI.Standard.Text.Shaders;
 
 [Identification( "59150a91-036e-4cfb-ba6c-bd2ae1f3232f" )]
-public class DistanceFieldGlyphShader : ShaderBundle {
-	public DistanceFieldGlyphShader() : base( (0, Resources.Render.Shader.Pipelines.Get<DistanceFieldGlyphShaderPipeline>()) ) { }
+public class DistanceFieldGlyphShaderBundle : ShaderBundle {
+	public DistanceFieldGlyphShaderBundle() : base( (0, Resources.Render.Shader.Pipelines.Get<DistanceFieldGlyphShaderPipeline>()) ) { }
 
 	public override bool UsesTransparency => true;
 }

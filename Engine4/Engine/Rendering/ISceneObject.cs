@@ -11,6 +11,7 @@ public interface ISceneObject {
 	bool HasTransparency { get; }
 	uint Layer { get; }
 	bool TryGetIndirectCommand( out IndirectCommand? validCommand );
+	void Bind();
 	event Action<ISceneObject>? RenderPropertiesChanged;
 	event Action<ISceneObject>? SceneObjectDisposed;
 }

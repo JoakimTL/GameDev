@@ -37,7 +37,7 @@ public abstract class BufferedMesh : DisposableIdentifiable, IMesh {
 			this.LogWarning( "Can't set vertex data when buffer segment is null!" );
 			return;
 		}
-		this._vertexDataSegment.Write<T>( offset, data );
+		this._vertexDataSegment.Write<T>( offset, new Memory<T>( data ) );
 	}
 
 	public void SetElementData<T>( T[] data, uint offset = 0 ) where T : unmanaged {
@@ -45,15 +45,15 @@ public abstract class BufferedMesh : DisposableIdentifiable, IMesh {
 			this.LogWarning( "Can't set element data when buffer segment is null!" );
 			return;
 		}
-		this._elementDataSegment.Write<T>( offset, data );
+		this._elementDataSegment.Write<T>( offset, new Memory<T>( data ) );
 	}
 
 	public byte[]? GetMeshData() {
 		if ( this._vertexDataSegment is null || this._elementDataSegment is null )
 			return null;
-		return Segmentation.Segment( 
-			this._vertexDataSegment.Read<byte>( 0, this._vertexDataSegment.SizeBytes ).ToArray(), 
-			this._elementDataSegment.Read<byte>( 0, this._elementDataSegment.SizeBytes ).ToArray() 
+		return Segmentation.Segment(
+			this._vertexDataSegment.Read<byte>( 0, this._vertexDataSegment.SizeBytes ).ToArray(),
+			this._elementDataSegment.Read<byte>( 0, this._elementDataSegment.SizeBytes ).ToArray()
 		);
 	}
 

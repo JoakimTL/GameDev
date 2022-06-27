@@ -28,7 +28,7 @@ public static class OpenGLUtilities {
 	}
 
 	public static void SetHints() {
-		Glfw.WindowHint( Hint.Samples, 0 );
+		Glfw.WindowHint( Hint.Samples, 4 );
 		Glfw.WindowHint( Hint.ContextVersionMajor, 4 );
 		Glfw.WindowHint( Hint.ContextVersionMinor, 6 );
 		Glfw.WindowHint( Hint.OpenglForwardCompatible, Constants.True );

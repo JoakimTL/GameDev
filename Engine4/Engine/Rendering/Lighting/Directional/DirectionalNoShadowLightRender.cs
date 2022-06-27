@@ -7,6 +7,8 @@ public class DirectionalNoShadowLightRender : DirectionalLightRenderBase<Directi
 		SetSceneData();
 	}
 
+	public override void Bind() { }
+
 	protected override DirectionalLightData GetSceneData() => new() {
 		Color = this.Light.Color,
 		Intensity = this.Light.Intensity,

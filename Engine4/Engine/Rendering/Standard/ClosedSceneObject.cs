@@ -91,6 +91,8 @@ public abstract class ClosedSceneObject<V, SD> : DisposableIdentifiable, ISceneO
 		return true;
 	}
 
+	public abstract void Bind();
+
 	protected override bool OnDispose() {
 		this.SceneData?.Dispose();
 		SceneObjectDisposed?.Invoke( this );

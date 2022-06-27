@@ -21,6 +21,8 @@ public struct Vector2i {
 
 	#region Instance Methods
 	public Vector2i Negate() => new( -this.X, -this.Y );
+	public Vector2i NegateY() => new( this.X, -this.Y );
+	public Vector2i NegateX() => new( this.X, -this.Y );
 	public override string ToString() => $"Vector2i[{this.X},{this.Y}]";
 	public bool Equals( Vector2i other ) => this.X == other.X && this.Y == other.Y;
 	public override bool Equals( object? obj ) => obj is Vector2i v && Equals( v );

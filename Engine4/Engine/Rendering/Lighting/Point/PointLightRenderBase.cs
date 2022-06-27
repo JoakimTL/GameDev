@@ -31,6 +31,7 @@ public class PointLightNoShadowRender : PointLightRenderBase<PointLightData> {
 		Translation = this.Light.Translation
 	};
 
+	public override void Bind() { }
 	protected override bool OnDispose() => true;
 }
 

@@ -141,7 +141,7 @@ public class Texture : DisposableIdentifiable {
 				(img.Width, img.Height),
 				InternalFormat.Rgba8,
 				(TextureParameterName.TextureMagFilter, (int) filter),
-				(TextureParameterName.TextureMagFilter, (int) filter)
+				(TextureParameterName.TextureMinFilter, (int) filter)
 			);
 		}
 

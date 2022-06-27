@@ -15,4 +15,6 @@ public class ChunkRender : ClosedSceneObject<Vertex3, VoxelFaceData> {
 		SetShaders( transparent ? Resources.Render.Shader.Bundles.Get<VoxelTransparentShaderBundle>() : Resources.Render.Shader.Bundles.Get<VoxelShaderBundle>() );
 		SetSceneData( sceneData );
 	}
+
+	public override void Bind() { }
 }

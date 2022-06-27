@@ -1,21 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Engine.Data.Datatypes;
+using Engine.Rendering.Colors;
 
 namespace Engine.Rendering.Standard.UI.Standard.Text;
 /// <summary>
 /// This container is only for the text itself. Styling must be done outside.
 /// </summary>
-public class TextContainer {
+public class TextContainer : Identifiable {
 
 	private readonly Font _font;
-	private List<Line> _lines;
+	private TextGlyphData[] _glyphs;
+	private readonly List<Line> _lines;
+	private uint _renderedGlyphs;
+	public IReadOnlyList<TextGlyphData> Glyphs => this._glyphs;
 	public IReadOnlyList<Line> Lines => this._lines;
+	public uint RenderedGlyphs => this._renderedGlyphs;
 	public float Textscale { get; private set; }
 	public string Text { get; private set; }
 	public bool Monospaced { get; private set; }
@@ -26,11 +32,14 @@ public class TextContainer {
 	public uint MaxCharacters { get; private set; }
 
 	private bool _updated;
+	private char _escapeCharacter;
 
 	/// <param name="width">The number of monospaced character a line can fit. Characters can have varying width if not monospaced, which means more can fit in the same line.</param>
 	/// <param name="monospaced">If true all letters will have the same width.</param>
 	public TextContainer( Font font, string text, float textscale, bool monospaced = false, bool kerned = true, HorizontalAlignment horizontalAlignment = HorizontalAlignment.CENTER, VerticalAlignment verticalAlignment = VerticalAlignment.CENTER, WordWrapMode wordWrapMode = WordWrapMode.WrapWords, uint maxCharacters = 512 ) {
 		this._font = font;
+		this._renderedGlyphs = 0;
+		this._glyphs = Array.Empty<TextGlyphData>();
 		this._lines = new();
 		this.Text = text;
 		this.Textscale = textscale;
@@ -41,6 +50,7 @@ public class TextContainer {
 		this.WordWrapMode = wordWrapMode;
 		this.MaxCharacters = maxCharacters;
 		this._updated = true;
+		this._escapeCharacter = '|';
 	}
 
 	public void SetText( string text ) {
@@ -106,16 +116,32 @@ public class TextContainer {
 			return false;
 		this._updated = false;
 
+		UpdateLines();
+		UpdateGlyphs();
+
+		return true;
+	}
+
+	private void UpdateLines() {
 		//Turn text into lines of characters to be rendered.
 		ReadOnlySpan<char> text = this.Text.AsSpan()[ ..Math.Min( (int) this.MaxCharacters, this.Text.Length ) ];
 		this._lines.Clear();
+		_renderedGlyphs = 0;
 		Line currentLine = GetEmptyLine();
 		Word currentWord = new();
+		bool escaped = false;
+		Color16x4 currentColor = Color16x4.White;
+		float currentRotation = 0;
+		Vector2 currentScale = Vector2.One;
+		Vector2 currentGlyphData = new( 0.4f, 0.1f );
+		bool settingColor = false;
+		bool settingRotation = false;
+		bool settingScale = false;
+		bool settingGlyphData = false;
+		string escapeData = "";
 		FontCharacter bindCharacter = this._font.Characters[ '-' ];
 		for ( int i = 0; i < text.Length; i++ ) {
 			char c = text[ i ];
-			char nC = i < text.Length - 1 ? text[ i + 1 ] : '\n';
-			FontCharacter fC = this._font.Characters[ c ];
 			/*
 			- Linebreak causes new line
 			- Spaces can cause new line
@@ -147,50 +173,189 @@ public class TextContainer {
 			- Readonly mode
 			- Colorize and stylize text
 			*/
-			switch ( c ) {
-				case '\r':
-					break;
-				case '\n':
-					//new line
-					currentLine.AddWord( currentWord );
-					currentWord.Clear();
-					currentLine = GetEmptyLine();
-					break;
-				case ' ':
-					if ( this.WordWrapMode == WordWrapMode.WrapLetter || this.WordWrapMode == WordWrapMode.WrapWords ) {
-						if ( currentLine.Width + currentWord.Width >= 0.99998474122f )
-							currentLine = GetEmptyLine();
-					}
-					currentLine.AddWord( currentWord );
-					currentWord.Clear();
-					if ( currentLine.Count > 0 )
-						currentLine.AddCharacter( fC, GetWidth( fC, nC ) );
-					break;
-				default:
-					float width = GetWidth( fC, nC );
-					if ( this.WordWrapMode == WordWrapMode.WrapLetter ) {
-						currentWord.AddCharacter( fC, width );
-						// width added to line, width of current word, width of a monospaced character (the binding sign)
-						if ( currentLine.Width + currentWord.Width + this.Textscale >= 0.99998474122f ) {
-							if ( currentWord.Characters.Count > 1 ) {
-								currentWord.AddCharacter( bindCharacter, GetWidth( bindCharacter, '\n' ) );
-								currentLine.AddWord( currentWord );
-								currentWord.Clear();
+
+			if ( escaped ) {
+				if ( c == _escapeCharacter ) {
+					bool madeChanges = false;
+					if ( settingColor ) {
+						int lengthPerColor = escapeData.Length / 4;
+						if ( lengthPerColor == 0 ) {
+							this.LogWarning( $"Escape data [{escapeData}] has no data for colors!" );
+						} else if ( lengthPerColor > 4 ) {
+							this.LogWarning( $"Escape data [{escapeData}] has too much data for colors. Colors can at maximum be represented by a 16-bit integer!" );
+						} else {
+							if ( uint.TryParse( escapeData[ ..lengthPerColor ], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint red ) &&
+								uint.TryParse( escapeData.AsSpan( lengthPerColor, lengthPerColor ), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint green ) &&
+								uint.TryParse( escapeData.AsSpan( lengthPerColor * 2, lengthPerColor ), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint blue ) &&
+								uint.TryParse( escapeData[ ( lengthPerColor * 3 ).. ], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint alpha )
+								) {
+								float inverseDivident = 1f / ( ( 1 << ( lengthPerColor * 4 ) ) - 1 );
+								currentColor = new Vector4( red, green, blue, alpha ) * inverseDivident;
 							}
-							currentLine = GetEmptyLine();
 						}
-						break;
+						settingColor = false;
+						madeChanges = true;
+					} else if ( settingRotation ) {
+						if ( float.TryParse( escapeData, NumberStyles.Float, CultureInfo.InvariantCulture, out float rotation ) ) {
+							currentRotation = rotation / 180 * MathF.PI;
+						} else {
+							this.LogWarning( $"Escape data [{escapeData}] couldn't be parsed as float!" );
+						}
+						settingRotation = false;
+						madeChanges = true;
+					} else if ( settingScale ) {
+						string[] split = escapeData.Split( ',' );
+						bool failed = true;
+						if ( split.Length == 1 ) {
+							if ( float.TryParse( split[ 0 ], NumberStyles.Float, CultureInfo.InvariantCulture, out float scale ) ) {
+								currentScale = new( scale );
+								failed = false;
+							}
+						} else if ( split.Length == 2 ) {
+							if ( float.TryParse( split[ 0 ], NumberStyles.Float, CultureInfo.InvariantCulture, out float scaleX ) &&
+								 float.TryParse( split[ 1 ], NumberStyles.Float, CultureInfo.InvariantCulture, out float scaleY ) ) {
+								currentScale = new( scaleX, scaleY );
+								failed = false;
+							}
+						}
+						if ( failed )
+							this.LogWarning( $"Escape data [{escapeData}] couldn't be parsed as 2d vector!" );
+						settingScale = false;
+						madeChanges = true;
+					} else if ( settingGlyphData ) {
+						string[] split = escapeData.Split( ',' );
+						bool failed = true;
+						if ( split.Length == 2 )
+							if ( float.TryParse( split[ 0 ], NumberStyles.Float, CultureInfo.InvariantCulture, out float thickness ) &&
+								 float.TryParse( split[ 1 ], NumberStyles.Float, CultureInfo.InvariantCulture, out float edge ) ) {
+								currentGlyphData = new( thickness, edge );
+								failed = false;
+							}
+						if ( failed )
+							this.LogWarning( $"Escape data [{escapeData}] couldn't be parsed as 2d vector!" );
+						settingGlyphData = false;
+						madeChanges = true;
 					}
-					currentWord.AddCharacter( fC, width );
-					break;
+					escapeData = "";
+					escaped = false;
+					if ( madeChanges )
+						continue;
+				} else {
+					if ( !settingColor && !settingRotation && !settingScale && !settingGlyphData ) {
+						switch ( c ) {
+							case 'c':
+								settingColor = true;
+								break;
+							case 'r':
+								settingRotation = true;
+								break;
+							case 's':
+								settingScale = true;
+								break;
+							case 'g':
+								settingGlyphData = true;
+								break;
+							default:
+								escaped = false;
+								break;
+						}
+					} else {
+						escapeData += c;
+					}
+				}
+			} else {
+				if ( c == _escapeCharacter )
+					escaped = true;
+			}
+
+			if ( !escaped ) {
+				char nC = i < text.Length - 1 ? text[ i + 1 ] : '\n';
+				FontCharacter fC = this._font.Characters[ c ];
+
+				switch ( c ) {
+					case '\r':
+						break;
+					case '\n':
+						//new line
+						currentLine.AddWord( currentWord );
+						currentWord.Clear();
+						currentLine = GetEmptyLine();
+						break;
+					case ' ':
+						if ( this.WordWrapMode == WordWrapMode.WrapLetter || this.WordWrapMode == WordWrapMode.WrapWords ) {
+							if ( currentLine.Width + currentWord.Width >= 0.99998474122f )
+								currentLine = GetEmptyLine();
+						}
+						currentLine.AddWord( currentWord );
+						currentWord.Clear();
+						if ( currentLine.Count > 0 )
+							currentLine.AddCharacter( fC, GetWidth( fC, nC, currentScale.X ), GetHeight( currentScale.Y ), false, currentColor, currentRotation, currentScale, currentGlyphData );
+						break;
+					default:
+						float width = GetWidth( fC, nC, currentScale.X );
+						if ( this.WordWrapMode == WordWrapMode.WrapLetter ) {
+							currentWord.AddCharacter( fC, width, GetHeight( currentScale.Y ), currentColor, currentRotation, currentScale, currentGlyphData );
+							// width added to line, width of current word, width of a monospaced character (the binding sign)
+							if ( currentLine.Width + currentWord.Width + this.Textscale >= 0.99998474122f ) {
+								if ( currentWord.Characters.Count > 1 ) {
+									currentWord.AddCharacter( bindCharacter, GetWidth( bindCharacter, '\n', currentScale.X ), GetHeight( currentScale.Y ), currentColor, currentRotation, currentScale, currentGlyphData );
+									++_renderedGlyphs;
+									currentLine.AddWord( currentWord );
+									currentWord.Clear();
+								}
+								currentLine = GetEmptyLine();
+							}
+							break;
+						}
+						currentWord.AddCharacter( fC, width, GetHeight( currentScale.Y ), currentColor, currentRotation, currentScale, currentGlyphData );
+						++_renderedGlyphs;
+						break;
+				}
 			}
 		}
 		currentLine.AddWord( currentWord );
-
-		return true;
 	}
 
-	private float GetWidth( FontCharacter currentCharacter, char nextCharacter ) {
+	private void UpdateGlyphs() {
+		if ( _renderedGlyphs > _glyphs.Length )
+			_glyphs = new TextGlyphData[ _renderedGlyphs ];
+
+		float lineHeight = this.Textscale;
+		float cursorY = VerticalAlignment switch {
+			VerticalAlignment.TOP => _lines.Count * lineHeight,
+			VerticalAlignment.CENTER => _lines.Count * lineHeight / 2,
+			VerticalAlignment.BOTTOM => 0,
+			_ => 0,
+		};
+		Random r = new();
+		int glyph = 0;
+		for ( int i = 0; i < _lines.Count; i++ ) {
+			Line l = _lines[ i ];
+			float cursorX = HorizontalAlignment switch {
+				HorizontalAlignment.LEFT => 0,
+				HorizontalAlignment.CENTER => -l.Width / 2,
+				HorizontalAlignment.RIGHT => -l.Width,
+				_ => 0
+			};
+			for ( int j = 0; j < l.Characters.Count; j++ ) {
+				LineCharacter c = l.Characters[ j ];
+				if ( c.Rendered ) {
+					Vector2 inverseMax = new( _font.Metadata.InverseMaxWidth, _font.Metadata.InverseMaxHeight );
+					Vector2 position = new Vector2( cursorX, cursorY ) + c.FontCharacter.Offset.NegateY() * inverseMax * Textscale;
+					Vector2 size = c.FontCharacter.Size * Textscale * inverseMax * c.Scale;
+					Vector2 inverseFontResolution = _font.Metadata.InverseResolution;
+					Vector2 uvStart = c.FontCharacter.PixelStart * inverseFontResolution;
+					Vector2 uvSize = c.FontCharacter.Size * inverseFontResolution;
+					Vector4 uv = new( uvStart.X, uvStart.Y, uvSize.X, uvSize.Y );
+					_glyphs[ glyph++ ] = new TextGlyphData( position, size, c.Rotation, uv, c.Color, c.GlyphData.X, c.GlyphData.Y );
+				}
+				cursorX += c.Width;
+			}
+			cursorY -= l.Height;
+		}
+	}
+
+	private float GetWidth( FontCharacter currentCharacter, char nextCharacter, float scaleX ) {
 		int xAdvance;
 		if ( this.Monospaced ) {
 			xAdvance = this._font.Metadata.MaxWidth;
@@ -199,8 +364,10 @@ public class TextContainer {
 		}
 		if ( this.Kerned )
 			xAdvance += this._font.GetKerning( currentCharacter.Character, nextCharacter );
-		return xAdvance * this._font.Metadata.InverseMaxWidth * this.Textscale;
+		return xAdvance * this._font.Metadata.InverseMaxWidth * this.Textscale * scaleX;
 	}
+
+	private float GetHeight( float scaleY ) => this.Textscale * scaleY;
 
 	private Line GetEmptyLine() {
 		for ( int i = 0; i < this._lines.Count; i++ ) {
@@ -215,12 +382,13 @@ public class TextContainer {
 
 public class Word {
 
-	private readonly List<FontCharacter> _characters;
+	private readonly List<LineCharacter> _characters;
 	public float Width { get; private set; }
-	public IReadOnlyList<FontCharacter> Characters => this._characters;
+	public float Height { get; private set; }
+	public IReadOnlyList<LineCharacter> Characters => this._characters;
 
 	public Word() {
-		this._characters = new List<FontCharacter>();
+		this._characters = new List<LineCharacter>();
 	}
 
 	public void Clear() {
@@ -228,21 +396,24 @@ public class Word {
 		this.Width = 0;
 	}
 
-	public void AddCharacter( FontCharacter fontCharacter, float characterWidth ) {
-		this._characters.Add( fontCharacter );
+	public void AddCharacter( FontCharacter fontCharacter, float characterWidth, float characterHeight, Color16x4 color, float rotation, Vector2 scale, Vector2 glyphData ) {
+		this._characters.Add( new LineCharacter( fontCharacter, characterWidth, true, color, rotation, scale, glyphData ) );
 		this.Width += characterWidth;
+		this.Height = MathF.Max( this.Height, characterHeight );
 	}
 }
 
 public class Line {
 
-	private readonly List<FontCharacter> _characters;
+	private readonly List<LineCharacter> _characters;
 	public float Width { get; private set; }
+	public float Height { get; private set; }
 
 	public int Count => this._characters.Count;
+	public IReadOnlyList<LineCharacter> Characters => this._characters;
 
 	public Line() {
-		this._characters = new List<FontCharacter>();
+		this._characters = new List<LineCharacter>();
 	}
 
 	public void Clear() {
@@ -250,20 +421,44 @@ public class Line {
 		this.Width = 0;
 	}
 
-	public void AddCharacter( FontCharacter fontCharacter, float characterWidth ) {
-		this._characters.Add( fontCharacter );
+	public void AddCharacter( FontCharacter fontCharacter, float characterWidth, float characterHeight, bool rendered, Color16x4 color, float rotation, Vector2 scale, Vector2 glyphData ) {
+		this._characters.Add( new LineCharacter( fontCharacter, characterWidth, rendered, color, rotation, scale, glyphData ) );
 		this.Width += characterWidth;
+		this.Height = MathF.Max( this.Height, characterHeight );
 	}
 
 	public void AddWord( Word word ) {
 		this._characters.AddRange( word.Characters );
 		this.Width += word.Width;
+		this.Height = MathF.Max( this.Height, word.Height );
 	}
 
-	public override string ToString() => new( this._characters.Select( p => p.Character ).ToArray() );
+	public override string ToString() => new( this._characters.Select( p => p.FontCharacter.Character ).ToArray() );
+}
+
+public class LineCharacter {
+	public FontCharacter FontCharacter { get; }
+	public float Width { get; }
+	public bool Rendered { get; }
+	public Color16x4 Color { get; }
+	public float Rotation { get; }
+	public Vector2 Scale { get; }
+	public Vector2 GlyphData { get; }
+
+	public LineCharacter( FontCharacter character, float width, bool rendered, Color16x4 color, float rotation, Vector2 scale, Vector2 glyphData ) {
+		this.FontCharacter = character;
+		this.Width = width;
+		this.Rendered = rendered;
+		this.Color = color;
+		this.Rotation = rotation;
+		this.Scale = scale;
+		this.GlyphData = glyphData;
+	}
 }
 
 public class FontMetadata : Identifiable {
+	public Vector2 InverseResolution { get; }
+
 	public int MaxWidth { get; }
 	public float InverseMaxWidth { get; }
 
@@ -284,6 +479,7 @@ public class FontMetadata : Identifiable {
 		this.InverseMaxWidth = 1f / this.MaxWidth;
 		this.MaxHeight = maxHeight - minOffset;
 		this.InverseMaxHeight = 1f / this.MaxHeight;
+		this.InverseResolution = Vector2.One / font.Resolution;
 	}
 }
 
@@ -299,28 +495,36 @@ public class Font : Identifiable {
 
 	public FontMetadata Metadata { get; }
 
+	public readonly int LineHeight;
+	public readonly int Baseline;
+	public readonly Vector2i Resolution;
+
 	public Font( string fontPathWithoutExtension ) : base( fontPathWithoutExtension ) {
 		this.FontTexturePath = $"{fontPathWithoutExtension}.png";
 		this.FontInformationPath = $"{fontPathWithoutExtension}.fnt";
 
 		this._characters = new();
 		this._kerningValues = new();
-		ReadFontInformation( out IReadOnlyList<string> characterData, out IReadOnlyList<string> kerningData );
+		ReadFontInformation( out string metadataLine, out IReadOnlyList<string> characterData, out IReadOnlyList<string> kerningData );
 		LoadCharacters( characterData );
 		LoadKerning( kerningData );
+		LoadMetadata( metadataLine, out Resolution, out LineHeight, out Baseline );
 		this.Metadata = new( this );
 	}
 
 	public int GetKerning( char first, char second ) => this._kerningValues.TryGetValue( first, out var dict ) ? dict.TryGetValue( second, out var value ) ? value : 0 : 0;
 
-	private void ReadFontInformation( out IReadOnlyList<string> characterData, out IReadOnlyList<string> kerningData ) {
+	private void ReadFontInformation( out string metadataLine, out IReadOnlyList<string> characterData, out IReadOnlyList<string> kerningData ) {
 		if ( !File.Exists( this.FontInformationPath ) )
 			throw new FileNotFoundException( this.FontInformationPath );
 		List<string> characters = new();
 		List<string> kerning = new();
 		string[] lines = File.ReadAllLines( this.FontInformationPath );
+		metadataLine = "";
 
 		for ( int i = 0; i < lines.Length; i++ ) {
+			if ( lines[ i ].StartsWith( "common " ) )
+				metadataLine = lines[ i ];
 			if ( lines[ i ].StartsWith( "char " ) )
 				characters.Add( lines[ i ] );
 			if ( lines[ i ].StartsWith( "kerning " ) )
@@ -329,6 +533,14 @@ public class Font : Identifiable {
 
 		characterData = characters;
 		kerningData = kerning;
+	}
+
+	private void LoadMetadata( string line, out Vector2i resolution, out int lineheight, out int baseline ) {
+		IEnumerable<string> splitLine = line.Split( ' ' ).Select( p => p.Trim() ).Where( p => p.Length > 0 && p.Contains( '=' ) );
+		Dictionary<string, int> data = splitLine.Select( p => p.Split( '=' ) ).ToDictionary( p => p[ 0 ], p => int.Parse( p[ 1 ] ) );
+		resolution = new Vector2i( data[ "scaleW" ], data[ "scaleH" ] );
+		lineheight = data[ "lineHeight" ];
+		baseline = data[ "base" ];
 	}
 
 	private void LoadCharacters( IReadOnlyList<string> characterData ) {

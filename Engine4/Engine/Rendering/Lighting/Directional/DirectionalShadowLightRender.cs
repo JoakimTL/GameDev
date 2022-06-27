@@ -108,6 +108,8 @@ public class DirectionalShadowLightRender : DirectionalLightRenderBase<Direction
 		}
 	}
 
+	public override void Bind() { }
+
 	protected override bool OnDispose() {
 		base.OnDispose();
 		for ( int i = 0; i < CascadeData.NUMCASCADES; i++ )

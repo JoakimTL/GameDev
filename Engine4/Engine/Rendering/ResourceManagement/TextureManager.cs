@@ -63,6 +63,20 @@ public class TextureManager : DisposableIdentifiable, IContextInitializable {
 		return t;
 	}
 
+	/// <summary>
+	/// Will load a texture file from storage and store it. Uses a direct path rather than an asset name
+	/// </summary>
+	public Texture GetFromPath( string filePath ) {
+		if ( string.IsNullOrEmpty( filePath ) ) {
+			this.LogWarning( "Must have a valid name for a texture!" );
+			return this.White1x1;
+		}
+		if ( !this._textures.TryGetValue( filePath, out Texture? t ) )
+			if ( Texture.LoadFile( this, filePath, out t ) )
+				this._textures.Add( filePath, t );
+		return t;
+	}
+
 	protected override bool OnDispose() {
 		foreach ( Texture t in this._textures.Values )
 			t.Dispose();

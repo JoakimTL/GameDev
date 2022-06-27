@@ -95,7 +95,7 @@ public class SegmentedDataBuffer : DataBuffer {
 		/// <summary>
 		/// <b>CAUSES MEMORY ALLOCATION</b>
 		/// </summary>
-		public ReadOnlySpan<T> Read<T>( ulong offsetBytes, uint elementCount ) where T : unmanaged {
+		public Memory<T> Read<T>( ulong offsetBytes, uint elementCount ) where T : unmanaged {
 			unsafe {
 				if ( offsetBytes + (uint) ( elementCount * sizeof( T ) ) > this.SizeBytes ) {
 					this.LogWarning( $"{nameof( Read )}{typeof( T ).Name}: Attempted to access area outside segment!" );
@@ -103,7 +103,7 @@ public class SegmentedDataBuffer : DataBuffer {
 				}
 				T[] returnData = new T[ elementCount ];
 				this._dataBuffer.ReadUnrestrictedUnalignedSynchronized( returnData, (uint) ( elementCount * sizeof( T ) ), this.OffsetBytes + offsetBytes );
-				return new ReadOnlySpan<T>( returnData );
+				return new Memory<T>( returnData );
 			}
 		}
 
@@ -114,6 +114,16 @@ public class SegmentedDataBuffer : DataBuffer {
 					return;
 				}
 				this._dataBuffer.WriteUnrestrictedUnalignedSynchronized( data, this.OffsetBytes + offsetBytes );
+			}
+		}
+
+		public unsafe void Write<T>( ulong offsetBytes, T* dataPtr, uint elementCount ) where T : unmanaged {
+			unsafe {
+				if ( offsetBytes + (uint) ( elementCount * sizeof( T ) ) > this.SizeBytes ) {
+					this.LogWarning( $"{nameof( Write )}{typeof( T ).Name}: Attempted to access area outside segment!" );
+					return;
+				}
+				this._dataBuffer.WriteUnrestrictedUnalignedSynchronized( (byte*) dataPtr, (uint) ( elementCount * sizeof( T ) ), this.OffsetBytes + offsetBytes );
 			}
 		}
 
@@ -136,6 +146,32 @@ public class SegmentedDataBuffer : DataBuffer {
 					return;
 				}
 				fixed ( T* dataPtr = data ) {
+					this._dataBuffer.WriteUnrestrictedUnalignedSynchronized( (byte*) dataPtr, (uint) ( data.Length * sizeof( T ) ), this.OffsetBytes + offsetBytes );
+				}
+			}
+		}
+
+		public void Write<T>( ulong offsetBytes, Memory<T> data ) where T : unmanaged {
+			unsafe {
+				if ( offsetBytes + (uint) ( data.Length * sizeof( T ) ) > this.SizeBytes ) {
+					this.LogWarning( $"{nameof( Write )}{typeof( T ).Name}: Attempted to access area outside segment!" );
+					return;
+				}
+				using ( System.Buffers.MemoryHandle pin = data.Pin() ) {
+					T* dataPtr = (T*) pin.Pointer;
+					this._dataBuffer.WriteUnrestrictedUnalignedSynchronized( (byte*) dataPtr, (uint) ( data.Length * sizeof( T ) ), this.OffsetBytes + offsetBytes );
+				}
+			}
+		}
+
+		public void Write<T>( ulong offsetBytes, ReadOnlyMemory<T> data ) where T : unmanaged {
+			unsafe {
+				if ( offsetBytes + (uint) ( data.Length * sizeof( T ) ) > this.SizeBytes ) {
+					this.LogWarning( $"{nameof( Write )}{typeof( T ).Name}: Attempted to access area outside segment!" );
+					return;
+				}
+				using ( System.Buffers.MemoryHandle pin = data.Pin() ) {
+					T* dataPtr = (T*) pin.Pointer;
 					this._dataBuffer.WriteUnrestrictedUnalignedSynchronized( (byte*) dataPtr, (uint) ( data.Length * sizeof( T ) ), this.OffsetBytes + offsetBytes );
 				}
 			}

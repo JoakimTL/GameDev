@@ -35,7 +35,7 @@ public class RenderUIPipeline : DisposableIdentifiable, IRenderPipeline {
 	private void BlendFunc( bool transparent ) {
 		if ( transparent ) {
 			Gl.Enable( EnableCap.Blend );
-			Gl.BlendFunc( BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha );
+			Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
 			Gl.BlendEquation( BlendEquationMode.FuncAdd );
 			Gl.DepthFunc( DepthFunction.Less );
 			Gl.DepthMask( false );
@@ -49,16 +49,13 @@ public class RenderUIPipeline : DisposableIdentifiable, IRenderPipeline {
 	public void RenderFrame() {
 		Vector2 cameraRotationRight = new( MathF.Cos( this._uiView.Rotation ), MathF.Sin( this._uiView.Rotation ) );
 		Vector2 cameraRotationUp = new( -cameraRotationRight.Y, cameraRotationRight.X );
-		Console.WriteLine();
-		Console.WriteLine( this._uiView.Matrix );
-		Console.WriteLine( this._projection.Matrix );
-		Console.WriteLine( this._camera.Matrix );
-		Console.WriteLine();
+		Gl.Enable( EnableCap.Multisample );
 		this.SceneCameraBlock.DirectWrite( new SceneCameraBlock( this._camera.Matrix, new Vector3( cameraRotationUp, 0 ), new Vector3( cameraRotationRight, 0 ) ) );
+		Gl.Disable( EnableCap.Multisample );
 	}
 
 	public void DrawToScreen() {
-		this._uiSceneRenderer.Render( this._uiRenderData );
+		this._uiSceneRenderer.Render( this._uiRenderData, prim: Resources.Render.Window.KeyboardEvents[ GLFW.Keys.X ] ? PrimitiveType.Lines : PrimitiveType.Triangles );
 	}
 
 	protected override bool OnDispose() {
