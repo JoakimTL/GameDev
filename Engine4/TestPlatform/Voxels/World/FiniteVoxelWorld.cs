@@ -20,7 +20,7 @@ public class FiniteVoxelWorld : VoxelWorldBase {
 		this._chunks = new VoxelChunk[ this._chunkSize.X * this._chunkSize.Y * this._chunkSize.Z ];
 		this.LogLine( $"{this._chunkSize}, {this._aabb.Min} -> {this._aabb.Max}, {this._chunks.Length}", Log.Level.LOW );
 		this._gen = gen;
-		Resources.Get<ThreadManager>().Start( ChunkGeneration, "ChunkGeneration" );
+		Resources.GlobalService<ThreadManager>().Start( ChunkGeneration, "ChunkGeneration" );
 	}
 
 	public void SetTranslation( Vector3 translation ) => this._transform.Translation = translation;

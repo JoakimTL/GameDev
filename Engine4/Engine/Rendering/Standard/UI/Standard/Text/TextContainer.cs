@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using Engine.Data.Datatypes;
 using Engine.Rendering.Colors;
 
 namespace Engine.Rendering.Standard.UI.Standard.Text;
@@ -32,11 +25,11 @@ public class TextContainer : Identifiable {
 	public uint MaxCharacters { get; private set; }
 
 	private bool _updated;
-	private char _escapeCharacter;
+	private readonly char _escapeCharacter;
 
 	/// <param name="width">The number of monospaced character a line can fit. Characters can have varying width if not monospaced, which means more can fit in the same line.</param>
 	/// <param name="monospaced">If true all letters will have the same width.</param>
-	public TextContainer( Font font, string text, float textscale, bool monospaced = false, bool kerned = true, HorizontalAlignment horizontalAlignment = HorizontalAlignment.CENTER, VerticalAlignment verticalAlignment = VerticalAlignment.CENTER, WordWrapMode wordWrapMode = WordWrapMode.WrapWords, uint maxCharacters = 512 ) {
+	public TextContainer( Font font, string text, float textscale, bool monospaced = false, bool kerned = true, HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT, VerticalAlignment verticalAlignment = VerticalAlignment.TOP, WordWrapMode wordWrapMode = WordWrapMode.WrapWords, uint maxCharacters = 512 ) {
 		this._font = font;
 		this._renderedGlyphs = 0;
 		this._glyphs = Array.Empty<TextGlyphData>();
@@ -126,14 +119,14 @@ public class TextContainer : Identifiable {
 		//Turn text into lines of characters to be rendered.
 		ReadOnlySpan<char> text = this.Text.AsSpan()[ ..Math.Min( (int) this.MaxCharacters, this.Text.Length ) ];
 		this._lines.Clear();
-		_renderedGlyphs = 0;
+		this._renderedGlyphs = 0;
 		Line currentLine = GetEmptyLine();
 		Word currentWord = new();
 		bool escaped = false;
 		Color16x4 currentColor = Color16x4.White;
 		float currentRotation = 0;
 		Vector2 currentScale = Vector2.One;
-		Vector2 currentGlyphData = new( 0.4f, 0.1f );
+		Vector2 currentGlyphData = new( 0.45f, 0.15f );
 		bool settingColor = false;
 		bool settingRotation = false;
 		bool settingScale = false;
@@ -175,7 +168,7 @@ public class TextContainer : Identifiable {
 			*/
 
 			if ( escaped ) {
-				if ( c == _escapeCharacter ) {
+				if ( c == this._escapeCharacter ) {
 					bool madeChanges = false;
 					if ( settingColor ) {
 						int lengthPerColor = escapeData.Length / 4;
@@ -264,7 +257,7 @@ public class TextContainer : Identifiable {
 					}
 				}
 			} else {
-				if ( c == _escapeCharacter )
+				if ( c == this._escapeCharacter )
 					escaped = true;
 			}
 
@@ -283,23 +276,24 @@ public class TextContainer : Identifiable {
 						break;
 					case ' ':
 						if ( this.WordWrapMode == WordWrapMode.WrapLetter || this.WordWrapMode == WordWrapMode.WrapWords ) {
-							if ( currentLine.Width + currentWord.Width >= 0.99998474122f )
+							if ( currentLine.Width + currentWord.Width >= 0.99998474122f ) 
 								currentLine = GetEmptyLine();
 						}
 						currentLine.AddWord( currentWord );
 						currentWord.Clear();
 						if ( currentLine.Count > 0 )
-							currentLine.AddCharacter( fC, GetWidth( fC, nC, currentScale.X ), GetHeight( currentScale.Y ), false, currentColor, currentRotation, currentScale, currentGlyphData );
+							currentLine.AddCharacter( fC, GetWidth( fC, currentScale.X ), GetHeight( currentScale.Y ), false, currentColor, currentRotation, currentScale, currentGlyphData );
 						break;
 					default:
-						float width = GetWidth( fC, nC, currentScale.X );
-						if ( this.WordWrapMode == WordWrapMode.WrapLetter ) {
+						float width = GetWidth( fC, currentScale.X );
+						if ( this.WordWrapMode == WordWrapMode.WrapLetter || ( currentWord.Width + this.Textscale >= 0.99998474122f && this.WordWrapMode == WordWrapMode.WrapWords ) ) {
 							currentWord.AddCharacter( fC, width, GetHeight( currentScale.Y ), currentColor, currentRotation, currentScale, currentGlyphData );
+							++this._renderedGlyphs;
 							// width added to line, width of current word, width of a monospaced character (the binding sign)
 							if ( currentLine.Width + currentWord.Width + this.Textscale >= 0.99998474122f ) {
 								if ( currentWord.Characters.Count > 1 ) {
-									currentWord.AddCharacter( bindCharacter, GetWidth( bindCharacter, '\n', currentScale.X ), GetHeight( currentScale.Y ), currentColor, currentRotation, currentScale, currentGlyphData );
-									++_renderedGlyphs;
+									currentWord.AddCharacter( bindCharacter, GetWidth( bindCharacter, currentScale.X ), GetHeight( currentScale.Y ), currentColor, currentRotation, currentScale, currentGlyphData );
+									++this._renderedGlyphs;
 									currentLine.AddWord( currentWord );
 									currentWord.Clear();
 								}
@@ -308,7 +302,7 @@ public class TextContainer : Identifiable {
 							break;
 						}
 						currentWord.AddCharacter( fC, width, GetHeight( currentScale.Y ), currentColor, currentRotation, currentScale, currentGlyphData );
-						++_renderedGlyphs;
+						++this._renderedGlyphs;
 						break;
 				}
 			}
@@ -317,21 +311,22 @@ public class TextContainer : Identifiable {
 	}
 
 	private void UpdateGlyphs() {
-		if ( _renderedGlyphs > _glyphs.Length )
-			_glyphs = new TextGlyphData[ _renderedGlyphs ];
+		if ( this._renderedGlyphs > this._glyphs.Length )
+			this._glyphs = new TextGlyphData[ this._renderedGlyphs ];
 
 		float lineHeight = this.Textscale;
-		float cursorY = VerticalAlignment switch {
-			VerticalAlignment.TOP => _lines.Count * lineHeight,
-			VerticalAlignment.CENTER => _lines.Count * lineHeight / 2,
-			VerticalAlignment.BOTTOM => 0,
+		float cursorY = this.VerticalAlignment switch {
+			VerticalAlignment.BOTTOM => this._lines.Count * lineHeight,
+			VerticalAlignment.CENTER => this._lines.Count * lineHeight / 2,
+			VerticalAlignment.TOP => 0,
 			_ => 0,
 		};
-		Random r = new();
+
 		int glyph = 0;
-		for ( int i = 0; i < _lines.Count; i++ ) {
-			Line l = _lines[ i ];
-			float cursorX = HorizontalAlignment switch {
+		Vector2 inverseFontResolution = this._font.Metadata.InverseResolution;
+		for ( int i = 0; i < this._lines.Count; i++ ) {
+			Line l = this._lines[ i ];
+			float cursorX = this.HorizontalAlignment switch {
 				HorizontalAlignment.LEFT => 0,
 				HorizontalAlignment.CENTER => -l.Width / 2,
 				HorizontalAlignment.RIGHT => -l.Width,
@@ -340,14 +335,22 @@ public class TextContainer : Identifiable {
 			for ( int j = 0; j < l.Characters.Count; j++ ) {
 				LineCharacter c = l.Characters[ j ];
 				if ( c.Rendered ) {
-					Vector2 inverseMax = new( _font.Metadata.InverseMaxWidth, _font.Metadata.InverseMaxHeight );
-					Vector2 position = new Vector2( cursorX, cursorY ) + c.FontCharacter.Offset.NegateY() * inverseMax * Textscale;
-					Vector2 size = c.FontCharacter.Size * Textscale * inverseMax * c.Scale;
-					Vector2 inverseFontResolution = _font.Metadata.InverseResolution;
+					Vector2 scaling = GetPixelToNDCScale( c.Scale );
+
+					Vector2 position = new( cursorX, cursorY ); //On the cursor line
+					Vector2 size = c.FontCharacter.Size * scaling * .5f;
+					Vector2 offset = c.FontCharacter.Offset.NegateY() * scaling;
+					if ( this.Monospaced ) {
+						offset.X += ( c.Width - size.X ) / 2;
+					}
+					if ( this.Kerned && j > 0 )
+						offset.X += this._font.GetKerning( l.Characters[ j - 1 ].FontCharacter.Character, c.FontCharacter.Character ) * scaling.X;
+					Vector2 actualPosition = position + size * new Vector2( 1, -1 ) + offset;
+
 					Vector2 uvStart = c.FontCharacter.PixelStart * inverseFontResolution;
 					Vector2 uvSize = c.FontCharacter.Size * inverseFontResolution;
 					Vector4 uv = new( uvStart.X, uvStart.Y, uvSize.X, uvSize.Y );
-					_glyphs[ glyph++ ] = new TextGlyphData( position, size, c.Rotation, uv, c.Color, c.GlyphData.X, c.GlyphData.Y );
+					this._glyphs[ glyph++ ] = new TextGlyphData( actualPosition, size, c.Rotation, uv, c.Color, c.GlyphData.X, c.GlyphData.Y );
 				}
 				cursorX += c.Width;
 			}
@@ -355,19 +358,20 @@ public class TextContainer : Identifiable {
 		}
 	}
 
-	private float GetWidth( FontCharacter currentCharacter, char nextCharacter, float scaleX ) {
+	private float GetWidth( FontCharacter currentCharacter, float scaleX ) {
 		int xAdvance;
 		if ( this.Monospaced ) {
-			xAdvance = this._font.Metadata.MaxWidth;
+			xAdvance = this._font.Metadata.Max.X * 3 / 5;
 		} else {
 			xAdvance = currentCharacter.XAdvance;
 		}
-		if ( this.Kerned )
-			xAdvance += this._font.GetKerning( currentCharacter.Character, nextCharacter );
-		return xAdvance * this._font.Metadata.InverseMaxWidth * this.Textscale * scaleX;
+		return xAdvance * GetPixelXToNDCScale( scaleX );
 	}
 
-	private float GetHeight( float scaleY ) => this.Textscale * scaleY;
+	private float GetHeight( float scaleY ) => this._font.Metadata.RelativeLineHeight * this.Textscale * scaleY;
+
+	private float GetPixelXToNDCScale( float scale ) => this._font.Metadata.InverseMax * this.Textscale * scale;
+	private Vector2 GetPixelToNDCScale( Vector2 scale ) => this._font.Metadata.InverseMax * this.Textscale * scale;
 
 	private Line GetEmptyLine() {
 		for ( int i = 0; i < this._lines.Count; i++ ) {
@@ -378,215 +382,4 @@ public class TextContainer : Identifiable {
 		this._lines.Add( nLine );
 		return nLine;
 	}
-}
-
-public class Word {
-
-	private readonly List<LineCharacter> _characters;
-	public float Width { get; private set; }
-	public float Height { get; private set; }
-	public IReadOnlyList<LineCharacter> Characters => this._characters;
-
-	public Word() {
-		this._characters = new List<LineCharacter>();
-	}
-
-	public void Clear() {
-		this._characters.Clear();
-		this.Width = 0;
-	}
-
-	public void AddCharacter( FontCharacter fontCharacter, float characterWidth, float characterHeight, Color16x4 color, float rotation, Vector2 scale, Vector2 glyphData ) {
-		this._characters.Add( new LineCharacter( fontCharacter, characterWidth, true, color, rotation, scale, glyphData ) );
-		this.Width += characterWidth;
-		this.Height = MathF.Max( this.Height, characterHeight );
-	}
-}
-
-public class Line {
-
-	private readonly List<LineCharacter> _characters;
-	public float Width { get; private set; }
-	public float Height { get; private set; }
-
-	public int Count => this._characters.Count;
-	public IReadOnlyList<LineCharacter> Characters => this._characters;
-
-	public Line() {
-		this._characters = new List<LineCharacter>();
-	}
-
-	public void Clear() {
-		this._characters.Clear();
-		this.Width = 0;
-	}
-
-	public void AddCharacter( FontCharacter fontCharacter, float characterWidth, float characterHeight, bool rendered, Color16x4 color, float rotation, Vector2 scale, Vector2 glyphData ) {
-		this._characters.Add( new LineCharacter( fontCharacter, characterWidth, rendered, color, rotation, scale, glyphData ) );
-		this.Width += characterWidth;
-		this.Height = MathF.Max( this.Height, characterHeight );
-	}
-
-	public void AddWord( Word word ) {
-		this._characters.AddRange( word.Characters );
-		this.Width += word.Width;
-		this.Height = MathF.Max( this.Height, word.Height );
-	}
-
-	public override string ToString() => new( this._characters.Select( p => p.FontCharacter.Character ).ToArray() );
-}
-
-public class LineCharacter {
-	public FontCharacter FontCharacter { get; }
-	public float Width { get; }
-	public bool Rendered { get; }
-	public Color16x4 Color { get; }
-	public float Rotation { get; }
-	public Vector2 Scale { get; }
-	public Vector2 GlyphData { get; }
-
-	public LineCharacter( FontCharacter character, float width, bool rendered, Color16x4 color, float rotation, Vector2 scale, Vector2 glyphData ) {
-		this.FontCharacter = character;
-		this.Width = width;
-		this.Rendered = rendered;
-		this.Color = color;
-		this.Rotation = rotation;
-		this.Scale = scale;
-		this.GlyphData = glyphData;
-	}
-}
-
-public class FontMetadata : Identifiable {
-	public Vector2 InverseResolution { get; }
-
-	public int MaxWidth { get; }
-	public float InverseMaxWidth { get; }
-
-	public int MaxHeight { get; }
-	public float InverseMaxHeight { get; }
-
-	public FontMetadata( Font font ) {
-		int minOffset = int.MaxValue;
-		int maxHeight = 0;
-		foreach ( FontCharacter c in font.Characters.Values ) {
-			if ( c.XAdvance > this.MaxWidth )
-				this.MaxWidth = c.XAdvance;
-			if ( c.Offset.Y < minOffset )
-				minOffset = c.Offset.Y;
-			if ( c.Size.Y > maxHeight )
-				maxHeight = c.Size.Y;
-		}
-		this.InverseMaxWidth = 1f / this.MaxWidth;
-		this.MaxHeight = maxHeight - minOffset;
-		this.InverseMaxHeight = 1f / this.MaxHeight;
-		this.InverseResolution = Vector2.One / font.Resolution;
-	}
-}
-
-public class Font : Identifiable {
-
-	public readonly string FontTexturePath;
-	public readonly string FontInformationPath;
-
-	private readonly Dictionary<char, FontCharacter> _characters;
-	public IReadOnlyDictionary<char, FontCharacter> Characters => this._characters;
-
-	private readonly Dictionary<char, Dictionary<char, int>> _kerningValues;
-
-	public FontMetadata Metadata { get; }
-
-	public readonly int LineHeight;
-	public readonly int Baseline;
-	public readonly Vector2i Resolution;
-
-	public Font( string fontPathWithoutExtension ) : base( fontPathWithoutExtension ) {
-		this.FontTexturePath = $"{fontPathWithoutExtension}.png";
-		this.FontInformationPath = $"{fontPathWithoutExtension}.fnt";
-
-		this._characters = new();
-		this._kerningValues = new();
-		ReadFontInformation( out string metadataLine, out IReadOnlyList<string> characterData, out IReadOnlyList<string> kerningData );
-		LoadCharacters( characterData );
-		LoadKerning( kerningData );
-		LoadMetadata( metadataLine, out Resolution, out LineHeight, out Baseline );
-		this.Metadata = new( this );
-	}
-
-	public int GetKerning( char first, char second ) => this._kerningValues.TryGetValue( first, out var dict ) ? dict.TryGetValue( second, out var value ) ? value : 0 : 0;
-
-	private void ReadFontInformation( out string metadataLine, out IReadOnlyList<string> characterData, out IReadOnlyList<string> kerningData ) {
-		if ( !File.Exists( this.FontInformationPath ) )
-			throw new FileNotFoundException( this.FontInformationPath );
-		List<string> characters = new();
-		List<string> kerning = new();
-		string[] lines = File.ReadAllLines( this.FontInformationPath );
-		metadataLine = "";
-
-		for ( int i = 0; i < lines.Length; i++ ) {
-			if ( lines[ i ].StartsWith( "common " ) )
-				metadataLine = lines[ i ];
-			if ( lines[ i ].StartsWith( "char " ) )
-				characters.Add( lines[ i ] );
-			if ( lines[ i ].StartsWith( "kerning " ) )
-				kerning.Add( lines[ i ] );
-		}
-
-		characterData = characters;
-		kerningData = kerning;
-	}
-
-	private void LoadMetadata( string line, out Vector2i resolution, out int lineheight, out int baseline ) {
-		IEnumerable<string> splitLine = line.Split( ' ' ).Select( p => p.Trim() ).Where( p => p.Length > 0 && p.Contains( '=' ) );
-		Dictionary<string, int> data = splitLine.Select( p => p.Split( '=' ) ).ToDictionary( p => p[ 0 ], p => int.Parse( p[ 1 ] ) );
-		resolution = new Vector2i( data[ "scaleW" ], data[ "scaleH" ] );
-		lineheight = data[ "lineHeight" ];
-		baseline = data[ "base" ];
-	}
-
-	private void LoadCharacters( IReadOnlyList<string> characterData ) {
-		for ( int i = 0; i < characterData.Count; i++ ) {
-			string line = characterData[ i ];
-			IEnumerable<string> splitLine = line.Split( ' ' ).Select( p => p.Trim() ).Where( p => p.Length > 0 && p.Contains( '=' ) );
-			Dictionary<string, int> data = splitLine.Select( p => p.Split( '=' ) ).ToDictionary( p => p[ 0 ], p => int.Parse( p[ 1 ] ) );
-			FontCharacter c = new( (char) data[ "id" ], data[ "x" ], data[ "y" ], data[ "width" ], data[ "height" ], data[ "xoffset" ], data[ "yoffset" ], data[ "xadvance" ] );
-			this._characters.Add( c.Character, c );
-		}
-	}
-
-	private void LoadKerning( IReadOnlyList<string> kerningData ) {
-		for ( int i = 0; i < kerningData.Count; i++ ) {
-			string line = kerningData[ i ];
-			IEnumerable<string> splitLine = line.Split( ' ' ).Select( p => p.Trim() ).Where( p => p.Length > 0 && p.Contains( '=' ) );
-			Dictionary<string, int> data = splitLine.Select( p => p.Split( '=' ) ).ToDictionary( p => p[ 0 ], p => int.Parse( p[ 1 ] ) );
-			char first = (char) data[ "first" ];
-			if ( !this._kerningValues.TryGetValue( first, out Dictionary<char, int>? dict ) )
-				this._kerningValues.Add( first, dict = new() );
-			dict[ (char) data[ "second" ] ] = data[ "amount" ];
-		}
-	}
-}
-
-public class FontCharacter {
-	public readonly Vector2i PixelStart;
-	public readonly Vector2i Size;
-	public readonly Vector2i Offset;
-	/// <summary>
-	/// The number of pixels to advance the cursor after this character. This is affected by kerning.
-	/// </summary>
-	public readonly int XAdvance;
-	public readonly char Character;
-
-	public FontCharacter( char character, int x, int y, int sX, int sY, int oX, int oY, int aX ) {
-		this.Character = character;
-		this.PixelStart = new( x, y );
-		this.Size = new( sX, sY );
-		this.Offset = new( oX, oY );
-		this.XAdvance = aX;
-	}
-}
-
-public class FontDataManager : Identifiable {
-
-	//LOAD IN REQUESTED FONT DATA, BUT NOT TEXTURE. THE UI ELEMENT WILL HAVE TO REQUEST THAT THEMSELVES.
-
 }

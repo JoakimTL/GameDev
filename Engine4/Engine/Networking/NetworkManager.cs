@@ -1,12 +1,11 @@
 ﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
-using Engine.Modularity.Modules;
 using Engine.Modularity.Modules.Singletons;
 using Engine.Time;
 
 namespace Engine.Networking;
-public class NetworkManager : ModuleSingletonBase, IPacketListener {
+public class NetworkManager : ModuleService, IPacketListener {
 
 	public event Action<NetworkConnection>? NewNamedConnection;
 
@@ -43,11 +42,11 @@ public class NetworkManager : ModuleSingletonBase, IPacketListener {
 		this._connectionsById = new();
 		this._packetListeners = new();
 		this._usedNetworkIds = new();
-		this._pingTimer = new Timer32( $"Udp pinger", 500 );
+		this._pingTimer = new Timer32( $"Udp Pinger", 500 );
 		this._pingTimer.Elapsed += OnPing;
 	}
 
-	private void OnPing() => Send( new UdpPing( this.Username, Clock64.StartupTime, null ) );
+	private void OnPing( double time, double deltaTime ) => Send( new UdpPing( this.Username, time, null ) );
 
 	public void AddListener( IPacketListener listener ) => this._packetListeners.Add( listener );
 
@@ -129,8 +128,8 @@ public class NetworkManager : ModuleSingletonBase, IPacketListener {
 	// - Graceful local connection closure
 
 	private void OnMessageReceived( IPEndPoint endpoint, ProtocolType protocol, byte[] data ) {
-		this.LogLine( $"{( this.IsServer ? "Server" : this.Username )} received {protocol} message of length {data.Length} bytes from {endpoint}!", Log.Level.NORMAL, ConsoleColor.Blue );
-		Packet? p = Resources.Get<PacketTypeManager>().GetPacketFromData( data, endpoint );
+		Packet? p = Resources.GlobalService<PacketTypeManager>().GetPacketFromData( data, endpoint );
+		this.LogLine( $"{( this.IsServer ? "Server" : this.Username )} received [{p?.GetType()},{protocol}] message of length {data.Length} bytes from {endpoint}!", Log.Level.VERBOSE, ConsoleColor.Blue );
 		if ( p is null )
 			return;
 		Type t = p.GetType();
@@ -141,7 +140,7 @@ public class NetworkManager : ModuleSingletonBase, IPacketListener {
 		}
 	}
 
-	public bool Listening( Type packetType ) => ( this.IsServer && packetType == typeof( TcpLogin ) ) || packetType == typeof( ConnectionFailed ) || packetType == typeof( UdpPing ) || packetType == typeof( TcpLoginAck ) || packetType == typeof(ClientDisconnected);
+	public bool Listening( Type packetType ) => ( this.IsServer && packetType == typeof( TcpLogin ) ) || packetType == typeof( ConnectionFailed ) || packetType == typeof( UdpPing ) || packetType == typeof( TcpLoginAck ) || packetType == typeof( ClientDisconnected );
 
 	public bool ListeningTcp( IPEndPoint endpoint ) => true;
 	public bool ListeningUdp( IPEndPoint endpoint ) => true;
@@ -181,6 +180,7 @@ public class NetworkManager : ModuleSingletonBase, IPacketListener {
 			if ( tcpLoginAck.Username == this.Username ) {
 				//This is us receiving an ack on the login, best to remember out network id, might be important!
 				this.ServerProvidedId = tcpLoginAck.NetworkId;
+				this.LogLine( $"Given network id #{this.ServerProvidedId}!", Log.Level.HIGH, ConsoleColor.Cyan );
 			} else {
 				//This is someone else logging in! We should tell the end-user!
 				this.LogLine( $"Player {tcpLoginAck.Username} connected!", Log.Level.NORMAL, ConsoleColor.Green );
@@ -194,11 +194,14 @@ public class NetworkManager : ModuleSingletonBase, IPacketListener {
 					connection.Send( new ConnectionFailed( "Username already taken!" ) );
 				} else {
 					ulong id = GetNetworkId();
-					if ( this._connectionsById.TryAdd( connection.NetworkId, connection ) ) {
-						connection.SetNetworkId( GetNetworkId() );
+					if ( this._connectionsById.TryAdd( id, connection ) ) {
+						connection.SetNetworkId( id );
 						connection.SetName( tcpLogin.Username );
 						Send( new TcpLoginAck( tcpLogin.Username, connection.NetworkId ) );
 						NewNamedConnection?.Invoke( connection );
+					} else {
+						connection.Send( new ConnectionFailed( "Unable to give space for connection!" ) );
+						this._namedConnections.Remove( tcpLogin.Username, out _ );
 					}
 				}
 			}
@@ -213,8 +216,8 @@ public class NetworkManager : ModuleSingletonBase, IPacketListener {
 	}
 
 	public void Send( Packet p ) {
-		ProtocolType protocol = Resources.Get<PacketTypeManager>().GetPacketProtocol( p.GetType() );
-		this.LogLine( $"{( this.IsServer ? "Server" : this.Username )} sending {protocol} message {p.GetType().Name} of length {p.Data.Count} to {( p.RemoteTarget is null ? "all" : p.RemoteTarget )}!", Log.Level.NORMAL, ConsoleColor.Magenta );
+		ProtocolType protocol = Resources.GlobalService<PacketTypeManager>().GetPacketProtocol( p.GetType() );
+		this.LogLine( $"{( this.IsServer ? "Server" : this.Username )} sending {protocol} message {p.GetType().Name} of length {p.Data.Count} to {( p.RemoteTarget is null ? "all" : p.RemoteTarget )}!", Log.Level.VERBOSE, ConsoleColor.Magenta );
 		if ( protocol == ProtocolType.Udp ) {
 			if ( p.RemoteTarget is not null ) {
 				this._udpTunnel?.TrySend( p );
@@ -248,7 +251,7 @@ public class NetworkManager : ModuleSingletonBase, IPacketListener {
 		if ( this._udpTunnel is null )
 			throw new NullReferenceException( "Udp tunnel is null." );
 		this._udpTunnel.Bind( bind );
-		this._udpReceiverThread = Resources.Get<ThreadManager>().Start( ReceiveUDP, $"Udp Receiver" );
+		this._udpReceiverThread = Resources.GlobalService<ThreadManager>().Start( ReceiveUDP, $"Udp Receiver" );
 	}
 
 	private void ReceiveUDP() {
@@ -264,7 +267,7 @@ public class NetworkManager : ModuleSingletonBase, IPacketListener {
 	public void StartTcpConnectionAccepting() {
 		if ( this._tcpAcceptingThread is not null )
 			return;
-		this._tcpAcceptingThread = Resources.Get<ThreadManager>().Start( ReceiveConnections, $"{this._userdata.Username} Tcp Connection Accepter" );
+		this._tcpAcceptingThread = Resources.GlobalService<ThreadManager>().Start( ReceiveConnections, $"{this._userdata.Username} Tcp Connection Accepter" );
 	}
 
 	private void ReceiveConnections() {
@@ -326,33 +329,4 @@ public class NetworkManager : ModuleSingletonBase, IPacketListener {
 		Close();
 		return true;
 	}
-}
-
-public class SocketFactory : ModuleSingletonBase {
-
-	public bool IsIpv6Enabled { get; set; } = false;
-
-	public Socket CreateTcp() {
-		if ( this.IsIpv6Enabled ) {
-			Socket s = new( AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp );
-			s.SetSocketOption( SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0 );
-			return s;
-		} else {
-			Socket s = new( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp );
-			return s;
-		}
-	}
-
-	public Socket CreateUdp() {
-		if ( this.IsIpv6Enabled ) {
-			Socket s = new( AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp );
-			s.SetSocketOption( SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0 );
-			return s;
-		} else {
-			Socket s = new( AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp );
-			return s;
-		}
-	}
-
-	protected override bool OnDispose() => true;
 }

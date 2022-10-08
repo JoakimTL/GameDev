@@ -1,6 +1,5 @@
 ﻿using Engine.Rendering.InputHandling;
 using Engine.Rendering.Standard.Scenes;
-using Engine.Structure;
 using GLFW;
 
 namespace Engine.Rendering.Standard.UI;
@@ -12,21 +11,23 @@ public class UIManager : Identifiable, IUpdateable, IKeyboardEventListener, IMou
 	public Scene Scene => this._scene;
 	public bool Active => true;
 
-	public UIManager() {
+	public UIManager( Window window ) {
 		this._elements = new HashSet<UIElement>();
 		this._scene = new LayeredScene();
-		Resources.Render.Window.KeyboardEvents.AddListener( this );
-		Resources.Render.Window.MouseEvents.AddListener( this );
+		window.KeyboardEvents.AddListener( this );
+		window.MouseEvents.AddListener( this );
 	}
 
 	public void Add( UIElement e ) {
 		lock ( this._elements )
 			this._elements.Add( e );
+		e.SetUIManager( this );
 	}
 
 	public void Remove( UIElement e ) {
 		lock ( this._elements )
 			this._elements.Remove( e );
+		e.RemovedFromUIManager( this );
 	}
 
 	public void Update( float time, float deltaTime ) {

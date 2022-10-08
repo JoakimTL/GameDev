@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using Engine;
-using Engine.Rendering.ResourceManagement;
 using Engine.Rendering.Standard;
 using OpenGL;
 using TestPlatform.Voxels.World;
@@ -21,7 +20,7 @@ public static class VoxelIdRenderData {
 	}
 
 
-	private class VoxelIdRenderDataManager : IContextUpdateable {
+	private class VoxelIdRenderDataManager {
 
 		public ShaderStorageBufferObject? _voxelData;
 		public readonly ConcurrentQueue<ushort> _voxelTypeChanges;
@@ -29,7 +28,8 @@ public static class VoxelIdRenderData {
 		public VoxelIdRenderDataManager() {
 			this._voxelTypeChanges = new ConcurrentQueue<ushort>();
 			TryInitialize();
-			Resources.Render.ContextUpdate.Add( this );
+			//TODO fix?
+			//Resources.Render.ContextUpdate.Add( this );
 		}
 
 		private void TryInitialize() {

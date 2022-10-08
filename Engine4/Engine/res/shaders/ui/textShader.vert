@@ -36,7 +36,7 @@ void main(){
 	mat4 MVP_mat = sb.VP_mat * iM_mat;
 	vec2 uv = (vPos + 1) * .5;
 	OUT.UV = iUV.xy + iUV.zw * vec2(uv.x, 1 - uv.y);
-	OUT.Color = vec4(iColor.rgb * .5, iColor.a);
+	OUT.Color = vec4(iColor.rgb, iColor.a);
 	OUT.Thickness = iGlyphData.x;
 	OUT.Edge = iGlyphData.y;
 	OUT.FontTexture = iFontTexture;

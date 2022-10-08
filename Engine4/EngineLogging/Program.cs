@@ -2,9 +2,9 @@
 
 public class Program {
 	public static void Main( string[] args ) {
-		string pipeName = "6ce2bd86-9d72-42f8-a096-22f1e5fa61d0";
-		if ( args.Length > 0 )
-			pipeName = args[ 0 ];
+		if ( args.Length <= 0 )
+			throw new ArgumentException( "No name given!" );
+		string pipeName = args[ 0 ];
 		string path = $"logs/{DateTime.Now:yyyy_MM_dd_HH_mm_ss_fff}.log";
 		NamedPipeClientStream pipeClient = new( ".", pipeName, PipeDirection.In );
 
@@ -35,7 +35,7 @@ public class Program {
 				string? directory = Path.GetDirectoryName( path );
 				if ( directory is null )
 					return;
-				if (!Directory.Exists( directory ) )
+				if ( !Directory.Exists( directory ) )
 					Directory.CreateDirectory( directory );
 				File.AppendAllText( path, content );
 				return;

@@ -6,11 +6,11 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Memory;
 using System.Runtime.CompilerServices;
 using Engine.Rendering.Disposal;
-using Engine.Rendering.ResourceManagement;
 using Engine.Time;
+using Engine.Rendering.Services;
 
 namespace Engine.Rendering;
-public class Texture : DisposableIdentifiable {
+public class Texture : Asset {
 	private readonly ulong _handle;
 	private readonly Vector2i[] _sizes;
 	public TextureTarget Target { get; }
@@ -19,10 +19,11 @@ public class Texture : DisposableIdentifiable {
 	public uint TextureID { get; private set; }
 	public bool Resident { get; private set; }
 	public float LastBind { get; private set; }
+	private TextureDisposal _disposer;
 
 	protected override string UniqueNameTag => $"{this.TextureID},{this._handle}";
 
-	public Texture( string name, TextureTarget target, Vector2i[] sizes, InternalFormat format, params (TextureParameterName, int)[] parameters ) : base( name ) {
+	public Texture( string name, TextureTarget target, Vector2i[] sizes, InternalFormat format, int samples = 0, params (TextureParameterName, int)[] parameters ) : base( name ) {
 		if ( sizes.Length == 0 )
 			throw new ArgumentOutOfRangeException( nameof( sizes ), "Must be greater than zero" );
 		this.Target = target;
@@ -31,13 +32,21 @@ public class Texture : DisposableIdentifiable {
 		this.LogLine( $"Created with format [{format}]!", Log.Level.LOW );
 
 		this.TextureID = Gl.CreateTexture( this.Target );
-		Gl.TextureStorage2D( this.TextureID, sizes.Length, format, sizes[ 0 ].X, sizes[ 0 ].Y );
+		bool mipmaps = sizes.Length > 1 || samples == 0;
+		if ( samples != 0 && sizes.Length > 1 )
+			this.LogWarning( "Can't have mipmaps and multisampling in the same texture! Using mipmaps!" );
+		if ( mipmaps )
+			Gl.TextureStorage2D( this.TextureID, sizes.Length, format, sizes[ 0 ].X, sizes[ 0 ].Y );
+		else
+			Gl.TextureStorage2DMultisample( this.TextureID, samples, format, sizes[ 0 ].X, sizes[ 0 ].Y, false );
+
 		for ( int i = 0; i < parameters.Length; i++ )
 			Gl.TextureParameter( this.TextureID, parameters[ i ].Item1, parameters[ i ].Item2 );
 		this._handle = Gl.GetTextureHandleARB( this.TextureID );
+		this._disposer = new TextureDisposal( name, this._handle, this.TextureID, this.Resident );
 	}
 
-	public Texture( string name, TextureTarget target, Vector2i size, InternalFormat format, params (TextureParameterName, int)[] parameters ) : this( name, target, new Vector2i[] { size }, format, parameters ) { }
+	public Texture( string name, TextureTarget target, Vector2i size, InternalFormat format, int samples = 0, params (TextureParameterName, int)[] parameters ) : this( name, target, new Vector2i[] { size }, format, samples, parameters ) { }
 
 	public Vector2i GetMipmap( uint level ) {
 		if ( level > this._sizes.Length )
@@ -80,6 +89,7 @@ public class Texture : DisposableIdentifiable {
 
 		this.LogLine( $"Made resident!", Log.Level.LOW );
 		this.Resident = true;
+		this._disposer.Resident = true;
 		Gl.MakeTextureHandleResidentARB( this._handle );
 	}
 
@@ -92,12 +102,13 @@ public class Texture : DisposableIdentifiable {
 
 		this.LogLine( $"Made non-resident!", Log.Level.LOW );
 		this.Resident = false;
+		this._disposer.Resident = false;
 		Gl.MakeTextureHandleNonResidentARB( this._handle );
 	}
 
 	protected override bool OnDispose() {
 		if ( !Resources.Render.InThread ) {
-			Resources.Render.ContextDiposer.Add( new TextureDisposal( this.FullName, this._handle, this.TextureID, this.Resident ) );
+			Resources.Render.ContextDiposer.Add( this._disposer );
 			return true;
 		}
 		DirectUnbind();
@@ -105,7 +116,9 @@ public class Texture : DisposableIdentifiable {
 		return true;
 	}
 
-	public static bool LoadFile( TextureManager textureManager, string filepath, out Texture t, TextureMagFilter filter = TextureMagFilter.Linear ) {
+	public override IDisposable? GetDisposer() => this._disposer;
+
+	public static bool LoadFile( TextureManager textureManager, string filepath, out Texture t, int samples = 0, TextureMagFilter filter = TextureMagFilter.Linear ) {
 		if ( !File.Exists( filepath ) ) {
 			Log.Warning( $"Couldn't LOCATE {filepath}, using default 1x1 white texture!" );
 			t = textureManager.White1x1;
@@ -140,6 +153,7 @@ public class Texture : DisposableIdentifiable {
 				TextureTarget.Texture2d,
 				(img.Width, img.Height),
 				InternalFormat.Rgba8,
+				samples,
 				(TextureParameterName.TextureMagFilter, (int) filter),
 				(TextureParameterName.TextureMinFilter, (int) filter)
 			);

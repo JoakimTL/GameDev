@@ -8,16 +8,17 @@ using GLFW;
 namespace Engine.Modularity.ECS.Components;
 [Identification( "4db39bf6-bb4b-4258-ad57-e0d032018480" )]
 [Network( ComponentBroadcastSide.BOTH, System.Net.Sockets.ProtocolType.Udp )]
-public class ClientInputComponent : UpdateableComponent {
+public class ClientInputComponent : SerializableComponent {
 
 	/// <summary>
 	/// An arbitrary unit with some relation to the users mouse cursor position on screen, or the OGL virtual mouse. This is affected by sensitivity and other things, and can be used however wanted.
 	/// </summary>
-	public Vector2 MousePosition { get; set; }
+	public Vector2 MousePosition { get; private set; }
 	/// <summary>
 	/// The position of the mouse scroll wheel.
 	/// </summary>
-	public float MouseScroll { get; set; }
+	public float MouseScroll { get; private set; }
+
 	private readonly BitArray _buttons;
 	private readonly BitArray _keys;
 
@@ -30,14 +31,35 @@ public class ClientInputComponent : UpdateableComponent {
 		int buttonId = (int) button;
 		if ( buttonId < 0 || buttonId >= this._buttons.Count )
 			return;
+		bool v = this._buttons.Get( buttonId );
+		if ( state == v )
+			return;
 		this._buttons.Set( buttonId, state );
+		TriggerChanged();
 	}
 
 	public void Set( Keys key, bool state ) {
 		int keyId = (int) key;
 		if ( keyId < 0 || keyId >= this._keys.Count )
 			return;
-		this._keys.Set( keyId, state );
+		bool v = this._keys.Get( keyId );
+		if ( state == v )
+			return;
+			this._keys.Set( keyId, state );
+		TriggerChanged();
+	}
+
+	public void MouseMoved( Vector2 movement ) {
+		if ( movement == Vector2.Zero )
+			return;
+		this.MousePosition += movement;
+		TriggerChanged();
+	}
+	public void MouseScrolled( float movement ) {
+		if ( movement == 0 )
+			return;
+		this.MouseScroll += movement;
+		TriggerChanged();
 	}
 
 	public bool IsButtonPressed( MouseButton button ) {
@@ -83,12 +105,5 @@ public class ClientInputComponent : UpdateableComponent {
 			keyData,
 			buttonData
 		);
-	}
-
-	public override void Update( float time, float deltaTime ) {
-		/*if ( Resources.Render.TryGetContext( out Context? context ) ) {
-			Set( Keys.U, context.Window.KeyboardEvents[ Keys.U ] );
-			Set( Keys.J, context.Window.KeyboardEvents[ Keys.J ] );
-		}*/
 	}
 }

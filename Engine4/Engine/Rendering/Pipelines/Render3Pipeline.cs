@@ -28,15 +28,16 @@ public class Render3Pipeline : DisposableIdentifiable, IRenderPipeline {
 	private readonly UniformBlock _pfxBlock;
 	private bool _normal;
 
-	public Render3Pipeline() : base() {
+	public Render3Pipeline( Window window ) : base() {
 		//Redo rendering. This should be a singleton in renderresources
 		//Maybe in it's own rendermanager singleton? The rendermanager contains the window, which the renderpipelines can access
 		this.Scenes = new MultiSceneRenderer();
 		this._sceneUniforms = new DataBlockCollection( this.SceneCameraBlock = new UniformBlock( "SceneCameraBlock", (uint) Marshal.SizeOf<SceneCameraBlock>(), ShaderType.VertexShader ) );
 		this._pfxUniforms = new DataBlockCollection( this._pfxBlock = new UniformBlock( "PFXBlock", 24, ShaderType.FragmentShader ) );
-		this.Camera = new Camera( this.View = new View3(), this.Perspective = new Perspective.Dynamic( 90 ) );
-		this.GeometryBuffer = new GeometryBuffer();
-		this.Lights = new LightManager( this.SceneCameraBlock );
+		this.Camera = new Camera( this.View = new View3(), this.Perspective = new Perspective.Dynamic( window, 90 ) );
+		this.GeometryBuffer = new GeometryBuffer( window );
+		//TODO: add MSAA
+		this.Lights = new LightManager( window, this.SceneCameraBlock );
 	}
 
 	public void RenderFrame() {
@@ -55,21 +56,21 @@ public class Render3Pipeline : DisposableIdentifiable, IRenderPipeline {
 	}
 
 	public void DrawToScreen() {
-		this._pfxBlock.DirectWrite( 
+		this._pfxBlock.DirectWrite(
 			new PFXBlock(
 				this.Lights.LightBufferTextureHandle,
 				0,
 				0
 			)
 		);
-		RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.Get<TestPFX2Shader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
+		RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.GetOrAdd<TestPFX2Shader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
 		if ( Resources.Render.Window.KeyboardEvents[ GLFW.Keys.R ] ) {
 			this._pfxBlock.DirectWrite( new PFXBlock(
 				this.GeometryBuffer.DiffuseTexture?.GetHandleDirect() ?? 0,
 				this.GeometryBuffer.TransparencyColorTexture?.GetHandleDirect() ?? 0,
 				this.GeometryBuffer.TransparencyRevealTexture?.GetHandleDirect() ?? 0
 			) );
-			RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.Get<TestPFXShader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
+			RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.GetOrAdd<TestPFXShader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
 		}
 		if ( Resources.Render.Window.KeyboardEvents[ GLFW.Keys.Y ] )
 			this._normal = true;
@@ -81,7 +82,7 @@ public class Render3Pipeline : DisposableIdentifiable, IRenderPipeline {
 				0,
 				0
 			) );
-			RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.Get<TestPFX2Shader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
+			RenderUtils.RenderPFX( Resources.Render.Shader.Pipelines.GetOrAdd<TestPFX2Shader>(), Resources.Render.Mesh2.SquarePFX, this._pfxUniforms );
 		}
 
 		/*if ( RenderResourceManager.Window.KeyboardEvents[ GLFW.Keys.U ] ) {

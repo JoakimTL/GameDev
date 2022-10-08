@@ -69,9 +69,9 @@ public class VoxelWorldRenderer : DisposableIdentifiable, IChunkCriteriaProducer
 		for ( int i = 0; i < this._renderDataManagers.Length; i++ )
 			this._renderDataManagers[ i ] = new VoxelRenderDataManager( (VoxelFaceDirection) i, this._scene );
 		for ( int i = 0; i < this._chunkUpdateDrawThreads.Length; i++ )
-			this._chunkUpdateDrawThreads[ i ] = Resources.Get<ThreadManager>().Start( ChunkUpdateDrawThread, $"UpdateDraw[{i}]" );
+			this._chunkUpdateDrawThreads[ i ] = Resources.GlobalService<ThreadManager>().Start( ChunkUpdateDrawThread, $"UpdateDraw[{i}]" );
 		for ( int i = 0; i < this._chunkCreationDrawThreads.Length; i++ )
-			this._chunkCreationDrawThreads[ i ] = Resources.Get<ThreadManager>().Start( ChunkCreationDrawThread, $"CreationDraw[{i}]" );
+			this._chunkCreationDrawThreads[ i ] = Resources.GlobalService<ThreadManager>().Start( ChunkCreationDrawThread, $"CreationDraw[{i}]" );
 	}
 
 	private void WorldChunkUpdated( VoxelChunk chunk ) {

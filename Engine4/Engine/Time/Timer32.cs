@@ -4,6 +4,10 @@ namespace Engine.Time;
 
 public class Timer32 : DisposableIdentifiable {
 
+	public delegate void TimerElapseCallback( double time, double deltaTime );
+
+	private double _previousElapseTime;
+
 	private bool _newInterval;
 	private int _interval;
 	/// <summary>
@@ -36,7 +40,7 @@ public class Timer32 : DisposableIdentifiable {
 	/// <summary>
 	/// This event is raised every time the interval elapses.
 	/// </summary>
-	public event Action? Elapsed;
+	public event TimerElapseCallback? Elapsed;
 
 	/// <summary>
 	/// Creates a new <see cref="Timer32"/>, with a custom interval.
@@ -49,7 +53,7 @@ public class Timer32 : DisposableIdentifiable {
 		this._tickerEvent = new ManualResetEvent( false );
 		this._startEvent = new AutoResetEvent( false );
 
-		Resources.Get<ThreadManager>().Start( InternalTimerCallback, name ?? this.FullName, background );
+		Resources.GlobalService<ThreadManager>().Start( InternalTimerCallback, name ?? this.FullName, background );
 	}
 
 	/// <summary>
@@ -83,12 +87,15 @@ public class Timer32 : DisposableIdentifiable {
 				if ( shouldBreak )
 					break;
 
-				Elapsed?.Invoke();
+				double time = Clock64.StartupTime;
+				double deltaTime = time - this._previousElapseTime;
+				this._previousElapseTime = time;
+				Elapsed?.Invoke( time, deltaTime );
 
 				this._tickCount++;
 
 				long actualTime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
-				long expectedTime = this._startTime + (this._interval * this._tickCount);
+				long expectedTime = this._startTime + ( this._interval * this._tickCount );
 
 				//Setting the remaining interval for the next tick such that the timer has the expected number of ticks. When the 50 ticks happen over 50 intervals is not as important as 50 ticks happening by the time 50 intervals have elapsed.
 				this._remainingInterval = this._interval - (int) ( actualTime - expectedTime );

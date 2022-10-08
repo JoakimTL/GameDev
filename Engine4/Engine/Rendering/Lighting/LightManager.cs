@@ -30,7 +30,7 @@ public class LightManager : DisposableIdentifiable {
 	public ulong LightBufferTextureHandle => this._buffer.DiffuseTexture?.GetHandleDirect() ?? 0;
 	public DirectionalShadowLightRender? DirLight => this._renderedDirectionalShadowedLights.Values.FirstOrDefault();
 
-	public LightManager( UniformBlock sceneBlock ) {
+	public LightManager( Window window, UniformBlock sceneBlock ) {
 		this._scene = new LayerlessScene();
 		this._outgoingLights = new ConcurrentQueue<LightBase>();
 		this._incomingLights = new ConcurrentQueue<LightBase>();
@@ -47,7 +47,7 @@ public class LightManager : DisposableIdentifiable {
 			this._directionalCascadeBlocks[ i ] = new UniformBlock( $"DirectionalCascadeBlock[{i}]", (uint) Marshal.SizeOf<CascadeData>(), ShaderType.FragmentShader );
 			this._uniforms.AddBlock( this._directionalCascadeBlocks[ i ] );
 		}
-		this._buffer = new LightBuffer();
+		this._buffer = new LightBuffer( window );
 	}
 
 	public void AddLight( LightBase light ) => this._incomingLights.Enqueue( light );

@@ -7,16 +7,16 @@ namespace TestPlatform.Voxels2.Render;
 [Identification( "b8ec47e5-d428-42fa-a19a-c4c0427648a2" )]
 public class VoxelShaderBundle : ShaderBundle {
 	public VoxelShaderBundle() : base( 
-		(0, Resources.Render.Shader.Pipelines.Get<VoxelShader>()),
-		(1, Resources.Render.Shader.Pipelines.Get<VoxelDirectionalShader>()) ) { }
+		(0, Resources.Render.Shader.Pipelines.GetOrAdd<VoxelShader>()),
+		(1, Resources.Render.Shader.Pipelines.GetOrAdd<VoxelDirectionalShader>()) ) { }
 	public override bool UsesTransparency => false;
 }
 
 [Identification( "b9200a9f-0999-4e76-872d-b242f76ecc1d" )]
 public class VoxelTransparentShaderBundle : ShaderBundle {
 	public VoxelTransparentShaderBundle() : base( 
-		(0, Resources.Render.Shader.Pipelines.Get<VoxelTransparentShader>()),
-		(1, Resources.Render.Shader.Pipelines.Get<VoxelDirectionalTransparentShader>()) ) { }
+		(0, Resources.Render.Shader.Pipelines.GetOrAdd<VoxelTransparentShader>()),
+		(1, Resources.Render.Shader.Pipelines.GetOrAdd<VoxelDirectionalTransparentShader>()) ) { }
 	public override bool UsesTransparency => true;
 }
 

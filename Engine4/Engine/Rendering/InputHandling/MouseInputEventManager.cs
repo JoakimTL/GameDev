@@ -68,6 +68,8 @@ public class MouseInputEventManager : Identifiable {
 		this.LogLine( $"Lowest button input index: {MinButtonIndex}", Log.Level.NORMAL, ConsoleColor.Blue );
 		this.LogLine( $"Highest button input index: {MaxButtonIndex}", Log.Level.NORMAL, ConsoleColor.Blue );
 		Log.Line( Glfw.RawMouseMotionSupported() ? "Raw mouse input supported!" : "Raw mouse input not supported!", Log.Level.NORMAL, color: ConsoleColor.Blue );
+
+		AddListener( Resources.GlobalService<ClientInput>() );
 	}
 
 	#region Add/Remove

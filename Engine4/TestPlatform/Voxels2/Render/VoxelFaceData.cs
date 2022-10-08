@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Engine.Data.Datatypes;
-using Engine.Rendering.ResourceManagement;
+using Engine.Rendering.Services;
 
 namespace TestPlatform.Voxels2.Render;
 

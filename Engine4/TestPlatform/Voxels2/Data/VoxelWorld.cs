@@ -64,9 +64,9 @@ public class VoxelWorld : DisposableIdentifiable {
 		for ( int i = 0; i < this._lodQueues.Length; i++ )
 			this._lodQueues[ i ] = new ConcurrentQueue<VoxelChunk>();
 		for ( int i = 0; i < this._worldGenThreads.Length; i++ )
-			this._worldGenThreads[ i ] = Resources.Get<ThreadManager>().Start( WorldGenerationThread, $"WorldGen[{i}]" );
-		Resources.Get<ThreadManager>().Start( WorldGenSortingThread, $"ChunkSorter" );
-		Resources.Get<ThreadManager>().Start( ChunkDisposing, "ChunkDisposer" );
+			this._worldGenThreads[ i ] = Resources.GlobalService<ThreadManager>().Start( WorldGenerationThread, $"WorldGen[{i}]" );
+		Resources.GlobalService<ThreadManager>().Start( WorldGenSortingThread, $"ChunkSorter" );
+		Resources.GlobalService<ThreadManager>().Start( ChunkDisposing, "ChunkDisposer" );
 		this.Bounds = bounds;
 	}
 

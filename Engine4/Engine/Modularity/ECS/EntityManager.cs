@@ -1,15 +1,19 @@
-﻿using Engine.Data;
-using Engine.Modularity.Modules;
-using Engine.Structure;
+﻿using System.Collections.Concurrent;
+using Engine;
+using Engine.Data;
 
 namespace Engine.Modularity.ECS;
-public class EntityManager : ModuleSingletonBase, IUpdateable {
+public class EntityManager : ModuleService, IUpdateable {
 
 	public bool Active => true;
 	public bool SaveOnDispose { get; set; }
-	private readonly Dictionary<Guid, Entity> _entities;
-	private readonly Dictionary<string, Entity> _entitiesByName;
-	public IReadOnlyCollection<Entity> Entities => this._entities.Values;
+	private readonly ConcurrentDictionary<Guid, Entity> _entities;
+	private readonly ConcurrentDictionary<string, Entity> _entitiesByName;
+	/// <summary>
+	/// This is not a thread-safe collection!
+	/// </summary>
+	public IReadOnlyCollection<KeyValuePair<Guid, Entity>> Entities => this._entities;
+	private readonly ConcurrentDictionary<ulong, ConcurrentDictionary<Guid, Entity>> _entitiesByPlayer;
 	public event Action<Entity, Component>? OnEntityComponentAdded;
 	public event Action<Entity, Component>? OnEntityComponentRemoved;
 	public event Action<Entity, Component>? OnEntityComponentChanged;
@@ -17,51 +21,57 @@ public class EntityManager : ModuleSingletonBase, IUpdateable {
 	public event Action<Entity>? OnEntityRemoved;
 
 	public EntityManager() {
-		this._entities = new Dictionary<Guid, Entity>();
-		this._entitiesByName = new Dictionary<string, Entity>();
+		this._entities = new();
+		this._entitiesByName = new();
+		this._entitiesByPlayer = new();
 	}
 
 	public void AddEntity( Entity entity ) {
 		if ( entity.Manager is not null ) {
-			this.LogWarning( $"{entity} alread has a manager!" );
+			this.LogWarning( $"{entity} already has a manager!" );
 			return;
 		}
-		lock ( this._entities )
-			if ( this._entities.TryAdd( entity.Guid, entity ) ) {
-				entity.SetManager( this );
-				this._entitiesByName.TryAdd( entity.Name, entity );
-				OnEntityAdded?.Invoke( entity );
-				entity.ComponentAdded += EntityComponentAdded;
-				entity.ComponentRemoved += EntityComponentRemoved;
-				entity.ComponentChanged += EntityComponentChanged;
-			}
+		if ( this._entities.TryAdd( entity.Guid, entity ) ) {
+			this.LogLine( $"{entity} added!", Log.Level.NORMAL );
+			entity.SetManager( this );
+			this._entitiesByName.TryAdd( entity.Name, entity );
+			if ( !this._entitiesByPlayer.TryGetValue( entity.Owner, out ConcurrentDictionary<Guid, Entity>? dict ) )
+				this._entitiesByPlayer.TryAdd( entity.Owner, dict = new() );
+			dict.TryAdd( entity.Guid, entity );
+			OnEntityAdded?.Invoke( entity );
+			entity.ComponentAdded += EntityComponentAdded;
+			entity.ComponentRemoved += EntityComponentRemoved;
+			entity.ComponentChanged += EntityComponentChanged;
+		} else {
+			this.LogWarning( $"Guid already taken! {entity.Guid}" );
+		}
 	}
 
 	public void RemoveEntity( Entity entity ) {
-		lock ( this._entities )
-			if ( this._entities.Remove( entity.Guid ) ) {
-				this._entitiesByName.Remove( entity.Name );
-				InternalRemoveEntity( entity );
-			}
+		if ( this._entities.TryRemove( entity.Guid, out _ ) ) {
+			this._entitiesByName.TryRemove( entity.Name, out _ );
+			InternalRemoveEntity( entity );
+		}
 	}
 
 	public void RemoveEntity( string entityName ) {
-		lock ( this._entities )
-			if ( this._entitiesByName.Remove( entityName, out Entity? entity ) ) {
-				this._entities.Remove( entity.Guid );
-				InternalRemoveEntity( entity );
-			}
+		if ( this._entitiesByName.Remove( entityName, out Entity? entity ) ) {
+			this._entities.TryRemove( entity.Guid, out _ );
+			InternalRemoveEntity( entity );
+		}
 	}
 
 	public void RemoveEntity( Guid entityId ) {
-		lock ( this._entities )
-			if ( this._entities.Remove( entityId, out Entity? entity ) ) {
-				this._entitiesByName.Remove( entity.Name );
-				InternalRemoveEntity( entity );
-			}
+		if ( this._entities.Remove( entityId, out Entity? entity ) ) {
+			this._entitiesByName.TryRemove( entity.Name, out _ );
+			InternalRemoveEntity( entity );
+		}
 	}
 
 	private void InternalRemoveEntity( Entity entity ) {
+		if ( this._entitiesByPlayer.TryGetValue( entity.Owner, out ConcurrentDictionary<Guid, Entity>? dict ) ) {
+			dict.TryRemove( entity.Guid, out _ );
+		}
 		OnEntityRemoved?.Invoke( entity );
 		entity.SetManager( null );
 		entity.ComponentAdded -= EntityComponentAdded;
@@ -72,8 +82,12 @@ public class EntityManager : ModuleSingletonBase, IUpdateable {
 	public void Update( float time, float deltaTime ) {
 		foreach ( Entity entity in this._entities.Values ) {
 			entity.Update( time, deltaTime );
+			if ( !entity.Alive )
+				RemoveEntity( entity );
 		}
 	}
+
+	public IReadOnlyDictionary<Guid, Entity>? GetPlayerEntitiesOrDefault( ulong playerId ) => this._entitiesByPlayer.TryGetValue( playerId, out ConcurrentDictionary<Guid, Entity>? dict ) ? dict : null;
 
 	private void EntityComponentAdded( Entity e, Component c ) => OnEntityComponentAdded?.Invoke( e, c );
 	private void EntityComponentRemoved( Entity e, Component c ) => OnEntityComponentRemoved?.Invoke( e, c );
@@ -82,7 +96,7 @@ public class EntityManager : ModuleSingletonBase, IUpdateable {
 	public byte[][] SerializeAll() {
 		int i = 0;
 		byte[][] data = new byte[ this.Entities.Count ][];
-		foreach ( Entity e in this.Entities )
+		foreach ( Entity e in this.Entities.Select( p => p.Value ) )
 			data[ i++ ] = Entity.Serialize( e ) ?? Array.Empty<byte>();
 		return data;
 	}
@@ -119,7 +133,7 @@ public class EntityManager : ModuleSingletonBase, IUpdateable {
 	}
 
 	private void DeserializeComponent( Entity parent, byte[] data ) {
-		if ( !Component.GetFromSerializedData( data, out Guid? parentGuid, out Guid? typeGuid, out byte[]? componentData ) )
+		if ( !ComponentSerializationUtilities.GetFromSerializedData( data, out Guid? parentGuid, out Guid? typeGuid, out byte[]? componentData ) )
 			return;
 
 		Type? componentType = IdentificationRegistry.Get( typeGuid.Value );
@@ -130,7 +144,8 @@ public class EntityManager : ModuleSingletonBase, IUpdateable {
 		try {
 			object? newComponentObject = Activator.CreateInstance( componentType );
 			if ( newComponentObject is Component newComponent ) {
-				newComponent.SetFromSerializedData( componentData );
+				if ( newComponent is ISerializableComponent serializable )
+					serializable.SetFromSerializedData( componentData );
 				parent.AddComponent( newComponent );
 			}
 		} catch ( Exception ex ) {
@@ -139,7 +154,7 @@ public class EntityManager : ModuleSingletonBase, IUpdateable {
 	}
 
 	public void AddComponent( byte[] data ) {
-		if ( !Component.GetFromSerializedData( data, out Guid? parentGuid, out Guid? typeGuid, out byte[]? componentData ) )
+		if ( !ComponentSerializationUtilities.GetFromSerializedData( data, out Guid? parentGuid, out Guid? typeGuid, out byte[]? componentData ) )
 			return;
 
 		Type? componentType = IdentificationRegistry.Get( typeGuid.Value );
@@ -150,7 +165,8 @@ public class EntityManager : ModuleSingletonBase, IUpdateable {
 		try {
 			object? newComponentObject = Activator.CreateInstance( componentType );
 			if ( newComponentObject is Component newComponent ) {
-				newComponent.SetFromSerializedData( componentData );
+				if ( newComponent is ISerializableComponent serializable )
+					serializable.SetFromSerializedData( componentData );
 				e.AddComponent( newComponent );
 			}
 		} catch ( Exception ex ) {
@@ -159,7 +175,7 @@ public class EntityManager : ModuleSingletonBase, IUpdateable {
 	}
 
 	public void UpdateComponent( byte[] data ) {
-		if ( !Component.GetFromSerializedData( data, out Guid? parentGuid, out Guid? typeGuid, out byte[]? componentData ) )
+		if ( !ComponentSerializationUtilities.GetFromSerializedData( data, out Guid? parentGuid, out Guid? typeGuid, out byte[]? componentData ) )
 			return;
 
 		Type? componentType = IdentificationRegistry.Get( typeGuid.Value );
@@ -167,7 +183,9 @@ public class EntityManager : ModuleSingletonBase, IUpdateable {
 			return;
 		if ( !this._entities.TryGetValue( parentGuid.Value, out Entity? e ) )
 			return;
-		e.GetComponent( componentType )?.SetFromSerializedData( componentData );
+		Component? c = e.GetComponent( componentType );
+		if ( c is ISerializableComponent serializable )
+			serializable.SetFromSerializedData( componentData );
 	}
 
 	public void RemoveComponent( Guid parentGuid, Type componentType ) {

@@ -26,11 +26,10 @@ public class ThreadLogger : Identifiable {
 		return null;
 	}
 
-	private void InternalCallback() {
+	private void InternalCallback(double time, double deltaTime) {
 		//If the collection is changed during the loop, the newest threads will not be included at this time. Since the thread collection only increases in size, this is a safe operation.
-		IReadOnlyList<Thread> threads = Resources.Get<ThreadManager>().Threads;
+		IReadOnlyList<Thread> threads = Resources.GlobalService<ThreadManager>().Threads;
 		int c = threads.Count;
-		double time = Clock64.StartupTime;
 		for ( int i = 0; i < c; i++ ) {
 			Thread t = threads[ i ];
 

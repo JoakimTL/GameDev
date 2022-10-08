@@ -9,6 +9,7 @@ public abstract class Scene : DisposableIdentifiable, IScene {
 	private readonly List<ISceneObject> _sceneObjects;
 	private readonly List<RenderStage> _renderStages;
 	private readonly List<IDataSegment> _segments;
+	//TODO: change from VBDO to VBO?
 	private readonly VertexBufferDataObject _commandBuffer;
 	private readonly AutoResetEvent _lock;
 	private bool _updated;
@@ -68,8 +69,8 @@ public abstract class Scene : DisposableIdentifiable, IScene {
 		ShaderBundle? currentShader = null;
 		VertexArrayObject? currentVAO = null;
 
-		for ( int i = 0; i < _sceneObjects.Count; i++ )
-			_sceneObjects[ i ].Bind();
+		for ( int i = 0; i < this._sceneObjects.Count; i++ )
+			this._sceneObjects[ i ].Bind();
 
 		for ( int i = 0; i < this._renderStages.Count; i++ ) {
 			RenderStage stage = this._renderStages[ i ];
@@ -118,7 +119,7 @@ public abstract class Scene : DisposableIdentifiable, IScene {
 				RenderCount++;
 			}*/
 
-		//this._commandBuffer.ContextUpdate();
+		this._commandBuffer.ContextUpdate();
 
 		this._renderStages.Clear();
 		uint offset = 0;

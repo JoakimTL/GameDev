@@ -1,9 +1,6 @@
-﻿using System.Numerics;
-using Engine.Data.Datatypes.Transforms;
+﻿namespace Engine.Rendering.Standard.UI;
 
-namespace Engine.Rendering.Standard.UI;
-
-public class UIConstraintManager<T> : IUIConstraint<T> where T : class{
+public class UIConstraintManager<T> : IUIConstraint<T> where T : class {
 
 	private readonly List<IUIConstraint<T>> _constraints;
 	private bool _newConstraints;

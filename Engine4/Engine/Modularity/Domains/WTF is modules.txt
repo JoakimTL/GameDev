@@ -1,0 +1,3 @@
+﻿Modules are packages of software capable to working alone, but can also communicate with other modules.
+
+Global services may exist that require different modules to work.

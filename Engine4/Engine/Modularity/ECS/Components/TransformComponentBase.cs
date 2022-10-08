@@ -5,7 +5,7 @@ using Engine.Data.Datatypes.Transforms;
 namespace Engine.Modularity.ECS.Components;
 
 [OverrideType( typeof( TransformComponentBase<,,> ) )]
-public abstract class TransformComponentBase<T, R, S> : Component
+public abstract class TransformComponentBase<T, R, S> : SerializableComponent
 	where T : unmanaged
 	where R : unmanaged
 	where S : unmanaged {

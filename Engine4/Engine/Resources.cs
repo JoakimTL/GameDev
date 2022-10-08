@@ -2,10 +2,10 @@
 
 namespace Engine;
 public static class Resources {
-	private static readonly UpdateableSingletonProvider<object> _singletonProvider = new();
-	public static T Get<T>() where T : Identifiable => _singletonProvider.Get<T>();
-	internal static void Update( float time, float deltaTime ) => _singletonProvider.Update( time, deltaTime );
-	internal static void Dispose() => _singletonProvider.Dispose();
+	private static readonly ServiceProvider<object> _serviceProvider = new();
+	public static T GlobalService<T>() where T : Identifiable => _serviceProvider.GetOrAdd<T>();
+	internal static void Update( float time, float deltaTime ) => _serviceProvider.Update( time, deltaTime );
+	internal static void Dispose() => _serviceProvider.Dispose();
 
-	public static Rendering.RenderResources Render => _singletonProvider.Get<Rendering.RenderResources>();
+	public static Rendering.RenderResources Render => _serviceProvider.GetOrAdd<Rendering.RenderResources>();
 }

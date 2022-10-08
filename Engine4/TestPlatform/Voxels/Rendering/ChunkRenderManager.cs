@@ -118,7 +118,7 @@ public class ChunkRenderManager : DisposableIdentifiable {
 		}
 		this._chunk.VoxelRenderChange += VoxelRenderUpdate;
 		//this.LogLine( $"Mesh generated, containing {this._opaqueChunks.SelectMany( p => p.Value.Select( q => q.FaceCount ) ).Aggregate( ( p, q ) => p + q )} faces!", Log.Level.NORMAL );
-		Resources.Get<ThreadManager>().Start( UpdateMesh, $"{this.FullName}" );
+		Resources.GlobalService<ThreadManager>().Start( UpdateMesh, $"{this.FullName}" );
 	}
 
 	private void VoxelRenderUpdate() => this._updated.Set();

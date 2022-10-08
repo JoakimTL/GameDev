@@ -39,6 +39,7 @@ public abstract class UIElement : Identifiable {
 	public TransformReadonly<Vector2, float, Vector2> Transform => this._transform.Readonly;
 	public UIElement? Parent { get; private set; }
 	public IReadOnlyCollection<UIElement> Children => this._children;
+	public UIManager? UIManager { get; private set; }
 
 	#region Events
 	public event Action<UIElement, float, float>? Updated;
@@ -81,6 +82,21 @@ public abstract class UIElement : Identifiable {
 		ParentSet += OnParentChanged;
 	}
 
+	internal void SetUIManager( UIManager? uiManager ) {
+		if ( this._sceneObject is not null )
+			UIManager?.Scene.RemoveSceneObject( this._sceneObject );
+		this.UIManager = uiManager;
+		if ( this.Rendering && this._sceneObject is not null )
+			UIManager?.Scene.AddSceneObject( this._sceneObject );
+		foreach ( UIElement e in this._children )
+			e.SetUIManager( uiManager );
+	}
+
+	internal void RemovedFromUIManager( UIManager? uiManager ) {
+		if ( uiManager == this.UIManager )
+			SetUIManager( null );
+	}
+
 	private void OnParentChanged( UIElement e, UIElement? parent ) {
 		if ( parent is null )
 			return;
@@ -121,20 +137,23 @@ public abstract class UIElement : Identifiable {
 			return;
 		bool wasRendering = this.Rendering;
 		this.Rendering = this.Active && this.ShouldRender && this._sceneObject is not null;
-		if ( this.Rendering != wasRendering )
+		if ( this.Rendering != wasRendering && UIManager is not null )
 			if ( this.Rendering ) {
-				Resources.Render.Get<UIManager>().Scene.AddSceneObject( so );
+				UIManager.Scene.AddSceneObject( so );
 			} else {
-				Resources.Render.Get<UIManager>().Scene.RemoveSceneObject( so );
+				UIManager.Scene.RemoveSceneObject( so );
 			}
 	}
 
-	public void SetParent( UIElement e ) {
+	public void SetParent( UIElement? e ) {
 		if ( e == this.Parent )
 			return;
 		this.Parent?.RemoveChild( this );
 		this.Parent = e;
-		this._transform.Parent = this.Parent._transform;
+		SetUIManager( this.Parent?.UIManager );
+		this._transform.Parent = this.Parent?._transform;
+		if ( !this.Active && ( this.Parent?.Active ?? false ) )
+			Activate();
 		this.Parent?.AddChild( this );
 		ParentSet?.Invoke( this, this.Parent );
 	}
@@ -149,7 +168,8 @@ public abstract class UIElement : Identifiable {
 			ChildRemoved?.Invoke( this, e );
 	}
 
-	public void SetConstraint( IUIConstraint<Transform2> constriant ) => this._transformConstraint = constriant;
+	public void SetConstraint( IUIConstraint<Transform2> constraint ) => this._transformConstraint = constraint;
+	public void SetConstraint( Action<float, float, Transform2> transformApplicator ) => this._transformConstraint = new TransformProviderConstraint<Transform2>( transformApplicator );
 
 	protected void SetSceneObject( ISceneObject sceneObject ) {
 		if ( this._sceneObject is not null )

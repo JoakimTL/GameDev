@@ -1,0 +1,31 @@
+﻿Modules
+- A module is a contained unit with it's own services and submodules. The submodules have access to the services. A submodule can 
+
+Submodule:
+ - A small piece of a module, it can depend on other submodules and services.
+ - Can have it's own thread if specified, but most likely will end up using the module thread.
+
+
+Graphics:
+ - Module -> Graphics submodule -> Loads all "IRenderService" services? -> Entity services used to capture rendered entities
+IRenderService:
+ - Has an initialize
+ - Can be IUpdateable, if so it is updated by the graphics submodule
+ - An entity capture service can be an example, where an EntityService is used to display all available entities in the world
+ - If you want particles, create a service and have it create particles
+
+
+Global Services vs Local Services
+
+A global service is accessible throughout the software, from anywhere using a static ServiceProvider instance (Resources.Services)
+A local service is accessible only at module level. A module comes equipped with a service provider
+Global services must inherit from the IGlobalService interface. The interface in itself does nothing but indicate this is a global service. 
+Local services does not have this requirement.
+
+Serices
+IUpdateable means the service is guaranteed to be updated regularly through a "Update" method.
+IDisposable means the service is guaranteed* to be disposed of when the application closes. *Guaranteed when gracefully shutting down
+IInitializable
+[DiscardOnInitialization]
+
+Should the ServiceProvider track when a service should be disposed?

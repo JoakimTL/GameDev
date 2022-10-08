@@ -2,29 +2,32 @@
 using OpenGL;
 
 namespace Engine.Rendering.Pipelines;
-public class RenderPipelineManager : SingletonProvider<IRenderPipeline> {
+public class RenderPipelineManager : ModuleService {
 
+	//TODO Fix window parameter
+	private readonly ServiceProvider<IRenderPipeline> _pipelines;
 	private readonly BidirectionalTreeStructureProvider _pipelineTypeTree;
 	private readonly List<IRenderPipeline> _sortedPipelines;
 
 	public RenderPipelineManager() {
+		this._pipelines = new();
+		this._pipelines.ServiceAdded += PipelineAdded;
 		this._pipelineTypeTree = new( typeof( IRenderPipeline ) );
 		this._sortedPipelines = new();
 		this._pipelineTypeTree.TreeUpdated += TreeUpdated;
-		SingletonAdded += CheckPipeline;
 	}
 
 	private void TreeUpdated() {
 		this._sortedPipelines.Clear();
-		this._sortedPipelines.AddRange( this._pipelineTypeTree.WalkTreeForward().Select( GetOrDefault ).OfType<IRenderPipeline>() );
+		this._sortedPipelines.AddRange( this._pipelineTypeTree.GetNodesSorted().Select( this._pipelines.Peek ).OfType<IRenderPipeline>() );
 	}
 
-	private void CheckPipeline( object obj ) {
+	private void PipelineAdded( object obj ) {
 		if ( obj is IRenderPipeline )
 			this._pipelineTypeTree.Add( obj.GetType() );
 	}
 
-	public void AddPipeline<T>() where T : IRenderPipeline => Add<T>();
+	public void AddPipeline<T>() where T : IRenderPipeline => this._pipelines.GetOrAdd<T>();
 
 	public void Render() {
 		this._pipelineTypeTree.Update();
@@ -35,6 +38,7 @@ public class RenderPipelineManager : SingletonProvider<IRenderPipeline> {
 		Gl.ClearColor( 0, 0, 0, 0 );
 		Gl.Clear( ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
 		Gl.Enable( EnableCap.Blend );
+		Gl.BlendFunc( BlendingFactor.One, BlendingFactor.One );
 		Gl.Disable( EnableCap.DepthTest );
 		Gl.Disable( EnableCap.CullFace );
 
@@ -42,5 +46,10 @@ public class RenderPipelineManager : SingletonProvider<IRenderPipeline> {
 			this._sortedPipelines[ i ].DrawToScreen();
 
 		Gl.Disable( EnableCap.Blend );
+	}
+
+	protected override bool OnDispose() {
+		this._pipelines.Dispose();
+		return true;
 	}
 }

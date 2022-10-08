@@ -37,7 +37,7 @@ public class PointLightNoShadowRender : PointLightRenderBase<PointLightData> {
 
 [Identification( "6d3f8379-1e29-4dc2-a3f6-c0a2297c8b83" )]
 public class PointLightNoShadowShaderBundle : ShaderBundle {
-	public PointLightNoShadowShaderBundle() : base( (0, Resources.Render.Shader.Pipelines.Get<PointLightNoShadowShader>()) ) { }
+	public PointLightNoShadowShaderBundle() : base( (0, Resources.Render.Shader.Pipelines.GetOrAdd<PointLightNoShadowShader>()) ) { }
 	public override bool UsesTransparency => true;
 }
 

@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using Engine.Rendering.Colors;
 using Engine.Rendering.Standard.Scenes.VerletParticles;
 using Engine.Rendering.Standard.Scenes.VerletParticles.Systems;
 

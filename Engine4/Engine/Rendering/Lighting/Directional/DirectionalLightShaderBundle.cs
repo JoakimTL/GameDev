@@ -4,7 +4,7 @@ namespace Engine.Rendering.Lighting.Directional;
 
 [Identification( "00559aa3-9968-464f-a6ee-df011921eddf" )]
 public class DirectionalLightShaderBundle : ShaderBundle {
-	public DirectionalLightShaderBundle() : base( (0, Resources.Render.Shader.Pipelines.Get<DirectionalLightShader>()) ) { }
+	public DirectionalLightShaderBundle() : base( (0, Resources.Render.Shader.Pipelines.GetOrAdd<DirectionalLightShader>()) ) { }
 	public override bool UsesTransparency => true;
 }
 
@@ -18,7 +18,7 @@ public class DirectionalLightProgramVertex : ShaderProgram {
 
 [Identification( "f78943b6-984d-432f-b8ee-127c3d118f9c" )]
 public class DirectionalShadowedLightShaderBundle : ShaderBundle {
-	public DirectionalShadowedLightShaderBundle() : base( (0, Resources.Render.Shader.Pipelines.Get<DirectionalShadowedLightShader>()) ) { }
+	public DirectionalShadowedLightShaderBundle() : base( (0, Resources.Render.Shader.Pipelines.GetOrAdd<DirectionalShadowedLightShader>()) ) { }
 	public override bool UsesTransparency => true;
 }
 

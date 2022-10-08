@@ -4,16 +4,16 @@ using OpenGL;
 namespace Engine.Rendering.Utilities;
 public static class OpenGLUtilities {
 	public static bool Initialized { get; private set; } = false;
-	private static readonly ManualResetEvent _initializationWaiter = new(false);
+	private static readonly ManualResetEvent _initializationWaiter = new( false );
 
 	public static void WaitInitialization() {
 		Log.Line( "Waiting for OpenGL initialization...", Log.Level.LOW );
 		_initializationWaiter.WaitOne();
 	}
 
-	public static void InitializeGL() {
+	public static bool InitializeGL() {
 		if ( Initialized )
-			return;
+			throw new InvalidOperationException("OpenGL has already been initialized.");
 
 		Gl.Initialize();
 
@@ -25,10 +25,11 @@ public static class OpenGLUtilities {
 		Initialized = true;
 		_initializationWaiter.Set();
 		Log.Line( "OpenGL initialized!", Log.Level.NORMAL, ConsoleColor.Green );
+		return true;
 	}
 
 	public static void SetHints() {
-		Glfw.WindowHint( Hint.Samples, 4 );
+		Glfw.WindowHint( Hint.Samples, 0 );
 		Glfw.WindowHint( Hint.ContextVersionMajor, 4 );
 		Glfw.WindowHint( Hint.ContextVersionMinor, 6 );
 		Glfw.WindowHint( Hint.OpenglForwardCompatible, Constants.True );

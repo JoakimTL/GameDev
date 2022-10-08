@@ -1,11 +1,11 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace Engine.Structure;
 
 public class BidirectionalTreeStructureProvider : Identifiable {
 
-	private readonly List<Type> _sortedTypes;
-	private readonly Dictionary<Type, BidirectionalNode> _nodes;
+	private readonly ConcurrentDictionary<Type, BidirectionalNode> _nodes;
 	private bool _needsUpdate;
 	public Type? ProcessType { get; }
 
@@ -14,20 +14,19 @@ public class BidirectionalTreeStructureProvider : Identifiable {
 	public BidirectionalTreeStructureProvider( Type? processType ) {
 		this.ProcessType = processType;
 		this._nodes = new();
-		this._sortedTypes = new();
 	}
 
 	public void Add( Type t ) {
 		if ( t is null )
 			throw new ArgumentNullException( nameof( t ) );
-		this._nodes.Add( t, new BidirectionalNode( t ) );
-		this._needsUpdate = true;
+		if ( this._nodes.TryAdd( t, new BidirectionalNode( t ) ) )
+			this._needsUpdate = true;
 	}
 
 	public void Remove( Type t ) {
 		if ( t is null )
 			throw new ArgumentNullException( nameof( t ) );
-		if ( this._nodes.Remove( t ) )
+		if ( this._nodes.TryRemove( t, out _ ) )
 			this._needsUpdate = true;
 	}
 
@@ -54,13 +53,11 @@ public class BidirectionalTreeStructureProvider : Identifiable {
 				}
 			}
 		}
-		this._sortedTypes.Clear();
-		this._sortedTypes.AddRange( GetNodesSorted() );
 		this._needsUpdate = false;
 		TreeUpdated?.Invoke();
 	}
 
-	private IEnumerable<Type> GetNodesSorted() {
+	public IEnumerable<Type> GetNodesSorted() {
 		HashSet<Type> walked = new();
 		Queue<BidirectionalNode> unprocessed = new( this._nodes.Values.Where( p => p.Parents.Count == 0 ) );
 
@@ -77,14 +74,17 @@ public class BidirectionalTreeStructureProvider : Identifiable {
 		}
 	}
 
-	public void Update() {
-		if ( this._needsUpdate )
-			UpdateStructure();
+	public IEnumerable<Type> UpdateAndGetNodesSorted() {
+		Update();
+		return GetNodesSorted();
 	}
 
-	public IReadOnlyList<Type> WalkTreeForward() {
-		Update();
-		return this._sortedTypes;
+	public bool Update() {
+		if ( this._needsUpdate ) {
+			UpdateStructure();
+			return true;
+		}
+		return false;
 	}
 
 	public class BidirectionalNode {

@@ -13,7 +13,7 @@ public class ShaderPipeline : DisposableIdentifiable {
 		List<ShaderProgram> validPrograms = new();
 
 		for ( int i = 0; i < programs.Length; i++ ) {
-			ShaderProgram p = Resources.Render.Shader.Programs.Get( programs[ i ] );
+			ShaderProgram p = Resources.Render.Shader.Programs.GetOrAdd( programs[ i ] );
 			if ( p is not null )
 				validPrograms.Add( p );
 		}

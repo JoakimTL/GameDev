@@ -1,6 +1,4 @@
-﻿using Engine.Data.Datatypes.Transforms;
-
-namespace Engine.Rendering.Standard.UI;
+﻿namespace Engine.Rendering.Standard.UI;
 
 public interface IUIConstraint<T> where T : class {
 	int ExecutionOrder { get; }

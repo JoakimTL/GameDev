@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.InteropServices;
 using Engine.Rendering.Standard.UI.Standard.Text.Shaders;
-using Engine.Rendering.Standard.VertexArrayObjects.Layouts;
 
 namespace Engine.Rendering.Standard.UI.Standard.Text;
 public class TextSceneObject : ClosedSceneObject<Vector2, TextGlyphRenderData> {
@@ -12,22 +11,22 @@ public class TextSceneObject : ClosedSceneObject<Vector2, TextGlyphRenderData> {
 	public TextSceneObject( Texture fontTexture, uint initialSize = 512 ) {
 		SetMesh( Resources.Render.Mesh2.SquarePFX );
 		SetShaders( Resources.Render.Shader.Bundles.Get<DistanceFieldGlyphShaderBundle>() ); //TODO: different shaders
-		SetSceneData( _sceneInstanceData = new SceneInstanceData<TextGlyphRenderData>( initialSize, 0 ) );
+		SetSceneData( this._sceneInstanceData = new SceneInstanceData<TextGlyphRenderData>( initialSize, 0 ) );
 		this._fontTexture = fontTexture;
 	}
 
 	public void Resize( uint numGlyphs ) {
-		if ( numGlyphs < _sceneInstanceData.MaxInstances )
+		if ( numGlyphs < this._sceneInstanceData.MaxInstances )
 			return;
-		_sceneInstanceData.Dispose();
-		SetSceneData( _sceneInstanceData = new SceneInstanceData<TextGlyphRenderData>( numGlyphs, 0 ) );
+		this._sceneInstanceData.Dispose();
+		SetSceneData( this._sceneInstanceData = new SceneInstanceData<TextGlyphRenderData>( numGlyphs, 0 ) );
 	}
 
 	private unsafe void SetData( TextGlyphRenderData* data, uint elementCount ) {
-		if ( elementCount != _sceneInstanceData.MaxInstances )
+		if ( elementCount != this._sceneInstanceData.MaxInstances )
 			Resize( elementCount );
-		_sceneInstanceData.SetInstances( 0, data, elementCount );
-		_sceneInstanceData.SetActiveInstances( elementCount );
+		this._sceneInstanceData.SetInstances( 0, data, elementCount );
+		this._sceneInstanceData.SetActiveInstances( elementCount );
 	}
 
 	public void UpdateSceneObjectData( Matrix4x4 transform, ulong textureHandle, IReadOnlyList<TextGlyphData> glyphs ) {
@@ -56,5 +55,5 @@ public class TextSceneObject : ClosedSceneObject<Vector2, TextGlyphRenderData> {
 		}
 	}
 
-	public override void Bind() => _fontTexture.DirectBind();
+	public override void Bind() => this._fontTexture.DirectBind();
 }

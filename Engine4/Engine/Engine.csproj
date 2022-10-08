@@ -11,6 +11,8 @@
 	<ItemGroup>
 	  <None Remove="res\shaders\frag.frag" />
 	  <None Remove="res\shaders\gBuffer.frag" />
+	  <None Remove="res\shaders\geom\geometry2.frag" />
+	  <None Remove="res\shaders\geom\geometry2.vert" />
 	  <None Remove="res\shaders\geom\geometry3.frag" />
 	  <None Remove="res\shaders\geom\geometry3.vert" />
 	  <None Remove="res\shaders\geom\geometry3directional.frag" />
@@ -36,6 +38,7 @@
 	  <None Remove="res\shaders\ui\uiShader.frag" />
 	  <None Remove="res\shaders\ui\uiShader.vert" />
 	  <None Remove="res\shaders\vert.vert" />
+	  <None Remove="res\templates\Flumbo.tmpl" />
 	  <None Remove="res\textures\BlankBlack.png" />
 	  <None Remove="res\textures\BlankWhite.png" />
 	  <None Remove="res\textures\button195.png" />
@@ -45,8 +48,11 @@
 	  <None Remove="res\textures\button95.png" />
 	  <None Remove="res\textures\buttonMap120.png" />
 	  <None Remove="res\textures\dudv.png" />
+	  <None Remove="res\textures\Flumbo.png" />
 	  <None Remove="res\textures\fonts\calibri.fnt" />
 	  <None Remove="res\textures\fonts\calibri.png" />
+	  <None Remove="res\textures\fonts\calibriLight.fnt" />
+	  <None Remove="res\textures\fonts\calibriLight.png" />
 	  <None Remove="res\textures\fonts\default.fnt" />
 	  <None Remove="res\textures\fonts\default.png" />
 	  <None Remove="res\textures\fonts\verdana.fnt" />
@@ -70,6 +76,12 @@
 
 	<ItemGroup>
 	  <Content Include="res\shaders\frag.frag">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\geometry2.vert">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\shaders\geom\geometry2.frag">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="res\shaders\geom\geometry3directional.frag">
@@ -150,6 +162,9 @@
 	  <Content Include="res\shaders\vert.vert">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	  <Content Include="res\templates\Flumbo.tmpl">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="res\textures\BlankBlack.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
@@ -177,10 +192,19 @@
 	  <Content Include="res\textures\dudv.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	  <Content Include="res\textures\Flumbo.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="res\textures\fonts\calibri.fnt">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="res\textures\fonts\calibri.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\fonts\calibriLight.fnt">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="res\textures\fonts\calibriLight.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Include="res\textures\heightmap.png">
@@ -234,6 +258,7 @@
 		<Folder Include="Modularity\ECS\Systems\" />
 		<Folder Include="Physics\Collision\D2\" />
 		<Folder Include="Physics\Mechanical\" />
+		<Folder Include="Rendering\ResourceManagement\" />
 		<Folder Include="Rendering\ShaderBundles\" />
 	</ItemGroup>
 

@@ -9,7 +9,6 @@ public static class Log {
 	public static Level LoggingLevel { get; set; } = Level.NORMAL;
 	public static string Prefix => $"[{DateTime.Now:yyyy/MM/dd/HH:mm:ss.fff}][{Thread.CurrentThread.Name}:{Environment.CurrentManagedThreadId}/{Thread.CurrentThread.CurrentCulture.Name}]";
 
-	private const string _logPipeName = "6ce2bd86-9d72-42f8-a096-22f1e5fa61d0";
 	private static bool _initialized;
 	private static NamedPipeServerStream? _pipeServer;
 	private static readonly BlockingCollection<(bool, ConsoleColor, string)> _logData = new();
@@ -32,16 +31,17 @@ public static class Log {
 			logString += $"{Environment.NewLine}{GenerateStackTrace( stackLevel )}";
 		if ( !_initialized ) {
 			_initialized = true;
-			Resources.Get<ThreadManager>().Start( FileLogging, "Engine Logging" );
+			Resources.GlobalService<ThreadManager>().Start( FileLogging, "Engine Logging" );
 		}
 
 		_logData.Add( (logToConsole, color, logString) );
 	}
 
 	private static void FileLogging() {
-		_pipeServer = new NamedPipeServerStream( _logPipeName, PipeDirection.Out );
+		string pipeName = Guid.NewGuid().ToString();
+		_pipeServer = new NamedPipeServerStream( pipeName, PipeDirection.Out );
 		byte[] buffer = new byte[ ushort.MaxValue + 1 ];
-		Process p = Process.Start( "EngineLogging.exe", _logPipeName );
+		Process p = Process.Start( "EngineLogging.exe", pipeName );
 
 		try {
 			_pipeServer.WaitForConnection();

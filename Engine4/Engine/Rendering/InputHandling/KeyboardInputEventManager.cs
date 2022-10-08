@@ -44,6 +44,8 @@ public class KeyboardInputEventManager : Identifiable {
 
 		this.LogLine( $"Lowest key input index: {MinKeyIndex}", Log.Level.NORMAL, ConsoleColor.Blue );
 		this.LogLine( $"Highest key input index: {MaxKeyIndex}", Log.Level.NORMAL, ConsoleColor.Blue );
+
+		AddListener( Resources.GlobalService<ClientInput>() );
 	}
 
 	/// <summary>

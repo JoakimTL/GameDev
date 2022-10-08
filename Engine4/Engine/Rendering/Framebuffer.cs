@@ -1,4 +1,5 @@
 ﻿using Engine.Data.Datatypes;
+using Engine.Rendering.Disposal;
 using Engine.Rendering.Utilities;
 using OpenGL;
 
@@ -24,9 +25,19 @@ public abstract class Framebuffer : DisposableIdentifiable {
 	}
 
 	public Texture CreateTexture( TextureTarget target, InternalFormat internalFormat, params (TextureParameterName, int)[] parameters ) {
-		Texture t = new( $"FBO#{this.Name}:{internalFormat}", target, this.Size, internalFormat, parameters );
+		Texture t = new( $"FBO#{this.Name}:{internalFormat}", target, this.Size, internalFormat, 0, parameters );
 		this.LogLine( $"Created new texture [{t}]!", Log.Level.LOW, ConsoleColor.Cyan );
 		return t;
+	}
+
+	public uint CreateRenderbuffer( InternalFormat format, int samples ) {
+		uint buffer = Gl.CreateRenderbuffer();
+		if ( samples <= 0 ) {
+			Gl.NamedRenderbufferStorage( buffer, format, this.Size.X, this.Size.Y );
+		} else {
+			Gl.NamedRenderbufferStorageMultisample( buffer, samples, format, this.Size.X, this.Size.Y );
+		}
+		return buffer;
 	}
 
 	private void ProportionsChanged() {
@@ -49,6 +60,27 @@ public abstract class Framebuffer : DisposableIdentifiable {
 		ProportionsChanged();
 	}
 
+	public void BlitToFbo( Framebuffer destination, ClearBufferMask mask, BlitFramebufferFilter filter ) {
+		Gl.BindFramebuffer( FramebufferTarget.ReadFramebuffer, this._framebufferId );
+		Gl.BindFramebuffer( FramebufferTarget.DrawFramebuffer, destination._framebufferId );
+		Gl.BlitFramebuffer(
+			0, 0, this.Size.X, this.Size.Y,
+			0, 0, destination.Size.X, destination.Size.Y,
+			mask, filter );
+		Gl.BindFramebuffer( FramebufferTarget.ReadFramebuffer, 0 );
+		Gl.BindFramebuffer( FramebufferTarget.DrawFramebuffer, 0 );
+	}
+	public void BlitToScreen( Window window, ClearBufferMask mask, BlitFramebufferFilter filter ) {
+		Gl.BindFramebuffer( FramebufferTarget.ReadFramebuffer, this._framebufferId );
+		Gl.BindFramebuffer( FramebufferTarget.DrawFramebuffer, 0 );
+		Gl.BlitFramebuffer(
+			0, 0, this.Size.X, this.Size.Y,
+			0, 0, window.Size.X, window.Size.Y,
+			mask, filter );
+		Gl.DrawBuffer( DrawBufferMode.Back );
+		Gl.BindFramebuffer( FramebufferTarget.ReadFramebuffer, 0 );
+	}
+
 	public abstract void Clear();
 	protected abstract void Generate();
 
@@ -62,7 +94,8 @@ public abstract class Framebuffer : DisposableIdentifiable {
 		}
 
 		if ( this._renderBuffers.Count > 0 ) {
-			Gl.DeleteRenderbuffers( this._renderBuffers.ToArray() );
+			//TODO no more resources class
+			Resources.Render.ContextDiposer.Add( new BufferDisposer( this._renderBuffers.ToArray() ) );
 			this._renderBuffers.Clear();
 		}
 
@@ -190,20 +223,22 @@ public abstract class Framebuffer : DisposableIdentifiable {
 
 	public sealed class WindowProportions : Proportions {
 
-		public override Vector2i Size => Vector2i.Max( Vector2i.Ceiling( Resources.Render.Window.Size * this._scale ), 1 );
+		public override Vector2i Size => Vector2i.Max( Vector2i.Ceiling( _window.Size * this._scale ), 1 );
 		public override event Action? Resized;
 
+		private readonly Window _window;
 		private readonly float _scale;
 
-		public WindowProportions( float scale ) {
+		public WindowProportions( Window window, float scale ) {
+			this._window = window;
 			this._scale = scale;
-			Resources.Render.Window.WindowEvents.Resized += WindowResized;
+			window.WindowEvents.Resized += WindowResized;
 		}
 
 		private void WindowResized( int width, int height ) => Resized?.Invoke();
 
 		protected override bool OnDispose() {
-			Resources.Render.Window.WindowEvents.Resized -= WindowResized;
+			_window.WindowEvents.Resized -= WindowResized;
 			return true;
 		}
 	}

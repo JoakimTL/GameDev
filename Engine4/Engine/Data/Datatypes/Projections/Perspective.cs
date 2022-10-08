@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Engine.Rendering;
 
 namespace Engine.Data.Datatypes.Projections;
 public class Perspective : MatrixProviderBase {
@@ -78,10 +79,13 @@ public class Perspective : MatrixProviderBase {
 	}
 
 	public class Dynamic : Perspective {
-		public Dynamic( float fov, float zNear = DEFAULT_NEAR, float zFar = DEFAULT_FAR ) : base(fov, Resources.Render.Window.AspectRatio, zNear, zFar) {
-			Resources.Render.Window.WindowEvents.Resized += WindowResized;
+		private readonly Window _window;
+
+		public Dynamic( Window window, float fov, float zNear = DEFAULT_NEAR, float zFar = DEFAULT_FAR ) : base(fov, window.AspectRatio, zNear, zFar) {
+			this._window = window;
+			window.WindowEvents.Resized += WindowResized;
 		}
 
-		private void WindowResized( int width, int height ) => this.AspectRatio = Resources.Render.Window.AspectRatio;
+		private void WindowResized( int width, int height ) => this.AspectRatio = _window.AspectRatio;
 	}
 }

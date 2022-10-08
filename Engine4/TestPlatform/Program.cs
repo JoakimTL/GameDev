@@ -1,9 +1,4 @@
-﻿using Engine;
-using Engine.Modularity.Modules;
-using Engine.Modularity.Modules.Submodules;
-using Engine.Rendering.Standard.UI.Standard.Text;
-using TestPlatform;
-
+﻿
 //int xn = 32;
 //int yn = 32;
 //int zn = 32;
@@ -36,7 +31,7 @@ using TestPlatform;
 //variance /= n - 1;
 //Console.WriteLine( "VAR: " + variance );
 //Console.WriteLine( "SD:  " + Math.Sqrt( variance ) );
-/*
+
 Random r1 = new Random( 55 );
 byte[][] segments = new byte[ 6 ][];
 segments[ 0 ] = new byte[ 32 ];
@@ -53,7 +48,7 @@ unchecked {
 
 byte[]? o = Engine.Data.Segmentation.Segment( segments );
 byte[][]? p = Engine.Data.Segmentation.Parse( o );
-*/
+
 /*
 Console.WriteLine( "out" );
 for ( int i = 0; i < o.Length; i++ ) {
@@ -137,20 +132,19 @@ for ( int i = 0; i < bb.Length; i++ ) {
 }
 */
 
-/*
-Startup.Start(
-	ModuleGenerator.CreateModule( "Client", 0, true,
-	ModuleGenerator.GetRenderSubmodules(),
-	ModuleGenerator.GetBasicSubmodules(),
-	ModuleGenerator.GetClientSubmodules(),
-	new[] { typeof( Render2Submodule ), typeof( Render3Submodule ), typeof( EntityManagementTestSubmodule ) } ),
 
-	ModuleGenerator.CreateModule( "Server", 1, false, 50,
-	ModuleGenerator.GetBasicSubmodules(),
-	ModuleGenerator.GetServerSubmodules(),
-	new[] { typeof( EntityNetworkManagementSubmodule ) } )
-);
-*/
+//Startup.Start(
+//	ModuleGenerator.CreateModule( "Client", 0, true,
+//	ModuleGenerator.GetRenderSubmodules(),
+//	ModuleGenerator.GetClientSubmodules(),
+//	new[] { typeof( RenderSubmodule ), typeof( EntityManagementTestSubmodule ) } ),
+
+//	ModuleGenerator.CreateModule( "Server", 1, false, 50,
+//	ModuleGenerator.GetServerSubmodules(),
+//	new[] { typeof( EntityNetworkManagementSubmodule ) } )
+//);
+
+
 
 /*
 VoxelChunkBase c = new RenderVoxelChunk( 0, 1 );
@@ -179,13 +173,15 @@ Startup.Start(
 );
 */
 
+/*
 Startup.Start(
 	ModuleGenerator.CreateModule(
 		"Test", 0, true,
 		ModuleGenerator.GetRenderSubmodules(),
-		new[] { typeof(RenderSubmodule), typeof(VoxelTestSubmodule)}
+		new[] { typeof(RenderSubmodule), typeof( EntityNetworkManagementSubmodule ) }
 	)
 );
+*/
 
 /*
 Console.WriteLine( new string( '_', 100 ) );

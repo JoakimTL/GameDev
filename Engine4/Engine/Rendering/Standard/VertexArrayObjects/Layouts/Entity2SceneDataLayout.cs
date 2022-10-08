@@ -10,5 +10,6 @@ public class Entity2SceneDataLayout : CompositeVertexArrayObjectDataLayout {
 		AddAttribute( new( OpenGL.VertexAttribType.Float, 4, 32 ) ); //mat4x4 3
 		AddAttribute( new( OpenGL.VertexAttribType.Float, 4, 48 ) ); //mat4x4 4
 		AddAttribute( new( OpenGL.VertexAttribType.UnsignedShort, 4, 64, normalized: true ) ); //color
+		AddAttribute( new( (OpenGL.VertexAttribType) 5135, 1, 72, AttributeType.LARGE ) ); //diffuse texture handle
 	}
 }

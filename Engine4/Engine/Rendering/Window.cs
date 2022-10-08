@@ -19,6 +19,7 @@ public class Window : DisposableIdentifiable {
 	public Vector2 AspectRatioVector { get; private set; }
 	public float AspectRatio { get; private set; }
 	public bool Focused { get; private set; }
+	public Thread ContextThread { get; }
 	public WindowPtr Pointer { get; }
 	public InputHandling.WindowInputEventManager WindowEvents { get; }
 	public InputHandling.KeyboardInputEventManager KeyboardEvents { get; }
@@ -57,6 +58,7 @@ public class Window : DisposableIdentifiable {
 		this._fpsTally = new FramerateTallyer( 60 );
 		this._debugCallback = GLDebugHandler;
 		Gl.DebugMessageCallback( this._debugCallback, IntPtr.Zero );
+		this.ContextThread = Thread.CurrentThread;
 	}
 
 	private void GLDebugHandler( DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam ) {
@@ -127,6 +129,8 @@ public class Window : DisposableIdentifiable {
 		Framebuffer.Unbind( FramebufferTarget.DrawFramebuffer );
 		Viewport.Set( 0, this.Size );
 	}
+
+	public void SwapBuffers() => Glfw.SwapBuffers( Pointer );
 
 	protected override bool OnDispose() {
 		try {

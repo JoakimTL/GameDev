@@ -21,7 +21,7 @@ public abstract class DisposableIdentifiable : Identifiable, IDisposable {
 	}
 
 	public bool Disposed => this._disposed;
-	public event Action? DisposeHandler;
+	public event Action<object>? OnDisposed;
 
 	public void Dispose() {
 		if ( this._disposed ) {
@@ -30,7 +30,7 @@ public abstract class DisposableIdentifiable : Identifiable, IDisposable {
 		}
 		GC.SuppressFinalize( this );
 		if ( OnDispose() ) {
-			DisposeHandler?.Invoke();
+			OnDisposed?.Invoke( this );
 			this._disposed = true;
 			this.LogLine( "Disposed!", Log.Level.LOW );
 		} else {

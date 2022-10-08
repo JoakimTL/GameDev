@@ -1,21 +1,23 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using Engine;
 using Engine.Modularity.ECS.Networking.Packets;
-using Engine.Modularity.Modules;
 using Engine.Networking;
-using Engine.Structure;
 
 namespace Engine.Modularity.ECS.Networking;
-public class EntityNetworkManager : ModuleSingletonBase, IPacketListener, IUpdateable {
+public class EntityNetworkManager : ModuleService, IPacketListener, IUpdateable {
+	private readonly HashSet<Type> _registeredNoBroadcastTypes;
 	private readonly NetworkManager _networkManager;
 	private readonly EntityManager _entityManager;
-	private readonly HashSet<Component> _newComponents;
-	private readonly HashSet<Component> _changedComponents;
-	private readonly HashSet<Component> _removedComponents;
+	private readonly HashSet<SerializableComponent> _newComponents;
+	private readonly HashSet<SerializableComponent> _changedComponents;
+	private readonly HashSet<SerializableComponent> _removedComponents;
 	private ulong _changeIndex;
 
 	public bool Active => this._networkManager.Open;
+
+	protected override string UniqueNameTag => this._networkManager.IsServer ? "Server" : "Client";
 
 	//TODO: implement changeIndex
 
@@ -28,9 +30,10 @@ public class EntityNetworkManager : ModuleSingletonBase, IPacketListener, IUpdat
 		this._entityManager.OnEntityComponentRemoved += ComponentRemoved;
 		this._entityManager.OnEntityComponentChanged += ComponentChanged;
 		this._networkManager.AddListener( this );
-		this._newComponents = new HashSet<Component>();
-		this._changedComponents = new HashSet<Component>();
-		this._removedComponents = new HashSet<Component>();
+		this._newComponents = new ();
+		this._changedComponents = new ();
+		this._removedComponents = new ();
+		this._registeredNoBroadcastTypes = new HashSet<Type>();
 		if ( !this._networkManager.IsServer )
 			this._networkManager.Send( new RequestEntities( Array.Empty<byte>() ) );
 	}
@@ -54,28 +57,35 @@ public class EntityNetworkManager : ModuleSingletonBase, IPacketListener, IUpdat
 
 	//An entity component was added to an entity. If we're on the client and the network !
 	private void ComponentAdded( Entity e, Component c ) {
+		if ( c is not SerializableComponent sc )
+			return;
 		if ( !ShouldComponentBroadcast( e.Owner, c.GetType(), this._networkManager.IsServer ) )
 			return;
-		this._newComponents.Add( c );
+		this._newComponents.Add( sc );
 	}
 
 	private void ComponentRemoved( Entity e, Component c ) {
+		if ( c is not SerializableComponent sc )
+			return;
 		if ( !ShouldComponentBroadcast( e.Owner, c.GetType(), this._networkManager.IsServer ) )
 			return;
-		this._removedComponents.Add( c );
+		this._removedComponents.Add( sc );
 	}
 
 	private void ComponentChanged( Entity e, Component c ) {
+		if ( c is not SerializableComponent sc  )
+			return;
 		if ( !ShouldComponentBroadcast( e.Owner, c.GetType(), this._networkManager.IsServer ) )
 			return;
-		this._changedComponents.Add( c );
+		this._changedComponents.Add( sc );
 	}
 
 	public bool ShouldComponentBroadcast( ulong ownerId, Type componentType, bool serverSide ) {
 		NetworkAttribute? networkAttribute = componentType.GetCustomAttribute<NetworkAttribute>();
 		if ( networkAttribute is null ) {
 #if DEBUG
-			this.LogWarning( "Missing network attribute!" );
+			if ( this._registeredNoBroadcastTypes.Add( componentType ) )
+				this.LogLine( $"[{( serverSide ? "Server" : "Client" )}] Missing network attribute on {componentType}! This may be intentional, if so ignore this message!", Log.Level.HIGH, ConsoleColor.DarkMagenta );
 #endif
 			return false;
 		}
@@ -90,7 +100,15 @@ public class EntityNetworkManager : ModuleSingletonBase, IPacketListener, IUpdat
 
 	protected override bool OnDispose() => true;
 
-	public bool Listening( Type packetType ) => true;
+	public bool Listening( Type packetType ) => 
+		packetType == typeof( ComponentAdded ) ||
+		packetType == typeof( ComponentChangedTcp ) ||
+		packetType == typeof( ComponentChangedUdp ) ||
+		packetType == typeof( ComponentRemoved ) ||
+		packetType == typeof( RequestEntities ) ||
+		packetType == typeof( EntityAdded ) ||
+		packetType == typeof( EntityRemoved ) ||
+		packetType == typeof( AllEntities );
 
 	public bool ListeningTcp( IPEndPoint endpoint ) {
 		return true;
@@ -155,10 +173,8 @@ public class EntityNetworkManager : ModuleSingletonBase, IPacketListener, IUpdat
 					this.LogWarning( "EntityAdded packet contained no serialized data." );
 					return;
 				}
-				Entity? e = this._entityManager.DeserializeEntity( entityAdded.SerializedData );
-				if ( e is null )
-					return;
-				this._entityManager.AddEntity( e );
+				this.LogLine( "Entity added!", Log.Level.HIGH );
+				this._entityManager.DeserializeEntity( entityAdded.SerializedData );
 				return;
 			}
 			if ( packet is EntityRemoved entityRemoved ) {
@@ -179,9 +195,9 @@ public class EntityNetworkManager : ModuleSingletonBase, IPacketListener, IUpdat
 			return;
 		this._changeIndex++;
 		//TODO: Add change index to packet
-		foreach ( Component? component in this._newComponents )
+		foreach ( SerializableComponent? component in this._newComponents )
 			this._networkManager.Send( new ComponentAdded( component ) );
-		foreach ( Component? component in this._changedComponents ) {
+		foreach ( SerializableComponent component in this._changedComponents ) {
 			NetworkAttribute? networkAttribute = component.GetType().GetCustomAttribute<NetworkAttribute>();
 			if ( networkAttribute is null )
 				continue;
@@ -190,7 +206,7 @@ public class EntityNetworkManager : ModuleSingletonBase, IPacketListener, IUpdat
 			else
 				this._networkManager.Send( new ComponentChangedTcp( component ) );
 		}
-		foreach ( Component? component in this._removedComponents )
+		foreach ( SerializableComponent? component in this._removedComponents )
 			this._networkManager.Send( new ComponentRemoved( component ) );
 		this._newComponents.Clear();
 		this._changedComponents.Clear();

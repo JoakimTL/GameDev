@@ -5,7 +5,8 @@ public class TextureDisposal : DisposableIdentifiable {
 
 	public readonly ulong Handle;
 	public readonly uint TextureID;
-	public readonly bool Resident;
+	public bool Resident { get; internal set; }
+
 	public TextureDisposal( string name, ulong handle, uint textureId, bool isResident ) : base( name ) {
 		this.Handle = handle;
 		this.TextureID = textureId;

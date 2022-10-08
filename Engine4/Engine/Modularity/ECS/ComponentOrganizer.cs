@@ -14,7 +14,7 @@ public class ComponentOrganizer<T> : Identifiable where T : Component {
 	public ComponentOrganizer( EntityManager manager ) {
 		this._manager = manager;
 		this._components = new HashSet<T>();
-		foreach ( Entity e in this._manager.Entities )
+		foreach ( Entity e in this._manager.Entities.Select(p => p.Value) )
 			if ( e.TryGetComponent( out T? c ) )
 				this._components.Add( c );
 		this._manager.OnEntityAdded += EntityAdded;

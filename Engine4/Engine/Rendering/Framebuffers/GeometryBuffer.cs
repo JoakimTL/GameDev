@@ -20,7 +20,7 @@ public class GeometryBuffer : Framebuffer {
 	public const uint TransparencyColorTextureTarget = 4;
 	public const uint TransparencyRevealTextureTarget = 5;
 
-	public GeometryBuffer( float scale = 1 ) : base( new WindowProportions( scale ) ) {	}
+	public GeometryBuffer( Window window, float scale = 1 ) : base( new WindowProportions( window, scale ) ) {	}
 
 	protected override void Generate() {
 		this.DiffuseTexture = CreateTexture( TextureTarget.Texture2d, InternalFormat.Rgba16 );

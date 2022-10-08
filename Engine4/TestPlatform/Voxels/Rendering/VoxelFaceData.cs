@@ -1,5 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using Engine.Rendering.ResourceManagement;
+using Engine.Rendering.Services;
 
 namespace TestPlatform.Voxels.Rendering;
 [BufferSizeManagement( 16_777_216, 16_777_216 )]

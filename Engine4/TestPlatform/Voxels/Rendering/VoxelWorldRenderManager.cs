@@ -57,7 +57,7 @@ public class VoxelWorldRenderManager : DisposableIdentifiable {
 		this._cancellationTokenSource = new CancellationTokenSource();
 		this._threadPool = new Thread[ GenerationThreads ];
 		for ( uint i = 0; i < GenerationThreads; i++ )
-			this._threadPool[ i ] = Resources.Get<ThreadManager>().Start( ChunkMeshGeneration, $"{this.FullName}[{i}]" );
+			this._threadPool[ i ] = Resources.GlobalService<ThreadManager>().Start( ChunkMeshGeneration, $"{this.FullName}[{i}]" );
 
 		this._dataBlocks = new DataBlockCollection( this._worldModelData = new UniformBlock( "VoxelWorldModelDataBlock", (uint) Marshal.SizeOf<VoxelWorldModelData>(), ShaderType.VertexShader ) );
 		this._voxelDataInBlockCollection = VoxelIdRenderData.TryAddVoxelData( this._dataBlocks );

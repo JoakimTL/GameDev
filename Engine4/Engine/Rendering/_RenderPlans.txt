@@ -1,4 +1,54 @@
-﻿
+﻿Plans 2
+
+Assets:
+ - Assets will be the building block for rendering anything. 
+	- Assets come in different types:
+		- Generated assets: (a done and finished product being used as part of a scene)
+			- Texture
+			- Mesh
+			- Shader
+			- Bone
+			- Animation
+		- Descriptive assets: (implies interpreting a file to generate code that will display something) (this asset type might not be necessary at all, as doing this you might as well be creating your own mod)
+			- Framebuffer "desc"
+				Would simply be a declaration of the framebuffer, the size and what attachments are part of it. None of the attachments can be shared with other FBOs, but can be blitted or rendered onto another
+			- Rendering pipeline "desc"
+				Would resemble assembly, in a sense. With "memory" and "cache" location and instructions
+	- An asset provider will be used to provide assets. This way assets are not loaded multiple times
+	- ISerialize (which assets will use) in C# 7 can use a static Deserialize interface method
+ - Data can be transferred, but OGL cannot leave the module, so assets and entity data determines rendering.
+ - Rendering special stuff like particles and ui?
+	Allow scenes to be injected into the pipeline? The scene resolves all assets, meaning no OGL will be called.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Meshes:
 
 Needs {

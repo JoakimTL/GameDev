@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Engine.Rendering;
 
 namespace Engine.Data.Datatypes.Projections;
 public class Orthographic : MatrixProviderBase {
@@ -57,14 +58,16 @@ public class Orthographic : MatrixProviderBase {
 
 	public class Dynamic : Orthographic {
 
+		private readonly Window _window;
 		private Vector2 _scale;
 
-		public Dynamic( Vector2 scale, float zNear, float zFar ) : base( Resources.Render.Window.AspectRatioVector * scale, zNear, zFar ) {
+		public Dynamic( Window window, Vector2 scale, float zNear, float zFar ) : base( window.AspectRatioVector * scale, zNear, zFar ) {
+			this._window = window;
 			this._scale = scale;
-			Resources.Render.Window.WindowEvents.Resized += WindowResized;
+			window.WindowEvents.Resized += WindowResized;
 		}
 
-		private void WindowResized( int width, int height ) => this.Size = Resources.Render.Window.AspectRatioVector * this._scale;
+		private void WindowResized( int width, int height ) => this.Size = _window.AspectRatioVector * this._scale;
 
 		public Vector2 Scale {
 			get => this._scale;
@@ -74,7 +77,7 @@ public class Orthographic : MatrixProviderBase {
 				if ( value.X <= 0 || value.Y <= 0 )
 					return;
 				this._scale = value;
-				this.Size = Resources.Render.Window.AspectRatioVector * this._scale;
+				this.Size = _window.AspectRatioVector * this._scale;
 			}
 		}
 	}

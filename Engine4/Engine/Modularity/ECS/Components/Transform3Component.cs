@@ -11,11 +11,16 @@ public class Transform3Component : TransformComponentBase<Vector3, Quaternion, V
 	public Transform3Component() : base( new Transform3() ) { }
 }
 
-public abstract class PhysicsSystemComponentBase<T, R> : UpdateableComponent where T : unmanaged where R : unmanaged {
+public abstract class PhysicsSystemComponentBase<T, R> : SerializableComponent, IUpdateable where T : unmanaged where R : unmanaged {
 
 	public float Mass { get; protected set; }
 	public T LinearVelocity { get; protected set; }
 	public R RotationalMomentum { get; protected set; }
+	public bool Active { get; protected set; }
+
+	public PhysicsSystemComponentBase() {
+		this.Active = true;
+	}
 
 	public abstract void ApplyForce( T force, T relativePosition );
 
@@ -28,6 +33,7 @@ public abstract class PhysicsSystemComponentBase<T, R> : UpdateableComponent whe
 		this.RotationalMomentum = DataUtils.ToUnmanaged<R>( separated[ 2 ] ) ?? default;
 	}
 
+	public abstract void Update( float time, float deltaTime );
 	protected override byte[]? GetSerializedData() => Segmentation.Segment( DataUtils.ToBytes( this.Mass ), DataUtils.ToBytes( this.LinearVelocity ), DataUtils.ToBytes( this.RotationalMomentum ) );
 }
 

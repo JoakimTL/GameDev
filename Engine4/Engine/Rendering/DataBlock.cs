@@ -51,10 +51,10 @@ public abstract unsafe class DataBlock : DisposableIdentifiable {
 	public void DirectUnbindBuffer() => Gl.BindBufferRange( this.Target, this.BoundIndex, 0, IntPtr.Zero, 0 );
 
 	public void DirectWrite<T>( T t, uint offsetBytes = 0 ) where T : unmanaged {
-		if ( !Resources.Render.InThread ) {
-			this.LogError( "Can't write to uniform buffer outside context thread." );
-			return;
-		}
+		//if ( !Resources.Render.InThread ) {
+		//	this.LogError( "Can't write to uniform buffer outside context thread." );
+		//	return;
+		//}
 		if ( Marshal.SizeOf<T>() + offsetBytes > this.Segment.SizeBytes ) {
 			this.LogError( "Can't write outsite block." );
 			return;

@@ -44,7 +44,7 @@ public class NetworkConnection : DisposableIdentifiable {
 	public void StartTCPReceiver() {
 		if ( this._tcpReceiverThread is not null )
 			return;
-		this._tcpReceiverThread = Resources.Get<ThreadManager>().Start( ReceiveTCP, $"TCP Receiver" );
+		this._tcpReceiverThread = Resources.GlobalService<ThreadManager>().Start( ReceiveTCP, $"Tcp Receiver" );
 	}
 
 	private void OnTcpMessageComplete( byte[] message ) => ReceivedTcpMessage?.Invoke( this.TcpEndPoint, ProtocolType.Tcp, message );
@@ -74,7 +74,7 @@ public class NetworkConnection : DisposableIdentifiable {
 	public void Send( Packet p ) {
 		if ( this.Disposed )
 			return;
-		ProtocolType protocol = Resources.Get<PacketTypeManager>().GetPacketProtocol( p.GetType() );
+		ProtocolType protocol = Resources.GlobalService<PacketTypeManager>().GetPacketProtocol( p.GetType() );
 		if ( protocol == ProtocolType.Udp ) {
 			this._tunnelUdp.TrySend( p );
 		} else {

@@ -40,7 +40,7 @@ public abstract class Packet : Identifiable {
 	private unsafe void SetIdInData( byte[] packetData ) {
 		if ( packetData.Length < sizeof( int ) )
 			throw new ArgumentOutOfRangeException( nameof( packetData ), "Size of array can't fit header." );
-		int id = Resources.Get<PacketTypeManager>().GetPacketId( GetType() );
+		int id = Resources.GlobalService<PacketTypeManager>().GetPacketId( GetType() );
 		if ( id < 0 )
 			throw new InvalidOperationException( "Type not supported!" );
 		fixed ( byte* ptr = packetData )
