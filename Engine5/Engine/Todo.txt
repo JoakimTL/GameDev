@@ -1,0 +1,19 @@
+﻿Planning: {
+	Rendering {
+		VAO Layout
+		VBO/RDO structure
+		Shaders {
+			Should refresh if shader source changes!
+		}
+		Assets
+		Framebuffers
+		Events
+
+	}
+	Physics
+	Entities
+	Networking
+
+	Entity/Render
+	Entity/Networking
+}
