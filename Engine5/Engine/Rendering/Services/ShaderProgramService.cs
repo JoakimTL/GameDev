@@ -1,5 +1,5 @@
 ﻿using Engine.Rendering.Objects;
-using Engine.Structure;
+using Engine.Structure.ServiceProvider;
 
 namespace Engine.Rendering.Services;
 

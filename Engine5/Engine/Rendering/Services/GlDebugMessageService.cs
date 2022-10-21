@@ -1,4 +1,5 @@
-﻿using GLFW;
+﻿using Engine.Structure.Interfaces;
+using GLFW;
 using OpenGL;
 
 namespace Engine.Rendering.Services;

@@ -1,4 +1,6 @@
 ﻿using Engine.GlobalServices;
+using Engine.Structure.Interfaces;
+using Engine.Structure.ServiceProvider;
 
 namespace Engine.Structure;
 public abstract class ModuleBase : Identifiable {
@@ -21,6 +23,7 @@ public abstract class ModuleBase : Identifiable {
 
 	internal void ForceStop() => Stop();
 }
+
 public abstract class ModuleBase<TBase> : ModuleBase where TBase : IModuleService {
 
 	protected readonly RestrictedServiceProvider<TBase> _serviceProvider;

@@ -1,4 +1,6 @@
-﻿namespace Engine;
+﻿using Engine.Structure.Uid;
+
+namespace Engine;
 public class Identifiable {
 
 	/// <summary>
@@ -58,12 +60,4 @@ public class Identifiable {
 
 	public static bool operator !=( Identifiable? l, Identifiable? r ) => !( l == r );
 
-}
-
-public interface ITypeIdentity {
-	static abstract Guid TypeIdentity { get; }
-}
-public interface ISerializable : ITypeIdentity {
-	static abstract object Deserialize( ReadOnlySpan<byte> data );
-	ReadOnlySpan<byte> Serialize();
 }

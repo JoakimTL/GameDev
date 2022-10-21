@@ -1,5 +1,6 @@
 ﻿using Engine.Datatypes;
 using Engine.Rendering.OGL;
+using Engine.Structure.Interfaces;
 using GLFW;
 using OpenGL;
 using System.Numerics;

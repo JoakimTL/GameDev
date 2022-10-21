@@ -1,5 +1,6 @@
 ﻿using Engine.Rendering.Objects;
 using Engine.Rendering.OGL;
+using Engine.Structure.Interfaces;
 using GLFW;
 
 namespace Engine.Rendering.Services;

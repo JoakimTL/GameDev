@@ -1,5 +1,6 @@
 ﻿using Engine.Datatypes;
 using Engine.Rendering.Objects;
+using Engine.Structure.Interfaces;
 using OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;

@@ -1,16 +1,17 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using Engine.Structure.Attributes;
 
 namespace Engine.Structure;
 
-public class BidirectionalTypeTreeStructureProvider<T> : Identifiable {
+public class BidirectionalTypeTree<T> : Identifiable {
 
 	private readonly ConcurrentDictionary<Type, BidirectionalNode> _nodes;
 	private bool _needsUpdate;
 
 	public event Action? TreeUpdated;
 
-	public BidirectionalTypeTreeStructureProvider() {
+	public BidirectionalTypeTree() {
 		_nodes = new();
 	}
 

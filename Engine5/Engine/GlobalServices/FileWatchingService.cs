@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Engine.Structure.Interfaces;
 
 namespace Engine.GlobalServices;
 

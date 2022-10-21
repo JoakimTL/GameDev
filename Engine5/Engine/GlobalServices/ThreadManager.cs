@@ -1,4 +1,6 @@
-﻿namespace Engine.GlobalServices;
+﻿using Engine.Structure.Interfaces;
+
+namespace Engine.GlobalServices;
 
 public sealed class ThreadService : Identifiable, IGlobalService
 {

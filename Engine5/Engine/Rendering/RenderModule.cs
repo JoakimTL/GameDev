@@ -1,6 +1,9 @@
 ﻿using Engine.Rendering.OGL;
 using Engine.Rendering.Services;
 using Engine.Structure;
+using Engine.Structure.Attributes;
+using Engine.Structure.Interfaces;
+using Engine.Structure.ServiceProvider;
 using OpenGL;
 
 namespace Engine.Rendering;
