@@ -11,6 +11,7 @@ public sealed class Context : IUpdateable {
 	private readonly ServiceProviderUpdateExtension _serviceProviderUpdater;
 	private readonly ServiceProviderInitializationExtension _serviceProviderInitializer;
 	private readonly Window _window;
+	private Thread? _contextThread = null;
 
 	public Context( Window window ) {
 		_window = window;
@@ -21,8 +22,14 @@ public sealed class Context : IUpdateable {
 		_serviceProviderInitializer = new( _serviceProvider );
 	}
 
-	public void Bind() => ContextUtilities.MakeContextCurrent( _window.Pointer );
-	public T? Service<T>() where T : IContextService => _serviceProvider.Get<T>();
+	public void Bind() {
+		ContextUtilities.MakeContextCurrent( _window.Pointer );
+		_contextThread = Thread.CurrentThread;
+	}
+
+	public bool IsContextThread() => Thread.CurrentThread == _contextThread;
+
+	public T Service<T>() where T : IContextService => _serviceProvider.Get<T>();
 
 	public void Update( float time, float deltaTime ) {
 		_serviceProviderInitializer.Update( time, deltaTime );

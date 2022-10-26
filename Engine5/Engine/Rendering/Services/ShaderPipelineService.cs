@@ -15,21 +15,7 @@ public sealed class ShaderPipelineService : Identifiable, IContextService, IDisp
 		_pipelineProvider.AddConstant( programService );
 	}
 
-	public ShaderPipelineBase? Get( string identity ) {
-		var type = Global.Get<TypeIdentificationService>().GetFromIdentity( identity );
-		if ( type is null ) {
-			this.LogWarning( $"Unable to load shader pipeline type from {identity}." );
-			return null;
-		}
-		return _pipelineProvider.Get( type ) as ShaderPipelineBase;
-	}
-
-	public ShaderPipelineBase GetOrFail( string identity ) {
-		var type = Global.Get<TypeIdentificationService>().GetFromIdentity( identity );
-		if ( type is null ) 
-			throw new NullReferenceException( $"Unable to load shader pipeline type from {identity}." );
-		return _pipelineProvider.Get( type ) as ShaderPipelineBase ?? throw new NullReferenceException( $"Unable to cast to shader pipeline from {identity}." );
-	}
+	public ShaderPipelineBase? Get( Type type ) => _pipelineProvider.Get( type ) as ShaderPipelineBase;
 
 	public void Dispose() => _pipelineProviderDisposer.Dispose();
 }

@@ -10,7 +10,7 @@ public abstract class ShaderPipelineBase : Identifiable, IDisposable {
 	public IReadOnlyDictionary<ShaderType, ShaderProgramBase> Programs => this._programs;
 	public abstract bool UsesTransparency { get; }
 
-	public ShaderPipelineBase( ShaderProgramBase[] shaderPrograms ) {
+	protected ShaderPipelineBase( ShaderProgramBase[] shaderPrograms ) {
 		this._programs = new Dictionary<ShaderType, ShaderProgramBase>();
 		List<ShaderProgramBase> validPrograms = new( shaderPrograms );
 		if ( validPrograms.Count == 0 )

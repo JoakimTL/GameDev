@@ -15,7 +15,7 @@ public abstract class ShaderProgramBase : Identifiable, IDisposable {
 
 	public IReadOnlyDictionary<ShaderType, ShaderSource> Sources => this._sources;
 
-	public ShaderProgramBase( bool separable = true ) {
+	protected ShaderProgramBase( bool separable = true ) {
 		this.Separable = separable;
 		this._sources = new Dictionary<ShaderType, ShaderSource>();
 		this.ProgramID = Gl.CreateProgram();

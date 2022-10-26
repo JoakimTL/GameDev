@@ -10,6 +10,25 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Rendering.Services;
 
+public sealed class TextureReferenceService : IContextService {
+
+	//This services job is taking bound textures and placing their handle in a shader storage buffer, such that any shader requiring textures can utilize the textures without a bulky 8 byte handle, and just use a 2 byte index.
+	private readonly Texture[] _textures;
+	private readonly Dictionary<string, int> _textureIndex;
+	private readonly TextureService _textureService;
+
+	public TextureReferenceService( TextureService textureService ) {
+		this._textureService = textureService;
+		_textures = new Texture[ ushort.MaxValue + 1 ];
+
+	}
+
+	public Texture? Get( string path ) {
+
+	}
+
+}
+
 public sealed class TextureService : IContextService, IInitializable, IDisposable {
 
 	private Texture _white1x1 = null!;
@@ -17,25 +36,42 @@ public sealed class TextureService : IContextService, IInitializable, IDisposabl
 	private Texture _green1x1 = null!;
 	private Texture _blue1x1 = null!;
 	private Texture _black1x1 = null!;
-	public Texture White1x1 => this._white1x1 ?? throw new NullReferenceException( "Manager not initialized!" );
-	public Texture Red1x1 => this._red1x1 ?? throw new NullReferenceException( "Manager not initialized!" );
-	public Texture Green1x1 => this._green1x1 ?? throw new NullReferenceException( "Manager not initialized!" );
-	public Texture Blue1x1 => this._blue1x1 ?? throw new NullReferenceException( "Manager not initialized!" );
-	public Texture Black1x1 => this._black1x1 ?? throw new NullReferenceException( "Manager not initialized!" );
+	public Texture White1x1 => this._white1x1 ?? throw new NullReferenceException( "Service not initialized!" );
+	public Texture Red1x1 => this._red1x1 ?? throw new NullReferenceException( "Service not initialized!" );
+	public Texture Green1x1 => this._green1x1 ?? throw new NullReferenceException( "Service not initialized!" );
+	public Texture Blue1x1 => this._blue1x1 ?? throw new NullReferenceException( "Service not initialized!" );
+	public Texture Black1x1 => this._black1x1 ?? throw new NullReferenceException( "Service not initialized!" );
 
 	private readonly Dictionary<string, Texture> _textures;
 
-	public TextureService() {
+	private bool _initialized;
+
+	public TextureService( Window window ) {
 		_textures = new();
+		_initialized = false;
+		if ( window.Context.IsContextThread() )
+			Initialize();
 	}
 
 	public void Initialize() {
+		if ( _initialized )
+			return;
 		unsafe {
-			this._white1x1 = new Texture( nameof( this.White1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 );
-			this._red1x1 = new Texture( nameof( this.Red1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 );
-			this._green1x1 = new Texture( nameof( this.Green1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 );
-			this._blue1x1 = new Texture( nameof( this.Blue1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 );
-			this._black1x1 = new Texture( nameof( this.Black1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 );
+			this._white1x1 = new( nameof( this.White1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
+				KeepAlive = true
+			};
+			this._red1x1 = new( nameof( this.Red1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
+				KeepAlive = true
+			};
+			this._green1x1 = new( nameof( this.Green1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
+				KeepAlive = true
+			};
+			this._blue1x1 = new( nameof( this.Blue1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
+				KeepAlive = true
+			};
+			this._black1x1 = new( nameof( this.Black1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
+				KeepAlive = true
+			};
 			Vector4b whiteColor = Vector4b.White;
 			Vector4b redColor = Vector4b.Red;
 			Vector4b greenColor = Vector4b.Green;
@@ -47,6 +83,7 @@ public sealed class TextureService : IContextService, IInitializable, IDisposabl
 			this.Blue1x1.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( &blueColor ) );
 			this.Black1x1.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( &blackColor ) );
 		}
+		_initialized = true;
 	}
 
 	public void Dispose() {

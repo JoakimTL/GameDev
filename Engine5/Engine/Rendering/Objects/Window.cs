@@ -24,6 +24,8 @@ public sealed class Window : Identifiable, IUpdateable, IDisposable
     public event WindowEventHandler? Closing;
     public bool Closed { get; private set; }
 
+    public Context Context => _context;
+
     public Window(WindowPtr pointer)
     {
         Pointer = pointer;
