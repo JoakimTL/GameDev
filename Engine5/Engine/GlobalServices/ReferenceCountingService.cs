@@ -35,6 +35,11 @@ public sealed class ReferenceCountingService : Identifiable, IGlobalService {
 		CheckUnreferenced( referenced );
 	}
 
+	/// <summary>
+	/// Not a precise count, as dereferenced objects might still linger as weak references untill trimmed.
+	/// </summary>
+	/// <param name="referenced"></param>
+	/// <returns></returns>
 	public int GetReferenceCount( object referenced ) {
 		if ( _references.TryGetValue( referenced, out var list ) )
 			lock ( list )

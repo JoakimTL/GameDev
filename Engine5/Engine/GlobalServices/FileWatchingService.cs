@@ -6,7 +6,7 @@ namespace Engine.GlobalServices;
 public sealed class FileWatchingService : Identifiable, IDisposable, IGlobalService {
 
 	private readonly ConcurrentDictionary<string, FileSystemWatcher> _watchers;
-	private readonly ConcurrentDictionary<string, Action> _trackedFilepaths;
+	private readonly ConcurrentDictionary<string, HashSet<Action<string>>> _trackedFilepaths;
 
 
 	public FileWatchingService() {
@@ -14,21 +14,28 @@ public sealed class FileWatchingService : Identifiable, IDisposable, IGlobalServ
 		_trackedFilepaths = new();
 	}
 
-	public void Track( string filePath, Action callback ) {
+	public void Track( string filePath, Action<string> callback ) {
 		string directoryPath = Path.GetDirectoryName( filePath ) ?? throw new NullReferenceException();
 		if ( !_watchers.TryGetValue( directoryPath, out FileSystemWatcher? watcher ) ) {
 			_watchers.TryAdd( directoryPath, watcher = new FileSystemWatcher( filePath ) );
 			watcher.Changed += FileChanged;
 		}
-		_trackedFilepaths.TryAdd( filePath, callback );
+		if ( !_trackedFilepaths.TryGetValue( filePath, out var trackers ) )
+			_trackedFilepaths.TryAdd( filePath, trackers = new() );
+		trackers.Add( callback );
 	}
 
 
-	public void Untrack( string filePath ) => _trackedFilepaths.TryRemove( filePath, out _ );
+	public void Untrack( string filePath, Action<string> callback ) {
+		if ( _trackedFilepaths.TryGetValue( filePath, out var trackers ) )
+			trackers.Remove( callback );
+	}
 
 	private void FileChanged( object sender, FileSystemEventArgs e ) {
-		if ( _trackedFilepaths.TryGetValue( Path.GetRelativePath( Environment.CurrentDirectory, e.FullPath ), out var callback ) )
-			callback?.Invoke();
+		string relativePath = Path.GetRelativePath( Environment.CurrentDirectory, e.FullPath );
+		if ( _trackedFilepaths.TryGetValue( relativePath, out var callbacks ) )
+			foreach ( var tracker in callbacks )
+				tracker?.Invoke( relativePath );
 	}
 
 	public void Dispose() {

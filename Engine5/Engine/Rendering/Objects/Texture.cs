@@ -1,6 +1,6 @@
 ﻿using Engine.Datatypes;
-using Engine.Time;
 using OpenGL;
+using System.Diagnostics;
 
 namespace Engine.Rendering.Objects;
 
@@ -12,12 +12,8 @@ public class Texture : Identifiable, IDisposable {
 	public int Levels => _sizes.Length;
 	public uint TextureID { get; private set; }
 	public bool Resident { get; private set; }
-	public float LastAccess { get; private set; }
-	public bool ShouldDispose => Clock32.StartupTime - LastAccess > 60 && !KeepAlive;
-	public bool KeepAlive { get; internal set; }
 
 	protected override string UniqueNameTag => $"{TextureID},{_handle}";
-
 
 	public Texture( string name, TextureTarget target, Vector2i[] sizes, InternalFormat format, int samples = 0, params (TextureParameterName, int)[] parameters ) : base( name ) {
 		if ( sizes.Length == 0 )
@@ -42,6 +38,12 @@ public class Texture : Identifiable, IDisposable {
 	}
 
 	public Texture( string name, TextureTarget target, Vector2i size, InternalFormat format, int samples = 0, params (TextureParameterName, int)[] parameters ) : this( name, target, new Vector2i[] { size }, format, samples, parameters ) { }
+
+#if DEBUG
+	~Texture() {
+		Debug.Fail( "Texture was not disposed!" );
+	}
+#endif
 
 	public Vector2i GetMipmap( uint level ) {
 		if ( level > _sizes.Length )
@@ -68,16 +70,15 @@ public class Texture : Identifiable, IDisposable {
 	}
 
 	public ulong GetHandle() {
-		LastAccess = Clock32.StartupTime;
 		if ( !Resident )
-			DirectBind();
+			Bind();
 		return _handle;
 	}
 
 	/// <summary>
 	/// Makes the texture resident.
 	/// </summary>
-	public void DirectBind() {
+	public void Bind() {
 		if ( Resident )
 			return;
 		this.LogLine( $"Made resident!", Log.Level.LOW );
@@ -88,7 +89,7 @@ public class Texture : Identifiable, IDisposable {
 	/// <summary>
 	/// Makes the texture non-resident.
 	/// </summary>
-	public void DirectUnbind() {
+	public void Unbind() {
 		if ( !Resident )
 			return;
 
@@ -98,7 +99,8 @@ public class Texture : Identifiable, IDisposable {
 	}
 
 	public void Dispose() {
-		DirectUnbind();
+		Unbind();
 		Gl.DeleteTextures( new uint[] { TextureID } );
+		GC.SuppressFinalize( this );
 	}
 }

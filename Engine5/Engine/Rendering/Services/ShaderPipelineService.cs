@@ -1,5 +1,4 @@
-﻿using Engine.GlobalServices;
-using Engine.Rendering.Objects;
+﻿using Engine.Rendering.Objects;
 using Engine.Structure.ServiceProvider;
 
 namespace Engine.Rendering.Services;

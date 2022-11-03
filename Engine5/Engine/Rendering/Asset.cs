@@ -28,7 +28,7 @@ public abstract class Asset : IDisposable {
 	}
 
 	protected abstract void OnContextLoad( Context context );
-	private void OnFileChanged() => AssetChanged?.Invoke( this );
+	private void OnFileChanged( string path ) => AssetChanged?.Invoke( this );
 	public abstract void Dispose();
 }
 

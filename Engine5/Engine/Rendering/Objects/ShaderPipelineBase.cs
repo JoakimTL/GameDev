@@ -1,5 +1,4 @@
-﻿using Engine.Rendering.Services;
-using OpenGL;
+﻿using OpenGL;
 using System.Diagnostics;
 
 namespace Engine.Rendering.Objects;

@@ -33,7 +33,7 @@ public sealed class ShaderSource : Identifiable, IFileSource, IDisposable {
 		}
 	}
 
-	private void FileChange() => FileChanged?.Invoke();
+	private void FileChange( string path ) => FileChanged?.Invoke();
 
 	public string GetData() => ReadSource( Filepath, out string source ) ? source : string.Empty;
 

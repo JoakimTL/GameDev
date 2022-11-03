@@ -96,7 +96,7 @@ public class WindowInputEventManager {
 		string[]? paths = new string[ count ];
 		int offset = 0;
 		for ( int i = 0; i < count; i++, offset += IntPtr.Size )
-			paths[ i ] = Utilities.PointerToStringNullStop( Marshal.ReadIntPtr( pointer + offset ), System.Text.Encoding.UTF8 );
+			paths[ i ] = Utilities.UtilityMethods.PointerToStringNullStop( Marshal.ReadIntPtr( pointer + offset ), System.Text.Encoding.UTF8 );
 
 		FilesDropped?.Invoke( paths );
 	}

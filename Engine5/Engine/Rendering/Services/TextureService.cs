@@ -1,4 +1,5 @@
 ﻿using Engine.Datatypes;
+using Engine.GlobalServices;
 using Engine.Rendering.Objects;
 using Engine.Structure.Interfaces;
 using OpenGL;
@@ -6,6 +7,8 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Rendering.Services;
@@ -23,80 +26,27 @@ public sealed class TextureReferenceService : IContextService {
 
 	}
 
-	public Texture? Get( string path ) {
-
-	}
 
 }
 
-public sealed class TextureService : IContextService, IInitializable, IDisposable {
-
-	private Texture _white1x1 = null!;
-	private Texture _red1x1 = null!;
-	private Texture _green1x1 = null!;
-	private Texture _blue1x1 = null!;
-	private Texture _black1x1 = null!;
-	public Texture White1x1 => this._white1x1 ?? throw new NullReferenceException( "Service not initialized!" );
-	public Texture Red1x1 => this._red1x1 ?? throw new NullReferenceException( "Service not initialized!" );
-	public Texture Green1x1 => this._green1x1 ?? throw new NullReferenceException( "Service not initialized!" );
-	public Texture Blue1x1 => this._blue1x1 ?? throw new NullReferenceException( "Service not initialized!" );
-	public Texture Black1x1 => this._black1x1 ?? throw new NullReferenceException( "Service not initialized!" );
+public sealed class TextureService : IContextService, IUpdateable, IDisposable {
 
 	private readonly Dictionary<string, Texture> _textures;
+	private readonly ConcurrentQueue<string> _updatedTextures;
+	private readonly FileWatchingService _fileWatchingService;
 
-	private bool _initialized;
-
-	public TextureService( Window window ) {
+	public TextureService( FileWatchingService fileWatchingService ) {
 		_textures = new();
-		_initialized = false;
-		if ( window.Context.IsContextThread() )
-			Initialize();
-	}
-
-	public void Initialize() {
-		if ( _initialized )
-			return;
-		unsafe {
-			this._white1x1 = new( nameof( this.White1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
-				KeepAlive = true
-			};
-			this._red1x1 = new( nameof( this.Red1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
-				KeepAlive = true
-			};
-			this._green1x1 = new( nameof( this.Green1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
-				KeepAlive = true
-			};
-			this._blue1x1 = new( nameof( this.Blue1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
-				KeepAlive = true
-			};
-			this._black1x1 = new( nameof( this.Black1x1 ), TextureTarget.Texture2d, 1, InternalFormat.Rgba8 ) {
-				KeepAlive = true
-			};
-			Vector4b whiteColor = Vector4b.White;
-			Vector4b redColor = Vector4b.Red;
-			Vector4b greenColor = Vector4b.Green;
-			Vector4b blueColor = Vector4b.Blue;
-			Vector4b blackColor = Vector4b.Black;
-			this.White1x1.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( &whiteColor ) );
-			this.Red1x1.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( &redColor ) );
-			this.Green1x1.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( &greenColor ) );
-			this.Blue1x1.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( &blueColor ) );
-			this.Black1x1.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( &blackColor ) );
-		}
-		_initialized = true;
+		_updatedTextures = new();
+		this._fileWatchingService = fileWatchingService;
 	}
 
 	public void Dispose() {
-		this.White1x1.Dispose();
-		this.Red1x1.Dispose();
-		this.Green1x1.Dispose();
-		this.Blue1x1.Dispose();
-		this.Black1x1.Dispose();
 		foreach ( Texture t in this._textures.Values )
 			t.Dispose();
 	}
 
-	public Texture Get( string path ) {
+	public Texture? Get( string path ) {
 		if ( _textures.TryGetValue( path, out var texture ) )
 			return texture;
 		if ( LoadFile( path, out texture ) )
@@ -105,19 +55,55 @@ public sealed class TextureService : IContextService, IInitializable, IDisposabl
 		//TODO add system that automatically disposes unused textures after a while. (60sec?)
 	}
 
-	private bool LoadFile( string filepath, out Texture t, int samples = 0, TextureMagFilter filter = TextureMagFilter.Linear ) {
+	private void FileChanged( string path ) => _updatedTextures.Enqueue( path );
+
+	public void Update( float time, float deltaTime ) {
+		while ( _updatedTextures.TryDequeue( out string? path ) )
+			if ( _textures.TryGetValue( path, out var texture ) ) {
+				if ( LoadRawData( path, out uint[]? pixelData, out Vector2i res ) )
+					unsafe {
+						fixed ( uint* src = pixelData )
+							texture.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( src ) );
+					}
+			}
+	}
+
+	private bool LoadFile( string filepath, [NotNullWhen( true )] out Texture? t, int samples = 0, TextureMagFilter filter = TextureMagFilter.Linear ) {
+		t = null;
 		if ( !File.Exists( filepath ) ) {
-			Log.Warning( $"Failed to find {filepath}, using default 1x1 white texture!" );
-			t = this.White1x1;
+			Log.Warning( $"Failed to find texture {filepath}!" );
 			return false;
 		}
 
-		uint[] pixelData;
+		if ( !LoadRawData( filepath, out uint[]? pixelData, out Vector2i res ) )
+			return false;
+
+		t = new( filepath, TextureTarget.Texture2d, res, InternalFormat.Rgba8, samples, (TextureParameterName.TextureMagFilter, (int) filter), (TextureParameterName.TextureMinFilter, (int) filter) );
+		_fileWatchingService.Track( filepath, FileChanged );
+
+		unsafe {
+			fixed ( uint* src = pixelData )
+				t.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( src ) );
+		}
+
+		Log.Line( $"[{filepath}] loaded as GL Texture [{t}]!", Log.Level.NORMAL );
+		return true;
+
+	}
+
+	private bool LoadRawData( string filepath, [NotNullWhen( true )] out uint[]? pixelData, out Vector2i resolution ) {
+		pixelData = null;
+		resolution = 0;
+		if ( !File.Exists( filepath ) ) {
+			Log.Warning( $"Failed to find texture {filepath}!" );
+			return false;
+		}
+
 		using ( Image<Rgba32>? img = Image.Load<Rgba32>( filepath ) ) {
+			resolution = (img.Width, img.Height);
 			IMemoryGroup<Rgba32>? pixels = img.GetPixelMemoryGroup();
 			if ( pixels is null ) {
-				Log.Warning( $"Failed to load {filepath}, using default 1x1 white texture!" );
-				t = this.White1x1;
+				Log.Warning( $"Failed to load texture {filepath}!" );
 				return false;
 			}
 
@@ -135,23 +121,7 @@ public sealed class TextureService : IContextService, IInitializable, IDisposabl
 					}
 				}
 			}
-
-			t = new Texture( filepath,
-				TextureTarget.Texture2d,
-				(img.Width, img.Height),
-				InternalFormat.Rgba8,
-				samples,
-				(TextureParameterName.TextureMagFilter, (int) filter),
-				(TextureParameterName.TextureMinFilter, (int) filter)
-			);
 		}
-
-		unsafe {
-			fixed ( uint* src = pixelData )
-				t.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( src ) );
-		}
-
-		Log.Line( $"[{filepath}] loaded as GL Texture [{t}]!", Log.Level.NORMAL );
 		return true;
 
 	}

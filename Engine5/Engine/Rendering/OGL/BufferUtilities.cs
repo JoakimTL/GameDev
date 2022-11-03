@@ -1,0 +1,18 @@
+﻿using Engine.Rendering.Objects;
+using OpenGL;
+
+namespace Engine.Rendering.OGL;
+
+public static class BufferUtilities {
+
+	private static VertexBufferObject? _tempBuffer;
+
+	public static void Resize( this VertexBufferObject buffer, uint newSizeBytes ) {
+		_tempBuffer = new VertexBufferObject( "temp", buffer.SizeBytes, BufferUsage.DynamicDraw );
+		Gl.CopyNamedBufferSubData( buffer.BufferId, _tempBuffer.BufferId, IntPtr.Zero, IntPtr.Zero, _tempBuffer.SizeBytes );
+		buffer.SetSize( newSizeBytes );
+		Gl.CopyNamedBufferSubData( _tempBuffer.BufferId, buffer.BufferId, IntPtr.Zero, IntPtr.Zero, _tempBuffer.SizeBytes );
+		_tempBuffer.Dispose();
+		_tempBuffer = null;
+	}
+}
