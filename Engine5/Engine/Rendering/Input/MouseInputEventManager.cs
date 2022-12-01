@@ -1,5 +1,7 @@
 ﻿using Engine.Rendering.Objects;
-using GLFW;
+using Engine.Rendering.OGL;
+using GlfwBinding;
+using GlfwBinding.Enums;
 using System.Numerics;
 
 namespace Engine.Rendering.Input;
@@ -54,17 +56,17 @@ public class MouseInputEventManager : Identifiable {
 		_window = window;
 		_data = new MouseData();
 		State = new MouseState( _data );
-		_data.inside = Glfw.GetWindowAttribute( _window.Pointer, WindowAttribute.MouseHover );
+		_data.inside = InputUtilities.GetWindowAttribute( _window.Pointer, WindowAttribute.MouseHover ) != 0;
 
 		_enterCallback = OnEnter;
 		_buttonCallback = OnButton;
 		_cursorCallback = OnCursor;
 		_scrollCallback = OnScroll;
 
-		Glfw.SetCursorEnterCallback( _window.Pointer, _enterCallback );
-		Glfw.SetMouseButtonCallback( _window.Pointer, _buttonCallback );
-		Glfw.SetCursorPositionCallback( _window.Pointer, _cursorCallback );
-		Glfw.SetScrollCallback( _window.Pointer, _scrollCallback );
+		EventUtilities.SetCursorEnterCallback( _window.Pointer, _enterCallback );
+		EventUtilities.SetMouseButtonCallback( _window.Pointer, _buttonCallback );
+		EventUtilities.SetCursorPositionCallback( _window.Pointer, _cursorCallback );
+		EventUtilities.SetScrollCallback( _window.Pointer, _scrollCallback );
 
 		this.LogLine( $"Lowest button input index: {MinButtonIndex}", Log.Level.NORMAL, ConsoleColor.Blue );
 		this.LogLine( $"Highest button input index: {MaxButtonIndex}", Log.Level.NORMAL, ConsoleColor.Blue );
@@ -116,9 +118,9 @@ public class MouseInputEventManager : Identifiable {
 	public void SetLock( bool state ) {
 		if ( state )
 			if ( !_data.locked ) {
-				Glfw.SetInputMode( _window.Pointer, InputMode.Cursor, (int) CursorMode.Disabled );
+				InputUtilities.SetInputMode( _window.Pointer, InputMode.Cursor, (int) CursorMode.Disabled );
 
-				Glfw.GetCursorPosition( _window.Pointer, out double x, out double y );
+				InputUtilities.GetCursorPosition( _window.Pointer, out double x, out double y );
 				_data.lockedCursor.pos = new Vector2( (float) x, (float) y );
 				GetPositionData( _data.lockedCursor.pos.X, _data.lockedCursor.pos.Y, out Vector2 ndc, out Vector2 ndca );
 				_data.lockedCursor.posNDC = ndc;
@@ -126,10 +128,8 @@ public class MouseInputEventManager : Identifiable {
 				_data.lastLockedCursor.pos = _data.lockedCursor.pos;
 				_data.lastLockedCursor.posNDC = ndc;
 				_data.lastLockedCursor.posNDCA = ndca;
-			}
-		else
-			if ( _data.locked )
-			Glfw.SetInputMode( _window.Pointer, InputMode.Cursor, (int) CursorMode.Normal );
+			} else
+				InputUtilities.SetInputMode( _window.Pointer, InputMode.Cursor, (int) CursorMode.Normal );
 		_data.locked = state;
 	}
 
@@ -140,9 +140,9 @@ public class MouseInputEventManager : Identifiable {
 		ndca = ndc * _window.AspectRatioVector;
 	}
 
-	private void OnEnter( WindowPtr winPtr, bool enter ) => _data.inside = enter;
+	private void OnEnter( nint winPtr, bool enter ) => _data.inside = enter;
 
-	private void OnButton( WindowPtr winPtr, MouseButton button, InputState state, ModifierKeys modifiers ) {
+	private void OnButton( nint winPtr, MouseButton button, InputState state, ModifierKeys modifiers ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnButton )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -163,7 +163,7 @@ public class MouseInputEventManager : Identifiable {
 		}
 	}
 
-	private void OnCursor( WindowPtr winPtr, double x, double y ) {
+	private void OnCursor( nint winPtr, double x, double y ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnCursor )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -199,7 +199,7 @@ public class MouseInputEventManager : Identifiable {
 		}
 	}
 
-	private void OnScroll( WindowPtr winPtr, double x, double y ) {
+	private void OnScroll( nint winPtr, double x, double y ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnScroll )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );

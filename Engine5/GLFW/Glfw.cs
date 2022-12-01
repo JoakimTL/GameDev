@@ -47,7 +47,7 @@ public static class Glfw {
 	/// <param name="description">The description string, or <c>null</c> if there is no error.</param>
 	/// <returns>The error code.</returns>
 	public static ErrorCode GetError( out string? description ) {
-		ErrorCode code = GetErrorPrivate( out IntPtr ptr );
+		ErrorCode code = GetErrorPrivate( out nint ptr );
 		description = code == ErrorCode.None ? null : Util.PtrToStringUTF8( ptr );
 		return code;
 	}
@@ -66,15 +66,15 @@ public static class Glfw {
 	/// <param name="xScale">The scale on the x-axis.</param>
 	/// <param name="yScale">The scale on the y-axis.</param>
 	[DllImport( LIBRARY, EntryPoint = "glfwGetMonitorContentScale", CallingConvention = CallingConvention.Cdecl )]
-	public static extern void GetMonitorContentScale( IntPtr monitor, out float xScale, out float yScale );
+	public static extern void GetMonitorContentScale( nint monitor, out float xScale, out float yScale );
 
 	/// <summary>
 	///     Returns the current value of the user-defined pointer of the specified <paramref name="monitor" />.
 	/// </summary>
 	/// <param name="monitor">The monitor whose pointer to return.</param>
-	/// <returns>The user-pointer, or <see cref="IntPtr.Zero" /> if none is defined.</returns>
+	/// <returns>The user-pointer, or <see cref="nint.Zero" /> if none is defined.</returns>
 	[DllImport( LIBRARY, EntryPoint = "glfwGetMonitorUserPointer", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetMonitorUserPointer( IntPtr monitor );
+	public static extern nint GetMonitorUserPointer( nint monitor );
 
 	/// <summary>
 	///     This function sets the user-defined pointer of the specified <paramref name="monitor" />.
@@ -83,7 +83,7 @@ public static class Glfw {
 	/// <param name="monitor">The monitor whose pointer to set.</param>
 	/// <param name="pointer">The user-defined pointer value.</param>
 	[DllImport( LIBRARY, EntryPoint = "glfwSetMonitorUserPointer", CallingConvention = CallingConvention.Cdecl )]
-	public static extern void SetMonitorUserPointer( IntPtr monitor, IntPtr pointer );
+	public static extern void SetMonitorUserPointer( nint monitor, nint pointer );
 
 	/// <summary>
 	///     Returns the opacity of the window, including any decorations.
@@ -91,7 +91,7 @@ public static class Glfw {
 	/// <param name="window">The window to query.</param>
 	/// <returns>The opacity value of the specified window, a value between <c>0.0</c> and <c>1.0</c> inclusive.</returns>
 	[DllImport( LIBRARY, EntryPoint = "glfwGetWindowOpacity", CallingConvention = CallingConvention.Cdecl )]
-	public static extern float GetWindowOpacity( IntPtr window );
+	public static extern float GetWindowOpacity( nint window );
 
 	/// <summary>
 	///     Sets the opacity of the window, including any decorations.
@@ -103,7 +103,7 @@ public static class Glfw {
 	/// <param name="window">The window to set the opacity for.</param>
 	/// <param name="opacity">The desired opacity of the specified window.</param>
 	[DllImport( LIBRARY, EntryPoint = "glfwSetWindowOpacity", CallingConvention = CallingConvention.Cdecl )]
-	public static extern void SetWindowOpacity( IntPtr window, float opacity );
+	public static extern void SetWindowOpacity( nint window, float opacity );
 
 	/// <summary>
 	///     Sets hints for the next call to <see cref="CreateWindow" />. The hints, once set, retain their values until
@@ -150,7 +150,7 @@ public static class Glfw {
 	/// <param name="xScale">The content scale on the x-axis.</param>
 	/// <param name="yScale">The content scale on the y-axis.</param>
 	[DllImport( LIBRARY, EntryPoint = "glfwGetWindowContentScale", CallingConvention = CallingConvention.Cdecl )]
-	public static extern void GetWindowContentScale( IntPtr window, out float xScale, out float yScale );
+	public static extern void GetWindowContentScale( nint window, out float xScale, out float yScale );
 
 	/// <summary>
 	///     Requests user attention to the specified <paramref name="window" />. On platforms where this is not supported,
@@ -163,7 +163,7 @@ public static class Glfw {
 	/// </summary>
 	/// <param name="window">The window to request user attention to.</param>
 	[DllImport( LIBRARY, EntryPoint = "glfwRequestWindowAttention", CallingConvention = CallingConvention.Cdecl )]
-	public static extern void RequestWindowAttention( IntPtr window );
+	public static extern void RequestWindowAttention( nint window );
 
 	/// <summary>
 	///     This function returns whether raw mouse motion is supported on the current system.
@@ -184,7 +184,7 @@ public static class Glfw {
 	/// <param name="cb">The new callback, or <c>null</c> to remove the currently set callback.</param>
 	/// <returns>The previously set callback, or <c>null</c> if no callback was set or the library had not been initialized.</returns>
 	[DllImport( LIBRARY, EntryPoint = "glfwSetWindowMaximizeCallback", CallingConvention = CallingConvention.Cdecl )]
-	public static extern WindowMaximizedCallback SetWindowMaximizeCallback( IntPtr window,
+	public static extern WindowMaximizedCallback SetWindowMaximizeCallback( nint window,
 		WindowMaximizedCallback cb );
 
 	/// <summary>
@@ -196,7 +196,7 @@ public static class Glfw {
 	/// <returns>The previously set callback, or <c>null</c> if no callback was set or the library had not been initialized.</returns>
 	[DllImport( LIBRARY, EntryPoint = "glfwSetWindowContentScaleCallback",
 		CallingConvention = CallingConvention.Cdecl )]
-	public static extern WindowContentsScaleCallback SetWindowContentScaleCallback( IntPtr window,
+	public static extern WindowContentsScaleCallback SetWindowContentScaleCallback( nint window,
 		WindowContentsScaleCallback cb );
 
 	/// <summary>
@@ -233,10 +233,10 @@ public static class Glfw {
 	/// <param name="attr">A supported window attribute.</param>
 	/// <param name="value">The value to set.</param>
 	[DllImport( LIBRARY, EntryPoint = "glfwSetWindowAttrib", CallingConvention = CallingConvention.Cdecl )]
-	public static extern void SetWindowAttribute( IntPtr window, WindowAttribute attr, bool value );
+	public static extern void SetWindowAttribute( nint window, WindowAttribute attr, bool value );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetJoystickHats", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetJoystickHats( int joystickId, out int count );
+	private static extern nint GetJoystickHats( int joystickId, out int count );
 
 	/// <summary>
 	///     Returns the state of all hats of the specified joystick as a bitmask.
@@ -245,7 +245,7 @@ public static class Glfw {
 	/// <returns>A bitmask enumeration containing the state of the joystick hats.</returns>
 	public static Hat GetJoystickHats( int joystickId ) {
 		Hat hat = Hat.Centered;
-		IntPtr ptr = GetJoystickHats( joystickId, out int count );
+		nint ptr = GetJoystickHats( joystickId, out int count );
 		for ( int i = 0; i < count; i++ ) {
 			byte value = Marshal.ReadByte( ptr, i );
 			hat |= (Hat) value;
@@ -255,7 +255,7 @@ public static class Glfw {
 	}
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetJoystickGUID", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetJoystickGuidPrivate( int joystickId );
+	private static extern nint GetJoystickGuidPrivate( int joystickId );
 
 	/// <summary>
 	///     Returns the SDL compatible GUID, as a hexadecimal string, of the specified joystick.
@@ -267,17 +267,17 @@ public static class Glfw {
 	/// <param name="joystickId">The joystick to query.</param>
 	/// <returns>The GUID of the joystick, or <c>null</c> if the joystick is not present or an error occurred.</returns>
 	public static string? GetJoystickGuid( int joystickId ) {
-		IntPtr ptr = GetJoystickGuidPrivate( joystickId );
-		return ptr == IntPtr.Zero ? null : Util.PtrToStringUTF8( ptr );
+		nint ptr = GetJoystickGuidPrivate( joystickId );
+		return ptr == nint.Zero ? null : Util.PtrToStringUTF8( ptr );
 	}
 
 	/// <summary>
 	///     This function returns the current value of the user-defined pointer of the specified joystick.
 	/// </summary>
 	/// <param name="joystickId">The joystick whose pointer to return.</param>
-	/// <returns>The user-defined pointer, or <see cref="IntPtr.Zero" /> if never defined.</returns>
+	/// <returns>The user-defined pointer, or <see cref="nint.Zero" /> if never defined.</returns>
 	[DllImport( LIBRARY, EntryPoint = "glfwGetJoystickUserPointer", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetJoystickUserPointer( int joystickId );
+	public static extern nint GetJoystickUserPointer( int joystickId );
 
 	/// <summary>
 	///     This function sets the user-defined pointer of the specified joystick.
@@ -286,7 +286,7 @@ public static class Glfw {
 	/// <param name="joystickId">The joystick whose pointer to set.</param>
 	/// <param name="pointer">The new value.</param>
 	[DllImport( LIBRARY, EntryPoint = "glfwSetJoystickUserPointer", CallingConvention = CallingConvention.Cdecl )]
-	public static extern void SetJoystickUserPointer( int joystickId, IntPtr pointer );
+	public static extern void SetJoystickUserPointer( int joystickId, nint pointer );
 
 	/// <summary>
 	///     Returns whether the specified joystick is both present and has a gamepad mapping.
@@ -311,7 +311,7 @@ public static class Glfw {
 	public static bool UpdateGamepadMappings( string mappings ) => UpdateGamepadMappings( Encoding.ASCII.GetBytes( mappings ) );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetGamepadName", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetGamepadNamePrivate( int gamepadId );
+	private static extern nint GetGamepadNamePrivate( int gamepadId );
 
 	/// <summary>
 	///     Returns the human-readable name of the gamepad from the gamepad mapping assigned to the specified joystick.
@@ -322,8 +322,8 @@ public static class Glfw {
 	///     occurred.
 	/// </returns>
 	public static string? GetGamepadName( int gamepadId ) {
-		IntPtr ptr = GetGamepadNamePrivate( gamepadId );
-		return ptr == IntPtr.Zero ? null : Util.PtrToStringUTF8( ptr );
+		nint ptr = GetGamepadNamePrivate( gamepadId );
+		return ptr == nint.Zero ? null : Util.PtrToStringUTF8( ptr );
 	}
 
 	/// <summary>
@@ -358,10 +358,10 @@ public static class Glfw {
 	/// </value>
 	public static MonitorPtr[] Monitors {
 		get {
-			IntPtr ptr = GetMonitors( out int count );
+			nint ptr = GetMonitors( out int count );
 			MonitorPtr[]? monitors = new MonitorPtr[ count ];
 			int offset = 0;
-			for ( int i = 0; i < count; i++, offset += IntPtr.Size ) {
+			for ( int i = 0; i < count; i++, offset += nint.Size ) {
 				monitors[ i ] = Marshal.PtrToStructure<MonitorPtr>( ptr + offset );
 			}
 
@@ -662,7 +662,7 @@ public static class Glfw {
 	/// <returns>A pointer to the null-terminated UTF-8 encoded version string.</returns>
 	/// <seealso cref="VersionString" />
 	[DllImport( LIBRARY, EntryPoint = "glfwGetVersionString", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetVersionString();
+	private static extern nint GetVersionString();
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetTime", CallingConvention = CallingConvention.Cdecl )]
 	private static extern double GetTime();
@@ -891,10 +891,10 @@ public static class Glfw {
 	private static extern MonitorPtr GetPrimaryMonitor();
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetVideoMode", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetVideoModeInternal( MonitorPtr monitor );
+	private static extern nint GetVideoModeInternal( MonitorPtr monitor );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetVideoModes", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetVideoModes( MonitorPtr monitor, out int count );
+	private static extern nint GetVideoModes( MonitorPtr monitor, out int count );
 
 	/// <summary>
 	///     Gets the handle of the monitor that the specified window is in full screen on.
@@ -936,7 +936,7 @@ public static class Glfw {
 		int refreshRate );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetGammaRamp", CallingConvention = CallingConvention.Cdecl )]
-	internal static extern IntPtr GetGammaRampInternal( MonitorPtr monitor );
+	internal static extern nint GetGammaRampInternal( MonitorPtr monitor );
 
 	/// <summary>
 	///     Sets the current gamma ramp for the specified monitor.
@@ -962,7 +962,7 @@ public static class Glfw {
 	public static extern void SetGamma( MonitorPtr monitor, float gamma );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetClipboardString", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetClipboardStringInternal( WindowPtr window );
+	private static extern nint GetClipboardStringInternal( WindowPtr window );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwSetClipboardString", CallingConvention = CallingConvention.Cdecl )]
 	private static extern void SetClipboardString( WindowPtr window, byte[] bytes );
@@ -984,7 +984,7 @@ public static class Glfw {
 	public static extern FileDropCallback SetDropCallback( WindowPtr window, FileDropCallback dropCallback );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetMonitorName", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetMonitorNameInternal( MonitorPtr monitor );
+	private static extern nint GetMonitorNameInternal( MonitorPtr monitor );
 
 	/// <summary>
 	///     Creates a new custom cursor image that can be set for a window with glfwSetCursor.
@@ -1136,21 +1136,21 @@ public static class Glfw {
 
 	/// <summary>
 	///     Sets the user-defined pointer of the specified window. The current value is retained until the window
-	///     is destroyed. The initial value is <see cref="IntPtr.Zero" />.
+	///     is destroyed. The initial value is <see cref="nint.Zero" />.
 	/// </summary>
 	/// <param name="window">A window instance.</param>
 	/// <param name="userPointer">The user pointer value.</param>
 	[DllImport( LIBRARY, EntryPoint = "glfwSetWindowUserPointer", CallingConvention = CallingConvention.Cdecl )]
-	public static extern void SetWindowUserPointer( WindowPtr window, IntPtr userPointer );
+	public static extern void SetWindowUserPointer( WindowPtr window, nint userPointer );
 
 	/// <summary>
 	///     Gets the current value of the user-defined pointer of the specified window. The initial value is
-	///     <see cref="IntPtr.Zero" />.
+	///     <see cref="nint.Zero" />.
 	/// </summary>
 	/// <param name="window">A window instance.</param>
 	/// <returns>The user-defined pointer.</returns>
 	[DllImport( LIBRARY, EntryPoint = "glfwGetWindowUserPointer", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetWindowUserPointer( WindowPtr window );
+	public static extern nint GetWindowUserPointer( WindowPtr window );
 
 	/// <summary>
 	///     Sets the size limits of the client area of the specified window. If the window is full screen, the
@@ -1212,7 +1212,7 @@ public static class Glfw {
 	public static extern void GetMonitorPosition( MonitorPtr monitor, out int x, out int y );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetMonitors", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetMonitors( out int count );
+	private static extern nint GetMonitors( out int count );
 
 	/// <summary>
 	///     Sets the character callback of the specified window, which is called when a Unicode character is
@@ -1273,7 +1273,7 @@ public static class Glfw {
 	public static extern InputState GetKey( WindowPtr window, Keys key );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetKeyName", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetKeyNameInternal( Keys key, int scanCode );
+	private static extern nint GetKeyNameInternal( Keys key, int scanCode );
 
 	/// <summary>
 	///     Sets the framebuffer resize callback of the specified window, which is called when the framebuffer of
@@ -1337,13 +1337,13 @@ public static class Glfw {
 	public static extern bool JoystickPresent( Joystick joystick );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetJoystickName", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetJoystickNameInternal( Joystick joystick );
+	private static extern nint GetJoystickNameInternal( Joystick joystick );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetJoystickAxes", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetJoystickAxes( Joystick joystic, out int count );
+	private static extern nint GetJoystickAxes( Joystick joystic, out int count );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetJoystickButtons", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetJoystickButtons( Joystick joystick, out int count );
+	private static extern nint GetJoystickButtons( Joystick joystick, out int count );
 
 	/// <summary>
 	///     Sets the joystick configuration callback, or removes the currently set callback.
@@ -1409,11 +1409,11 @@ public static class Glfw {
 	/// <param name="width">The monitor width.</param>
 	/// <param name="height">The monitor height.</param>
 	[DllImport( LIBRARY, EntryPoint = "glfwGetMonitorWorkarea", CallingConvention = CallingConvention.Cdecl )]
-	public static extern void GetMonitorWorkArea( IntPtr monitor, out int x, out int y, out int width,
+	public static extern void GetMonitorWorkArea( nint monitor, out int x, out int y, out int width,
 		out int height );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetProcAddress", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetProcAddress( byte[] procName );
+	private static extern nint GetProcAddress( byte[] procName );
 
 	/// <summary>
 	///     Sets hints for the next call to <see cref="CreateWindow" />. The hints, once set, retain their values
@@ -1440,7 +1440,7 @@ public static class Glfw {
 	private static extern int GetWindowAttribute( WindowPtr window, int attribute );
 
 	[DllImport( LIBRARY, EntryPoint = "glfwGetError", CallingConvention = CallingConvention.Cdecl )]
-	private static extern ErrorCode GetErrorPrivate( out IntPtr description );
+	private static extern ErrorCode GetErrorPrivate( out nint description );
 
 	#endregion
 
@@ -1533,7 +1533,7 @@ public static class Glfw {
 	/// <param name="joystick">The joystick to query.</param>
 	/// <returns>An array of axes values.</returns>
 	public static float[] GetJoystickAxes( Joystick joystick ) {
-		IntPtr ptr = GetJoystickAxes( joystick, out int count );
+		nint ptr = GetJoystickAxes( joystick, out int count );
 		float[]? axes = new float[ count ];
 		if ( count > 0 )
 			Marshal.Copy( ptr, axes, 0, count );
@@ -1546,7 +1546,7 @@ public static class Glfw {
 	/// <param name="joystick">The joystick to query.</param>
 	/// <returns>An array of values, either <see cref="InputState.Press" /> and <see cref="InputState.Release" />.</returns>
 	public static InputState[] GetJoystickButtons( Joystick joystick ) {
-		IntPtr ptr = GetJoystickButtons( joystick, out int count );
+		nint ptr = GetJoystickButtons( joystick, out int count );
 		InputState[]? states = new InputState[ count ];
 		for ( int i = 0; i < count; i++ )
 			states[ i ] = (InputState) Marshal.ReadByte( ptr, i );
@@ -1596,8 +1596,8 @@ public static class Glfw {
 	///     <see cref="Vulkan.GetInstanceProcAddress" /> instead.
 	/// </summary>
 	/// <param name="procName">Name of the function.</param>
-	/// <returns>The address of the function, or <see cref="IntPtr.Zero" /> if an error occurred.</returns>
-	public static IntPtr GetProcAddress( string procName ) => GetProcAddress( Encoding.ASCII.GetBytes( procName ) );
+	/// <returns>The address of the function, or <see cref="nint.Zero" /> if an error occurred.</returns>
+	public static nint GetProcAddress( string procName ) => GetProcAddress( Encoding.ASCII.GetBytes( procName ) );
 
 	/// <summary>
 	///     Gets the profile of the specified window.
@@ -1623,7 +1623,7 @@ public static class Glfw {
 	/// <param name="monitor">The monitor to query.</param>
 	/// <returns>The current mode of the monitor, or <c>null</c> if an error occurred.</returns>
 	public static VideoMode GetVideoMode( MonitorPtr monitor ) {
-		IntPtr ptr = GetVideoModeInternal( monitor );
+		nint ptr = GetVideoModeInternal( monitor );
 		return Marshal.PtrToStructure<VideoMode>( ptr );
 	}
 
@@ -1637,7 +1637,7 @@ public static class Glfw {
 	/// <param name="monitor">The monitor to query.</param>
 	/// <returns>The array of video modes.</returns>
 	public static VideoMode[] GetVideoModes( MonitorPtr monitor ) {
-		IntPtr pointer = GetVideoModes( monitor, out int count );
+		nint pointer = GetVideoModes( monitor, out int count );
 		VideoMode[]? modes = new VideoMode[ count ];
 		for ( int i = 0; i < count; i++, pointer += Marshal.SizeOf<VideoMode>() )
 			modes[ i ] = Marshal.PtrToStructure<VideoMode>( pointer );
@@ -1770,7 +1770,7 @@ public static class Glfw {
 		revision = GetWindowAttribute( window, (int) ContextAttributes.ContextVersionRevision );
 	}
 
-	private static void GlfwError( ErrorCode code, IntPtr message ) => throw new Exception( Util.PtrToStringUTF8( message ) );
+	private static void GlfwError( ErrorCode code, nint message ) => throw new Exception( Util.PtrToStringUTF8( message ) );
 
 	#endregion
 }

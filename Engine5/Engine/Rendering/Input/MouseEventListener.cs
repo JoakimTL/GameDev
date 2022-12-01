@@ -1,4 +1,4 @@
-﻿using GLFW;
+﻿using GlfwBinding.Enums;
 
 namespace Engine.Rendering.Input;
 

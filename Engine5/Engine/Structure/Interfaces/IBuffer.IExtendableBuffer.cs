@@ -1,6 +1,7 @@
-﻿namespace Engine.Structure.Interfaces;
+﻿using System.Numerics;
 
-public interface IExtendableBuffer : IBuffer
-{
-    void Extend(ulong bytes);
+namespace Engine.Structure.Interfaces;
+
+public interface IExtendableBuffer<T> : IBuffer<T> where T : IBinaryInteger<T> {
+	void Extend( T bytes );
 }

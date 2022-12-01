@@ -18,7 +18,7 @@ public sealed class SegmentedVertexBufferObject : VertexBufferObject {
 		this.ByteAlignment = segmentByteAlignment;
 	}
 
-	public IDataSegmentInformation? AllocateSynchronized( uint sizeBytes ) {
+	public IBufferSegmentData<uint>? AllocateSynchronized( uint sizeBytes ) {
 		if ( sizeBytes % this.ByteAlignment != 0 ) {
 			uint newSizeBytes = ( ( sizeBytes / this.ByteAlignment ) + 1 ) * this.ByteAlignment;
 			this.LogWarning( $"Attempted to allocate segment outside alignment. Adjusting from {sizeBytes}B to {newSizeBytes}B!" );
@@ -34,14 +34,14 @@ public sealed class SegmentedVertexBufferObject : VertexBufferObject {
 		return segment;
 	}
 
-	private class Segment : Identifiable, IDataSegmentInformation {
-		public ulong OffsetBytes { get; private set; }
+	private class Segment : Identifiable, IBufferSegmentData<uint> {
+		public uint OffsetBytes { get; private set; }
 		public uint SizeBytes { get; private set; }
-		public event Action<ulong>? OffsetChanged;
+		public event Action<uint>? OffsetChanged;
 
 		protected override string UniqueNameTag => $"{this.OffsetBytes}->{this.SizeBytes / 1024d}KiB";
 
-		internal Segment( ulong offsetBytes, uint sizeBytes ) {
+		internal Segment( uint offsetBytes, uint sizeBytes ) {
 			this.SizeBytes = sizeBytes;
 			this.OffsetBytes = offsetBytes;
 		}

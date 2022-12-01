@@ -1,7 +1,6 @@
 ﻿using Engine.Structure.Interfaces;
 using OpenGL;
 using System.Diagnostics;
-using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -16,7 +15,7 @@ public abstract unsafe class DataBlock : Identifiable, IDisposable {
 	/// <summary>
 	/// The segment in the databuffer.
 	/// </summary>
-	public IDataSegmentInformation Segment { get; private set; }
+	public IBufferSegmentData<uint> Segment { get; private set; }
 	/// <summary>
 	/// The shader type this block is found in.
 	/// </summary>
@@ -56,10 +55,10 @@ public abstract unsafe class DataBlock : Identifiable, IDisposable {
 
 	protected void BindBuffer( uint index ) {
 		this.BoundIndex = index;
-		Gl.BindBufferRange( this.Target, this.BoundIndex, this._buffer.BufferId, (IntPtr) this.Segment.OffsetBytes, this.Segment.SizeBytes );
+		Gl.BindBufferRange( this.Target, this.BoundIndex, this._buffer.BufferId, (nint) this.Segment.OffsetBytes, this.Segment.SizeBytes );
 	}
 
-	public void UnbindBuffer() => Gl.BindBufferRange( this.Target, this.BoundIndex, 0, IntPtr.Zero, 0 );
+	public void UnbindBuffer() => Gl.BindBufferRange( this.Target, this.BoundIndex, 0, nint.Zero, 0 );
 
 	public void Write<T>( T t, uint offsetBytes = 0 ) where T : unmanaged {
 		if ( Marshal.SizeOf<T>() + offsetBytes > this.Segment.SizeBytes ) {
@@ -67,7 +66,7 @@ public abstract unsafe class DataBlock : Identifiable, IDisposable {
 			return;
 		}
 		( (T*) ( this._bytes + offsetBytes ) )[ 0 ] = t;
-		this._buffer.Write( new IntPtr( this._bytes ), (uint) this.Segment.OffsetBytes + offsetBytes, offsetBytes, (uint) Marshal.SizeOf<T>() );
+		this._buffer.Write( new nint( this._bytes ), (uint) this.Segment.OffsetBytes + offsetBytes, offsetBytes, (uint) Marshal.SizeOf<T>() );
 	}
 
 	public void Write<T>( Span<T> data, uint offsetBytes = 0 ) where T : unmanaged {
@@ -77,7 +76,7 @@ public abstract unsafe class DataBlock : Identifiable, IDisposable {
 		}
 		fixed ( T* src = data )
 			Unsafe.CopyBlock( this._bytes + offsetBytes, src, (uint) ( data.Length * Marshal.SizeOf<T>() ) );
-		this._buffer.Write( new IntPtr( this._bytes ), (uint) this.Segment.OffsetBytes + offsetBytes, offsetBytes, (uint) ( data.Length * Marshal.SizeOf<T>() ) );
+		this._buffer.Write( new nint( this._bytes ), (uint) this.Segment.OffsetBytes + offsetBytes, offsetBytes, (uint) ( data.Length * Marshal.SizeOf<T>() ) );
 	}
 
 	public void Write( void* src, uint length, uint offsetBytes = 0 ) {
@@ -86,7 +85,7 @@ public abstract unsafe class DataBlock : Identifiable, IDisposable {
 			return;
 		}
 		Unsafe.CopyBlock( this._bytes + offsetBytes, src, length );
-		this._buffer.Write( new IntPtr( this._bytes ), (uint) this.Segment.OffsetBytes + offsetBytes, offsetBytes, length );
+		this._buffer.Write( new nint( this._bytes ), (uint) this.Segment.OffsetBytes + offsetBytes, offsetBytes, length );
 	}
 
 	public void Dispose() {

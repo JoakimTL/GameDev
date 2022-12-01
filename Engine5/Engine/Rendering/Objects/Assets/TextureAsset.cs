@@ -1,23 +1,11 @@
-﻿using Engine.Time;
+﻿namespace Engine.Rendering.Objects.Assets;
+public sealed class TextureAsset : LoadedAssetBase {
 
-namespace Engine.Rendering.Objects.Assets;
-public class TextureAsset {
-
-	public string Path { get; }
 	public ushort Index { get; private set; }
 	private Texture? _texture;
 
-	//Needs a path, the path will also be considered the asset name
-	//This path is the local path, in the asset/textures directory.
-
-	public float DeadlineTillDisposal { get; internal set; }
-	public bool ShouldDispose => Clock32.StartupTime > DeadlineTillDisposal;
-
-	public event Action<TextureAsset>? OnDispose;
-
-	internal TextureAsset( string path ) {
+	internal TextureAsset( string path ) : base( path ) {
 		this.Index = 0;
-		this.Path = path;
 		this._texture = null;
 	}
 
@@ -29,8 +17,7 @@ public class TextureAsset {
 		_texture = newTexture;
 	}
 
-	internal void Dispose() {
-		OnDispose?.Invoke( this );
+	protected override void OnDispose() {
 		_texture?.Dispose();
 		_texture = null;
 	}

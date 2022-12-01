@@ -1,6 +1,5 @@
-﻿using Engine.Datatypes;
+﻿using Engine.Datatypes.Vectors;
 using Engine.Rendering.Objects;
-using GLFW;
 
 namespace Engine.Rendering;
 
@@ -10,7 +9,7 @@ public sealed class WindowSettings : Identifiable {
 	public int vsyncLevel = 1;
 	public int sampleCount = 60;
 	public Mode windowMode = Mode.WINDOW;
-	public MonitorPtr monitor = MonitorPtr.None;
+	public nint monitor = nint.Zero;
 	public Window? share = null;
 
 	public enum Mode {

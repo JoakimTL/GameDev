@@ -39,8 +39,11 @@ public sealed class FileWatchingService : Identifiable, IDisposable, IGlobalServ
 	}
 
 	public void Dispose() {
-
-
-
+		foreach ( var watcher in _watchers.Values )
+			watcher.Dispose();
 	}
 }
+
+//TODO FileReadingService
+//To read packed data or native file directories
+//public sealed class FileReadingService 

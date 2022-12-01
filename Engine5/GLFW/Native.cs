@@ -19,7 +19,7 @@ public static class Native {
 	///     Returns the CGDirectDisplayID of the specified monitor.
 	/// </summary>
 	/// <param name="monitor">The monitor to query.</param>
-	/// <returns>The CGDirectDisplayID of the specified monitor, or <see cref="IntPtr.Zero" /> if an error occurred.</returns>
+	/// <returns>The CGDirectDisplayID of the specified monitor, or <see cref="nint.Zero" /> if an error occurred.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetCocoaMonitor", CallingConvention = CallingConvention.Cdecl )]
 	public static extern uint GetCocoaMonitor( MonitorPtr monitor );
 
@@ -29,7 +29,7 @@ public static class Native {
 	/// </summary>
 	/// <returns>A pointer to the X11 display struct.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetX11Display", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetX11Display();
+	public static extern nint GetX11Display();
 
 	/// <summary>
 	///     Retrieves a pointer to the Wayland display.
@@ -38,7 +38,7 @@ public static class Native {
 	/// <returns>A pointer to the Wayland display struct.</returns>
 	/// <seealso href="https://github.com/msteinert/wayland/blob/master/src/wayland-client.c" />
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetWaylandDisplay", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetWaylandDisplay();
+	public static extern nint GetWaylandDisplay();
 
 	/// <summary>
 	///     Retrieves a pointer to the Wayland output monitor.
@@ -47,55 +47,55 @@ public static class Native {
 	/// <returns>A pointer to the Wayland output struct.</returns>
 	/// <seealso href="https://github.com/msteinert/wayland/blob/master/src/wayland-client.c" />
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetWaylandMonitor", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetWaylandMonitor( MonitorPtr monitor );
+	public static extern nint GetWaylandMonitor( MonitorPtr monitor );
 
 	/// <summary>
 	///     Returns the pointer to the Wayland window for the specified window.
 	/// </summary>
 	/// <param name="window">A window instance.</param>
-	/// <returns>A pointer to a Wayland window, or <see cref="IntPtr.Zero" /> if error occurred.</returns>
+	/// <returns>A pointer to a Wayland window, or <see cref="nint.Zero" /> if error occurred.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetWaylandWindow", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetWaylandWindow( WindowPtr window );
+	public static extern nint GetWaylandWindow( WindowPtr window );
 
 	/// <summary>
 	///     Returns the pointer to the GLX window for the specified window.
 	/// </summary>
 	/// <param name="window">A window instance.</param>
-	/// <returns>A pointer to a GLX window, or <see cref="IntPtr.Zero" /> if error occurred.</returns>
+	/// <returns>A pointer to a GLX window, or <see cref="nint.Zero" /> if error occurred.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetGLXWindow", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetGLXWindow( WindowPtr window );
+	public static extern nint GetGLXWindow( WindowPtr window );
 
 	/// <summary>
 	///     Returns the pointer to the X11 window for the specified window.
 	/// </summary>
 	/// <param name="window">A window instance.</param>
-	/// <returns>A pointer to an X11 window, or <see cref="IntPtr.Zero" /> if error occurred.</returns>
+	/// <returns>A pointer to an X11 window, or <see cref="nint.Zero" /> if error occurred.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetX11Window", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetX11Window( WindowPtr window );
+	public static extern nint GetX11Window( WindowPtr window );
 
 	/// <summary>
 	///     Returns the RROutput of the specified monitor.
 	/// </summary>
 	/// <param name="monitor">The monitor to query.</param>
-	/// <returns>The RROutput of the specified monitor, or <see cref="IntPtr.Zero" /> if an error occurred.</returns>
+	/// <returns>The RROutput of the specified monitor, or <see cref="nint.Zero" /> if an error occurred.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetX11Monitor", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetX11Monitor( MonitorPtr monitor );
+	public static extern nint GetX11Monitor( MonitorPtr monitor );
 
 	/// <summary>
 	///     Returns the RRCrtc of the specified monitor.
 	/// </summary>
 	/// <param name="monitor">The monitor to query.</param>
-	/// <returns>The RRCrtc of the specified monitor, or <see cref="IntPtr.Zero" /> if an error occurred.</returns>
+	/// <returns>The RRCrtc of the specified monitor, or <see cref="nint.Zero" /> if an error occurred.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetX11Adapter", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetX11Adapter( MonitorPtr monitor );
+	public static extern nint GetX11Adapter( MonitorPtr monitor );
 
 	/// <summary>
 	///     Returns the pointer to the Cocoa window for the specified window.
 	/// </summary>
 	/// <param name="window">A window instance.</param>
-	/// <returns>A pointer to a Cocoa window, or <see cref="IntPtr.Zero" /> if error occurred.</returns>
+	/// <returns>A pointer to a Cocoa window, or <see cref="nint.Zero" /> if error occurred.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetCocoaWindow", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetCocoaWindow( WindowPtr window );
+	public static extern nint GetCocoaWindow( WindowPtr window );
 
 	/// <summary>
 	///     Returns the NSOpenGLContext of the specified window.
@@ -156,17 +156,17 @@ public static class Native {
 	///     Returns the HWND of the specified window.
 	/// </summary>
 	/// <param name="window">A window instance.</param>
-	/// <returns>The HWND of the specified window, or <see cref="IntPtr.Zero" /> if an error occurred.</returns>
+	/// <returns>The HWND of the specified window, or <see cref="nint.Zero" /> if an error occurred.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetWin32Window", CallingConvention = CallingConvention.Cdecl )]
-	public static extern IntPtr GetWin32Window( WindowPtr window );
+	public static extern nint GetWin32Window( WindowPtr window );
 
 	/// <summary>
 	///     Returns the contents of the selection as a string.
 	/// </summary>
 	/// <returns>The selected string, or <c>null</c> if error occurs or no string is selected.</returns>
 	public static string? GetX11SelectionString() {
-		IntPtr ptr = GetX11SelectionStringInternal();
-		return ptr == IntPtr.Zero ? null : Util.PtrToStringUTF8( ptr );
+		nint ptr = GetX11SelectionStringInternal();
+		return ptr == nint.Zero ? null : Util.PtrToStringUTF8( ptr );
 	}
 
 	/// <summary>
@@ -186,7 +186,7 @@ public static class Native {
 	/// <returns><c>true</c> if operation was successful, otherwise <c>false</c>.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetOSMesaColorBuffer", CallingConvention = CallingConvention.Cdecl )]
 	public static extern bool
-		GetOSMesaColorBuffer( WindowPtr window, out int width, out int height, out int format, out IntPtr buffer );
+		GetOSMesaColorBuffer( WindowPtr window, out int width, out int height, out int format, out nint buffer );
 
 	/// <summary>
 	///     Retrieves the depth buffer associated with the specified window.
@@ -200,20 +200,20 @@ public static class Native {
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetOSMesaDepthBuffer", CallingConvention = CallingConvention.Cdecl )]
 	public static extern bool
 		GetOSMesaDepthBuffer( WindowPtr window, out int width, out int height, out int bytesPerValue,
-			out IntPtr buffer );
+			out nint buffer );
 
 
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwSetX11SelectionString", CallingConvention = CallingConvention.Cdecl )]
 	private static extern void SetX11SelectionString( byte[] str );
 
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetX11SelectionString", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetX11SelectionStringInternal();
+	private static extern nint GetX11SelectionStringInternal();
 
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetWin32Adapter", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetWin32AdapterInternal( MonitorPtr monitor );
+	private static extern nint GetWin32AdapterInternal( MonitorPtr monitor );
 
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetWin32Monitor", CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetWin32MonitorInternal( MonitorPtr monitor );
+	private static extern nint GetWin32MonitorInternal( MonitorPtr monitor );
 
 	#endregion
 

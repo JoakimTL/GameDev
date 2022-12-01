@@ -1,5 +1,5 @@
 ﻿using Engine.Structure.Interfaces;
-using GLFW;
+using GlfwBinding;
 using OpenGL;
 
 namespace Engine.Rendering.Services;
@@ -12,18 +12,17 @@ public sealed class GlDebugMessageService : IRenderService, IInitializable {
 	}
 
 	public void Initialize() {
-		Gl.DebugMessageCallback( this._debugCallback, IntPtr.Zero );
+		Gl.DebugMessageCallback( this._debugCallback, nint.Zero );
 	}
 
 	public void BindErrorCallback() => Glfw.SetErrorCallback( ErrorCallback );
 
-
-	private void ErrorCallback( GLFW.ErrorCode code, IntPtr desc ) {
+	private void ErrorCallback( GlfwBinding.Enums.ErrorCode code, nint desc ) {
 		Log.Error( "GLFW Error: " + code + ": " + desc );
 		Console.ReadLine();
 	}
 
-	private void GLDebugHandler( DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam ) {
+	private void GLDebugHandler( DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, nint message, nint userParam ) {
 		switch ( severity ) {
 			case DebugSeverity.DontCare:
 				Log.Line( GLDebugMessageDecipher( source, type, id, severity, length, message, userParam ), Log.Level.VERBOSE );
@@ -53,7 +52,7 @@ public sealed class GlDebugMessageService : IRenderService, IInitializable {
 		}
 	}
 
-	private string GLDebugMessageDecipher( DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, IntPtr message, IntPtr userParam ) {
+	private string GLDebugMessageDecipher( DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, nint message, nint userParam ) {
 		unsafe {
 			string errorDescription = "";
 			for ( int i = 0; i < length; i++ )

@@ -1,5 +1,5 @@
 ﻿using Engine.Rendering.Objects;
-using GLFW;
+using GlfwBinding.Enums;
 
 namespace Engine.Rendering.Input;
 public class ClientInput : Identifiable, IEventListener {

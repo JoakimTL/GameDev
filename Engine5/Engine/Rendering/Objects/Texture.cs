@@ -1,4 +1,4 @@
-﻿using Engine.Datatypes;
+﻿using Engine.Datatypes.Vectors;
 using OpenGL;
 using System.Diagnostics;
 
@@ -51,7 +51,7 @@ public class Texture : Identifiable, IDisposable {
 		return _sizes[ level ];
 	}
 
-	public void SetPixels( PixelFormat format, PixelType pixelType, IntPtr ptr, uint level = 0 ) {
+	public void SetPixels( PixelFormat format, PixelType pixelType, nint ptr, uint level = 0 ) {
 		if ( level > _sizes.Length ) {
 			this.LogWarning( "Attempted to set pixels at a deeper mipmap level than present." );
 			return;
@@ -60,7 +60,7 @@ public class Texture : Identifiable, IDisposable {
 		Gl.TextureSubImage2D( TextureID, (int) level, 0, 0, mm.X, mm.Y, format, pixelType, ptr );
 	}
 
-	public void SetPixelsCompressed( PixelFormat format, int size, IntPtr ptr, uint level = 0 ) {
+	public void SetPixelsCompressed( PixelFormat format, int size, nint ptr, uint level = 0 ) {
 		if ( level > _sizes.Length ) {
 			this.LogWarning( "Attempted to set pixels at a deeper mipmap level than present." );
 			return;

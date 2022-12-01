@@ -1,4 +1,4 @@
-﻿using Engine.Datatypes;
+﻿using Engine.Datatypes.Vectors;
 using Engine.Rendering.OGL;
 using OpenGL;
 

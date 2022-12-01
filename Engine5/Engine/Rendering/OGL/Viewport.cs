@@ -1,4 +1,4 @@
-﻿using Engine.Datatypes;
+﻿using Engine.Datatypes.Vectors;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Rendering.OGL;

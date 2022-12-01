@@ -16,7 +16,7 @@ public struct Cursor : IEquatable<Cursor> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr cursor;
+	private readonly nint cursor;
 
 	/// <summary>
 	///     Determines whether the specified <see cref="Cursor" />, is equal to this instance.
@@ -83,16 +83,16 @@ public struct EGLContext : IEquatable<EGLContext> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr handle;
+	private readonly nint handle;
 
 	/// <summary>
-	///     Performs an implicit conversion from <see cref="EGLContext" /> to <see cref="IntPtr" />.
+	///     Performs an implicit conversion from <see cref="EGLContext" /> to <see cref="nint" />.
 	/// </summary>
 	/// <param name="context">The context.</param>
 	/// <returns>
 	///     The result of the conversion.
 	/// </returns>
-	public static implicit operator IntPtr( EGLContext context ) { return context.handle; }
+	public static implicit operator nint( EGLContext context ) { return context.handle; }
 
 	/// <summary>
 	///     Returns a <see cref="string" /> that represents this instance.
@@ -166,16 +166,16 @@ public struct EGLDisplay : IEquatable<EGLDisplay> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr handle;
+	private readonly nint handle;
 
 	/// <summary>
-	///     Performs an implicit conversion from <see cref="EGLDisplay" /> to <see cref="IntPtr" />.
+	///     Performs an implicit conversion from <see cref="EGLDisplay" /> to <see cref="nint" />.
 	/// </summary>
 	/// <param name="display">The display.</param>
 	/// <returns>
 	///     The result of the conversion.
 	/// </returns>
-	public static implicit operator IntPtr( EGLDisplay display ) { return display.handle; }
+	public static implicit operator nint( EGLDisplay display ) { return display.handle; }
 
 	/// <summary>
 	///     Returns a <see cref="string" /> that represents this instance.
@@ -249,16 +249,16 @@ public struct EGLSurface : IEquatable<EGLSurface> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr handle;
+	private readonly nint handle;
 
 	/// <summary>
-	///     Performs an implicit conversion from <see cref="EGLSurface" /> to <see cref="IntPtr" />.
+	///     Performs an implicit conversion from <see cref="EGLSurface" /> to <see cref="nint" />.
 	/// </summary>
 	/// <param name="surface">The surface.</param>
 	/// <returns>
 	///     The result of the conversion.
 	/// </returns>
-	public static implicit operator IntPtr( EGLSurface surface ) { return surface.handle; }
+	public static implicit operator nint( EGLSurface surface ) { return surface.handle; }
 
 	/// <summary>
 	///     Returns a <see cref="string" /> that represents this instance.
@@ -398,9 +398,9 @@ public struct GammaRamp {
 /// </summary>
 [StructLayout( LayoutKind.Sequential )]
 internal struct GammaRampInternal {
-	public readonly IntPtr Red;
-	public readonly IntPtr Green;
-	public readonly IntPtr Blue;
+	public readonly nint Red;
+	public readonly nint Green;
+	public readonly nint Blue;
 	public readonly int Size;
 
 	public static explicit operator GammaRamp( GammaRampInternal ramp ) {
@@ -432,16 +432,16 @@ public struct GLXContext : IEquatable<GLXContext> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr handle;
+	private readonly nint handle;
 
 	/// <summary>
-	///     Performs an implicit conversion from <see cref="GLXContext" /> to <see cref="IntPtr" />.
+	///     Performs an implicit conversion from <see cref="GLXContext" /> to <see cref="nint" />.
 	/// </summary>
 	/// <param name="context">The context.</param>
 	/// <returns>
 	///     The result of the conversion.
 	/// </returns>
-	public static implicit operator IntPtr( GLXContext context ) { return context.handle; }
+	public static implicit operator nint( GLXContext context ) { return context.handle; }
 
 	/// <summary>
 	///     Returns a <see cref="string" /> that represents this instance.
@@ -515,16 +515,16 @@ public struct HGLRC : IEquatable<HGLRC> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr handle;
+	private readonly nint handle;
 
 	/// <summary>
-	///     Performs an implicit conversion from <see cref="HGLRC" /> to <see cref="IntPtr" />.
+	///     Performs an implicit conversion from <see cref="HGLRC" /> to <see cref="nint" />.
 	/// </summary>
 	/// <param name="hglrc">The hglrc.</param>
 	/// <returns>
 	///     The result of the conversion.
 	/// </returns>
-	public static implicit operator IntPtr( HGLRC hglrc ) { return hglrc.handle; }
+	public static implicit operator nint( HGLRC hglrc ) { return hglrc.handle; }
 
 	/// <summary>
 	///     Returns a <see cref="string" /> that represents this instance.
@@ -603,7 +603,7 @@ public struct Image {
 	/// <summary>
 	///     Pointer to the RGBA pixel data of this image, arranged left-to-right, top-to-bottom.
 	/// </summary>
-	public readonly IntPtr Pixels;
+	public readonly nint Pixels;
 
 	/// <summary>
 	///     Initializes a new instance of the <see cref="Image" /> struct.
@@ -611,7 +611,7 @@ public struct Image {
 	/// <param name="width">The height, in pixels, of this image.</param>
 	/// <param name="height">The width, in pixels, of this image..</param>
 	/// <param name="pixels">Pointer to the RGBA pixel data of this image, arranged left-to-right, top-to-bottom.</param>
-	public Image( int width, int height, IntPtr pixels ) {
+	public Image( int width, int height, nint pixels ) {
 		this.Width = width;
 		this.Height = height;
 		this.Pixels = pixels;
@@ -634,16 +634,16 @@ public struct NSOpenGLContext : IEquatable<NSOpenGLContext> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr handle;
+	private readonly nint handle;
 
 	/// <summary>
-	///     Performs an implicit conversion from <see cref="NSOpenGLContext" /> to <see cref="IntPtr" />.
+	///     Performs an implicit conversion from <see cref="NSOpenGLContext" /> to <see cref="nint" />.
 	/// </summary>
 	/// <param name="context">The context.</param>
 	/// <returns>
 	///     The result of the conversion.
 	/// </returns>
-	public static implicit operator IntPtr( NSOpenGLContext context ) { return context.handle; }
+	public static implicit operator nint( NSOpenGLContext context ) { return context.handle; }
 
 	/// <summary>
 	///     Returns a <see cref="string" /> that represents this instance.
@@ -718,16 +718,16 @@ public struct OSMesaContext : IEquatable<OSMesaContext> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr handle;
+	private readonly nint handle;
 
 	/// <summary>
-	///     Performs an implicit conversion from <see cref="OSMesaContext" /> to <see cref="IntPtr" />.
+	///     Performs an implicit conversion from <see cref="OSMesaContext" /> to <see cref="nint" />.
 	/// </summary>
 	/// <param name="context">The context.</param>
 	/// <returns>
 	///     The result of the conversion.
 	/// </returns>
-	public static implicit operator IntPtr( OSMesaContext context ) { return context.handle; }
+	public static implicit operator nint( OSMesaContext context ) { return context.handle; }
 
 	/// <summary>
 	///     Returns a <see cref="string" /> that represents this instance.

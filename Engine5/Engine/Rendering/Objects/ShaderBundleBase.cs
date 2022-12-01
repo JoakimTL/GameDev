@@ -1,4 +1,5 @@
-﻿using Engine.Structure.Uid;
+﻿using Engine.Rendering.Services;
+using Engine.Structure.Uid;
 
 namespace Engine.Rendering.Objects;
 
@@ -13,6 +14,12 @@ public abstract class ShaderBundleBase : Identifiable {
 		this.BundleID = _idSystem.Next;
 		_pipelines = new();
 	}
+
+	internal void CreateBundle( ShaderPipelineService pipelineService ) {
+		AddPipelines(pipelineService);
+	}
+
+	protected abstract void AddPipelines( ShaderPipelineService pipelineService );
 
 	protected void AddPipeline( string index, ShaderPipelineBase pipeline ) => _pipelines.Add( index, pipeline );
 

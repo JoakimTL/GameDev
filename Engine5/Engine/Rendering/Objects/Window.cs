@@ -1,7 +1,7 @@
-﻿using Engine.Datatypes;
+﻿using Engine.Datatypes.Vectors;
 using Engine.Rendering.OGL;
 using Engine.Structure.Interfaces;
-using GLFW;
+using GlfwBinding;
 using OpenGL;
 using System.Numerics;
 
@@ -10,7 +10,7 @@ namespace Engine.Rendering.Objects;
 public sealed class Window : Identifiable, IUpdateable, IDisposable
 {
 
-    public readonly WindowPtr Pointer;
+    public readonly nint Pointer;
     private readonly Context _context;
     private readonly Viewport _viewport;
 
@@ -26,7 +26,7 @@ public sealed class Window : Identifiable, IUpdateable, IDisposable
 
     public Context Context => _context;
 
-    public Window(WindowPtr pointer)
+    public Window(nint pointer)
     {
         Pointer = pointer;
         Closed = false;
@@ -49,7 +49,7 @@ public sealed class Window : Identifiable, IUpdateable, IDisposable
         //TODO: move debug callback to GL event handler
         //Event handler should be a render service, as it's not a context specific service.
         //this._debugCallback = GLDebugHandler;
-        //Gl.DebugMessageCallback( this._debugCallback, IntPtr.Zero );
+        //Gl.DebugMessageCallback( this._debugCallback, nint.Zero );
     }
 
     public void Bind()
@@ -122,7 +122,7 @@ public sealed class Window : Identifiable, IUpdateable, IDisposable
     }
 
     public Vector2i GetPixelCoord(Vector2 ndc) => Vector2i.Floor((ndc + Vector2.One) * 0.5f * Size);
-    public static implicit operator WindowPtr(Window window) => window.Pointer;
+    public static implicit operator nint(Window window) => window.Pointer;
 
     public void Dispose()
     {

@@ -1,4 +1,5 @@
-﻿using OpenGL;
+﻿using Engine.Rendering.Services;
+using OpenGL;
 using System.Diagnostics;
 using System.Text;
 
@@ -21,9 +22,6 @@ public abstract class ShaderProgramBase : Identifiable, IDisposable {
 		this.ProgramID = Gl.CreateProgram();
 		if ( separable )
 			Gl.ProgramParameter( this.ProgramID, ProgramParameterPName.ProgramSeparable, Gl.TRUE );
-		AttachShaders();
-		Initialize();
-		ValidateShader();
 	}
 
 #if DEBUG
@@ -32,7 +30,13 @@ public abstract class ShaderProgramBase : Identifiable, IDisposable {
 	}
 #endif
 
-	protected abstract void AttachShaders();
+	internal void CreateProgram( ShaderSourceService shaderSourceService ) {
+		AttachShaders( shaderSourceService );
+		Initialize();
+		ValidateShader();
+	}
+
+	protected abstract void AttachShaders( ShaderSourceService shaderSourceService );
 	protected virtual void Initialize() { }
 
 	public void AttachShader( ShaderSource shader ) {

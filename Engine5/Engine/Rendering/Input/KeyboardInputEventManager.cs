@@ -1,5 +1,7 @@
 ﻿using Engine.Rendering.Objects;
-using GLFW;
+using Engine.Rendering.OGL;
+using GlfwBinding;
+using GlfwBinding.Enums;
 
 namespace Engine.Rendering.Input;
 
@@ -40,8 +42,8 @@ public class KeyboardInputEventManager : Identifiable {
 		_keyCallback = OnKey;
 		_characterCallback = OnCharacter;
 
-		Glfw.SetKeyCallback( _window.Pointer, _keyCallback );
-		Glfw.SetCharModsCallback( _window.Pointer, _characterCallback );
+		EventUtilities.SetKeyCallback( _window.Pointer, _keyCallback );
+		EventUtilities.SetCharModsCallback( _window.Pointer, _characterCallback );
 
 		this.LogLine( $"Lowest key input index: {MinKeyIndex}", Log.Level.NORMAL, ConsoleColor.Blue );
 		this.LogLine( $"Highest key input index: {MaxKeyIndex}", Log.Level.NORMAL, ConsoleColor.Blue );
@@ -84,7 +86,7 @@ public class KeyboardInputEventManager : Identifiable {
 	}
 	#endregion
 
-	private void OnKey( WindowPtr winPtr, Keys key, int scanCode, InputState state, ModifierKeys mods ) {
+	private void OnKey( nint winPtr, Keys key, int scanCode, InputState state, ModifierKeys mods ) {
 		if ( key == Keys.Unknown )
 			return;
 
@@ -110,7 +112,7 @@ public class KeyboardInputEventManager : Identifiable {
 		}
 	}
 
-	private void OnCharacter( WindowPtr winPtr, uint codePoint, ModifierKeys mods ) {
+	private void OnCharacter( nint winPtr, uint codePoint, ModifierKeys mods ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnCharacter )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );

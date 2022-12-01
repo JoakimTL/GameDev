@@ -28,12 +28,12 @@ public static class Vulkan {
 	/// </summary>
 	/// <param name="vulkan">A pointer to the Vulkan instance.</param>
 	/// <param name="window">The window handle.</param>
-	/// <param name="allocator">A pointer to the allocator to use, or <see cref="IntPtr.Zero" /> to use default allocator.</param>
+	/// <param name="allocator">A pointer to the allocator to use, or <see cref="nint.Zero" /> to use default allocator.</param>
 	/// <param name="surface">The handle to the created Vulkan surface.</param>
 	/// <returns>VK_SUCCESS if successful, or a Vulkan error code if an error occurred.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwCreateWindowSurface", CallingConvention = CallingConvention.Cdecl )]
 	public static extern int
-		CreateWindowSurface( IntPtr vulkan, IntPtr window, IntPtr allocator, out ulong surface );
+		CreateWindowSurface( nint vulkan, nint window, nint allocator, out ulong surface );
 
 	/// <summary>
 	///     This function returns whether the specified queue family of the specified physical device supports presentation to
@@ -45,15 +45,15 @@ public static class Vulkan {
 	/// <returns><c>true</c> if the queue family supports presentation, or <c>false</c> otherwise.</returns>
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetPhysicalDevicePresentationSupport",
 		CallingConvention = CallingConvention.Cdecl )]
-	public static extern bool GetPhysicalDevicePresentationSupport( IntPtr instance, IntPtr device, uint family );
+	public static extern bool GetPhysicalDevicePresentationSupport( nint instance, nint device, uint family );
 
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetInstanceProcAddress",
 		CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetInstanceProcAddress( IntPtr vulkan, byte[] procName );
+	private static extern nint GetInstanceProcAddress( nint vulkan, byte[] procName );
 
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwGetRequiredInstanceExtensions",
 		CallingConvention = CallingConvention.Cdecl )]
-	private static extern IntPtr GetRequiredInstanceExtensions( out uint count );
+	private static extern nint GetRequiredInstanceExtensions( out uint count );
 
 	[DllImport( Glfw.LIBRARY, EntryPoint = "glfwVulkanSupported", CallingConvention = CallingConvention.Cdecl )]
 	private static extern bool VulkanSupported();
@@ -64,16 +64,16 @@ public static class Vulkan {
 
 	/// <summary>
 	///     This function returns the address of the specified Vulkan core or extension function for the specified instance. If
-	///     instance is set to <see cref="IntPtr.Zero" /> it can return any function exported from the Vulkan loader.
+	///     instance is set to <see cref="nint.Zero" /> it can return any function exported from the Vulkan loader.
 	///     <para>
-	///         If Vulkan is not available on the machine, this function returns <see cref="IntPtr.Zero" /> and generates an
+	///         If Vulkan is not available on the machine, this function returns <see cref="nint.Zero" /> and generates an
 	///         error. Use <see cref="IsSupported" /> to check whether Vulkan is available.
 	///     </para>
 	/// </summary>
 	/// <param name="vulkan">The vulkan instance.</param>
 	/// <param name="procName">Name of the function.</param>
-	/// <returns>The address of the function, or <see cref="IntPtr.Zero" /> if an error occurred.</returns>
-	public static IntPtr GetInstanceProcAddress( IntPtr vulkan, string procName ) => GetInstanceProcAddress( vulkan, Encoding.ASCII.GetBytes( procName ) );
+	/// <returns>The address of the function, or <see cref="nint.Zero" /> if an error occurred.</returns>
+	public static nint GetInstanceProcAddress( nint vulkan, string procName ) => GetInstanceProcAddress( vulkan, Encoding.ASCII.GetBytes( procName ) );
 
 	/// <summary>
 	///     This function returns an array of names of Vulkan instance extensions required by GLFW for creating Vulkan surfaces
@@ -90,12 +90,12 @@ public static class Vulkan {
 	/// </summary>
 	/// <returns>An array of extension names.</returns>
 	public static string?[] GetRequiredInstanceExtensions() {
-		IntPtr ptr = GetRequiredInstanceExtensions( out uint count );
+		nint ptr = GetRequiredInstanceExtensions( out uint count );
 		string?[]? extensions = new string?[ count ];
-		if ( count > 0 && ptr != IntPtr.Zero ) {
+		if ( count > 0 && ptr != nint.Zero ) {
 			int offset = 0;
-			for ( int i = 0; i < count; i++, offset += IntPtr.Size ) {
-				IntPtr p = Marshal.ReadIntPtr( ptr, offset );
+			for ( int i = 0; i < count; i++, offset += nint.Size ) {
+				nint p = Marshal.ReadIntPtr( ptr, offset );
 				extensions[ i ] = Marshal.PtrToStringAnsi( p );
 			}
 		}

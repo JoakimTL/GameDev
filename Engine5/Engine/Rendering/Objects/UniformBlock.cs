@@ -10,7 +10,7 @@ public unsafe class UniformBlock : DataBlock {
 	/// <param name="shaderTypes">The types of shaders this block pertains to.</param>
 	/// <param name="blockName">The block name.</param>
 	/// <param name="sizeBytes">The size of the uniform block in bytes. GLSL works in 4-byte alignment, meaning this number must be a multiple of 4!</param>
-	public UniformBlock( string blockName, uint sizeBytes, params ShaderType[] shaderTypes ) : base( Resources.Render.VBOs.UniformBuffer, shaderTypes, blockName, sizeBytes, GetAlignment(), GetMaxSize() ) { }
+	public UniformBlock( SegmentedVertexBufferObject svbo, string blockName, uint sizeBytes, params ShaderType[] shaderTypes ) : base( svbo, shaderTypes, blockName, sizeBytes, GetAlignment(), GetMaxSize() ) { }
 
 	protected override BufferTarget Target => BufferTarget.UniformBuffer;
 

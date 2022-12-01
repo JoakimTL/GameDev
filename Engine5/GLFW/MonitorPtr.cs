@@ -14,7 +14,7 @@ public struct MonitorPtr : IEquatable<MonitorPtr> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr _handle;
+	private readonly nint _handle;
 
 	/// <summary>
 	///     Determines whether the specified <see cref="MonitorPtr" />, is equal to this instance.
@@ -104,7 +104,7 @@ public struct MonitorPtr : IEquatable<MonitorPtr> {
 	/// </summary>
 	/// <seealso cref="Glfw.GetMonitorUserPointer" />
 	/// <seealso cref="Glfw.SetMonitorUserPointer" />
-	public IntPtr UserPointer {
+	public nint UserPointer {
 		get => Glfw.GetMonitorUserPointer( this._handle );
 		set => Glfw.SetMonitorUserPointer( this._handle, value );
 	}

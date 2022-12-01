@@ -10,7 +10,7 @@ public class ShaderStorageBufferObject : DataBlock {
 	/// <param name="shaderTypes">The types of shaders this block pertains to.</param>
 	/// <param name="blockName">The block name.</param>
 	/// <param name="sizeBytes">The size of the uniform block in bytes. GLSL works in 4-byte alignment, meaning this number must be a multiple of 4!</param>
-	public ShaderStorageBufferObject( string blockName, uint sizeBytes, params ShaderType[] shaderTypes ) : base( Resources.Render.VBOs.ShaderStorage, shaderTypes, blockName, sizeBytes, 0, 0 ) { }
+	public ShaderStorageBufferObject( SegmentedVertexBufferObject svbo, string blockName, uint sizeBytes, params ShaderType[] shaderTypes ) : base( svbo, shaderTypes, blockName, sizeBytes, 0, 0 ) { }
 
 	protected override BufferTarget Target => BufferTarget.ShaderStorageBuffer;
 

@@ -13,29 +13,29 @@ public struct WindowPtr : IEquatable<WindowPtr> {
 	/// <summary>
 	///     Internal pointer.
 	/// </summary>
-	private readonly IntPtr handle;
+	private readonly nint handle;
 
 	/// <summary>
-	///     Performs an implicit conversion from <see cref="WindowPtr" /> to <see cref="IntPtr" />.
+	///     Performs an implicit conversion from <see cref="WindowPtr" /> to <see cref="nint" />.
 	/// </summary>
 	/// <param name="window">The window.</param>
 	/// <returns>
 	///     The result of the conversion.
 	/// </returns>
-	public static implicit operator IntPtr( WindowPtr window ) { return window.handle; }
+	public static implicit operator nint( WindowPtr window ) { return window.handle; }
 
 	/// <summary>
-	///     Performs an explicit conversion from <see cref="IntPtr"/> to <see cref="WindowPtr"/>.
+	///     Performs an explicit conversion from <see cref="nint"/> to <see cref="WindowPtr"/>.
 	/// </summary>
 	/// <param name="handle">A pointer representing the window handle.</param>
 	/// <returns>The result of the conversion.</returns>
-	public static explicit operator WindowPtr( IntPtr handle ) => new( handle );
+	public static explicit operator WindowPtr( nint handle ) => new( handle );
 
 	/// <summary>
 	/// Creates a new instance of the <see cref="WindowPtr"/> struct.
 	/// </summary>
 	/// <param name="handle">A pointer representing the window handle.</param>
-	public WindowPtr( IntPtr handle ) {
+	public WindowPtr( nint handle ) {
 		this.handle = handle;
 	}
 

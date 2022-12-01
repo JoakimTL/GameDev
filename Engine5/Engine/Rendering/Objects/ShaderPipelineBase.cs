@@ -1,4 +1,5 @@
-﻿using OpenGL;
+﻿using Engine.Rendering.Services;
+using OpenGL;
 using System.Diagnostics;
 
 namespace Engine.Rendering.Objects;
@@ -9,14 +10,24 @@ public abstract class ShaderPipelineBase : Identifiable, IDisposable {
 	public IReadOnlyDictionary<ShaderType, ShaderProgramBase> Programs => this._programs;
 	public abstract bool UsesTransparency { get; }
 
-	protected ShaderPipelineBase( ShaderProgramBase[] shaderPrograms ) {
+	protected ShaderPipelineBase() {
 		this._programs = new Dictionary<ShaderType, ShaderProgramBase>();
+		this.PipelineId = Gl.GenProgramPipeline();
+	}
+
+#if DEBUG
+	~ShaderPipelineBase() {
+		Debug.Fail( "Shader pipeline was not disposed!" );
+	}
+#endif
+
+	protected abstract IEnumerable<ShaderProgramBase> GetShaderPrograms( ShaderProgramService shaderProgramService );
+
+	internal void CreatePipeline( ShaderProgramService shaderProgramService ) {
+		var shaderPrograms = GetShaderPrograms( shaderProgramService );
 		List<ShaderProgramBase> validPrograms = new( shaderPrograms );
 		if ( validPrograms.Count == 0 )
 			return;
-
-		this.PipelineId = Gl.GenProgramPipeline();
-
 		for ( int i = 0; i < validPrograms.Count; i++ ) {
 			ShaderProgramBase prg = validPrograms[ i ];
 			bool valid = true;
@@ -36,12 +47,6 @@ public abstract class ShaderPipelineBase : Identifiable, IDisposable {
 			Gl.UseProgramStage( this.PipelineId, prg.Mask, prg.ProgramID );
 		}
 	}
-
-#if DEBUG
-	~ShaderPipelineBase() {
-		Debug.Fail( "Shader pipeline was not disposed!" );
-	}
-#endif
 
 	public void DirectBind() => Gl.BindProgramPipeline( this.PipelineId );
 	public static void DirectUnbind() => Gl.BindProgramPipeline( 0 );

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using Engine.Rendering.Objects;
-using GLFW;
+using Engine.Rendering.OGL;
+using GlfwBinding;
 
 namespace Engine.Rendering.Input;
 
@@ -74,18 +75,18 @@ public class WindowInputEventManager {
 		_closeCallback = OnClosing;
 		_windowRefreshCallback = OnRefresh;
 
-		Glfw.SetDropCallback( window.Pointer, _fileDropCallback );
-		Glfw.SetWindowFocusCallback( window.Pointer, _focusCallback );
-		Glfw.SetWindowContentScaleCallback( window.Pointer, _contentScaleCallback );
-		Glfw.SetWindowMaximizeCallback( window.Pointer, _maximizedCallback );
-		Glfw.SetWindowPositionCallback( window.Pointer, _positionCallback );
-		Glfw.SetWindowSizeCallback( window.Pointer, _sizeCallback );
-		Glfw.SetFramebufferSizeCallback( window.Pointer, _framebufferCallback );
-		Glfw.SetCloseCallback( window.Pointer, _closeCallback );
-		Glfw.SetWindowRefreshCallback( window.Pointer, _windowRefreshCallback );
+		EventUtilities.SetDropCallback( window.Pointer, _fileDropCallback );
+		EventUtilities.SetWindowFocusCallback( window.Pointer, _focusCallback );
+		EventUtilities.SetWindowContentScaleCallback( window.Pointer, _contentScaleCallback );
+		EventUtilities.SetWindowMaximizeCallback( window.Pointer, _maximizedCallback );
+		EventUtilities.SetWindowPositionCallback( window.Pointer, _positionCallback );
+		EventUtilities.SetWindowSizeCallback( window.Pointer, _sizeCallback );
+		EventUtilities.SetFramebufferSizeCallback( window.Pointer, _framebufferCallback );
+		EventUtilities.SetCloseCallback( window.Pointer, _closeCallback );
+		EventUtilities.SetWindowRefreshCallback( window.Pointer, _windowRefreshCallback );
 	}
 
-	private void OnFileDrop( WindowPtr winPtr, int count, IntPtr pointer ) {
+	private void OnFileDrop( nint winPtr, int count, nint pointer ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnFileDrop )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -95,13 +96,13 @@ public class WindowInputEventManager {
 
 		string[]? paths = new string[ count ];
 		int offset = 0;
-		for ( int i = 0; i < count; i++, offset += IntPtr.Size )
+		for ( int i = 0; i < count; i++, offset += nint.Size )
 			paths[ i ] = Utilities.UtilityMethods.PointerToStringNullStop( Marshal.ReadIntPtr( pointer + offset ), System.Text.Encoding.UTF8 );
 
 		FilesDropped?.Invoke( paths );
 	}
 
-	private void OnFocusChange( WindowPtr winPtr, bool focusing ) {
+	private void OnFocusChange( nint winPtr, bool focusing ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnFocusChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -112,7 +113,7 @@ public class WindowInputEventManager {
 		Focused?.Invoke( focusing );
 	}
 
-	private void OnContentScaleChange( WindowPtr winPtr, float xScale, float yScale ) {
+	private void OnContentScaleChange( nint winPtr, float xScale, float yScale ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnContentScaleChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -123,7 +124,7 @@ public class WindowInputEventManager {
 		ContentScaleChanged?.Invoke( xScale, yScale );
 	}
 
-	private void OnMaximized( WindowPtr winPtr, bool maximized ) {
+	private void OnMaximized( nint winPtr, bool maximized ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnMaximized )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -134,7 +135,7 @@ public class WindowInputEventManager {
 		Maximized?.Invoke( maximized );
 	}
 
-	private void OnPositionChange( WindowPtr winPtr, double x, double y ) {
+	private void OnPositionChange( nint winPtr, double x, double y ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnPositionChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -145,7 +146,7 @@ public class WindowInputEventManager {
 		PositionChanged?.Invoke( x, y );
 	}
 
-	private void OnSizeChange( WindowPtr winPtr, int width, int height ) {
+	private void OnSizeChange( nint winPtr, int width, int height ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnSizeChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -156,7 +157,7 @@ public class WindowInputEventManager {
 		Resized?.Invoke( width, height );
 	}
 
-	private void OnFramebufferChange( WindowPtr winPtr, int width, int height ) {
+	private void OnFramebufferChange( nint winPtr, int width, int height ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnFramebufferChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -167,7 +168,7 @@ public class WindowInputEventManager {
 		FramebufferResized?.Invoke( width, height );
 	}
 
-	private void OnRefresh( WindowPtr winPtr ) {
+	private void OnRefresh( nint winPtr ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnRefresh )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );
@@ -178,7 +179,7 @@ public class WindowInputEventManager {
 		Refreshed?.Invoke();
 	}
 
-	private void OnClosing( WindowPtr winPtr ) {
+	private void OnClosing( nint winPtr ) {
 #if DEBUG
 		if ( _window.Pointer != winPtr ) {
 			Log.Warning( $"{nameof( OnClosing )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Pointer}]!" );

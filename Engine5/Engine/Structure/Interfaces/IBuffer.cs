@@ -1,6 +1,7 @@
-﻿namespace Engine.Structure.Interfaces;
+﻿using System.Numerics;
 
-public interface IBuffer
-{
-    ulong Length { get; }
+namespace Engine.Structure.Interfaces;
+
+public interface IBuffer<T> where T : IBinaryInteger<T> {
+	T SizeBytes { get; }
 }

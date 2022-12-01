@@ -13,13 +13,18 @@ public sealed class ShaderBundleService : Identifiable, IContextService {
 	private readonly ShaderPipelineService _pipelineService;
 
 	public ShaderBundleService( ShaderPipelineService pipelineService ) {
-		_bundleProvider = new();
 		this._pipelineService = pipelineService;
-		_bundleProvider.AddConstant( _pipelineService );
-		_bundleTypeFromIdentity = LoadBundles();
+		_bundleProvider = new();
+		_bundleProvider.ServiceAdded += CreatePipeline;
+		_bundleTypeFromIdentity = LoadBundleIdentities();
 	}
 
-	private Dictionary<string, Type> LoadBundles() {
+	private void CreatePipeline( object service ) {
+		if ( service is ShaderBundleBase bundle )
+			bundle.CreateBundle( _pipelineService );
+	}
+
+	private Dictionary<string, Type> LoadBundleIdentities() {
 		Dictionary<string, Type> bundleTypes = new();
 		foreach ( var type in Global.Get<TypeService>().DerivedTypes.Where( q => q.IsAssignableTo( typeof( ShaderBundleBase ) ) ) ) {
 			IdentityAttribute? identity = type.GetCustomAttribute<IdentityAttribute>();

@@ -1,4 +1,4 @@
-﻿using Engine.Datatypes;
+﻿using Engine.Datatypes.Vectors;
 using System.Numerics;
 
 namespace Engine.Utilities.Noise;

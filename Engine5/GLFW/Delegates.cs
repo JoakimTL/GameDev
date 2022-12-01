@@ -8,7 +8,7 @@ namespace GLFW;
 /// <param name="code">The error code.</param>
 /// <param name="message">A pointer to the UTF-8 encoded (null-terminated) error message.</param>
 [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-public delegate void ErrorCallback( ErrorCode code, IntPtr message );
+public delegate void ErrorCallback( ErrorCode code, nint message );
 
 /// <summary>
 ///     This is the function signature for window size callback functions.
@@ -50,7 +50,7 @@ public delegate void WindowCallback( WindowPtr window );
 /// <param name="count">The number of dropped files.</param>
 /// <param name="arrayPtr">Pointer to an array UTF-8 encoded file and/or directory path name pointers.</param>
 [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-public delegate void FileDropCallback( WindowPtr window, int count, IntPtr arrayPtr );
+public delegate void FileDropCallback( WindowPtr window, int count, nint arrayPtr );
 
 /// <summary>
 ///     This is the function signature for cursor position callback functions.
@@ -130,7 +130,7 @@ public delegate void MonitorCallback( MonitorPtr monitor, ConnectionStatus statu
 /// <param name="window">The window handle.</param>
 /// <param name="focusing"><c>true</c> if window is iconified; otherwise <c>false</c> if restoring.</param>
 [UnmanagedFunctionPointer( CallingConvention.Cdecl )]
-public delegate void IconifyCallback( IntPtr window, bool focusing );
+public delegate void IconifyCallback( nint window, bool focusing );
 
 /// <summary>
 ///     This is the function signature for window content scale callback functions.

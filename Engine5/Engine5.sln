@@ -14,6 +14,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLFW", "GLFW\GLFW.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EngineLogging", "F:\Repos\GameDev\Engine4\EngineLogging\EngineLogging.csproj", "{19371A46-AD33-4A8D-9730-D4ABA3F75D17}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VulkanBinding", "VulkanBinding\VulkanBinding.csproj", "{E995A2DF-5D47-4F28-B2ED-860EE9B427E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlfwBinding", "GlfwBinding\GlfwBinding.csproj", "{CC28130B-775E-4E7F-BD52-666337D215D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +40,14 @@ Global
 		{19371A46-AD33-4A8D-9730-D4ABA3F75D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19371A46-AD33-4A8D-9730-D4ABA3F75D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19371A46-AD33-4A8D-9730-D4ABA3F75D17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E995A2DF-5D47-4F28-B2ED-860EE9B427E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E995A2DF-5D47-4F28-B2ED-860EE9B427E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E995A2DF-5D47-4F28-B2ED-860EE9B427E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E995A2DF-5D47-4F28-B2ED-860EE9B427E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC28130B-775E-4E7F-BD52-666337D215D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC28130B-775E-4E7F-BD52-666337D215D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC28130B-775E-4E7F-BD52-666337D215D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC28130B-775E-4E7F-BD52-666337D215D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

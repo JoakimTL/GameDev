@@ -1,7 +1,9 @@
 ﻿using Engine.Rendering.Objects;
 using Engine.Rendering.OGL;
 using Engine.Structure.Interfaces;
-using GLFW;
+using GlfwBinding;
+using GlfwBinding.Enums;
+using GlfwBinding.Structs;
 
 namespace Engine.Rendering.Services;
 
@@ -33,10 +35,10 @@ public sealed class WindowService : IRenderService, IUpdateable
         return window;
     }
 
-    private static WindowPtr CreateWindow(string title, int width, int height, Window? share = null)
+    private static nint CreateWindow(string title, int width, int height, Window? share = null)
     {
         GlfwUtilities.SetHints(true, 0);
-        WindowPtr winPtr = Glfw.CreateWindow(width, height, title, MonitorPtr.None, share?.Pointer ?? WindowPtr.None);
+		nint winPtr = WindowUtilities.CreateWindow(width, height, title, nint.Zero, share?.Pointer ?? nint.Zero );
         return winPtr;
     }
 
@@ -46,11 +48,11 @@ public sealed class WindowService : IRenderService, IUpdateable
     /// <param name="title">The initial title of the window.</param>
     /// <param name="m">The monitor the window will fill.</param>
     /// <returns>The window handle.</returns>
-    private static WindowPtr CreateFullscreen(string title, MonitorPtr m, Window? share = null)
+    private static nint CreateFullscreen(string title, nint m, Window? share = null)
     {
-        VideoMode vm = Glfw.GetVideoMode(m);
+        VideoMode vm = WindowUtilities.GetVideoMode(m);
         GlfwUtilities.SetHints(true, 0);
-        WindowPtr winPtr = Glfw.CreateWindow(vm.Width, vm.Height, title, m, share?.Pointer ?? WindowPtr.None);
+        nint winPtr = WindowUtilities.CreateWindow(vm.Width, vm.Height, title, m, share?.Pointer ?? nint.Zero );
         return winPtr;
     }
 
@@ -60,15 +62,15 @@ public sealed class WindowService : IRenderService, IUpdateable
     /// <param name="title">The initial title of the window.</param>
     /// <param name="m">The monitor the window will fill.</param>
     /// <returns>The window handle.</returns>
-    private static WindowPtr CreateWindowedFullscreen(string title, MonitorPtr m, Window? share = null)
+    private static nint CreateWindowedFullscreen(string title, nint m, Window? share = null)
     {
-        VideoMode vm = Glfw.GetVideoMode(m);
+        VideoMode vm = WindowUtilities.GetVideoMode(m);
         GlfwUtilities.SetHints(true, 0);
-        WindowPtr winPtr = Glfw.CreateWindow(vm.Width, vm.Height, title, MonitorPtr.None, share?.Pointer ?? WindowPtr.None);
-        Glfw.SetWindowAttribute(winPtr, WindowAttribute.Floating, true);
-        Glfw.SetWindowAttribute(winPtr, WindowAttribute.Decorated, false);
-        Glfw.GetMonitorPosition(m, out int mx, out int my);
-        Glfw.SetWindowPosition(winPtr, mx, my);
+        nint winPtr = WindowUtilities.CreateWindow(vm.Width, vm.Height, title, nint.Zero, share?.Pointer ?? nint.Zero );
+		WindowUtilities.SetWindowAttribute(winPtr, WindowAttribute.Floating, true);
+		WindowUtilities.SetWindowAttribute(winPtr, WindowAttribute.Decorated, false);
+		WindowUtilities.GetMonitorPosition(m, out int mx, out int my);
+		WindowUtilities.SetWindowPosition(winPtr, mx, my);
         return winPtr;
     }
     #endregion

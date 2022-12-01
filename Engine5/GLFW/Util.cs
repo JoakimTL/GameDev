@@ -12,8 +12,8 @@ internal static class Util {
 	/// <param name="ptr">Pointer to the start of the string.</param>
 	/// <returns>Managed string created from read UTF-8 bytes.</returns>
 	// ReSharper disable once InconsistentNaming
-	public static string PtrToStringUTF8( IntPtr ptr ) {
-		if ( ptr != IntPtr.Zero ) {
+	public static string PtrToStringUTF8( nint ptr ) {
+		if ( ptr != nint.Zero ) {
 			int length = 0;
 			while ( Marshal.ReadByte( ptr, length ) != 0 )
 				length++;

@@ -7,6 +7,7 @@ public class VertexBufferObject : Identifiable, IDisposable {
 
 	private bool _disposed;
 	public readonly BufferUsage Usage;
+
 	public uint BufferId { get; private set; }
 	public uint SizeBytes { get; private set; }
 
@@ -25,16 +26,16 @@ public class VertexBufferObject : Identifiable, IDisposable {
 	}
 #endif
 
-	public bool Write( IntPtr dataPtr, uint dstOffsetBytes, uint srcOffsetBytes, uint lengthBytes ) {
+	public bool Write( nint dataPtr, uint dstOffsetBytes, uint srcOffsetBytes, uint lengthBytes ) {
 		if ( this._disposed )
 			return false;
 		unsafe {
-			Gl.NamedBufferSubData( this.BufferId, (IntPtr) dstOffsetBytes, lengthBytes, new IntPtr( (byte*) dataPtr.ToPointer() + srcOffsetBytes ) );
+			Gl.NamedBufferSubData( this.BufferId, (nint) dstOffsetBytes, lengthBytes, new nint( (byte*) dataPtr.ToPointer() + srcOffsetBytes ) );
 		}
 		return true;
 	}
 
-	public bool ResizeWrite( IntPtr dataPtr, uint lengthBytes ) {
+	public bool ResizeWrite( nint dataPtr, uint lengthBytes ) {
 		if ( this._disposed )
 			return false;
 		this.LogLine( $"Resizing to {lengthBytes / 1024d:N0}KiB", Log.Level.NORMAL, color: ConsoleColor.Green );
@@ -47,7 +48,7 @@ public class VertexBufferObject : Identifiable, IDisposable {
 		if ( this._disposed )
 			return;
 		this.LogLine( $"Sized to {bytes / 1024d:N0}KiB", Log.Level.NORMAL, color: ConsoleColor.Green );
-		Gl.NamedBufferData( this.BufferId, bytes, IntPtr.Zero, this.Usage );
+		Gl.NamedBufferData( this.BufferId, bytes, nint.Zero, this.Usage );
 		this.SizeBytes = bytes;
 	}
 

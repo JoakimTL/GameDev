@@ -1,4 +1,4 @@
-﻿using Engine.Datatypes;
+﻿using Engine.Datatypes.Vectors;
 using Engine.GlobalServices;
 using Engine.Rendering.Objects;
 using Engine.Structure.Interfaces;
@@ -12,22 +12,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Rendering.Services;
-
-public sealed class TextureReferenceService : IContextService {
-
-	//This services job is taking bound textures and placing their handle in a shader storage buffer, such that any shader requiring textures can utilize the textures without a bulky 8 byte handle, and just use a 2 byte index.
-	private readonly Texture[] _textures;
-	private readonly Dictionary<string, int> _textureIndex;
-	private readonly TextureService _textureService;
-
-	public TextureReferenceService( TextureService textureService ) {
-		this._textureService = textureService;
-		_textures = new Texture[ ushort.MaxValue + 1 ];
-
-	}
-
-
-}
 
 public sealed class TextureService : IContextService, IUpdateable, IDisposable {
 
@@ -52,7 +36,6 @@ public sealed class TextureService : IContextService, IUpdateable, IDisposable {
 		if ( LoadFile( path, out texture ) )
 			_textures.Add( path, texture );
 		return texture;
-		//TODO add system that automatically disposes unused textures after a while. (60sec?)
 	}
 
 	private void FileChanged( string path ) => _updatedTextures.Enqueue( path );
@@ -63,7 +46,7 @@ public sealed class TextureService : IContextService, IUpdateable, IDisposable {
 				if ( LoadRawData( path, out uint[]? pixelData, out Vector2i res ) )
 					unsafe {
 						fixed ( uint* src = pixelData )
-							texture.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( src ) );
+							texture.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new nint( src ) );
 					}
 			}
 	}
@@ -83,7 +66,7 @@ public sealed class TextureService : IContextService, IUpdateable, IDisposable {
 
 		unsafe {
 			fixed ( uint* src = pixelData )
-				t.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new IntPtr( src ) );
+				t.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, new nint( src ) );
 		}
 
 		Log.Line( $"[{filepath}] loaded as GL Texture [{t}]!", Log.Level.NORMAL );

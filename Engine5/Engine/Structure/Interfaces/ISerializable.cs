@@ -1,7 +1,7 @@
 ﻿namespace Engine.Structure.Interfaces;
 
-public interface ISerializable : ITypeIdentity
+public interface ISerializable<TSelf> : ITypeIdentity
 {
-    static abstract object Deserialize(ReadOnlySpan<byte> data);
+    static abstract TSelf Deserialize(ReadOnlySpan<byte> data);
     ReadOnlySpan<byte> Serialize();
 }
