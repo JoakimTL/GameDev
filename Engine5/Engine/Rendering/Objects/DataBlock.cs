@@ -1,6 +1,5 @@
 ﻿using Engine.Structure.Interfaces;
 using OpenGL;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

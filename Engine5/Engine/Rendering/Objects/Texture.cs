@@ -1,6 +1,5 @@
 ﻿using Engine.Datatypes.Vectors;
 using OpenGL;
-using System.Diagnostics;
 
 namespace Engine.Rendering.Objects;
 

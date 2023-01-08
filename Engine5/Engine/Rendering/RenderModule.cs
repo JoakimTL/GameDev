@@ -28,7 +28,10 @@ public sealed class RenderModule : ModuleBase<IRenderService>, IInitializable, I
 		Gl.Initialize();
 		Get<GlDebugMessageService>().BindErrorCallback();
 		GlfwUtilities.Init();
+		//TODO: Fetch window saved settings
 		Get<WindowService>().Create( new WindowSettings() );
+		//Add other services. The rendermodule should be a selfcontained module extracting information from other modules
+		//For voxel rendering use a mesh renderer inside a rendercomponent
 	}
 
 	public void Update( float time, float deltaTime ) {

@@ -1,5 +1,4 @@
-﻿using Engine.Rendering.Objects;
-using GlfwBinding;
+﻿using GlfwBinding;
 using GlfwBinding.Enums;
 using GlfwBinding.Structs;
 

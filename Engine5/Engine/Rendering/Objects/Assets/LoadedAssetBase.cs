@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace Engine.Rendering.Objects.Assets;
+﻿namespace Engine.Rendering.Objects.Assets;
 
 /// <summary>
 /// Assets are files that are loaded by an OGL context

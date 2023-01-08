@@ -3,7 +3,6 @@ using GlfwBinding.Structs;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Xml.Linq;
 
 namespace GlfwBinding;
 

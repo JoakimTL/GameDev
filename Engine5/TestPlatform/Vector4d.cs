@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System.Numerics;
-using System.Runtime.Intrinsics;
 
 namespace TestPlatform;
 

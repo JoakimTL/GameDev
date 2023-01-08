@@ -1,147 +1,8 @@
 ﻿using Engine.Datatypes;
 using Engine.Datatypes.Vectors;
-using OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Engine.Physics;
-internal class Class1 {
-
-}
-
-//public interface ICollisionShape<V> where V : System.Numerics.
-
-public class Face {
-	public Box<Vector3> A, B, C;
-
-	public override string ToString() {
-		return $"[{A.ID},{B.ID},{C.ID}] {A.Value}, {B.Value}, {C.Value}";
-	}
-}
-
-public class Edge {
-	public Box<Vector3> A, B;
-
-	public Edge( Box<Vector3> a, Box<Vector3> b ) {
-		this.A = a;
-		this.B = b;
-	}
-
-	public override bool Equals( object? obj ) {
-		if ( obj is not Edge e )
-			return false;
-
-		return ( e.A == A && e.B == B ) || ( e.B == A && e.A == B );
-	}
-
-	public override int GetHashCode() {
-		return A.GetHashCode() + B.GetHashCode();
-	}
-	public override string ToString() {
-		return $"[{A.ID},{B.ID}] {A.Value}, {B.Value}";
-	}
-}
-
-public class Tetrahedron {
-	public Box<Vector3> A, B, C, P;
-
-	public Vector3 Centroid => ( A.Value + B.Value + C.Value + P.Value ) / 4;
-
-	public Tetrahedron( Box<Vector3> a, Box<Vector3> b, Box<Vector3> c, Box<Vector3> p ) {
-		this.A = a;
-		this.B = b;
-		this.C = c;
-		this.P = p;
-	}
-
-	//V = (1/6) * |(p1 - p4) * ((p2 - p4) × (p3 - p4))|
-	public float Volume => 1f / 6 * MathF.Abs( Vector3.Dot( A.Value - P.Value, Vector3.Cross( B.Value - A.Value, C.Value - A.Value ) ) );
-
-	/*
-		∑[V_T * (r^2 * I_3 - r * r^T)]
-	 */
-
-	public Matrix4x4 GetInertiaTensor( Vector3 centerOfMass ) {
-		var P1 = A.Value - centerOfMass;
-		var P2 = B.Value - centerOfMass;
-		var P3 = C.Value - centerOfMass;
-		var P4 = P.Value - centerOfMass;
-		var P11 = P1 * P1;
-		var P22 = P2 * P2;
-		var P33 = P3 * P3;
-		var P44 = P4 * P4;
-		var P12 = P1 * P2;
-		var P13 = P1 * P3;
-		var P14 = P1 * P4;
-		var P23 = P2 * P3;
-		var P24 = P2 * P4;
-		var P34 = P3 * P4;
-
-		//	1 | 0 | 0 | 0
-		//	1 | 1 | 0 | 0
-		//	1 | 1 | 1 | 0
-		//	1 | 1 | 1 | 1
-
-		var det = 6 * Volume;
-		var xx = det / 60 * (
-			P11.Y +
-			P12.Y + P22.Y +
-			P13.Y + P23.Y + P33.Y +
-			P14.Y + P24.Y + P34.Y + P44.Y +
-			P11.Z +
-			P12.Z + P22.Z +
-			P13.Z + P23.Z + P33.Z +
-			P14.Z + P24.Z + P34.Z + P44.Z
-		);
-		var yy = det / 60 * (
-			P11.X +
-			P12.X + P22.X +
-			P13.X + P23.X + P33.X +
-			P14.X + P24.X + P34.X + P44.X +
-			P11.Z +
-			P12.Z + P22.Z +
-			P13.Z + P23.Z + P33.Z +
-			P14.Z + P24.Z + P34.Z + P44.Z
-		);
-		var zz = det / 60 * (
-			P11.X +
-			P12.X + P22.X +
-			P13.X + P23.X + P33.X +
-			P14.X + P24.X + P34.X + P44.X +
-			P11.Y +
-			P12.Y + P22.Y +
-			P13.Y + P23.Y + P33.Y +
-			P14.Y + P24.Y + P34.Y + P44.Y
-		);
-		var yz = -det / 120 * (
-			( 2 * P1.Y + P2.Y + P3.Y + P4.Y ) * P1.Z +
-			( P1.Y + 2 * P2.Y + P3.Y + P4.Y ) * P2.Z +
-			( P1.Y + P2.Y + 2 * P3.Y + P4.Y ) * P3.Z +
-			( P1.Y + P2.Y + P3.Y + 2 * P4.Y ) * P4.Z );
-		var xz = -det / 120 * (
-			( 2 * P1.X + P2.X + P3.X + P4.X ) * P1.Z +
-			( P1.X + 2 * P2.X + P3.X + P4.X ) * P2.Z +
-			( P1.X + P2.X + 2 * P3.X + P4.X ) * P3.Z +
-			( P1.X + P2.X + P3.X + 2 * P4.X ) * P4.Z );
-		var xy = -det / 120 * (
-			( 2 * P1.X + P2.X + P3.X + P4.X ) * P1.Y +
-			( P1.X + 2 * P2.X + P3.X + P4.X ) * P2.Y +
-			( P1.X + P2.X + 2 * P3.X + P4.X ) * P3.Y +
-			( P1.X + P2.X + P3.X + 2 * P4.X ) * P4.Y );
-		//xz and xy might need to swap positions in this matrix
-		return new Matrix4x4(
-			xx, xz, xy, 0, 
-			xz, yy, yz, 0, 
-			xy, yz, zz, 0,
-			0, 0, 0, 0
-		);
-	}
-}
-
+namespace Engine.Physics.D3T;
 
 public class ConvexHull3 {
 	private readonly Box<Vector3>[] _vertices;
@@ -150,38 +11,55 @@ public class ConvexHull3 {
 
 	public Box<Vector3> _centerOfMass { get; }
 	public Vector3 CenterOfMass => _centerOfMass.Value;
+	public Box<Vector3> _centroid { get; }
+	public Vector3 Centroid => _centroid.Value;
 
-	public ConvexHull3( Vector3[] vertices ) {
-		this._vertices = vertices.Select( p => new Box<Vector3>( p ) ).ToArray();
+	private AABB3 _outerHull;
+
+	public ConvexHull3( Vector3[] vertices, float mass ) {
+		//http://www.kwon3d.com/theory/moi/triten.html
+		_vertices = vertices.Select( p => new Box<Vector3>( p ) ).ToArray();
 		_faces = new();
 		_tetrahedrons = new();
-		_centerOfMass = new( Vector3.Zero );
+		_centroid = new( Vector3.Zero );
 		for ( int i = 0; i < vertices.Length; i++ )
-			_centerOfMass.Value += vertices[ i ];
-		_centerOfMass.Value /= vertices.Length;
+			_centroid.Value += vertices[ i ];
+		_centroid.Value /= vertices.Length;
+		_centerOfMass = new( Vector3.Zero );
 
 		GenerateFaces();
 		GenerateTetrahedrons();
+
+		float totalVolume = 0;
+		for ( int i = 0; i < _tetrahedrons.Count; i++ ) {
+			var tetrahedron = _tetrahedrons[ i ];
+			var volume = tetrahedron.Volume;
+			_centerOfMass.Value += tetrahedron.Centroid * volume;
+			totalVolume += volume;
+		}
+		_centerOfMass.Value /= totalVolume;
+		Console.WriteLine( totalVolume );
+		this.Mass = mass;
 	}
 
 	private void GenerateTetrahedrons() {
 		for ( int i = 0; i < _faces.Count; i++ ) {
 			var face = _faces[ i ];
-			_tetrahedrons.Add( new( face.A, face.B, face.C, _centerOfMass ) );
+			_tetrahedrons.Add( new( face.A, face.B, face.C, _centroid ) );
 		}
 	}
 
 	public float Volume => _tetrahedrons.Sum( p => p.Volume );
+
+	public float Mass { get; }
 
 	public Matrix4x4 GetInertiaTensor() {
 		Matrix4x4 I = new Matrix4x4();
 		for ( int i = 0; i < _tetrahedrons.Count; i++ ) {
 			var tetrahedron = _tetrahedrons[ i ];
 			I += tetrahedron.GetInertiaTensor( CenterOfMass );
-			Console.WriteLine( i );
-			Console.WriteLine( I );
 		}
-		I *= 1 / Volume;
+		I *= Mass / Volume;
 		return I;
 	}
 
@@ -281,9 +159,8 @@ public class ConvexHull3 {
 			var singularEdges = allEdges.ToHashSet();
 
 			var excemptEdges = allEdges.ToList();
-			foreach ( var edge in singularEdges ) {
+			foreach ( var edge in singularEdges )
 				excemptEdges.Remove( edge );
-			}
 
 			var validEdges = singularEdges.Except( excemptEdges );
 

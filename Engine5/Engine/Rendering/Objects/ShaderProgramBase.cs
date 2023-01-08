@@ -1,6 +1,5 @@
 ﻿using Engine.Rendering.Services;
 using OpenGL;
-using System.Diagnostics;
 using System.Text;
 
 namespace Engine.Rendering.Objects;
