@@ -32,9 +32,11 @@ public abstract class MatrixProviderBase : Identifiable, IMatrixProvider {
 			if ( value == _matrix )
 				return;
 			_matrix = value;
-			Matrix4x4.Invert( _matrix, out _inverseMatrix );
+			if ( !Matrix4x4.Invert( _matrix, out _inverseMatrix ) )
+				_inverseMatrix = Matrix4x4.Identity;
 		}
 	}
+
 	public Matrix4x4 InverseMatrix {
 		get {
 			if ( _changed ) {

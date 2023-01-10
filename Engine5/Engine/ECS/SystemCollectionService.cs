@@ -4,12 +4,12 @@ using System.Reflection;
 
 namespace Engine.ECS;
 
-public sealed class EntityManipulatorCollectionService : Identifiable, IModuleService {
+public sealed class SystemCollectionService : Identifiable, IECSService {
 
 	private readonly Dictionary<Type, ComponentTypeCollection> _requiredComponentTypes;
 	private readonly Dictionary<Type, List<ComponentTypeCollection>> _requirementCollectionsContainingComponentType;
 
-	public EntityManipulatorCollectionService() {
+	public SystemCollectionService() {
 		var systems = AppDomain.CurrentDomain.GetAssemblies().SelectMany( p => p.GetTypes() ).Where( p => p.IsAssignableTo( typeof( SystemBase ) ) && !p.IsAbstract ).ToList();
 		var validSystems = systems.Where( p => p.GetCustomAttributes<RequireAttribute>( false ).Any() ).ToList();
 		var invalidSystems = systems.Except( validSystems );
@@ -27,7 +27,6 @@ public sealed class EntityManipulatorCollectionService : Identifiable, IModuleSe
 				list.Add( componentTypeCollection );
 			}
 		}
-
 	}
 
 	public ComponentTypeCollection? GetRequiredComponentTypes( Type systemType )

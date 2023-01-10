@@ -40,7 +40,7 @@ public class Texture : Identifiable, IDisposable {
 
 #if DEBUG
 	~Texture() {
-		Debug.Fail( "Texture was not disposed!" );
+		System.Diagnostics.Debug.Fail( "Texture was not disposed!" );
 	}
 #endif
 

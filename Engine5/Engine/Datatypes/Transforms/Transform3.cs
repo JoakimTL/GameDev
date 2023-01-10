@@ -31,10 +31,27 @@ public class Transform3 : TransformBase<Vector3, Quaternion, Vector3> {
 		new( Vector3.Lerp( GlobalTranslation, other.GlobalTranslation, interpolation ),
 			Quaternion.Slerp( GlobalRotation, other.GlobalRotation, interpolation ),
 			Vector3.Lerp( GlobalScale, other.GlobalScale, interpolation ) );
+
 	protected override Matrix4x4 GetLocalMatrix() {
 		Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation( Translation );
 		Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion( Rotation );
 		Matrix4x4 scaleMatrix = Matrix4x4.CreateScale( Scale );
 		return scaleMatrix * rotationMatrix * translationMatrix;
+	}
+
+	protected override void RevertAdjustment( TransformBase<Vector3, Quaternion, Vector3>? parent ) {
+		if ( parent is null )
+			return;
+		Translation = Vector3.Transform( Translation, parent.Matrix );
+		Rotation = parent.GlobalRotation * Rotation;
+		Scale *= parent.GlobalScale;
+	}
+
+	protected override void Adjust( TransformBase<Vector3, Quaternion, Vector3>? parent ) {
+		if ( parent is null )
+			return;
+		Translation = Vector3.Transform( Translation, parent.InverseMatrix );
+		Rotation = Quaternion.Inverse(parent.GlobalRotation) * Rotation;
+		Scale /= parent.GlobalScale;
 	}
 }

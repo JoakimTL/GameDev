@@ -21,7 +21,7 @@ public abstract class LoadedAssetBase : Identifiable, IDisposable {
 
 #if DEBUG
 	~LoadedAssetBase() {
-		Debug.Fail( $"{this} not disposed!" );
+		System.Diagnostics.Debug.Fail( $"{this} not disposed!" );
 	}
 #endif
 

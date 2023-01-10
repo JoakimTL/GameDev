@@ -1,5 +1,8 @@
-﻿namespace Engine.ECS;
-public sealed class Entity {
+﻿using Engine.Structure;
+using System.Reflection.Metadata;
+
+namespace Engine.ECS;
+public sealed class Entity : DependencyInjectorBase {
 
 	private readonly Dictionary<Type, ComponentBase> _components;
 	public delegate void EntityComponentEvent( ComponentBase component );
@@ -12,7 +15,11 @@ public sealed class Entity {
 
 	internal IEnumerable<ComponentBase> Components => _components.Values;
 	public T AddOrGet<T>() where T : ComponentBase, new() => (T) AddOrGet( typeof( T ) );
+	public T? Get<T>() where T : ComponentBase, new() => Get( typeof( T ) ) as T;
 	public T? RemoveAndGet<T>() where T : ComponentBase, new() => RemoveAndGet( typeof( T ) ) as T;
+	public void Remove<T>() where T : ComponentBase, new() => _components.Remove( typeof( T ) );
+
+	private ComponentBase? Get( Type t ) => _components.TryGetValue( t, out var c ) ? c : null;
 
 	private ComponentBase? RemoveAndGet( Type type ) {
 		if ( _components.Remove( type, out var value ) ) {
@@ -22,6 +29,8 @@ public sealed class Entity {
 		return null;
 	}
 
+	protected override object? GetInternal( Type t ) => AddOrGet( t );
+
 	private ComponentBase AddOrGet( Type type ) {
 		if ( _components.TryGetValue( type, out ComponentBase? value ) )
 			return value;
@@ -29,8 +38,7 @@ public sealed class Entity {
 	}
 
 	private ComponentBase? Add( Type type ) {
-		ComponentBase? value = Activator.CreateInstance( type ) as ComponentBase;
-		if ( value is null )
+		if ( Create( type, false ) is not ComponentBase value )
 			return null;
 		value.Owner = this;
 		_components.Add( type, value );
@@ -44,4 +52,5 @@ public sealed class Entity {
 				return false;
 		return true;
 	}
+
 }

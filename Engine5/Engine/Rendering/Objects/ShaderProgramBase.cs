@@ -25,7 +25,7 @@ public abstract class ShaderProgramBase : Identifiable, IDisposable {
 
 #if DEBUG
 	~ShaderProgramBase() {
-		Debug.Fail( "Shader program was not disposed!" );
+		System.Diagnostics.Debug.Fail( "Shader program was not disposed!" );
 	}
 #endif
 

@@ -21,7 +21,7 @@ public class VertexBufferObject : Identifiable, IDisposable {
 
 #if DEBUG
 	~VertexBufferObject() {
-		Debug.Fail( "VertexBufferObject was not disposed!" );
+		System.Diagnostics.Debug.Fail( "VertexBufferObject was not disposed!" );
 	}
 #endif
 

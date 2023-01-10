@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace Engine.Datatypes.Transforms;
 public abstract class TransformBase<T, R, S> : MatrixProviderBase
@@ -7,6 +6,7 @@ public abstract class TransformBase<T, R, S> : MatrixProviderBase
 	where R : unmanaged
 	where S : unmanaged {
 
+	private bool _adjustedForFrameOfReference;
 	private T _translation;
 	private R _rotation;
 	private S _scale;
@@ -16,6 +16,8 @@ public abstract class TransformBase<T, R, S> : MatrixProviderBase
 	private TransformBase<T, R, S>? _parent;
 	private readonly TransformReadonly<T, R, S> _readonly;
 	private readonly TransformInterface<T, R, S> _interface;
+
+	protected override string UniqueNameTag => $"{GlobalTranslation:N2},{GlobalRotation:N2},{GlobalScale:N2}";
 
 	public TransformBase() {
 		_parent = null;
@@ -42,6 +44,22 @@ public abstract class TransformBase<T, R, S> : MatrixProviderBase
 				_parent.MatrixChanged += ParentMatrixChanged;
 			SetChanged();
 		}
+	}
+
+	public void SetParent( TransformBase<T, R, S>? parent, bool adjustForFrameOfReference ) {
+		if ( ReferenceEquals( _parent, parent ) && adjustForFrameOfReference == _adjustedForFrameOfReference )
+			return;
+		if ( _parent is not null )
+			_parent.MatrixChanged -= ParentMatrixChanged;
+		if (_adjustedForFrameOfReference )
+			RevertAdjustment( _parent );
+		_parent = parent;
+		if ( adjustForFrameOfReference )
+			Adjust( _parent );
+		_adjustedForFrameOfReference = adjustForFrameOfReference;
+		if ( _parent is not null )
+			_parent.MatrixChanged += ParentMatrixChanged;
+		SetChanged();
 	}
 
 	public TransformReadonly<T, R, S> Readonly => _readonly;
@@ -115,25 +133,12 @@ public abstract class TransformBase<T, R, S> : MatrixProviderBase
 		_gScale = GetGlobalScale();
 	}
 
+	protected abstract void Adjust( TransformBase<T, R, S>? parent );
+	protected abstract void RevertAdjustment( TransformBase<T, R, S>? parent );
 	protected abstract TransformData<T, R, S> GetInterpolated( TransformBase<T, R, S> other, float interpolation );
 	protected abstract Matrix4x4 GetLocalMatrix();
 	protected abstract T GetGlobalTranslation();
 	protected abstract R GetGlobalRotation();
 	protected abstract S GetGlobalScale();
 
-}
-
-[StructLayout( LayoutKind.Sequential )]
-public readonly struct TransformData<T, R, S>
-	where T : unmanaged
-	where R : unmanaged
-	where S : unmanaged {
-	public readonly T Translation;
-	public readonly R Rotation;
-	public readonly S Scale;
-	public TransformData( T translation, R rotation, S scale ) {
-		Translation = translation;
-		Rotation = rotation;
-		Scale = scale;
-	}
 }

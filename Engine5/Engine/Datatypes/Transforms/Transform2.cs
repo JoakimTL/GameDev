@@ -36,4 +36,21 @@ public class Transform2 : TransformBase<Vector2, float, Vector2> {
 		Matrix4x4 scaleMatrix = Matrix4x4.CreateScale( new Vector3( Scale, 0 ) );
 		return scaleMatrix * rotationMatrix * translationMatrix;
 	}
+
+
+	protected override void RevertAdjustment( TransformBase<Vector2, float, Vector2>? parent ) {
+		if ( parent is null )
+			return;
+		Translation = Vector2.Transform( Translation, parent.Matrix );
+		Rotation = parent.GlobalRotation * Rotation;
+		Scale *= parent.GlobalScale;
+	}
+
+	protected override void Adjust( TransformBase<Vector2, float, Vector2>? parent ) {
+		if ( parent is null )
+			return;
+		Translation = Vector2.Transform( Translation, parent.InverseMatrix );
+		Rotation -= parent.GlobalRotation;
+		Scale /= parent.GlobalScale;
+	}
 }

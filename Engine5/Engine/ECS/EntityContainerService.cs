@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 
 namespace Engine.ECS;
 
-public sealed class EntityContainerService : Identifiable, IModuleService, IUpdateable {
+public sealed class EntityContainerService : Identifiable, IECSService, IUpdateable {
 
-	private readonly EntityManipulatorCollectionService _entityManipulatorCollectionService;
+	private readonly SystemCollectionService _entityManipulatorCollectionService;
 	private readonly List<Entity> _entites;
 	private readonly Dictionary<ComponentTypeCollection, HashSet<Entity>> _entitesByComponentTypeCollections;
 	private readonly Dictionary<Type, HashSet<ComponentBase>> _components;
@@ -13,8 +13,8 @@ public sealed class EntityContainerService : Identifiable, IModuleService, IUpda
 	private readonly ConcurrentQueue<ComponentBase> _removedComponents;
 	private readonly List<SystemBase> _systems; //ComponentListeners? How can we have a spatial separation here like quadtrees and octtrees?
 
-	public EntityContainerService( EntityManipulatorCollectionService entityManipulatorCollectionService ) {
-		this._entityManipulatorCollectionService = entityManipulatorCollectionService;
+	public EntityContainerService( SystemCollectionService entityManipulatorCollectionService ) {
+		this._entityManipulatorCollectionService = entityManipulatorCollectionService ?? throw new ArgumentNullException( nameof( entityManipulatorCollectionService ) );
 		_entites = new();
 		_entitesByComponentTypeCollections = new();
 		_components = new();

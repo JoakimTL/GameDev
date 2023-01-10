@@ -22,7 +22,7 @@ public sealed class ShaderPipelineService : Identifiable, IContextService, IDisp
 	}
 
 	public ShaderPipelineBase Get<T>() where T : ShaderPipelineBase => _pipelineProvider.Get<T>();
-	public ShaderPipelineBase? Get( Type type ) => _pipelineProvider.Get( type ) as ShaderPipelineBase;
+	public ShaderPipelineBase? Get( Type type ) => _pipelineProvider.GetInternal( type ) as ShaderPipelineBase;
 
 	public void Dispose() => _pipelineProviderDisposer.Dispose();
 }

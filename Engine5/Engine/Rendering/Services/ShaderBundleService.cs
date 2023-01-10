@@ -39,7 +39,7 @@ public sealed class ShaderBundleService : Identifiable, IContextService {
 		return bundleTypes;
 	}
 
-	public ShaderBundleBase? Get( Type type ) => _bundleProvider.Get( type ) as ShaderBundleBase;
+	public ShaderBundleBase? Get( Type type ) => _bundleProvider.GetInternal( type ) as ShaderBundleBase;
 	public ShaderBundleBase? Get( string identity ) => _bundleTypeFromIdentity.TryGetValue( identity, out Type? type ) ? Get( type ) : null;
 
 }

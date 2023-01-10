@@ -16,7 +16,7 @@ public abstract class ShaderPipelineBase : Identifiable, IDisposable {
 
 #if DEBUG
 	~ShaderPipelineBase() {
-		Debug.Fail( "Shader pipeline was not disposed!" );
+		System.Diagnostics.Debug.Fail( "Shader pipeline was not disposed!" );
 	}
 #endif
 

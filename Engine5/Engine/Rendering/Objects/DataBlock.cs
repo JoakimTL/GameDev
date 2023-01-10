@@ -46,7 +46,7 @@ public abstract unsafe class DataBlock : Identifiable, IDisposable {
 
 #if DEBUG
 	~DataBlock() {
-		Debug.Fail( "Data block was not disposed!" );
+		System.Diagnostics.Debug.Fail( "Data block was not disposed!" );
 	}
 #endif
 
