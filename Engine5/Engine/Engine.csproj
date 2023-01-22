@@ -18,8 +18,4 @@
 	  <ProjectReference Include="F:\Repos\GameDev\Engine4\EngineLogging\EngineLogging.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="ECS\Attributes\" />
-	</ItemGroup>
-
 </Project>

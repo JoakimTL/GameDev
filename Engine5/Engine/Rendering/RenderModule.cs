@@ -1,15 +1,13 @@
 ﻿using Engine.Rendering.OGL;
 using Engine.Rendering.Services;
 using Engine.Structure;
-using Engine.Structure.Attributes;
 using Engine.Structure.Interfaces;
 using Engine.Structure.ServiceProvider;
 using OpenGL;
 
 namespace Engine.Rendering;
 
-[System( true, 0 )]
-public sealed class RenderModule : ModuleBase<IRenderService>, IInitializable, IUpdateable, IDisposable {
+public sealed class RenderModule : ModuleBase<IRenderService>, ISystem, IInitializable, IUpdateable, IDisposable {
 
 	//A module should have it's own thread.
 	//The thread here will do the frame loop. The render module is the only place OpenGL and Glfw calls are made.
@@ -17,6 +15,9 @@ public sealed class RenderModule : ModuleBase<IRenderService>, IInitializable, I
 	private readonly ServiceProviderUpdateExtension _serviceProviderUpdater;
 	private readonly ServiceProviderInitializationExtension _serviceProviderInitializer;
 	private readonly ServiceProviderDisposalExtension _serviceProviderDisposer;
+
+	public bool SystemEssential => true;
+	public int SystemTickInterval => 0;
 
 	public RenderModule() : base( true ) {
 		_serviceProviderUpdater = new( _serviceProvider );

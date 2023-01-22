@@ -1,8 +1,8 @@
-﻿using Engine;
-using Engine.Datatypes.Transforms;
-using System.Numerics;
+﻿using Engine.Datatypes.Vectors;
+using TestPlatform;
 
 new Engine.Rendering.RenderModule();
+new TestGameLogicModule();
 
 //var t1 = new Transform3();
 //t1.Translation = new( 0, -.5f, 0 );
@@ -62,54 +62,54 @@ new Engine.Rendering.RenderModule();
 //	vertices[ i ] = new Vector3( x, y, 0 );
 //	vertices[ i + 100 ] = new Vector3( x, y, 1 );
 //}
-var vertices = new[] {
-	new Vector3( 0, 0, 0 ) - new Vector3(.5f),
-	new Vector3( 1, 0, 0 ) - new Vector3(.5f),
-	new Vector3( 1, 1, 0 ) - new Vector3(.5f),
-	new Vector3( 0, 1, 0 ) - new Vector3(.5f),
-	new Vector3( 0, 0, 1 ) - new Vector3(.5f),
-	new Vector3( 1, 0, 1 ) - new Vector3(.5f),
-	new Vector3( 1, 1, 1 ) - new Vector3(.5f),
-	new Vector3( 0, 1, 1 ) - new Vector3(.5f)
-};
+//var vertices = new[] {
+//	new Vector3( 0, 0, 0 ) - new Vector3(.5f),
+//	new Vector3( 1, 0, 0 ) - new Vector3(.5f),
+//	new Vector3( 1, 1, 0 ) - new Vector3(.5f),
+//	new Vector3( 0, 1, 0 ) - new Vector3(.5f),
+//	new Vector3( 0, 0, 1 ) - new Vector3(.5f),
+//	new Vector3( 1, 0, 1 ) - new Vector3(.5f),
+//	new Vector3( 1, 1, 1 ) - new Vector3(.5f),
+//	new Vector3( 0, 1, 1 ) - new Vector3(.5f)
+//};
 
-var scaleX = new Vector3( 3, 1, 1 );
-var scaleY = new Vector3( 1, 3, 1 );
-var scaleZ = new Vector3( 1, 1, 3 );
-var scaleXY = new Vector3( 3, 3, 1 );
-var scaleYZ = new Vector3( 1, 3, 3 );
-var scaleXZ = new Vector3( 3, 1, 3 );
-var scaleXYZ = new Vector3( 3, 3, 3 );
-var mscaleX = Matrix4x4.CreateScale( scaleX );
-var mscaleY = Matrix4x4.CreateScale( scaleY );
-var mscaleZ = Matrix4x4.CreateScale( scaleZ );
-var mscaleXY = Matrix4x4.CreateScale( scaleXY );
-var mscaleYZ = Matrix4x4.CreateScale( scaleYZ );
-var mscaleXZ = Matrix4x4.CreateScale( scaleXZ );
-var mscaleXYZ = Matrix4x4.CreateScale( scaleXYZ );
+//var scaleX = new Vector3( 3, 1, 1 );
+//var scaleY = new Vector3( 1, 3, 1 );
+//var scaleZ = new Vector3( 1, 1, 3 );
+//var scaleXY = new Vector3( 3, 3, 1 );
+//var scaleYZ = new Vector3( 1, 3, 3 );
+//var scaleXZ = new Vector3( 3, 1, 3 );
+//var scaleXYZ = new Vector3( 3, 3, 3 );
+//var mscaleX = Matrix4x4.CreateScale( scaleX );
+//var mscaleY = Matrix4x4.CreateScale( scaleY );
+//var mscaleZ = Matrix4x4.CreateScale( scaleZ );
+//var mscaleXY = Matrix4x4.CreateScale( scaleXY );
+//var mscaleYZ = Matrix4x4.CreateScale( scaleYZ );
+//var mscaleXZ = Matrix4x4.CreateScale( scaleXZ );
+//var mscaleXYZ = Matrix4x4.CreateScale( scaleXYZ );
 
-var hullBase = new Engine.Physics.D3T.ConvexHull3( vertices, 1 );
-//var hullScaleX = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleX ) ).ToArray(), 1 );
-//var hullScaleY = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleY ) ).ToArray(), 1 );
-//var hullScaleZ = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleZ ) ).ToArray(), 1 );
-//var hullScaleXY = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleXY ) ).ToArray(), 1 );
-//var hullScaleYZ = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleYZ ) ).ToArray(), 1 );
-//var hullScaleXZ = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleXZ ) ).ToArray(), 1 );
-//var hullScaleXYZ = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleXYZ ) ).ToArray(), 1 );
-var inertia = hullBase.GetInertiaTensor();
-//var inertiaX = hullScaleX.GetInertiaTensor();
-//var inertiaY = hullScaleY.GetInertiaTensor();
-//var inertiaZ = hullScaleZ.GetInertiaTensor();
-//var inertiaXY = hullScaleXY.GetInertiaTensor();
-//var inertiaYZ = hullScaleYZ.GetInertiaTensor();
-//var inertiaXZ = hullScaleXZ.GetInertiaTensor();
-//var inertiaXYZ = hullScaleXYZ.GetInertiaTensor();
+//var hullBase = new Engine.Physics.D3T.ConvexHull3( vertices, 1 );
+////var hullScaleX = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleX ) ).ToArray(), 1 );
+////var hullScaleY = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleY ) ).ToArray(), 1 );
+////var hullScaleZ = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleZ ) ).ToArray(), 1 );
+////var hullScaleXY = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleXY ) ).ToArray(), 1 );
+////var hullScaleYZ = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleYZ ) ).ToArray(), 1 );
+////var hullScaleXZ = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleXZ ) ).ToArray(), 1 );
+////var hullScaleXYZ = new ConvexHull3( vertices.Select( p => Vector3.Transform( p, mscaleXYZ ) ).ToArray(), 1 );
+//var inertia = hullBase.GetInertiaTensor();
+////var inertiaX = hullScaleX.GetInertiaTensor();
+////var inertiaY = hullScaleY.GetInertiaTensor();
+////var inertiaZ = hullScaleZ.GetInertiaTensor();
+////var inertiaXY = hullScaleXY.GetInertiaTensor();
+////var inertiaYZ = hullScaleYZ.GetInertiaTensor();
+////var inertiaXZ = hullScaleXZ.GetInertiaTensor();
+////var inertiaXYZ = hullScaleXYZ.GetInertiaTensor();
 
 
-Console.WriteLine( "base" );
-printmatrix( inertia );
-Console.WriteLine();
-Console.WriteLine( Vector3.Transform( Vector3.One, inertia ) );
+//Console.WriteLine( "base" );
+//printmatrix( inertia );
+//Console.WriteLine();
+//Console.WriteLine( Vector3.Transform( Vector3.One, inertia ) );
 
 //Console.WriteLine( "scales" );
 //Console.WriteLine( scaleX );
@@ -134,13 +134,13 @@ Console.WriteLine( Vector3.Transform( Vector3.One, inertia ) );
 //printmatrix( inertiaXYZ );
 //printmatrix( inertia.ScaleInertia( scaleXYZ ) );
 
-void printmatrix( Matrix4x4 m ) {
-	Console.WriteLine( $"{m.M11:N3} {m.M12:N3} {m.M13:N3} {m.M14:N3}" );
-	Console.WriteLine( $"{m.M21:N3} {m.M22:N3} {m.M23:N3} {m.M24:N3}" );
-	Console.WriteLine( $"{m.M31:N3} {m.M32:N3} {m.M33:N3} {m.M34:N3}" );
-	Console.WriteLine( $"{m.M41:N3} {m.M42:N3} {m.M43:N3} {m.M44:N3}" );
-	Console.WriteLine();
-} {
+//void printmatrix( Matrix4x4 m ) {
+//	Console.WriteLine( $"{m.M11:N3} {m.M12:N3} {m.M13:N3} {m.M14:N3}" );
+//	Console.WriteLine( $"{m.M21:N3} {m.M22:N3} {m.M23:N3} {m.M24:N3}" );
+//	Console.WriteLine( $"{m.M31:N3} {m.M32:N3} {m.M33:N3} {m.M34:N3}" );
+//	Console.WriteLine( $"{m.M41:N3} {m.M42:N3} {m.M43:N3} {m.M44:N3}" );
+//	Console.WriteLine();
+//} {
 
 	//var a = new Matrix4x4(
 	//	1, 0, 0, 2,
@@ -203,8 +203,8 @@ void printmatrix( Matrix4x4 m ) {
 	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, f ) );
 	//Console.WriteLine();
 	//Console.WriteLine( Vector3.Transform( Vector3.One, g ) );
-	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, g ) );
-}
+//	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, g ) );
+//}
 /*
 Matrix4x4 tMat = Matrix4x4.CreateFromYawPitchRoll( 1.2f, 0.7f, 2.6f ) * Matrix4x4.CreateScale( new Vector3( 2, 2, 1 ) );
 var hull1Transformed = new ConvexHull3( cubeVertices.Select( p => Vector3.Transform( p, tMat ) ).ToArray() );
