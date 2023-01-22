@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="ECS\Attributes\" />
+	  <Folder Include="GameLogic\ECS\Attributes\" />
 	</ItemGroup>
 
 </Project>

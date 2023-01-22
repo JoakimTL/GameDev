@@ -11,7 +11,7 @@ public class RequireAttribute : Attribute
     }
 }
 
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
 public class RequireAttribute<T> : RequireAttribute
 {
     public RequireAttribute() : base(typeof(T)) { }

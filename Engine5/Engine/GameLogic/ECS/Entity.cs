@@ -1,13 +1,13 @@
 ﻿using Engine.Structure;
-using System.Reflection.Metadata;
 
-namespace Engine.ECS;
+namespace Engine.GameLogic.ECS;
 public sealed class Entity : DependencyInjectorBase {
 
 	private readonly Dictionary<Type, ComponentBase> _components;
-	public delegate void EntityComponentEvent( ComponentBase component );
 	public event EntityComponentEvent? ComponentAdded;
 	public event EntityComponentEvent? ComponentRemoved;
+
+	protected override string UniqueNameTag => string.Join( ", ", _components.Values );
 
 	public Entity() {
 		_components = new();

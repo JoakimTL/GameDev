@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\StandardPackage\StandardPackage.csproj" />
   </ItemGroup>
 
 </Project>

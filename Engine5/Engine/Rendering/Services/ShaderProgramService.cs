@@ -22,7 +22,7 @@ public sealed class ShaderProgramService : Identifiable, IContextService, IDispo
 	}
 
 	public ShaderProgramBase Get<T>() where T : ShaderProgramBase => _programProvider.Get<T>();
-	public ShaderProgramBase? Get( Type t ) => _programProvider.GetInternal( t ) as ShaderProgramBase;
+	public ShaderProgramBase? Get( Type t ) => _programProvider.Get( t ) as ShaderProgramBase;
 
 	public void Dispose() => _programProviderDisposer.Dispose();
 }

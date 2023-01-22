@@ -1,12 +1,8 @@
-﻿using Engine.ECS;
+﻿using Engine.GameLogic.ECS;
+using Engine.GameLogic.ECS.Components;
 using Engine.Structure.Attributes;
 using StandardPackage.ECS.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StandardPackage.ECS.Systems;
 
@@ -23,12 +19,16 @@ public class Movement3System : SystemBase {
 			Mass3Component mass = e.Get<Mass3Component>() ?? throw new NullReferenceException( nameof( Mass3Component ) );
 
 			linMov.Velocity = linMov.Momentum / mass.Mass;
-			linMov.Velocity += linMov.Force / mass.Mass;
+			linMov.Velocity += linMov.Force / mass.Mass * deltaTime;
+			linMov.Velocity += linMov.CurrentImpulse;
 			linMov.Momentum = linMov.Velocity * mass.Mass;
+			linMov.CurrentImpulse = Vector3.Zero;
 			linMov.ResetForce();
 			rotMov.AngularVelocity = rotMov.AngularMomentum / mass.Mass;
-			rotMov.AngularVelocity += rotMov.Torque / mass.Mass;
+			rotMov.AngularVelocity += rotMov.Torque / mass.Mass * deltaTime;
+			rotMov.AngularVelocity += rotMov.CurrentTwirl;
 			rotMov.AngularMomentum = rotMov.AngularVelocity * mass.Mass;
+			rotMov.CurrentTwirl = Vector3.Zero;
 			rotMov.ResetTorque();
 
 			//Rotational energy needs to be conserved. If the inertia of the shape changes, this should be reflected in the spin.
