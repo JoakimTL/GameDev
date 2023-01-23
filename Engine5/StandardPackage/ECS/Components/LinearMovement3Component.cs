@@ -7,6 +7,7 @@ public sealed class LinearMovement3Component : ComponentBase {
 	public Vector3 Velocity { get; set; }
 	public Vector3 Force { get; private set; }
 	public Vector3 Momentum { get; internal set; }
+	internal Vector3 CurrentAcceleration { get; set; }
 	internal Vector3 CurrentImpulse { get; set; }
 
 	protected override string UniqueNameTag => $"{Velocity}|{Force}";
@@ -19,5 +20,6 @@ public sealed class LinearMovement3Component : ComponentBase {
 
 	public void Impulse( Vector3 impulse ) => CurrentImpulse += impulse;
 	public void ResetForce() => Force = Vector3.Zero;
+	public void Accelerate( Vector3 accelerationVector ) => CurrentAcceleration += accelerationVector;
 	public void ApplyForce( Vector3 newtonsVector ) => Force += newtonsVector;
 }

@@ -8,7 +8,6 @@ public sealed class FileWatchingService : Identifiable, IDisposable, IGlobalServ
 	private readonly ConcurrentDictionary<string, FileSystemWatcher> _watchers;
 	private readonly ConcurrentDictionary<string, HashSet<Action<string>>> _trackedFilepaths;
 
-
 	public FileWatchingService() {
 		_watchers = new();
 		_trackedFilepaths = new();

@@ -30,7 +30,7 @@ public struct Vector2b
     public override string ToString() => $"Vector2b[{X},{Y}]";
     public bool Equals(Vector2b other) => X == other.X && Y == other.Y;
     public override bool Equals(object? obj) => obj is Vector2b v && Equals(v);
-    public override int GetHashCode() => Y << 8 | X;
+    public override int GetHashCode() => (Y << 8) | X;
     #endregion
 
     #region Properties

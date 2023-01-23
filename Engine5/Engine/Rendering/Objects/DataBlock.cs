@@ -69,7 +69,7 @@ public abstract unsafe class DataBlock : Identifiable, IDisposable {
 	}
 
 	public void Write<T>( Span<T> data, uint offsetBytes = 0 ) where T : unmanaged {
-		if ( Marshal.SizeOf<T>() * data.Length + offsetBytes > this.Segment.SizeBytes ) {
+		if ( (Marshal.SizeOf<T>() * data.Length) + offsetBytes > this.Segment.SizeBytes ) {
 			this.LogError( "Can't write outsite block." );
 			return;
 		}

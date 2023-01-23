@@ -28,7 +28,7 @@ public class InterpolatedMatrices : MatrixProviderBase {
 
 	protected override void MatrixAccessed() => SetMatrix();
 
-	private void SetMatrix() => Matrix = _matrixA.Matrix * _interpolationFactor + _matrixB.Matrix * ( 1 - _interpolationFactor );
+	private void SetMatrix() => Matrix = (_matrixA.Matrix * _interpolationFactor) + (_matrixB.Matrix * ( 1 - _interpolationFactor ));
 
 	public void Dispose() {
 		_matrixA.MatrixChanged -= UpdateMatrix;

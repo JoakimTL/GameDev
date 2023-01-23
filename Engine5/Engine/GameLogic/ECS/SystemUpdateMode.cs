@@ -5,6 +5,10 @@
 /// </summary>
 public enum SystemUpdateMode {
 	/// <summary>
+	/// No entities are provided
+	/// </summary>
+	None = -1,
+	/// <summary>
 	/// Updates all entities in one call
 	/// </summary>
 	All,

@@ -7,6 +7,7 @@ public sealed class RotationalMovement3Component : ComponentBase {
 	public Vector3 AngularVelocity { get; set; }
 	public Vector3 Torque { get; private set; }
 	public Vector3 AngularMomentum { get; internal set; }
+	internal Vector3 CurrentAngularAcceleration { get; set; }
 	internal Vector3 CurrentTwirl { get; set; }
 
 	protected override string UniqueNameTag => $"{AngularVelocity}|{Torque}";
@@ -23,5 +24,6 @@ public sealed class RotationalMovement3Component : ComponentBase {
 	/// <param name="twirl"></param>
 	public void Twirl( Vector3 twirl ) => CurrentTwirl += twirl;
 	public void ResetTorque() => Torque = Vector3.Zero;
-	public void ApplyTorwue( Vector3 torqueVector ) => Torque += torqueVector;
+	public void Accelerate( Vector3 accelerationVector ) => CurrentAngularAcceleration += accelerationVector;
+	public void ApplyTorque( Vector3 torqueVector ) => Torque += torqueVector;
 }

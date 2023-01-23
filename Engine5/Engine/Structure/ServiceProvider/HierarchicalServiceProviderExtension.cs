@@ -2,12 +2,12 @@
 
 public abstract class HierarchicalServiceProviderExtension<T> {
 	protected readonly ServiceProvider _serviceProvider;
-	protected readonly BidirectionalTypeTree<T> _tree;
+	protected readonly BidirectionalTypeTree _tree;
 	protected readonly List<T> _sortedServices;
 
-	public HierarchicalServiceProviderExtension( ServiceProvider serviceProvider ) {
+	public HierarchicalServiceProviderExtension( ServiceProvider serviceProvider, Type processType ) {
 		_sortedServices = new();
-		_tree = new();
+		_tree = new( processType );
 		_tree.TreeUpdated += TreeUpdated;
 		_serviceProvider = serviceProvider;
 		_serviceProvider.ServiceAdded += OnServiceAdded;

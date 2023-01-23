@@ -2,7 +2,7 @@
 
 public sealed class ServiceProviderDisposalExtension : HierarchicalServiceProviderExtension<IDisposable>, IDisposable
 {
-    public ServiceProviderDisposalExtension(ServiceProvider serviceProvider) : base(serviceProvider) { }
+    public ServiceProviderDisposalExtension(ServiceProvider serviceProvider) : base(serviceProvider, typeof( IDisposable ) ) { }
 
     public void Dispose()
     {

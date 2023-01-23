@@ -4,15 +4,17 @@ using Engine.Structure.Attributes;
 
 namespace Engine.Structure;
 
-public class BidirectionalTypeTree<T> : Identifiable {
+public class BidirectionalTypeTree : Identifiable {
 
 	private readonly ConcurrentDictionary<Type, BidirectionalNode> _nodes;
+	private readonly Type _processType;
 	private bool _needsUpdate;
 
 	public event Action? TreeUpdated;
 
-	public BidirectionalTypeTree() {
+	public BidirectionalTypeTree( Type processType ) {
 		_nodes = new();
+		this._processType = processType;
 	}
 
 	public void Add( Type t ) {
@@ -37,8 +39,8 @@ public class BidirectionalTypeTree<T> : Identifiable {
 
 		foreach ( BidirectionalNode node in _nodes.Values ) {
 			Type t = node.Value;
-			IEnumerable<Type> preceding = t.GetCustomAttributes<ProcessAfterAttribute>().Select( p => p.PrecedingType );
-			IEnumerable<Type> following = t.GetCustomAttributes<ProcessBeforeAttribute>().Select( p => p.FollowingType );
+			IEnumerable<Type> preceding = t.GetCustomAttributes<ProcessAfterAttribute>().Where( p => p.ProcessType == _processType ).Select( p => p.PrecedingType );
+			IEnumerable<Type> following = t.GetCustomAttributes<ProcessBeforeAttribute>().Where( p => p.ProcessType == _processType ).Select( p => p.FollowingType );
 			foreach ( Type pre in preceding ) {
 				if ( _nodes.TryGetValue( pre, out BidirectionalNode? preNode ) ) {
 					node.AddParent( pre );

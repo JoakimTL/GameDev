@@ -46,7 +46,7 @@ public struct Vector4b
     public override string ToString() => $"Vector4b[{X},{Y},{Z},{W}]";
     public bool Equals(Vector4b other) => X == other.X && Y == other.Y && Z == other.Z && W == other.W;
     public override bool Equals(object? obj) => obj is Vector4b v && Equals(v);
-    public override int GetHashCode() => W << 24 | Z << 16 | Y << 8 | X;
+    public override int GetHashCode() => (W << 24) | (Z << 16) | (Y << 8) | X;
     #endregion
 
     #region Properties
@@ -59,7 +59,7 @@ public struct Vector4b
     public static bool operator ==(Vector4b a, Vector4b b) => a.Equals(b);
     public static bool operator !=(Vector4b a, Vector4b b) => !a.Equals(b);
     public static implicit operator Vector4b(Vector4i a) => new(a.X, a.Y, a.Z, a.W);
-    public static implicit operator uint(Vector4b a) => (uint)a.X << 24 | (uint)a.Y << 16 | (uint)a.Z << 8 | a.W;
+    public static implicit operator uint(Vector4b a) => ((uint)a.X << 24) | ((uint)a.Y << 16) | ((uint)a.Z << 8) | a.W;
     #endregion
 
 }

@@ -15,7 +15,9 @@ public sealed class EntityContainerService : Identifiable, IGameLogicService, IU
     internal event EntityComponentEvent? ComponentAdded;
     internal event EntityComponentEvent? ComponentRemoved;
 
-    public EntityContainerService()
+    protected override string UniqueNameTag => $"{_entites.Count} E / {_components.Count} CT / {_components.Values.Sum( p => p.Count )} C";
+
+	public EntityContainerService()
     {
         _entites = new();
         _components = new();

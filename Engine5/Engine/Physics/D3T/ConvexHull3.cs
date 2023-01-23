@@ -77,7 +77,7 @@ public class ConvexHull3 {
 		var v3 = _vertices.OrderByDescending( v => {
 			var line = v1.Value - v2.Value;
 			var projection = Vector3.Dot( v.Value - v2.Value, line ) / line.LengthSquared();
-			return Vector3.Distance( v.Value, v2.Value + projection * line );
+			return Vector3.Distance( v.Value, v2.Value + (projection * line) );
 		} ).First();
 
 		// Calculate the normal vector of the plane formed by vertexMax, vertexMin, and vertexFarthest

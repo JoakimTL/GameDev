@@ -44,8 +44,8 @@ public class Gradient2Noise : INoiseProvider<Vector2, float> {
 	public Vector2 GetData( Vector2i p )
 		=> Vector2.Normalize(
 			new(
-				GetDataValue( p, unchecked((uint) _seed.X) ) * 2 - 1,
-				GetDataValue( p, unchecked((uint) _seed.Y) ) * 2 - 1
+				(GetDataValue( p, unchecked((uint) _seed.X) ) * 2) - 1,
+				(GetDataValue( p, unchecked((uint) _seed.Y) ) * 2) - 1
 			)
 		);
 

@@ -8,6 +8,8 @@ public class EntityByComponentContainer : Identifiable {
 	public event Action<ComponentTypeCollection>? ComponentTypeCollectionAdded;
 	public event Action<ComponentTypeCollection>? ComponentTypeCollectionRemoved;
 
+	protected override string UniqueNameTag => $"{_entitiesByCTC.Values.Sum( p => p.Count )} E / {_entitiesByCTC.Count} CTCs";
+
 	public EntityByComponentContainer( ComponentTypeCollectionService componentTypeCollectionService ) {
 		_componentTypeCollectionService = componentTypeCollectionService ?? throw new ArgumentNullException( nameof( componentTypeCollectionService ) );
 		_entitiesByCTC = new();

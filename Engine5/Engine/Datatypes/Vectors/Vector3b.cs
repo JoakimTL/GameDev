@@ -34,7 +34,7 @@ public struct Vector3b
     public override string ToString() => $"Vector3b[{X},{Y},{Z}]";
     public bool Equals(Vector3b other) => X == other.X && Y == other.Y && Z == other.Z;
     public override bool Equals(object? obj) => obj is Vector3b v && Equals(v);
-    public override int GetHashCode() => Z << 16 | Y << 8 | X;
+    public override int GetHashCode() => (Z << 16) | (Y << 8) | X;
     #endregion
 
     #region Properties

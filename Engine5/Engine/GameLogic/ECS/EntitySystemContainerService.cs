@@ -3,7 +3,7 @@ using Engine.Structure.Interfaces;
 
 namespace Engine.GameLogic.ECS;
 
-public class EntitySystemContainerService : Identifiable, IGameLogicService, IUpdateable {
+public class EntitySystemContainerService : DependencyInjectorBase, IGameLogicService, IUpdateable {
 
 	private ulong _currentTick = 0;
 	private readonly EntityContainerService _entityContainerService;
@@ -12,11 +12,13 @@ public class EntitySystemContainerService : Identifiable, IGameLogicService, IUp
 	private readonly EntitySpatialGrid2Service _entitySpatialGrid2Service;
 	private readonly EntityByComponentContainer _entitiesByComponents;
 
-	private readonly BidirectionalTypeTree<SystemBase> _systemSortTree;
+	private readonly BidirectionalTypeTree _systemSortTree;
 	private readonly Dictionary<Type, SystemBase> _presentSystems; //ComponentListeners? How can we have a spatial separation here like quadtrees and octtrees?
 	private readonly List<SystemBase> _systemsSorted; //ComponentListeners? How can we have a spatial separation here like quadtrees and octtrees?
 
-	protected override string UniqueNameTag => $"Tick#:{_currentTick}";
+	private readonly Dictionary<Type, object> _loadedDependencies;
+
+	protected override string UniqueNameTag => $"Tick#:{_currentTick} / {_systemsSorted.Count} S: [{string.Join( "->", _systemsSorted.Select( p => p.TypeName ) )}]";
 
 	public EntitySystemContainerService(
 		EntityContainerService entityContainerService, ComponentTypeCollectionService componentTypeCollectionService,
@@ -27,7 +29,8 @@ public class EntitySystemContainerService : Identifiable, IGameLogicService, IUp
 		this._entitySpatialGrid2Service = entitySpatialGrid2Service ?? throw new ArgumentNullException( nameof( entitySpatialGrid2Service ) );
 		_presentSystems = new();
 		_systemsSorted = new();
-		_systemSortTree = new();
+		_systemSortTree = new( typeof( SystemBase ) );
+		_loadedDependencies = new();
 
 		_entitiesByComponents = new( componentTypeCollectionService );
 
@@ -35,14 +38,16 @@ public class EntitySystemContainerService : Identifiable, IGameLogicService, IUp
 		_entityContainerService.ComponentRemoved += OnComponentRemoved;
 		_entitiesByComponents.ComponentTypeCollectionAdded += OnComponentTypeCollectionAdded;
 		_entitiesByComponents.ComponentTypeCollectionRemoved += OnComponentTypeCollectionRemoved;
+
+		OnComponentTypeCollectionAdded( ComponentTypeCollection.Empty );
 	}
 
 	private void OnComponentTypeCollectionAdded( ComponentTypeCollection ctc ) {
 		foreach ( var systemType in _componentTypeCollectionService.GetSystemsRequiringComponentTypeCollection( ctc ) )
-			if ( !_presentSystems.ContainsKey( systemType ) && Activator.CreateInstance( systemType ) is SystemBase system ) {
+			if ( !_presentSystems.ContainsKey( systemType ) && GetInternal( systemType ) is SystemBase system ) {
 				_presentSystems.Add( systemType, system );
-				_systemsSorted.Add( system );
 				_systemSortTree.Add( systemType );
+				_systemSortTree.Update();
 			}
 		_systemsSorted.Clear();
 		foreach ( var type in _systemSortTree.GetNodesSorted() )
@@ -75,6 +80,9 @@ public class EntitySystemContainerService : Identifiable, IGameLogicService, IUp
 			if ( requiredComponentTypes is null )
 				continue;
 			switch ( system.UpdateMode ) {
+				case SystemUpdateMode.None:
+					system.Update( Enumerable.Empty<Entity>(), time, deltaTime );
+					break;
 				case SystemUpdateMode.All:
 					system.Update( _entitiesByComponents.GetEntities( requiredComponentTypes ), time, deltaTime );
 					break;
@@ -91,5 +99,22 @@ public class EntitySystemContainerService : Identifiable, IGameLogicService, IUp
 					break;
 			}
 		}
+	}
+
+	protected override object? GetInternal( Type t ) {
+		var altType = GetImplementingType( t );
+		object? value;
+		if ( _loadedDependencies.TryGetValue( t, out value ) || _loadedDependencies.TryGetValue( altType, out value ) )
+			return value;
+		value = Create( t, false );
+		if ( value is null )
+			return null;
+		_loadedDependencies.Add( t, value );
+		if ( t != altType )
+			_loadedDependencies.Add( altType, value );
+		return value;
+		//In this case it would be nice to be able to define the implementation of an interface rather than use class types. If I want to create a gravity system, but might want a 3d gravity field instead of a flat 9.81m/s^2 I should be able to create just that. That requires implementing an interface, and not just referencing a complete class.
+
+		//Should there be a registration part to this, or should the chosen implementation be based on a set of rules? In which case how can one with those rules?
 	}
 }

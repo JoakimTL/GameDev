@@ -1,21 +1,33 @@
-﻿namespace Engine.GameLogic.ECS;
+﻿using System.Diagnostics.CodeAnalysis;
 
-public sealed class ComponentTypeCollection
-{
+namespace Engine.GameLogic.ECS;
 
-    public IReadOnlyList<Type> ComponentTypes => _componentTypes;
+public sealed class ComponentTypeCollection : IEqualityComparer<ComponentTypeCollection> {
 
-    private Type[] _componentTypes;
-    private int _hashCode;
+	public static ComponentTypeCollection Empty { get; } = new( Enumerable.Empty<Type>() );
 
-    public ComponentTypeCollection(IEnumerable<Type> componentTypes)
-    {
-        _componentTypes = componentTypes.ToArray();
-        _hashCode = HashCode.Combine(_componentTypes);
-    }
+	public IReadOnlyCollection<Type> ComponentTypes => _componentTypes;
 
-    public override int GetHashCode()
-    {
-        return _hashCode;
-    }
+	private HashSet<Type> _componentTypes;
+	private int _hashCode;
+
+	public ComponentTypeCollection( IEnumerable<Type> componentTypes ) {
+		_componentTypes = componentTypes.ToHashSet();
+		HashCode hash = new();
+		foreach ( var c in _componentTypes.OrderBy( p => p.GUID ) )
+			hash.Add( c );
+		_hashCode = hash.ToHashCode();
+	}
+
+	public override bool Equals( object? obj )
+		=> obj is ComponentTypeCollection ctc && Equals( this, ctc );
+
+	public override int GetHashCode()
+		=> _hashCode;
+
+	public bool Equals( ComponentTypeCollection? x, ComponentTypeCollection? y )
+		=> x is not null && y is not null && x._hashCode == y._hashCode && !x._componentTypes.Except( y._componentTypes ).Any();
+
+	public int GetHashCode( [DisallowNull] ComponentTypeCollection obj )
+		=> obj._hashCode;
 }

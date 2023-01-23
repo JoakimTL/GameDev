@@ -68,20 +68,20 @@ public readonly struct Tetrahedron {
 			P14.Y + P24.Y + P34.Y + P44.Y
 		);
 		var yz = -det / 120 * (
-			( 2 * P1.Y + P2.Y + P3.Y + P4.Y ) * P1.Z +
-			( P1.Y + 2 * P2.Y + P3.Y + P4.Y ) * P2.Z +
-			( P1.Y + P2.Y + 2 * P3.Y + P4.Y ) * P3.Z +
-			( P1.Y + P2.Y + P3.Y + 2 * P4.Y ) * P4.Z );
+			(( (2 * P1.Y) + P2.Y + P3.Y + P4.Y ) * P1.Z) +
+			(( P1.Y + (2 * P2.Y) + P3.Y + P4.Y ) * P2.Z) +
+			(( P1.Y + P2.Y + (2 * P3.Y) + P4.Y ) * P3.Z) +
+			(( P1.Y + P2.Y + P3.Y + (2 * P4.Y) ) * P4.Z) );
 		var xz = -det / 120 * (
-			( 2 * P1.X + P2.X + P3.X + P4.X ) * P1.Z +
-			( P1.X + 2 * P2.X + P3.X + P4.X ) * P2.Z +
-			( P1.X + P2.X + 2 * P3.X + P4.X ) * P3.Z +
-			( P1.X + P2.X + P3.X + 2 * P4.X ) * P4.Z );
+			(( (2 * P1.X) + P2.X + P3.X + P4.X ) * P1.Z) +
+			(( P1.X + (2 * P2.X) + P3.X + P4.X ) * P2.Z) +
+			(( P1.X + P2.X + (2 * P3.X) + P4.X ) * P3.Z) +
+			(( P1.X + P2.X + P3.X + (2 * P4.X) ) * P4.Z) );
 		var xy = -det / 120 * (
-			( 2 * P1.X + P2.X + P3.X + P4.X ) * P1.Y +
-			( P1.X + 2 * P2.X + P3.X + P4.X ) * P2.Y +
-			( P1.X + P2.X + 2 * P3.X + P4.X ) * P3.Y +
-			( P1.X + P2.X + P3.X + 2 * P4.X ) * P4.Y );
+			(( (2 * P1.X) + P2.X + P3.X + P4.X ) * P1.Y) +
+			(( P1.X + (2 * P2.X) + P3.X + P4.X ) * P2.Y) +
+			(( P1.X + P2.X + (2 * P3.X) + P4.X ) * P3.Y) +
+			(( P1.X + P2.X + P3.X + (2 * P4.X) ) * P4.Y) );
 		//xz and xy might need to swap positions in this matrix
 		return new Matrix4x4(
 			xx, xz, xy, 0,

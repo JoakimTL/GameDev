@@ -49,9 +49,9 @@ public class Gradient3Noise : INoiseProvider<Vector3, float> {
 	public Vector3 GetData( Vector3i p )
 		=> Vector3.Normalize(
 			new(
-				GetDataValue( p, unchecked((uint) _seed.X) ) * 2 - 1,
-				GetDataValue( p, unchecked((uint) _seed.Y) ) * 2 - 1,
-				GetDataValue( p, unchecked((uint) _seed.Z) ) * 2 - 1
+				(GetDataValue( p, unchecked((uint) _seed.X) ) * 2) - 1,
+				(GetDataValue( p, unchecked((uint) _seed.Y) ) * 2) - 1,
+				(GetDataValue( p, unchecked((uint) _seed.Z) ) * 2) - 1
 			)
 		);
 

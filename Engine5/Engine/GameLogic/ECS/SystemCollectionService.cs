@@ -5,11 +5,13 @@ namespace Engine.GameLogic.ECS;
 
 public sealed class ComponentTypeCollectionService : Identifiable, IGameLogicService, IDisposable {
 
+	private readonly HashSet<ComponentTypeCollection> _componentTypeCollections;
 	private readonly Dictionary<Type, ComponentTypeCollection> _requiredComponentTypes;
 	private readonly Dictionary<ComponentTypeCollection, List<Type>> _systemsRequiringComponentTypes;
 	private readonly Dictionary<Type, List<ComponentTypeCollection>> _collectionsContainingComponentType;
 
 	public ComponentTypeCollectionService() {
+		_componentTypeCollections = new();
 		_requiredComponentTypes = new();
 		_collectionsContainingComponentType = new();
 		_systemsRequiringComponentTypes = new();
@@ -20,26 +22,27 @@ public sealed class ComponentTypeCollectionService : Identifiable, IGameLogicSer
 	}
 
 	private void LoadAssembly( Assembly assembly ) {
-		var systems = assembly.GetTypes().Where( p => p.IsAssignableTo( typeof( SystemBase ) ) && !p.IsAbstract ).ToList();
-		var validSystems = systems.Where( p => p.GetCustomAttributes<RequireAttribute>( false ).Any() ).ToList();
-		var invalidSystems = systems.Except( validSystems );
-
-		foreach ( var invalid in invalidSystems )
-			this.LogWarning( $"{invalid.GetType().FullName} is not valid!" );
-
+		var validSystems = assembly.GetTypes().Where( p => p.IsAssignableTo( typeof( SystemBase ) ) && !p.IsAbstract ).ToList();
 		foreach ( var valid in validSystems ) {
-			ComponentTypeCollection componentTypeCollection = new( valid.GetCustomAttributes<RequireAttribute>().Select( p => p.RequiredType ) );
-			_requiredComponentTypes.Add( valid, componentTypeCollection );
+			var requirements = valid.GetCustomAttributes<RequireAttribute>().Select( p => p.RequiredType ).ToList();
+			ComponentTypeCollection cTC = requirements.Count > 0 ? new( valid.GetCustomAttributes<RequireAttribute>().Select( p => p.RequiredType ) ) : ComponentTypeCollection.Empty;
+			if ( _componentTypeCollections.TryGetValue( cTC, out var matchingCTC ) ) {
+				cTC = matchingCTC;
+			} else {
+				_componentTypeCollections.Add( cTC );
+			}
+
+			_requiredComponentTypes.Add( valid, cTC );
 			{
-				if ( !_systemsRequiringComponentTypes.TryGetValue( componentTypeCollection, out var list ) )
-					_systemsRequiringComponentTypes.Add( componentTypeCollection, list = new() );
+				if ( !_systemsRequiringComponentTypes.TryGetValue( cTC, out var list ) )
+					_systemsRequiringComponentTypes.Add( cTC, list = new() );
 				list.Add( valid );
 			}
 
-			foreach ( var componentType in componentTypeCollection.ComponentTypes ) {
+			foreach ( var componentType in cTC.ComponentTypes ) {
 				if ( !_collectionsContainingComponentType.TryGetValue( componentType, out var list ) )
 					_collectionsContainingComponentType.Add( componentType, list = new() );
-				list.Add( componentTypeCollection );
+				list.Add( cTC );
 			}
 		}
 	}

@@ -6,8 +6,7 @@ public abstract class DependencyInjectorBase : Identifiable {
 	protected abstract object? GetInternal( Type t );
 
 	protected object? Create( Type t, bool getRequiredTypes ) {
-		if ( t.IsAbstract || t.IsInterface )
-			throw new Exception( $"{t.FullName} is not implemented and cannot be loaded." );
+		t = GetImplementingType( t );
 
 		ConstructorInfo[]? ctors = t.GetConstructors();
 		if ( ctors.Length == 0 )
@@ -33,6 +32,20 @@ public abstract class DependencyInjectorBase : Identifiable {
 			foreach ( Type requiredServiceType in t.GetCustomAttributes<RequireAttribute>().Select( p => p.RequiredType ) )
 				GetInternal( requiredServiceType );
 		return obj;
+	}
+
+	protected Type GetImplementingType( Type type ) {
+		if ( !type.IsInterface && !type.IsAbstract )
+			return type;
+		var implementations = AppDomain.CurrentDomain.GetAssemblies().SelectMany( p => p.GetTypes().Where( q => q.IsAssignableTo( type ) && q.IsClass && !q.IsAbstract ) ).ToList();
+
+		if ( implementations.Count == 0 ) 
+			throw new NotImplementedException( type.FullName );
+
+		var chosenImplementation = implementations.First();
+		if ( implementations.Count > 1 )
+			this.LogWarning( $"{type} has multiple implementations, chose {chosenImplementation}!" );
+		return chosenImplementation;
 	}
 
 }

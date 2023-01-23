@@ -8,7 +8,7 @@ using System.Numerics;
 
 namespace Engine.Rendering.Services;
 
-[ProcessAfter<TextureAssetService>( typeof( IUpdateable ) )]
+[ProcessAfter<TextureAssetService, IUpdateable>]
 public sealed class TextureIndexingService : Identifiable, IContextService, IUpdateable, IInitializable, IDisposable {
 
 	private ushort _lowestOpenIndex;
