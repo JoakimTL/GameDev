@@ -1,5 +1,6 @@
 ﻿namespace Engine.Rendering.OGL;
-public static class VertexBufferObjectUtilities {
+public static class VertexBufferObjectUtilities
+{
 
 
 

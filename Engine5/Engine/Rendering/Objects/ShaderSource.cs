@@ -3,93 +3,108 @@ using OpenGL;
 using System.Text;
 
 namespace Engine.Rendering.Objects;
-public sealed class ShaderSource : Identifiable, IFileSource, IDisposable {
-	public uint ShaderID { get; private set; }
-	public ShaderType ShaderType { get; private set; }
-	public string Filepath { get; }
+public sealed class ShaderSource : Identifiable, IFileSource, IDisposable
+{
+    public uint ShaderID { get; private set; }
+    public ShaderType ShaderType { get; private set; }
+    public string Filepath { get; }
 
-	public event Action? FileChanged;
+    public event Action? FileChanged;
 
-	public ShaderSource( string path, ShaderType shaderType ) {
-		this.Filepath = path;
+    public ShaderSource(string path, ShaderType shaderType)
+    {
+        this.Filepath = path;
 
-		List<string> dependencies = new();
-		GetDependencies( path, dependencies );
-		foreach ( var d in dependencies )
-			Global.Get<FileWatchingService>().Track( d, FileChange );
+        List<string> dependencies = new();
+        GetDependencies(path, dependencies);
+        foreach (var d in dependencies)
+            Global.Get<FileWatchingService>().Track(d, FileChange);
 
-		this.ShaderID = Gl.CreateShader( shaderType );
-		this.ShaderType = shaderType;
-		string source = GetData();
-		Gl.ShaderSource( this.ShaderID, new string[] { source }, new int[] { source.Length } );
-		Gl.CompileShader( this.ShaderID );
+        this.ShaderID = Gl.CreateShader(shaderType);
+        this.ShaderType = shaderType;
+        string source = GetData();
+        Gl.ShaderSource(this.ShaderID, new string[] { source }, new int[] { source.Length });
+        Gl.CompileShader(this.ShaderID);
 
-		Gl.GetShader( this.ShaderID, ShaderParameterName.CompileStatus, out int status );
-		if ( status == 0 ) {
-			StringBuilder ss = new( 1024 );
-			Gl.GetShaderInfoLog( this.ShaderID, ss.Capacity, out int logLength, ss );
-			this.LogWarning( $"{logLength}-{ss}" );
-			Dispose();
-		}
-	}
+        Gl.GetShader(this.ShaderID, ShaderParameterName.CompileStatus, out int status);
+        if (status == 0)
+        {
+            StringBuilder ss = new(1024);
+            Gl.GetShaderInfoLog(this.ShaderID, ss.Capacity, out int logLength, ss);
+            this.LogWarning($"{logLength}-{ss}");
+            Dispose();
+        }
+    }
 
-	private void FileChange( string path ) => FileChanged?.Invoke();
+    private void FileChange(string path) => FileChanged?.Invoke();
 
-	public string GetData() => ReadSource( Filepath, out string source ) ? source : string.Empty;
+    public string GetData() => ReadSource(Filepath, out string source) ? source : string.Empty;
 
-	private static bool ReadSource( string path, out string source ) {
-		source = "";
-		try {
-			if ( !File.Exists( path ) ) {
-				Log.Warning( $"Couldn't find file {path}!" );
-				return false;
-			}
+    private static bool ReadSource(string path, out string source)
+    {
+        source = "";
+        try
+        {
+            if (!File.Exists(path))
+            {
+                Log.Warning($"Couldn't find file {path}!");
+                return false;
+            }
 
-			string? dir = Path.GetDirectoryName( path );
+            string? dir = Path.GetDirectoryName(path);
 
-			StringBuilder sb = new();
-			StreamReader reader = new( File.OpenRead( path ) );
+            StringBuilder sb = new();
+            StreamReader reader = new(File.OpenRead(path));
 
-			while ( !reader.EndOfStream ) {
-				string? line = reader.ReadLine();
+            while (!reader.EndOfStream)
+            {
+                string? line = reader.ReadLine();
 
-				if ( line?.StartsWith( "#include " ) ?? false ) {
-					string pathInclude = dir + "/" + line[ "#include ".Length.. ];
-					ReadSource( pathInclude, out line );
-				}
+                if (line?.StartsWith("#include ") ?? false)
+                {
+                    string pathInclude = dir + "/" + line["#include ".Length..];
+                    ReadSource(pathInclude, out line);
+                }
 
-				sb.AppendLine( line );
-			}
+                sb.AppendLine(line);
+            }
 
-			source = sb.ToString();
-			return true;
-		} catch ( Exception e ) {
-			Log.Error( e );
-		}
-		source = "";
-		return false;
-	}
+            source = sb.ToString();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e);
+        }
+        source = "";
+        return false;
+    }
 
-	private static void GetDependencies( string path, List<string> dependencies ) {
-		if ( !File.Exists( path ) ) {
-			Log.Warning( $"Couldn't find file {path}!" );
-			return;
-		}
-		string? dir = Path.GetDirectoryName( path );
-		dependencies.Add( path );
+    private static void GetDependencies(string path, List<string> dependencies)
+    {
+        if (!File.Exists(path))
+        {
+            Log.Warning($"Couldn't find file {path}!");
+            return;
+        }
+        string? dir = Path.GetDirectoryName(path);
+        dependencies.Add(path);
 
-		StreamReader reader = new( File.OpenRead( path ) );
-		while ( !reader.EndOfStream ) {
-			string? line = reader.ReadLine();
+        StreamReader reader = new(File.OpenRead(path));
+        while (!reader.EndOfStream)
+        {
+            string? line = reader.ReadLine();
 
-			if ( line?.StartsWith( "#include " ) ?? false ) {
-				string pathInclude = dir + "/" + line[ "#include ".Length.. ];
-				GetDependencies( pathInclude, dependencies );
-			}
-		}
-	}
+            if (line?.StartsWith("#include ") ?? false)
+            {
+                string pathInclude = dir + "/" + line["#include ".Length..];
+                GetDependencies(pathInclude, dependencies);
+            }
+        }
+    }
 
-	public void Dispose() {
-		Gl.DeleteShader( this.ShaderID );
-	}
+    public void Dispose()
+    {
+        Gl.DeleteShader(this.ShaderID);
+    }
 }

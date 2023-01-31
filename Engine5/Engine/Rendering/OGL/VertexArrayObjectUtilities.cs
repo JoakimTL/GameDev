@@ -1,6 +1,7 @@
 ﻿namespace Engine.Rendering.OGL;
 
-public static class VertexArrayObjectUtilities {
+public static class VertexArrayObjectUtilities
+{
 
 
 

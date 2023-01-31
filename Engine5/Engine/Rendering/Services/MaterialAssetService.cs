@@ -21,12 +21,12 @@ public sealed class MaterialAssetService : Identifiable, IContextService, IUpdat
 	public void Update( float time, float deltaTime ) {
 		while ( _newAssets.TryDequeue( out var asset ) ) {
 			ShaderAsset? shaderAsset = _shaderAssetService.Get( asset.ShaderIdentity );
-			List<ReferenceContainer<TextureAsset>> textureAssets = asset.TexturePaths.Select(_textureAssetService.Get).OfType<ReferenceContainer<TextureAsset>>().ToList();
-			if ( shaderAsset is not null ) {
-				asset.Set( shaderAsset, textureAssets );
-			} else {
+			List<ReferenceContainer<TextureAsset>> textureAssets = asset.TexturePaths.Select( _textureAssetService.Get ).OfType<ReferenceContainer<TextureAsset>>().ToList();
+			if ( shaderAsset is null ) {
 				this.LogWarning( $"Unable to load material for {asset}!" );
+				continue;
 			}
+			asset.Set( shaderAsset, textureAssets );
 		}
 	}
 

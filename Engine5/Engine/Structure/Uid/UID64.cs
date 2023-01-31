@@ -3,7 +3,8 @@
 /// <summary>
 /// A Unique IDentification handout class.
 /// </summary>
-public static class UID64 {
+public static class UID64
+{
 
     private static readonly InstantiableUIDTrackerUInt64 _tracker = new();
 

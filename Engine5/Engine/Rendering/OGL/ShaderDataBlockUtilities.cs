@@ -1,6 +1,7 @@
 ﻿namespace Engine.Rendering.OGL;
 
-public static class ShaderDataBlockUtilities {
+public static class ShaderDataBlockUtilities
+{
 
 
 

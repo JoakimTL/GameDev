@@ -1,59 +1,69 @@
 ﻿namespace Engine.Rendering.Objects.Assets;
 
-public sealed class MaterialAsset : Identifiable {
+public sealed class MaterialAsset : Identifiable
+{
 
-	public string Path { get; }
-	private List<ReferenceContainer<TextureAsset>> _textures;
-	private List<TextureAsset> _loadedTextures;
-	public ShaderAsset? Shader { get; private set; }
-	public IReadOnlyList<TextureAsset> Textures => _loadedTextures;
+    public string Path { get; }
+    private List<ReferenceContainer<TextureAsset>> _textures;
+    private List<TextureAsset> _loadedTextures;
+    public ShaderAsset? Shader { get; private set; }
+    public IReadOnlyList<TextureAsset> Textures => _loadedTextures;
 
-	public string ShaderIdentity { get; }
-	public string[] TexturePaths { get; }
+    public string ShaderIdentity { get; }
+    public string[] TexturePaths { get; }
 
-	protected override string UniqueNameTag => Path;
+    protected override string UniqueNameTag => Path;
 
-	internal MaterialAsset( string path ) {
-		Path = path;
-		_textures = new();
-		_loadedTextures = new();
-		LoadFile(out string shaderIdentity, out string[] texturePaths );
-		ShaderIdentity = shaderIdentity;
-		TexturePaths = texturePaths;
-	}
+    internal MaterialAsset(string path)
+    {
+        Path = path;
+        _textures = new();
+        _loadedTextures = new();
+        LoadFile(out string shaderIdentity, out string[] texturePaths);
+        ShaderIdentity = shaderIdentity;
+        TexturePaths = texturePaths;
+    }
 
-	private void LoadFile(out string shaderIdentity, out string[] texturePaths) {
-		shaderIdentity = string.Empty;
-		texturePaths = Array.Empty<string>();
-		if ( !File.Exists( Path ) ) {
-			this.LogWarning( $"Could not find file {Path}." );
-			return;
-		}
-		List<string> texturePathList = new();
-		string[] fileData = File.ReadAllLines( Path );
-		for ( int i = 0; i < fileData.Length; i++ ) {
-			string line = fileData[ i ];
-			string[] split = line.Split( '=' ).Select( p => p.Trim() ).ToArray();
-			if ( split.Length != 2 ) {
-				this.LogWarning( $"{Path}: Error on line {i + 1}." );
-				continue;
-			}
-			if ( split[0].StartsWith( "shader" ) ) {
-				shaderIdentity = split[ 1 ];
-			} else if ( split[ 0 ].StartsWith( "texture" ) ) {
-				texturePathList.Add(split[ 1 ]);
-			}
-		}
-		texturePaths = texturePathList.ToArray();
-	}
+    private void LoadFile(out string shaderIdentity, out string[] texturePaths)
+    {
+        shaderIdentity = string.Empty;
+        texturePaths = Array.Empty<string>();
+        if (!File.Exists(Path))
+        {
+            this.LogWarning($"Could not find file {Path}.");
+            return;
+        }
+        List<string> texturePathList = new();
+        string[] fileData = File.ReadAllLines(Path);
+        for (int i = 0; i < fileData.Length; i++)
+        {
+            string line = fileData[i];
+            string[] split = line.Split('=').Select(p => p.Trim()).ToArray();
+            if (split.Length != 2)
+            {
+                this.LogWarning($"{Path}: Error on line {i + 1}.");
+                continue;
+            }
+            if (split[0].StartsWith("shader"))
+            {
+                shaderIdentity = split[1];
+            }
+            else if (split[0].StartsWith("texture"))
+            {
+                texturePathList.Add(split[1]);
+            }
+        }
+        texturePaths = texturePathList.ToArray();
+    }
 
-	internal void Set( ShaderAsset shaderAsset, List<ReferenceContainer<TextureAsset>> textureAssets ) {
-		Shader = shaderAsset;
-		_textures.AddRange( textureAssets );
-		_loadedTextures.AddRange( textureAssets.Select( p => p.Value ) );
-	}
+    internal void Set(ShaderAsset shaderAsset, List<ReferenceContainer<TextureAsset>> textureAssets)
+    {
+        Shader = shaderAsset;
+        _textures.AddRange(textureAssets);
+        _loadedTextures.AddRange(textureAssets.Select(p => p.Value));
+    }
 
-	/*
+    /*
 	protected override void OnContextLoad( Context context ) {
 		//File load
 		//Parse usecase and shader pipeline name

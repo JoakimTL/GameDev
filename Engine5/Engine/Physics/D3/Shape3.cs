@@ -1,5 +1,6 @@
 ﻿namespace Engine.Physics.D3;
-public class VertexShape3 {
+public class VertexShape3
+{
 }
 
 //Shape -> A combination of convex hulls in specific locations

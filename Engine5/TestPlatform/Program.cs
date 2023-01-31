@@ -1,8 +1,33 @@
-﻿using Engine.Datatypes.Vectors;
+﻿using BenchmarkDotNet.Running;
+using Engine;
+using Engine.Datatypes.Buffers;
 using TestPlatform;
 
-new Engine.Rendering.RenderModule();
-new TestGameLogicModule();
+Random rand = new(32);
+BinaryTree<int> _binaryTree;
+int[] _toInsert;
+int Size = 8192;
+_binaryTree = new();
+_toInsert = new int[ Size ];
+for ( int i = 0; i < Size; i++ ) {
+	_toInsert[ i ] = rand.Next( 0, 100 );
+}
+
+for ( int i = 0; i < Size; i++ ) {
+	_binaryTree.Add( _toInsert[ i ] );
+}
+
+Console.WriteLine( $"uns {string.Join( ", ", _toInsert.Select( p => p.ToString() ) )}" );
+Console.WriteLine( $"tre {string.Join( ", ", _binaryTree.Select( p => p.ToString() ) )}" );
+Console.WriteLine( $"ord {string.Join( ", ", _toInsert.OrderBy( p => p ).Select( p => p.ToString() ) )}" );
+Console.WriteLine( _binaryTree.SequenceEqual( _toInsert.OrderBy( p => p ) ) );
+
+
+BenchmarkRunner.Run<Benchmarking2>();
+Console.ReadLine();
+
+//new Engine.Rendering.RenderModule();
+//new TestGameLogicModule();
 
 //var t1 = new Transform3();
 //t1.Translation = new( 0, -.5f, 0 );
@@ -142,67 +167,67 @@ new TestGameLogicModule();
 //	Console.WriteLine();
 //} {
 
-	//var a = new Matrix4x4(
-	//	1, 0, 0, 2,
-	//	0, 1, 0, 0,
-	//	0, 0, 1, 0,
-	//	0, 0, 0, 0 );
+//var a = new Matrix4x4(
+//	1, 0, 0, 2,
+//	0, 1, 0, 0,
+//	0, 0, 1, 0,
+//	0, 0, 0, 0 );
 
-	//var b = new Matrix4x4(
-	//	1, 0, 0, 0,
-	//	0, 1, 0, 2,
-	//	0, 0, 1, 0,
-	//	0, 0, 0, 0 );
+//var b = new Matrix4x4(
+//	1, 0, 0, 0,
+//	0, 1, 0, 2,
+//	0, 0, 1, 0,
+//	0, 0, 0, 0 );
 
-	//var c = new Matrix4x4(
-	//	1, 0, 0, 0,
-	//	0, 1, 0, 0,
-	//	0, 0, 1, 2,
-	//	0, 0, 0, 0 );
+//var c = new Matrix4x4(
+//	1, 0, 0, 0,
+//	0, 1, 0, 0,
+//	0, 0, 1, 2,
+//	0, 0, 0, 0 );
 
-	//var d = new Matrix4x4(
-	//	1, 0, 0, 0,
-	//	0, 1, 0, 0,
-	//	0, 0, 1, 0,
-	//	2, 0, 0, 0 );
+//var d = new Matrix4x4(
+//	1, 0, 0, 0,
+//	0, 1, 0, 0,
+//	0, 0, 1, 0,
+//	2, 0, 0, 0 );
 
-	//var e = new Matrix4x4(
-	//	1, 0, 0, 0,
-	//	0, 1, 0, 0,
-	//	0, 0, 1, 0,
-	//	0, 2, 0, 0 );
+//var e = new Matrix4x4(
+//	1, 0, 0, 0,
+//	0, 1, 0, 0,
+//	0, 0, 1, 0,
+//	0, 2, 0, 0 );
 
-	//var f = new Matrix4x4(
-	//	1, 0, 0, 0,
-	//	0, 1, 0, 0,
-	//	0, 0, 1, 0,
-	//	0, 0, 2, 0 );
+//var f = new Matrix4x4(
+//	1, 0, 0, 0,
+//	0, 1, 0, 0,
+//	0, 0, 1, 0,
+//	0, 0, 2, 0 );
 
-	//var g = new Matrix4x4(
-	//	1, 0, 0, 0,
-	//	0, 1, 0, 0,
-	//	0, 0, 1, 0,
-	//	0, 0, 0, 2 );
+//var g = new Matrix4x4(
+//	1, 0, 0, 0,
+//	0, 1, 0, 0,
+//	0, 0, 1, 0,
+//	0, 0, 0, 2 );
 
-	//Console.WriteLine( Vector3.Transform( Vector3.One, a ) );
-	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, a ) );
-	//Console.WriteLine();
-	//Console.WriteLine( Vector3.Transform( Vector3.One, b ) );
-	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, b ) );
-	//Console.WriteLine();
-	//Console.WriteLine( Vector3.Transform( Vector3.One, c ) );
-	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, c ) );
-	//Console.WriteLine();
-	//Console.WriteLine( Vector3.Transform( Vector3.One, d ) );
-	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, d ) );
-	//Console.WriteLine();
-	//Console.WriteLine( Vector3.Transform( Vector3.One, e ) );
-	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, e ) );
-	//Console.WriteLine();
-	//Console.WriteLine( Vector3.Transform( Vector3.One, f ) );
-	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, f ) );
-	//Console.WriteLine();
-	//Console.WriteLine( Vector3.Transform( Vector3.One, g ) );
+//Console.WriteLine( Vector3.Transform( Vector3.One, a ) );
+//Console.WriteLine( Vector3.TransformNormal( Vector3.One, a ) );
+//Console.WriteLine();
+//Console.WriteLine( Vector3.Transform( Vector3.One, b ) );
+//Console.WriteLine( Vector3.TransformNormal( Vector3.One, b ) );
+//Console.WriteLine();
+//Console.WriteLine( Vector3.Transform( Vector3.One, c ) );
+//Console.WriteLine( Vector3.TransformNormal( Vector3.One, c ) );
+//Console.WriteLine();
+//Console.WriteLine( Vector3.Transform( Vector3.One, d ) );
+//Console.WriteLine( Vector3.TransformNormal( Vector3.One, d ) );
+//Console.WriteLine();
+//Console.WriteLine( Vector3.Transform( Vector3.One, e ) );
+//Console.WriteLine( Vector3.TransformNormal( Vector3.One, e ) );
+//Console.WriteLine();
+//Console.WriteLine( Vector3.Transform( Vector3.One, f ) );
+//Console.WriteLine( Vector3.TransformNormal( Vector3.One, f ) );
+//Console.WriteLine();
+//Console.WriteLine( Vector3.Transform( Vector3.One, g ) );
 //	//Console.WriteLine( Vector3.TransformNormal( Vector3.One, g ) );
 //}
 /*

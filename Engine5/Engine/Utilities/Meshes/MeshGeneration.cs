@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
 
 namespace Engine.Utilities.Meshes;
-public static class MeshGeneration {
-	/*
+public static class MeshGeneration
+{
+    /*
 	public static VertexMesh<Vertex2> GenerateCircle( uint npoints ) {
 		if ( npoints == 0 )
 			throw new ArgumentOutOfRangeException( nameof( npoints ), "must be greater than 0." );
@@ -33,8 +34,8 @@ public static class MeshGeneration {
 
 	}
 	*/
-	
-	/*
+
+    /*
 	/// <summary>
 	/// Generates a normalized unit icosphere using the subdivisions parameter to determine the detail.
 	/// </summary>
@@ -56,115 +57,125 @@ public static class MeshGeneration {
 	}
 	*/
 
-	public static void GenerateIcosphereVectors( int subdivisions, out List<Vector3> vectors, out List<uint> indices ) {
-		vectors = new List<Vector3>();
-		indices = new List<uint>();
+    public static void GenerateIcosphereVectors(int subdivisions, out List<Vector3> vectors, out List<uint> indices)
+    {
+        vectors = new List<Vector3>();
+        indices = new List<uint>();
 
-		vectors.Add( new Vector3( 0, 1, 0 ) );
+        vectors.Add(new Vector3(0, 1, 0));
 
-		float H_ANGLE = MathF.PI / 180 * 72;    // 72 degree = 360 / 5
-		float V_ANGLE = MathF.Atan( 1f / 2 );  // elevation = 26.565 degree
+        float H_ANGLE = MathF.PI / 180 * 72;    // 72 degree = 360 / 5
+        float V_ANGLE = MathF.Atan(1f / 2);  // elevation = 26.565 degree
 
-		float hAngle1 = ( -MathF.PI / 2 ) - ( H_ANGLE / 2 );  // start from -126 deg at 1st row
-		float hAngle2 = -MathF.PI / 2;                // start from -90 deg at 2nd row
+        float hAngle1 = (-MathF.PI / 2) - (H_ANGLE / 2);  // start from -126 deg at 1st row
+        float hAngle2 = -MathF.PI / 2;                // start from -90 deg at 2nd row
 
-		for ( int i = 1; i <= 5; ++i ) {
-			int i1 = i;
+        for (int i = 1; i <= 5; ++i)
+        {
+            int i1 = i;
 
-			float y = MathF.Sin( V_ANGLE );
-			float xz = MathF.Cos( V_ANGLE );
+            float y = MathF.Sin(V_ANGLE);
+            float xz = MathF.Cos(V_ANGLE);
 
-			vectors.Add( new Vector3( xz * MathF.Cos( hAngle1 ), y, xz * MathF.Sin( hAngle1 ) ) );
+            vectors.Add(new Vector3(xz * MathF.Cos(hAngle1), y, xz * MathF.Sin(hAngle1)));
 
-			hAngle1 += H_ANGLE;
-		}
+            hAngle1 += H_ANGLE;
+        }
 
-		for ( int i = 1; i <= 5; ++i ) {
-			int i2 = i + 5;
+        for (int i = 1; i <= 5; ++i)
+        {
+            int i2 = i + 5;
 
-			float y = (float) Math.Sin( V_ANGLE );
-			float xz = (float) Math.Cos( V_ANGLE );
+            float y = (float)Math.Sin(V_ANGLE);
+            float xz = (float)Math.Cos(V_ANGLE);
 
-			vectors.Add( new Vector3( xz * MathF.Cos( hAngle2 ), -y, xz * MathF.Sin( hAngle2 ) ) );
+            vectors.Add(new Vector3(xz * MathF.Cos(hAngle2), -y, xz * MathF.Sin(hAngle2)));
 
-			hAngle2 += H_ANGLE;
-		}
+            hAngle2 += H_ANGLE;
+        }
 
-		vectors.Add( new Vector3( 0, -1, 0 ) );
+        vectors.Add(new Vector3(0, -1, 0));
 
-		for ( uint i = 0; i < 5; i++ ) {
-			indices.Add( 0 );
-			indices.Add( ( ( i + 1 ) % 5 ) + 1 );
-			indices.Add( i + 1 );
-		}
+        for (uint i = 0; i < 5; i++)
+        {
+            indices.Add(0);
+            indices.Add(((i + 1) % 5) + 1);
+            indices.Add(i + 1);
+        }
 
-		for ( uint i = 0; i < 5; i++ ) {
-			indices.Add( ( ( i + 1 ) % 5 ) + 1 );
-			indices.Add( ( ( i + 1 ) % 5 ) + 6 );
-			indices.Add( i + 6 );
-		}
+        for (uint i = 0; i < 5; i++)
+        {
+            indices.Add(((i + 1) % 5) + 1);
+            indices.Add(((i + 1) % 5) + 6);
+            indices.Add(i + 6);
+        }
 
-		for ( uint i = 0; i < 5; i++ ) {
-			indices.Add( i + 6 );
-			indices.Add( i + 1 );
-			indices.Add( ( ( i + 1 ) % 5 ) + 1 );
-		}
+        for (uint i = 0; i < 5; i++)
+        {
+            indices.Add(i + 6);
+            indices.Add(i + 1);
+            indices.Add(((i + 1) % 5) + 1);
+        }
 
-		for ( uint i = 0; i < 5; i++ ) {
-			indices.Add( 11 );
-			indices.Add( 5 + i + 1 );
-			indices.Add( 5 + ( ( i + 1 ) % 5 ) + 1 );
-		}
+        for (uint i = 0; i < 5; i++)
+        {
+            indices.Add(11);
+            indices.Add(5 + i + 1);
+            indices.Add(5 + ((i + 1) % 5) + 1);
+        }
 
-		List<uint> subIndices = new();
-		for ( int i = 0; i < subdivisions; i++ ) {
-			subIndices.Clear();
+        List<uint> subIndices = new();
+        for (int i = 0; i < subdivisions; i++)
+        {
+            subIndices.Clear();
 
-			for ( int ind = 0; ind < indices.Count; ind += 3 ) {
+            for (int ind = 0; ind < indices.Count; ind += 3)
+            {
 
-				uint ia = indices[ ind ];
-				Vector3 a = vectors[ (int) ia ];
-				uint ib = indices[ ind + 1 ];
-				Vector3 b = vectors[ (int) ib ];
-				uint ic = indices[ ind + 2 ];
-				Vector3 c = vectors[ (int) ic ];
+                uint ia = indices[ind];
+                Vector3 a = vectors[(int)ia];
+                uint ib = indices[ind + 1];
+                Vector3 b = vectors[(int)ib];
+                uint ic = indices[ind + 2];
+                Vector3 c = vectors[(int)ic];
 
-				Vector3 ab = FindHalfway( a, b );
-				Vector3 bc = FindHalfway( b, c );
-				Vector3 ca = FindHalfway( c, a );
+                Vector3 ab = FindHalfway(a, b);
+                Vector3 bc = FindHalfway(b, c);
+                Vector3 ca = FindHalfway(c, a);
 
-				uint iab = (uint) vectors.Count;
-				vectors.Add( ab );
-				uint ibc = (uint) vectors.Count;
-				vectors.Add( bc );
-				uint ica = (uint) vectors.Count;
-				vectors.Add( ca );
+                uint iab = (uint)vectors.Count;
+                vectors.Add(ab);
+                uint ibc = (uint)vectors.Count;
+                vectors.Add(bc);
+                uint ica = (uint)vectors.Count;
+                vectors.Add(ca);
 
-				subIndices.Add( ia );
-				subIndices.Add( iab );
-				subIndices.Add( ica );
+                subIndices.Add(ia);
+                subIndices.Add(iab);
+                subIndices.Add(ica);
 
-				subIndices.Add( ib );
-				subIndices.Add( ibc );
-				subIndices.Add( iab );
+                subIndices.Add(ib);
+                subIndices.Add(ibc);
+                subIndices.Add(iab);
 
-				subIndices.Add( ic );
-				subIndices.Add( ica );
-				subIndices.Add( ibc );
+                subIndices.Add(ic);
+                subIndices.Add(ica);
+                subIndices.Add(ibc);
 
-				subIndices.Add( iab );
-				subIndices.Add( ibc );
-				subIndices.Add( ica );
+                subIndices.Add(iab);
+                subIndices.Add(ibc);
+                subIndices.Add(ica);
 
-			}
+            }
 
-			indices.Clear();
-			indices.AddRange( subIndices );
-		}
-	}
+            indices.Clear();
+            indices.AddRange(subIndices);
+        }
+    }
 
-	private static Vector3 FindHalfway( Vector3 a, Vector3 b ) {
-		Vector3 h = a + b;
-		return Vector3.Normalize( h );
-	}
+    private static Vector3 FindHalfway(Vector3 a, Vector3 b)
+    {
+        Vector3 h = a + b;
+        return Vector3.Normalize(h);
+    }
 }

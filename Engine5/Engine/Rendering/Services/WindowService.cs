@@ -37,7 +37,7 @@ public sealed class WindowService : IRenderService, IUpdateable
     private static nint CreateWindow(string title, int width, int height, Window? share = null)
     {
         GlfwUtilities.SetHints(true, 0);
-		nint winPtr = WindowUtilities.CreateWindow(width, height, title, nint.Zero, share?.Pointer ?? nint.Zero );
+        nint winPtr = WindowUtilities.CreateWindow(width, height, title, nint.Zero, share?.Pointer ?? nint.Zero);
         return winPtr;
     }
 
@@ -51,7 +51,7 @@ public sealed class WindowService : IRenderService, IUpdateable
     {
         VideoMode vm = WindowUtilities.GetVideoMode(m);
         GlfwUtilities.SetHints(true, 0);
-        nint winPtr = WindowUtilities.CreateWindow(vm.Width, vm.Height, title, m, share?.Pointer ?? nint.Zero );
+        nint winPtr = WindowUtilities.CreateWindow(vm.Width, vm.Height, title, m, share?.Pointer ?? nint.Zero);
         return winPtr;
     }
 
@@ -65,11 +65,11 @@ public sealed class WindowService : IRenderService, IUpdateable
     {
         VideoMode vm = WindowUtilities.GetVideoMode(m);
         GlfwUtilities.SetHints(true, 0);
-        nint winPtr = WindowUtilities.CreateWindow(vm.Width, vm.Height, title, nint.Zero, share?.Pointer ?? nint.Zero );
-		WindowUtilities.SetWindowAttribute(winPtr, WindowAttribute.Floating, true);
-		WindowUtilities.SetWindowAttribute(winPtr, WindowAttribute.Decorated, false);
-		WindowUtilities.GetMonitorPosition(m, out int mx, out int my);
-		WindowUtilities.SetWindowPosition(winPtr, mx, my);
+        nint winPtr = WindowUtilities.CreateWindow(vm.Width, vm.Height, title, nint.Zero, share?.Pointer ?? nint.Zero);
+        WindowUtilities.SetWindowAttribute(winPtr, WindowAttribute.Floating, true);
+        WindowUtilities.SetWindowAttribute(winPtr, WindowAttribute.Decorated, false);
+        WindowUtilities.GetMonitorPosition(m, out int mx, out int my);
+        WindowUtilities.SetWindowPosition(winPtr, mx, my);
         return winPtr;
     }
     #endregion

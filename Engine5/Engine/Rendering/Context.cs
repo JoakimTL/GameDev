@@ -1,5 +1,6 @@
 ﻿using Engine.Rendering.Objects;
 using Engine.Rendering.OGL;
+using Engine.Rendering.Services;
 using Engine.Structure.Interfaces;
 using Engine.Structure.ServiceProvider;
 
@@ -25,6 +26,7 @@ public sealed class Context : IUpdateable {
 	public void Bind() {
 		ContextUtilities.MakeContextCurrent( _window.Pointer );
 		_contextThread = Thread.CurrentThread;
+		_serviceProvider.Get<VertexArrayLayoutService>();
 	}
 
 	public bool IsContextThread() => Thread.CurrentThread == _contextThread;

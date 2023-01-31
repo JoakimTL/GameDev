@@ -2,7 +2,6 @@
 using Engine.GameLogic.ECS.Components;
 using Engine.Structure.Attributes;
 using StandardPackage.ECS.Components;
-using System.Numerics;
 
 namespace StandardPackage.ECS.Systems;
 

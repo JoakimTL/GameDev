@@ -1,0 +1,27 @@
+﻿
+How would anyone go about showing an asset on screen in this system?
+	To maintain multithreading, and a separated OpenGL thread for rendering only, a communication barrier is set up between the "clients" and the OpenGL thread.
+	This communication barrier is very simple, a middleman holds data for clients to manipulate and OpenGL to read from. Even better would be separating clients into their own "booths" and only allowing them write access to their own data.
+	The data comes in the form of an "IRenderable". These IRenderables can also come from disk, loading a predefined Renderable from storage rather than creating it runtime.
+
+IInstanceData{
+	
+}
+IRenderable{
+	ShaderIdentity (string) //The identity of the shader to utilize
+	TextureIdentities (string[]) //The identities of the textures to render tupled with the local index for said index.
+		//Textures are handled FIFO, meaning the first index of this array is the first texture entering the instancedata.
+	MeshIdentity (string) //The identity of the mesh to display.
+	GetInstanceData (byte[]) //The data of the instance, expected to comply with the shader attributes in the input shader
+}
+
+IMaterial{
+	ShaderIdentity (string) //The identity of the shader to utilize
+	TextureIdentities (string[]) //The identities of the textures to render. This is still up in the air, cause how will one reference these textures???
+}
+
+IMesh{
+	MeshIdentity (string) //The identity of the mesh to display.
+	GetInstanceData (byte[]) //The data of the instance, expected to comply with the shader attributes in the input shader
+	GetTextureIndices (int[])
+}

@@ -1,6 +1,7 @@
 ﻿namespace Engine.Rendering.OGL;
 
-public static class FrameBufferUtilities {
+public static class FrameBufferUtilities
+{
 
 
 

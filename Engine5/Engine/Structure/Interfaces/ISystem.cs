@@ -1,5 +1,6 @@
 ﻿namespace Engine.Structure.Interfaces;
 
-public interface ISystem {
-	bool SystemEssential { get; }
+public interface ISystem
+{
+    bool SystemEssential { get; }
 }
