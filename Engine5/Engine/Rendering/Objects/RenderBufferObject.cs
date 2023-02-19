@@ -12,6 +12,8 @@ public class RenderBufferObject : SegmentedBuffer {
 	private readonly BufferWriteTracker _writeTracker;
 	private bool _hasResized;
 
+	protected override string UniqueNameTag => $"{this.SizeBytes / 1048576d:N4}MiB";
+
 	public RenderBufferObject( string name, ulong initialSizeBytes ) : base( name, initialSizeBytes, true, true ) {
 		_changes = new();
 		_writeTracker = new( this );

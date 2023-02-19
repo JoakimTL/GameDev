@@ -34,23 +34,10 @@ public abstract class TransformBase<T, R, S> : MatrixProviderBase
         SetChanged();
     }
 
-    public TransformBase<T, R, S>? Parent
-    {
-        get => _parent;
-        set
-        {
-            if (ReferenceEquals(_parent, value))
-                return;
-            if (_parent is not null)
-                _parent.MatrixChanged -= ParentMatrixChanged;
-            _parent = value;
-            if (_parent is not null)
-                _parent.MatrixChanged += ParentMatrixChanged;
-            SetChanged();
-        }
-    }
+	public TransformBase<T, R, S>? Parent 
+        => _parent;
 
-    public void SetParent(TransformBase<T, R, S>? parent, bool adjustForFrameOfReference)
+	public void SetParent(TransformBase<T, R, S>? parent, bool adjustForFrameOfReference)
     {
         if (ReferenceEquals(_parent, parent) && adjustForFrameOfReference == _adjustedForFrameOfReference)
             return;
@@ -61,7 +48,7 @@ public abstract class TransformBase<T, R, S> : MatrixProviderBase
         _parent = parent;
         if (adjustForFrameOfReference)
             Adjust(_parent);
-        _adjustedForFrameOfReference = adjustForFrameOfReference;
+        _adjustedForFrameOfReference = adjustForFrameOfReference && _parent is not null;
         if (_parent is not null)
             _parent.MatrixChanged += ParentMatrixChanged;
         SetChanged();
@@ -71,6 +58,8 @@ public abstract class TransformBase<T, R, S> : MatrixProviderBase
     public TransformInterface<T, R, S> Interface => _interface;
 
     private void ParentMatrixChanged(IMatrixProvider obj) => SetChanged();
+
+    public bool Adjusted => _adjustedForFrameOfReference;
 
     public T Translation
     {
@@ -135,9 +124,10 @@ public abstract class TransformBase<T, R, S> : MatrixProviderBase
         }
     }
 
-    public TransformData<T, R, S> Data => new(Translation, Rotation, Scale);
+	public TransformData<T, R, S> Data => new( Translation, Rotation, Scale );
+	public TransformData<T, R, S> GlobalData => new( GlobalTranslation, GlobalRotation, GlobalScale );
 
-    public void SetData(TransformData<T, R, S> data)
+	public void SetData(TransformData<T, R, S> data)
     {
         Translation = data.Translation;
         Rotation = data.Rotation;

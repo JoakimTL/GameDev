@@ -11,6 +11,6 @@ public class Face
 
     public override string ToString()
     {
-        return $"[{A.ID},{B.ID},{C.ID}] {A.Value}, {B.Value}, {C.Value}";
+        return $"[{A.Uid},{B.Uid},{C.Uid}] {A.Value}, {B.Value}, {C.Value}";
     }
 }

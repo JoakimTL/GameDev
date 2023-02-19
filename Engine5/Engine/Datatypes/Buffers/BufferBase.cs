@@ -81,7 +81,7 @@ public abstract unsafe class BufferBase : Identifiable, IBuffer, IReadableBuffer
 			this.LogWarning( "Tried to access data outside buffer." );
 			return default;
 		}
-		return ( (TData*) ( ( (byte*) _bufferPointer ) + offsetBytes.ToUint() ) )[ 0 ];
+		return *( (TData*) ( ( (byte*) _bufferPointer ) + offsetBytes.ToUint() ) );
 	}
 
 	public IIndexableReadOnlyBufferSegment<T> Read<T>( ulong offsetBytes, ulong lengthElements ) where T : unmanaged {

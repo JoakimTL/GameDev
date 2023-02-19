@@ -30,7 +30,7 @@ public abstract class FrameBuffer : Identifiable, IDisposable
 
     public Texture CreateTexture(TextureTarget target, InternalFormat internalFormat, params (TextureParameterName, int)[] parameters)
     {
-        Texture t = new($"FBO#{Name}:{internalFormat}", target, Size, internalFormat, 0, parameters);
+        Texture t = new($"FBO#{IdentifiableName}:{internalFormat}", target, Size, internalFormat, 0, parameters);
         this.LogLine($"Created new texture [{t}]!", Log.Level.LOW, ConsoleColor.Cyan);
         return t;
     }

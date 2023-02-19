@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Engine.Rendering.Objects.VAOs;
 
-public static class VAL {
+public static class VAO {
 	[AttributeUsage( AttributeTargets.Struct, AllowMultiple = false )]
 	public sealed class SetupAttribute : Attribute {
 		public uint OffsetBytes { get; private set; }
@@ -29,6 +29,7 @@ public static class VAL {
 			StrideBytesOverride = strideBytesOverride;
 		}
 	}
+
 	[AttributeUsage( AttributeTargets.Field, AllowMultiple = false )]
 	public sealed class DataAttribute : Attribute {
 

@@ -11,14 +11,17 @@ namespace TestPlatform;
 public unsafe class Benchmarking2 {
 
 
-	[Params( 8192 )]
+	[Params( 4194304 )]
 	public int Size { get; set; }
 
 	//public void* Source;
 	//public void* Destination;
-	public SortedSet<int> _set;
-	public BinaryTree<int> _binaryTree;
-	public int[] _toInsert;
+	//public SortedSet<int> _set;
+	//public BinaryTree<int> _binaryTree;
+	//public int[] _toInsert;
+
+	public byte[] destinationArray;
+	public Memory<byte> destinationMemory;
 
 	[GlobalSetup]
 	public void Setup() {
@@ -28,29 +31,57 @@ public unsafe class Benchmarking2 {
 		//for ( ulong i = 0; i < Size; i++ ) {
 		//	( (int*) Source )[ i ] = rand.Next();
 		//}
-		_set = new();
-		_binaryTree = new();
-		_toInsert = new int[ Size ];
-		for ( int i = 0; i < Size; i++ ) {
-			_toInsert[ i ] = rand.Next();
+		//_set = new();
+		//_binaryTree = new();
+		//_toInsert = new int[ Size ];
+		//for ( int i = 0; i < Size; i++ ) {
+		//	_toInsert[ i ] = rand.Next();
+		//}
+
+		destinationArray = new byte[ Size ];
+		destinationMemory = new byte[ Size ];
+	}
+
+	[Benchmark]
+	public void ArrayFixed() {
+		fixed ( byte* dstPtr = destinationArray ) {
+			for ( int i = 0; i < Size; i++ )
+				dstPtr[ i ] = (byte) ( i % 256 );
 		}
 	}
 
-
 	[Benchmark]
-	public void Set() {
-		_set.Clear();
-		for ( int i = 0; i < Size; i++ )
-			_set.Add( _toInsert[ i ] );
+	public void MemoryPin() {
+		using System.Buffers.MemoryHandle dstHandle = destinationMemory.Pin();
+		unsafe {
+			byte* dstPtr = (byte*) dstHandle.Pointer;
+			for ( int i = 0; i < Size; i++ )
+				dstPtr[ i ] = (byte) ( i % 256 );
+		}
 	}
 
-
 	[Benchmark]
-	public void Tree() {
-		_binaryTree.Clear();
-		for ( int i = 0; i < Size; i++ )
-			_binaryTree.Add( _toInsert[ i ] );
+	public void MemoryFixed() {
+		fixed ( byte* dstPtr = destinationMemory.Span ) {
+			for ( int i = 0; i < Size; i++ )
+				dstPtr[ i ] = (byte) ( i % 256 );
+		}
 	}
+
+	//[Benchmark]
+	//public void Set() {
+	//	_set.Clear();
+	//	for ( int i = 0; i < Size; i++ )
+	//		_set.Add( _toInsert[ i ] );
+	//}
+
+
+	//[Benchmark]
+	//public void Tree() {
+	//	_binaryTree.Clear();
+	//	for ( int i = 0; i < Size; i++ )
+	//		_binaryTree.Add( _toInsert[ i ] );
+	//}
 
 
 	//[Benchmark]

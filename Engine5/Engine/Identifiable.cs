@@ -7,7 +7,7 @@ public class Identifiable
     /// <summary>
     /// Unique Id
     /// </summary>
-    public ulong ID { get; }
+    public ulong Uid { get; }
     /// <summary>
     /// Type name
     /// </summary>
@@ -22,40 +22,40 @@ public class Identifiable
     /// <summary>
     /// Personalized name.
     /// </summary>
-    public string Name { get; private set; }
-    public string FullName => $"{this.TypeName}/{this.Name}:{this.ID}{(!string.IsNullOrEmpty(this.UniqueNameTag) ? $"[{this.UniqueNameTag}]" : string.Empty)}";
+    public string IdentifiableName { get; private set; }
+    public string FullName => $"{this.TypeName}/{this.IdentifiableName}:{this.Uid}{(!string.IsNullOrEmpty(this.UniqueNameTag) ? $"[{this.UniqueNameTag}]" : string.Empty)}";
     protected virtual string UniqueNameTag => string.Empty;
 
     public Identifiable()
     {
-        this.ID = UID64.Next;
-        this.Name = string.Empty;
+        this.Uid = UID64.Next;
+        this.IdentifiableName = string.Empty;
     }
 
     public Identifiable(string name) : this()
     {
-        this.Name = name;
+        this.IdentifiableName = name;
     }
 
     /// <summary>
     /// Sets the name of the object. Can only be set once.
     /// </summary>
     /// <param name="name">The name given.</param>
-    protected void SetName(string name)
+    protected void SetIdentifiableName(string name)
     {
-        if (string.IsNullOrEmpty(name) || !string.IsNullOrEmpty(this.Name))
+        if (string.IsNullOrEmpty(name) || !string.IsNullOrEmpty(this.IdentifiableName))
             return;
-        this.Name = name;
+        this.IdentifiableName = name;
     }
 
     public override string ToString() => this.FullName;
 
-    public override int GetHashCode() => this.ID.GetHashCode();
+    public override int GetHashCode() => this.Uid.GetHashCode();
 
     public override bool Equals(object? obj)
     {
         if (obj is Identifiable i)
-            return i.ID == this.ID;
+            return i.Uid == this.Uid;
         return false;
     }
 

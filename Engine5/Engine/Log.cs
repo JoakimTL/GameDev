@@ -19,8 +19,8 @@ public static class Log
 
     public static void Error(Exception e, bool logToConsole = true) => LogInternal($"{e}{Environment.NewLine}", InternalLevel.ERROR, -1, logToConsole, ConsoleColor.Red);
     public static void Error(string text, bool logToConsole = true) => LogInternal($"{text}{Environment.NewLine}", InternalLevel.ERROR, 1, logToConsole, ConsoleColor.Red);
-    public static void Warning(string text, bool logToConsole = true, bool stacktrace = false) => LogInternal($"{text}{Environment.NewLine}", InternalLevel.WARNING, stacktrace ? 1 : -1, logToConsole, ConsoleColor.Yellow);
-    public static void Line(string text, Level logLevel, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true) => Text($"{text}{Environment.NewLine}", logLevel, color, stackLevel, logToConsole);
+	public static void Warning( string text, bool logToConsole = true, bool stacktrace = false ) => LogInternal( $"{text}{Environment.NewLine}", InternalLevel.WARNING, stacktrace ? 1 : -1, logToConsole, ConsoleColor.Yellow );
+	public static void Line(string text, Level logLevel, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true) => Text($"{text}{Environment.NewLine}", logLevel, color, stackLevel, logToConsole);
     public static void Text(string text, Level logLevel, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true)
     {
         if (logLevel > LoggingLevel)
@@ -30,7 +30,36 @@ public static class Log
         LogInternal(text, (InternalLevel)logLevel, stackLevel, logToConsole, color);
     }
 
-    private static void LogInternal(string text, InternalLevel internalLogLevel, int stackLevel, bool logToConsole, ConsoleColor color)
+	public static T WarningThenReturn<T>( string text, T @return, bool logToConsole = true, bool stacktrace = false ) {
+		Warning( text, logToConsole, stacktrace );
+		return @return;
+	}
+
+	public static T? LineThenReturn<T>( string text, Level logLevel, T? @return, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true ) {
+		Line( text, logLevel, color, stackLevel, logToConsole );
+		return @return;
+	}
+
+	public static T? TextThenReturnDefault<T>( string text, Level logLevel, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true ) {
+		Text( text, logLevel, color, stackLevel, logToConsole );
+		return default;
+	}
+	public static T? WarningThenReturnDefault<T>( string text, bool logToConsole = true, bool stacktrace = false ) {
+		Warning( text, logToConsole, stacktrace );
+		return default;
+	}
+
+	public static T? LineThenReturnDefault<T>( string text, Level logLevel, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true ) {
+		Line( text, logLevel, color, stackLevel, logToConsole );
+		return default;
+	}
+
+	public static T? TextThenReturn<T>( string text, Level logLevel, T? @return, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true ) {
+		Text( text, logLevel, color, stackLevel, logToConsole );
+		return @return;
+	}
+
+	private static void LogInternal(string text, InternalLevel internalLogLevel, int stackLevel, bool logToConsole, ConsoleColor color)
     {
         string logString = $"{Prefix}[{internalLogLevel}]: {text}";
         if (stackLevel >= 0)

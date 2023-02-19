@@ -7,12 +7,12 @@ using System.Runtime.InteropServices;
 namespace StandardPackage.Rendering.VertexArrayLayouts;
 
 
-[VAL.Setup( 0, 1, 4 ), StructLayout( LayoutKind.Explicit, Pack = 1 )]
+[VAO.Setup( 0, 1, 4 ), StructLayout( LayoutKind.Explicit, Pack = 1 )]
 public struct Entity3SceneData {
-	[VAL.Data( VertexAttribType.Float, 16 ), FieldOffset( 0 )]
+	[VAO.Data( VertexAttribType.Float, 16 ), FieldOffset( 0 )]
 	public Matrix4x4 ModelMatrix;
-	[VAL.Data( VertexAttribType.UnsignedShort, 4 ), FieldOffset( 64 )]
+	[VAO.Data( VertexAttribType.UnsignedShort, 4 ), FieldOffset( 64 )]
 	public Color16x4 Color;
-	[VAL.Data( VertexAttribType.UnsignedByte, 1, normalized: true ), FieldOffset( 72 )]
+	[VAO.Data( VertexAttribType.UnsignedByte, 1, normalized: true ), FieldOffset( 72 )]
 	public byte NormalMapped;
 }

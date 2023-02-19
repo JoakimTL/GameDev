@@ -1,30 +1,65 @@
 ﻿using BenchmarkDotNet.Running;
 using Engine;
 using Engine.Datatypes.Buffers;
+using Engine.GameLogic.ECS;
+using Engine.GameLogic.ECS.Components;
+using Engine.GlobalServices;
 using TestPlatform;
 
-Random rand = new(32);
-BinaryTree<int> _binaryTree;
-int[] _toInsert;
-int Size = 8192;
-_binaryTree = new();
-_toInsert = new int[ Size ];
-for ( int i = 0; i < Size; i++ ) {
-	_toInsert[ i ] = rand.Next( 0, 100 );
-}
 
-for ( int i = 0; i < Size; i++ ) {
-	_binaryTree.Add( _toInsert[ i ] );
-}
+//BenchmarkRunner.Run<Benchmarking2>();
+//Console.ReadLine();
 
-Console.WriteLine( $"uns {string.Join( ", ", _toInsert.Select( p => p.ToString() ) )}" );
-Console.WriteLine( $"tre {string.Join( ", ", _binaryTree.Select( p => p.ToString() ) )}" );
-Console.WriteLine( $"ord {string.Join( ", ", _toInsert.OrderBy( p => p ).Select( p => p.ToString() ) )}" );
-Console.WriteLine( _binaryTree.SequenceEqual( _toInsert.OrderBy( p => p ) ) );
+EntityContainer ec = new();
+Entity e1 = ec.Create();
+Entity e2 = ec.Create();
+Entity e3 = ec.Create();
+Entity e4 = ec.Create();
+Entity e5 = ec.Create();
+Entity e6 = ec.Create();
+Entity e7 = ec.Create();
+Entity e8 = ec.Create();
+e2.SetParentId( e1.EntityId );
+e3.SetParentId( e2.EntityId );
+e4.SetParentId( e3.EntityId );
+e5.SetParentId( e4.EntityId );
+e6.SetParentId( e5.EntityId );
+e7.SetParentId( e6.EntityId );
+e8.SetParentId( e7.EntityId );
+e1.SetParentId( e8.EntityId );
+var t2c = e2.AddOrGet<Transform2Component>();
+t2c.Transform.Scale = new( 4, 1 );
+var nc = e2.AddOrGet<NameComponent>();
+nc.SetName("TestNameForTestingSerialization");
+
+var s = e2.Serialize();
+var ds = ec.Load( s );
+var ecSer = ec.SerializeEntities();
+
+Console.WriteLine();
+
+//Random rand = new(32);
+//BinaryTree<int> _binaryTree;
+//int[] _toInsert;
+//int Size = 8192;
+//_binaryTree = new();
+//_toInsert = new int[ Size ];
+//for ( int i = 0; i < Size; i++ ) {
+//	_toInsert[ i ] = rand.Next( 0, 100 );
+//}
+
+//for ( int i = 0; i < Size; i++ ) {
+//	_binaryTree.Add( _toInsert[ i ] );
+//}
+
+//Console.WriteLine( $"uns {string.Join( ", ", _toInsert.Select( p => p.ToString() ) )}" );
+//Console.WriteLine( $"tre {string.Join( ", ", _binaryTree.Select( p => p.ToString() ) )}" );
+//Console.WriteLine( $"ord {string.Join( ", ", _toInsert.OrderBy( p => p ).Select( p => p.ToString() ) )}" );
+//Console.WriteLine( _binaryTree.SequenceEqual( _toInsert.OrderBy( p => p ) ) );
 
 
-BenchmarkRunner.Run<Benchmarking2>();
-Console.ReadLine();
+//BenchmarkRunner.Run<Benchmarking2>();
+//Console.ReadLine();
 
 //new Engine.Rendering.RenderModule();
 //new TestGameLogicModule();

@@ -19,7 +19,7 @@ public class VertexArrayLayoutService : Identifiable, IContextService, IInitiali
 
 	public void Initialize() {
 		var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany( p => p.GetTypes() ).Where( p => p.IsValueType );
-		var layoutTypes = types.Where( p => p.GetCustomAttribute<VAL.SetupAttribute>() is not null );
+		var layoutTypes = types.Where( p => p.GetCustomAttribute<VAO.SetupAttribute>() is not null );
 
 		foreach ( var layoutType in layoutTypes ) {
 			var structLayout = layoutType.StructLayoutAttribute;
@@ -33,7 +33,7 @@ public class VertexArrayLayoutService : Identifiable, IContextService, IInitiali
 				continue;
 			}
 
-			var valSetup = layoutType.GetCustomAttribute<VAL.SetupAttribute>() ?? throw new Exception( $"Should not happen. A type is missing the {nameof( VAL.SetupAttribute )} attribute." );
+			var valSetup = layoutType.GetCustomAttribute<VAO.SetupAttribute>() ?? throw new Exception( $"Should not happen. A type is missing the {nameof( VAO.SetupAttribute )} attribute." );
 
 			int strideBytes = valSetup.StrideBytesOverride >= 0
 				? valSetup.StrideBytesOverride
@@ -44,7 +44,7 @@ public class VertexArrayLayoutService : Identifiable, IContextService, IInitiali
 			List<VertexArrayLayoutFieldData> fields = new();
 
 			foreach ( var field in layoutType.GetFields() ) {
-				var data = field.GetCustomAttribute<VAL.DataAttribute>();
+				var data = field.GetCustomAttribute<VAO.DataAttribute>();
 				if ( data is null )
 					continue;
 
@@ -71,7 +71,7 @@ public class VertexArrayLayoutService : Identifiable, IContextService, IInitiali
 				while ( vertices > 0 ) {
 					uint addedVertices = Math.Min( vertices, 4 );
 
-					fields.Add( new VertexArrayLayoutFieldData( data.VertexAttributeType, addedVertices, offsetBytes, data.AttributeType, data.Normalized ) );
+					fields.Add( new VertexArrayLayoutFieldData( data.VertexAttributeType, addedVertices, (uint) offsetBytes, data.AttributeType, data.Normalized ) );
 					offsetBytes += (int) ( addedVertices * sizePerVertex );
 					vertices -= addedVertices;
 				}
@@ -80,7 +80,7 @@ public class VertexArrayLayoutService : Identifiable, IContextService, IInitiali
 			int offset = Marshal.SizeOf( layoutType );
 			for ( int tex = 0; tex < valSetup.TextureCount; tex += 4 ) {
 				int addedTextures = Math.Min( valSetup.TextureCount - tex, 4 );
-				fields.Add( new VertexArrayLayoutFieldData( OpenGL.VertexAttribType.UnsignedShort, (uint) addedTextures, offset, VertexArrayAttributeType.INTEGER, false ) );
+				fields.Add( new VertexArrayLayoutFieldData( OpenGL.VertexAttribType.UnsignedShort, (uint) addedTextures, (uint) offset, VertexArrayAttributeType.INTEGER, false ) );
 				offset += addedTextures * sizeof( ushort );
 			}
 			_layouts.Add( layoutType, new VertexArrayLayout( layoutType, vbo, valSetup.OffsetBytes, strideBytes, valSetup.InstanceDivisor, fields ) );

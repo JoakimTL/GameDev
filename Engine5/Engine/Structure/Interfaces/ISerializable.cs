@@ -1,7 +1,10 @@
-﻿namespace Engine.Structure.Interfaces;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
-public interface ISerializable<TSelf> : ITypeIdentity
-{
-    static abstract TSelf Deserialize(ReadOnlySpan<byte> data);
-    ReadOnlySpan<byte> Serialize();
+namespace Engine.Structure.Interfaces;
+
+public interface ISerializable {
+	static abstract Guid TypeIdentity { get; }
+	bool DeserializeData( byte[] data );
+	byte[] SerializeData();
 }

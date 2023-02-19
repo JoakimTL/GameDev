@@ -36,8 +36,8 @@ public class EntitySystemContainerService : DependencyInjectorBase, IGameLogicSe
 
         _entitiesByComponents = new(componentTypeCollectionService);
 
-        _entityContainerService.ComponentAdded += OnComponentAdded;
-        _entityContainerService.ComponentRemoved += OnComponentRemoved;
+        _entityContainerService._container.ComponentAdded += OnComponentAdded;
+        _entityContainerService._container.ComponentRemoved += OnComponentRemoved;
         _entitiesByComponents.ComponentTypeCollectionAdded += OnComponentTypeCollectionAdded;
         _entitiesByComponents.ComponentTypeCollectionRemoved += OnComponentTypeCollectionRemoved;
 

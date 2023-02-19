@@ -17,8 +17,7 @@ internal class TestGameLogicModule : GameLogicModuleBase, ITimedSystem {
 	public int SystemTickInterval => 10;
 
 	protected override void OnInitialize() {
-		_e = new();
-		Get<EntityContainerService>().Add( _e );
+		_e = Get<EntityContainerService>()._container.Create();
 		_e.AddOrGet<LinearMovement3Component>().Impulse( new( 1, 0, 0 ) );
 		_e.AddOrGet<Mass3Component>();
 		_e.AddOrGet<RotationalMovement3Component>().Twirl( new( 5, 0, 0 ) );

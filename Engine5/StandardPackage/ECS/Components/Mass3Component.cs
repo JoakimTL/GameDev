@@ -1,8 +1,9 @@
 ﻿using Engine.GameLogic.ECS;
+using Engine.Structure.Interfaces;
 
 namespace StandardPackage.ECS.Components;
 
-public sealed class Mass3Component : ComponentBase {
+public sealed class Mass3Component : ComponentBase/*, ISerializable*/ {
 	public float Mass { get; set; }
 	//public IInertiaTensorProvider InertiaTensorProvider { get; set; }
 
@@ -12,3 +13,5 @@ public sealed class Mass3Component : ComponentBase {
 		Mass = 1;
 	}
 }
+
+//Get mass and inertia tensor from PhysicsShape3Component using a processor

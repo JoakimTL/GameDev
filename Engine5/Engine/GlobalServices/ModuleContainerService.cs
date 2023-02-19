@@ -123,7 +123,7 @@ public class ModuleContainerService : IGlobalService
             {
                 this._timedSystem = timedSystem;
                 _interval = _timedSystem.SystemTickInterval;
-                _timer = new TickingTimer(moduleBase.Name, _interval, !essential);
+                _timer = new TickingTimer(moduleBase.IdentifiableName, _interval, !essential);
                 _timer.Elapsed += Tick;
                 _timer.Start();
             }
@@ -155,7 +155,7 @@ public class ModuleContainerService : IGlobalService
             public ModuleSystemTickerContinous(ModuleBase moduleBase, bool essential) : base(moduleBase)
             {
                 _active = true;
-                _thread = Global.Get<ThreadService>().Start(ModuleThreadRun, moduleBase.Name, !essential);
+                _thread = Global.Get<ThreadService>().Start(ModuleThreadRun, moduleBase.IdentifiableName, !essential);
             }
 
             private void ModuleThreadRun()

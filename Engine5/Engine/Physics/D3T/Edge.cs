@@ -27,6 +27,6 @@ public class Edge
     }
     public override string ToString()
     {
-        return $"[{A.ID},{B.ID}] {A.Value}, {B.Value}";
+        return $"[{A.Uid},{B.Uid}] {A.Value}, {B.Value}";
     }
 }

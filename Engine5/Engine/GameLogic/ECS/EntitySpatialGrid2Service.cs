@@ -24,8 +24,8 @@ public class EntitySpatialGrid2Service : IGameLogicService
         _entityContainerGrid = new();
         _areaOccupiedByEntity = new();
 
-        this._entityContainerService.ComponentAdded += OnComponentAdded;
-        this._entityContainerService.ComponentRemoved += OnComponentRemoved;
+        this._entityContainerService._container.ComponentAdded += OnComponentAdded;
+        this._entityContainerService._container.ComponentRemoved += OnComponentRemoved;
     }
 
     private void OnComponentAdded(ComponentBase component)
