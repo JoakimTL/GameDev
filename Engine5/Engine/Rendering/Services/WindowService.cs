@@ -1,5 +1,4 @@
-﻿using Engine.Rendering.Objects;
-using Engine.Rendering.OGL;
+﻿using Engine.Rendering.OGL;
 using Engine.Structure.Interfaces;
 using GlfwBinding.Enums;
 using GlfwBinding.Structs;

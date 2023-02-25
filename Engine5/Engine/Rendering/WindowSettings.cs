@@ -1,5 +1,4 @@
 ﻿using Engine.Datatypes.Vectors;
-using Engine.Rendering.Objects;
 
 namespace Engine.Rendering;
 

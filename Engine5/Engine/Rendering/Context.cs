@@ -1,6 +1,5 @@
-﻿using Engine.Rendering.Objects;
+﻿using Engine.Rendering.Contexts.Services;
 using Engine.Rendering.OGL;
-using Engine.Rendering.Services;
 using Engine.Structure.Interfaces;
 using Engine.Structure.ServiceProvider;
 

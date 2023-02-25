@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Engine.GlobalServices;
+using Engine.Structure;
+using Engine.Structure.Interfaces;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine;
 public static unsafe class DataExtensions {
@@ -117,5 +115,48 @@ public static unsafe class DataExtensions {
 		}
 		fixed ( M* dstPtr = destination )
 			*(T*) ( (byte*) dstPtr + offsetBytes ) = source;
+	}
+
+	/// <summary>
+	/// Serialized the serializable object. If data is not null, then the return and "data" will be the same region memory.
+	/// </summary>
+	/// <param name="serializable">Object to serialize</param>
+	/// <param name="data"></param>
+	/// <returns></returns>
+	public static byte[] Serialize( this ISerializable serializable ) {
+		byte[] serializedData = serializable.SerializeData();
+		byte[] returnData = new byte[ serializedData.Length + sizeof( Guid ) ];
+		fixed ( byte* dstPtr = returnData )
+		fixed ( byte* srcPtr = serializedData ) {
+			*(Guid*) dstPtr = Global.Get<SerializableService>().GetFromType( serializable.GetType() );
+			Buffer.MemoryCopy( srcPtr, dstPtr + sizeof( Guid ), returnData.Length, serializedData.Length );
+		}
+		return returnData;
+	}
+
+	public static Type? GetDeserializedType( this byte[] data ) {
+		if ( data.Length < sizeof( Guid ) )
+			return Log.WarningThenReturnDefault<Type?>( $"Length of data too short for {nameof( Guid )}" );
+		Type? type = Global.Get<SerializableService>().GetFromIdentity( data.ToUnmanagedOrDefault<Guid>() );
+		if ( type is null )
+			return Log.WarningThenReturnDefault<Type?>( "Couldn't find type for data" );
+		return type;
+	}
+
+	public static object? Deserialize( this byte[] serializedData, IDependencyInjector? injector = null ) {
+		if ( serializedData.Length <= sizeof( Guid ) )
+			return null;
+		object? obj;
+		Type? type = GetDeserializedType( serializedData );
+		if ( type is null )
+			return null;
+		obj = type.GetInjectedInstance( injector );
+		if ( obj is null )
+			return Log.WarningThenReturnDefault<object?>( "Construction of type failed" );
+		if ( obj is not ISerializable serializable )
+			return Log.WarningThenReturnDefault<object?>( "Constructed type was not serializable" );
+		if ( !serializable.DeserializeData( serializedData[ sizeof( Guid ).. ] ) )
+			return Log.WarningThenReturnDefault<object?>( "Deserializing the serializable's data failed" );
+		return serializable;
 	}
 }

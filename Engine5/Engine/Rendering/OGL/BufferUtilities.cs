@@ -1,4 +1,4 @@
-﻿using Engine.Rendering.Objects;
+﻿using Engine.Rendering.Contexts.Objects;
 using OpenGL;
 
 namespace Engine.Rendering.OGL;

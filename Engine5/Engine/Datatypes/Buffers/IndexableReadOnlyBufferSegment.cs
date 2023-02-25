@@ -1,5 +1,4 @@
 ﻿using Engine.Structure.Interfaces.Buffers;
-using System.Numerics;
 
 namespace Engine.Datatypes.Buffers;
 

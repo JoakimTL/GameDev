@@ -1,8 +1,7 @@
 ﻿using Engine.Structure.Uid;
 
 namespace Engine;
-public class Identifiable
-{
+public class Identifiable {
 
     /// <summary>
     /// Unique Id

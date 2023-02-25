@@ -1,10 +1,10 @@
 ﻿using Engine.GameLogic;
-using Engine.GameLogic.ECS;
-using Engine.GameLogic.ECS.Components;
+using Engine.GameLogic.ECPS;
+using Engine.GameLogic.ECPS.Components;
 using Engine.Structure.Attributes;
 using Engine.Structure.Interfaces;
-using StandardPackage.ECS.Components;
-using StandardPackage.ECS.Systems;
+using StandardPackage.ECPS.Components;
+using StandardPackage.ECPS.Systems;
 using System.Numerics;
 
 namespace TestPlatform;

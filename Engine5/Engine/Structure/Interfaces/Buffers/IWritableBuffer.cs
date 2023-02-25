@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace Engine.Structure.Interfaces.Buffers;
+﻿namespace Engine.Structure.Interfaces.Buffers;
 
 public interface IWritableBuffer : IBuffer {
 	/// <returns>True if write was successful</returns>

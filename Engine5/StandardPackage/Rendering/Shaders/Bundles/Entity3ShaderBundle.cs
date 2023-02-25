@@ -1,5 +1,5 @@
-﻿using Engine.Rendering.Objects;
-using Engine.Rendering.Services;
+﻿using Engine.Rendering.Contexts.Objects;
+using Engine.Rendering.Contexts.Services;
 using StandardPackage.Rendering.Shaders.Pipelines;
 
 namespace StandardPackage.Rendering.Shaders.Bundles;

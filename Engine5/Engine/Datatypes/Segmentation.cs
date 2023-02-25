@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Engine.Data;
+namespace Engine.Datatypes;
 
 public static class Segmentation {
 
@@ -9,13 +9,11 @@ public static class Segmentation {
 	public static byte[] SegmentWithPadding( uint startPaddingBytes, uint endPaddingBytes, IReadOnlyList<byte[]> data ) {
 		if ( data is null )
 			throw new ArgumentNullException( nameof( data ) );
-		if ( data.Count == 0 ) {
-			if ( startPaddingBytes + endPaddingBytes > 0 ) {
+		if ( data.Count == 0 )
+			if ( startPaddingBytes + endPaddingBytes > 0 )
 				return new byte[ startPaddingBytes + endPaddingBytes ];
-			} else {
+			else
 				return Array.Empty<byte>();
-			}
-		}
 		//Header byte has two values stored inside, a 2-bit value indicating the size of the segment count (Might be greater than 256 segments), and a 2-bit value indicating the size of segment headers.
 
 		//The segment count tells the parses how many segments to read the headers of before reading the segment data.
@@ -37,7 +35,7 @@ public static class Segmentation {
 			fixed ( byte* dstPtr = output ) {
 				uint offset = startPaddingBytes;
 				//Set preliminary data
-				dstPtr[ offset++ ] = (byte) ( ( ( headerCountSizeBytes - 1 ) & 0b11 ) | ( ( ( headerSizeBytes - 1 ) & 0b11 ) << 2 ) );
+				dstPtr[ offset++ ] = (byte) ( headerCountSizeBytes - 1 & 0b11 | ( headerSizeBytes - 1 & 0b11 ) << 2 );
 				uint headerCount = (uint) data.Count;
 				//Copy header count
 				for ( int i = 0; i < headerCountSizeBytes; i++ )
@@ -45,7 +43,7 @@ public static class Segmentation {
 				//Copy header lengths
 				for ( int i = 0; i < headerCount; i++ ) {
 					uint headerLen = (uint) data[ i ].Length;
-					byte* headerLenPtr = ( (byte*) &headerLen );
+					byte* headerLenPtr = (byte*) &headerLen;
 					for ( int j = 0; j < headerSizeBytes; j++ )
 						dstPtr[ offset++ ] = headerLenPtr[ j ];
 				}

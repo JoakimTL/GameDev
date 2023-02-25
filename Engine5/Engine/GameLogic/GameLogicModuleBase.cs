@@ -1,4 +1,4 @@
-﻿using Engine.GameLogic.ECS;
+﻿using Engine.GameLogic.ECPS;
 using Engine.Structure;
 using Engine.Structure.Interfaces;
 using Engine.Structure.ServiceProvider;
@@ -24,8 +24,9 @@ public abstract class GameLogicModuleBase : ModuleBase<IGameLogicService>, IInit
     public void Initialize()
     {
         Get<EntityContainerService>();
-        Get<EntitySystemContainerService>();
-        OnInitialize();
+		Get<EntitySystemContainerService>();
+		Get<EntityProcessorContainerService>();
+		OnInitialize();
     }
 
     public T? GetService<T>() where T : IGameLogicService => Get<T>();

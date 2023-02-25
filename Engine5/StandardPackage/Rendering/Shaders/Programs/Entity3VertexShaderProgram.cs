@@ -1,5 +1,5 @@
-﻿using Engine.Rendering.Objects;
-using Engine.Rendering.Services;
+﻿using Engine.Rendering.Contexts.Objects;
+using Engine.Rendering.Contexts.Services;
 
 namespace StandardPackage.Rendering.Shaders.Programs;
 public sealed class Entity3VertexShaderProgram : ShaderProgramBase
