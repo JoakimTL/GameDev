@@ -3,5 +3,5 @@
 namespace Engine.Rendering.Contexts.Objects;
 
 public interface ISceneRender {
-	public void Render( IDataBlockCollection? dataBlocks, Action<bool>? blendActivationFunction, uint shaderUse = 0, PrimitiveType prim = PrimitiveType.Triangles );
+	public void Render( string shaderIndex, IDataBlockCollection? dataBlocks, Action<bool>? blendActivationFunction, PrimitiveType prim = PrimitiveType.Triangles );
 }

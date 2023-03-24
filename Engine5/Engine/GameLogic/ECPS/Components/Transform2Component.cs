@@ -5,14 +5,15 @@ using System.Numerics;
 
 namespace Engine.GameLogic.ECPS.Components;
 
-public sealed class Transform2Component : ComponentBase, ISerializable {
+public sealed class Transform2Component : ComponentBase, ICustomizedSerializable {
 	public readonly Transform2 Transform;
 
 	protected override string UniqueNameTag => $"{Transform}";
 
-	public static Guid TypeIdentity { get; } = new( "27fef5c2-128a-4422-8d48-38d594112cc9" );
+	public static Guid SerializationIdentity { get; } = new( "27fef5c2-128a-4422-8d48-38d594112cc9" );
+    public bool ShouldSerialize => true;
 
-	public Transform2Component() {
+    public Transform2Component() {
 		Transform = new();
 		Transform.MatrixChanged += OnMatrixChanged;
 	}

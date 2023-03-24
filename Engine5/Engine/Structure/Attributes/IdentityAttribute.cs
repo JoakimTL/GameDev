@@ -1,6 +1,6 @@
 ﻿namespace Engine.Structure.Attributes;
 
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
 public sealed class IdentityAttribute : Attribute
 {
     public string Identity { get; }

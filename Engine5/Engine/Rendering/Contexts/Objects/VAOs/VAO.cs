@@ -1,7 +1,7 @@
 ﻿using OpenGL;
 using System.Runtime.InteropServices;
 
-namespace Engine.Rendering.Objects.VAOs;
+namespace Engine.Rendering.Contexts.Objects.VAOs;
 
 public static class VAO {
 	[AttributeUsage( AttributeTargets.Struct, AllowMultiple = false )]

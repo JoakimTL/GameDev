@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace StandardPackage.ECPS.Components;
 
-public sealed class RotationalMovement3Component : ComponentBase, ISerializable {
+public sealed class RotationalMovement3Component : ComponentBase, ICustomizedSerializable {
 	public Vector3 AngularVelocity { get; set; }
 	public Vector3 Torque { get; private set; }
 	public Vector3 AngularMomentum { get; internal set; }
@@ -14,9 +14,10 @@ public sealed class RotationalMovement3Component : ComponentBase, ISerializable 
 
 	protected override string UniqueNameTag => $"{AngularVelocity}|{Torque}";
 
-	public static Guid TypeIdentity { get; } = new( "5e882cf7-e3b8-4bf4-929b-c7603af3c6dc" );
+	public static Guid SerializationIdentity { get; } = new( "5e882cf7-e3b8-4bf4-929b-c7603af3c6dc" );
+    public bool ShouldSerialize => true;
 
-	public RotationalMovement3Component() {
+    public RotationalMovement3Component() {
 		AngularVelocity = Vector3.Zero;
 		Torque = Vector3.Zero;
 		AngularMomentum = Vector3.Zero;

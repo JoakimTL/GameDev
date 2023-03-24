@@ -19,6 +19,6 @@ public abstract class ProcessorBase {
 	}
 }
 
-public abstract class ProcessorBase<T> : ProcessorBase where T : ComponentBase, new() {
+public abstract class ProcessorBase<T> : ProcessorBase where T : ComponentBase {
 	protected ProcessorBase( params Type[] requiredComponentTypes ) : base( typeof( T ), requiredComponentTypes ) { }
 }

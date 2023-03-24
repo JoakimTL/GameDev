@@ -18,8 +18,8 @@ public class SegmentedBuffer : BufferBase {
 	/// <inheritdoc cref="BufferBase(ulong, bool)"/>
 	/// <param name="autoResize">If true the buffer will automatically increase in size. The initial size of the buffer will be padded on when automatically resizing. /></param>
 	public SegmentedBuffer( string name, ulong initialSizeBytes, bool safeguardMultiThreading, bool autoResize ) : base( name, initialSizeBytes, safeguardMultiThreading ) {
-		this._initialSizeBytes = initialSizeBytes;
-		this._autoResize = autoResize;
+		_initialSizeBytes = initialSizeBytes;
+		_autoResize = autoResize;
 		_segments = new();
 		_fragmented = false;
 		_allocatedBytes = 0;
@@ -29,7 +29,7 @@ public class SegmentedBuffer : BufferBase {
 		Lock( timeout );
 		ulong newSize = _allocatedBytes + sizeBytes;
 		while ( newSize > SizeBytes ) {
-			if ( this._fragmented ) {
+			if ( _fragmented ) {
 				Defragment( timeout );
 				newSize = _allocatedBytes + sizeBytes;
 				continue;
@@ -48,16 +48,16 @@ public class SegmentedBuffer : BufferBase {
 	}
 
 	private void Defragment( int timeout ) {
-		this._allocatedBytes = 0;
-		for ( int i = 0; i < this._segments.Count; i++ ) {
-			var segment = this._segments[ i ];
-			if ( segment.OffsetBytes != this._allocatedBytes ) {
-				Move( segment.OffsetBytes, this._allocatedBytes, segment.SizeBytes, timeout, false /*This only occurs in a locked environment!*/ );
-				segment.SetOffset( this._allocatedBytes );
+		_allocatedBytes = 0;
+		for ( int i = 0; i < _segments.Count; i++ ) {
+			var segment = _segments[ i ];
+			if ( segment.OffsetBytes != _allocatedBytes ) {
+				Move( segment.OffsetBytes, _allocatedBytes, segment.SizeBytes, timeout, false /*This only occurs in a locked environment!*/ );
+				segment.SetOffset( _allocatedBytes );
 			}
-			this._allocatedBytes += segment.SizeBytes;
+			_allocatedBytes += segment.SizeBytes;
 		}
-		this._fragmented = false;
+		_fragmented = false;
 		this.LogLine( $"Defragmented!", Log.Level.NORMAL );
 	}
 
@@ -81,7 +81,7 @@ public class BufferWriteTracker : Identifiable {
 	public BufferWriteTracker( IListenableWriteableBuffer buffer ) {
 		_incoming = new();
 		_changes = new();
-		this._buffer = buffer;
+		_buffer = buffer;
 		_buffer.Written += OnWritten;
 	}
 
@@ -122,8 +122,8 @@ public readonly struct ChangedSection : IComparable<ChangedSection> {
 	public readonly ulong Size;
 
 	public ChangedSection( ulong offset, ulong size ) {
-		this.Offset = offset;
-		this.Size = size;
+		Offset = offset;
+		Size = size;
 	}
 
 	public int CompareTo( ChangedSection other ) => Offset.CompareTo( other.Offset );

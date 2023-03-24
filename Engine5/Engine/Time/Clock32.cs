@@ -13,11 +13,11 @@ public class Clock32 : Identifiable
 
     public Clock32(float speed = 1)
     {
-        this._speed = speed;
-        this._lastPause = 0;
-        this._talliedTime = 0;
+        _speed = speed;
+        _lastPause = 0;
+        _talliedTime = 0;
 
-        this.Paused = false;
+        Paused = false;
     }
 
     /// <summary>
@@ -41,20 +41,20 @@ public class Clock32 : Identifiable
     /// <summary>
     /// The speed of the clock. This is how many seconds the clock tallies for each real second.
     /// </summary>
-    public float Speed { get => this._speed; set => SetSpeed(value); }
+    public float Speed { get => _speed; set => SetSpeed(value); }
     /// <summary>
     /// Whether the clock is tallying or not. Useful for stopping a system reliant on timekeeping (say a game-world).
     /// </summary>
-    public bool Paused { get => this._paused; set => SetState(value); }
+    public bool Paused { get => _paused; set => SetState(value); }
 
     private float GetTotalTime()
     {
-        if (!this._paused)
-            return this._talliedTime + GetSessionTime();
-        return this._talliedTime;
+        if (!_paused)
+            return _talliedTime + GetSessionTime();
+        return _talliedTime;
     }
 
-    private float GetSessionTime() => (StartupTime - this._lastPause) * this._speed;
+    private float GetSessionTime() => (StartupTime - _lastPause) * _speed;
 
     /// <summary>
     /// Changes the speed of the clock.
@@ -62,10 +62,10 @@ public class Clock32 : Identifiable
     /// <param name="value">How many seconds the clock tallies per real-time seconds.</param>
     private void SetSpeed(float value)
     {
-        this._talliedTime += GetSessionTime();
-        this._speed = value;
-        if (!this._paused)
-            this._lastPause = StartupTime;
+        _talliedTime += GetSessionTime();
+        _speed = value;
+        if (!_paused)
+            _lastPause = StartupTime;
     }
 
     /// <summary>
@@ -77,14 +77,14 @@ public class Clock32 : Identifiable
         if (value)
         {
             //Paused!
-            this._talliedTime += GetSessionTime();
+            _talliedTime += GetSessionTime();
         }
         else
         {
             //Unpaused!
-            this._lastPause = StartupTime;
+            _lastPause = StartupTime;
         }
-        this._paused = value;
+        _paused = value;
     }
 
 }

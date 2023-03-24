@@ -1,12 +1,14 @@
 ﻿using System.Numerics;
 
 namespace Engine.Physics;
-public interface IShape<V>
+public interface IShape
 {
-
-    V GetFurthest(V direction);
-
-    float Mass { get; }
+    event Action<IShape>? PhysicalPropertiesChanged;
+    double Mass { get; }
     Matrix4x4 InertiaTensor { get; }
+}
 
+public interface IShape<V> : IShape
+{
+    V GetFurthest(V direction);
 }

@@ -19,6 +19,13 @@ public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable 
 		VertexArrayObject = vao;
 	}
 
+#if DEBUG
+	~SceneObjectBase()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
+#endif
+
 	private void SetSortingIndex() {
 		SortingIndex = 0;
 		if ( ShaderBundle is null || VertexArrayObject is null )
@@ -46,13 +53,11 @@ public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable 
 	protected void SetSceneData( ISceneInstanceData? newSceneData ) {
 		if ( SceneData == newSceneData )
 			return;
-		if ( SceneData is not null ) {
+		if ( SceneData is not null )
 			SceneData.Changed -= DataChanged;
-		}
 		SceneData = newSceneData;
-		if ( SceneData is not null ) {
+		if ( SceneData is not null )
 			SceneData.Changed += DataChanged;
-		}
 		CheckValidity();
 		RenderPropertiesChanged?.Invoke( this );
 	}
@@ -85,5 +90,6 @@ public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable 
 	public void Dispose() {
 		SceneData?.Dispose();
 		SceneObjectDisposed?.Invoke( this );
+		GC.SuppressFinalize( this );
 	}
 }

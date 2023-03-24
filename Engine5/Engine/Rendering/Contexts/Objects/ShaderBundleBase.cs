@@ -23,5 +23,7 @@ public abstract class ShaderBundleBase : Identifiable {
 
 	public ShaderPipelineBase? Get( string index ) => _pipelines.TryGetValue( index, out ShaderPipelineBase? r ) ? r : null;
 
+	public IEnumerable<string> AllIndices => _pipelines.Keys;
+
 }
 

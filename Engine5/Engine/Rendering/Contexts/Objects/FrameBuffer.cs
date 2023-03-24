@@ -28,6 +28,13 @@ public abstract class FrameBuffer : Identifiable, IDisposable
         ProportionsChanged();
     }
 
+#if DEBUG
+	~FrameBuffer()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
+#endif
+
     public Texture CreateTexture(TextureTarget target, InternalFormat internalFormat, params (TextureParameterName, int)[] parameters)
     {
         Texture t = new($"FBO#{IdentifiableName}:{internalFormat}", target, Size, internalFormat, 0, parameters);
@@ -72,7 +79,7 @@ public abstract class FrameBuffer : Identifiable, IDisposable
         ProportionsChanged();
     }
 
-    public void BlitToFbo(FrameBuffer destination, ClearBufferMask mask, BlitFramebufferFilter filter)
+    public void BlitToFrameBuffer(FrameBuffer destination, ClearBufferMask mask, BlitFramebufferFilter filter)
     {
         Gl.BindFramebuffer(FramebufferTarget.ReadFramebuffer, _framebufferId);
         Gl.BindFramebuffer(FramebufferTarget.DrawFramebuffer, destination._framebufferId);
@@ -224,6 +231,7 @@ public abstract class FrameBuffer : Identifiable, IDisposable
         Wipe();
         Gl.DeleteFramebuffers(_framebufferId);
         _framebufferId = 0;
+        GC.SuppressFinalize(this);
     }
 
     public abstract class Proportions : Identifiable, IDisposable

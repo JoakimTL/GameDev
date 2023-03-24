@@ -42,7 +42,7 @@ public class ConvexHull3
         }
         _centerOfMass.Value /= totalVolume;
         Console.WriteLine(totalVolume);
-        this.Mass = mass;
+        Mass = mass;
     }
 
     private void GenerateTetrahedrons()

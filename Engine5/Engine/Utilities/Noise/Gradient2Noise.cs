@@ -10,13 +10,13 @@ public class Gradient2Noise : INoiseProvider<Vector2, float>
 
     public Gradient2Noise(Vector2i seed, Vector2 spread)
     {
-        this._seed = seed;
+        _seed = seed;
         _spread = spread;
     }
 
     public float Sample(Vector2 input)
     {
-        Vector2 pointInGenSpace = input / this._spread;
+        Vector2 pointInGenSpace = input / _spread;
         Vector2i low = Vector2i.Floor(pointInGenSpace);
         Vector2 frac = pointInGenSpace - low.AsFloat;
 

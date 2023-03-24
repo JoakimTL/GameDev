@@ -10,12 +10,12 @@ public sealed class GlDebugMessageService : IRenderService, IInitializable
 
     public GlDebugMessageService()
     {
-        this._debugCallback = GLDebugHandler;
+        _debugCallback = GLDebugHandler;
     }
 
     public void Initialize()
     {
-        Gl.DebugMessageCallback(this._debugCallback, nint.Zero);
+        Gl.DebugMessageCallback(_debugCallback, nint.Zero);
     }
 
     public void BindErrorCallback() => Glfw.SetErrorCallback(ErrorCallback);

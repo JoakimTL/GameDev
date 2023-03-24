@@ -23,16 +23,16 @@ public class VertexBufferObject : Identifiable, IDisposable
         Usage = usage;
         BufferId = Gl.CreateBuffer();
         SetSize(sizeBytes);
-    }
+	}
 
 #if DEBUG
-    ~VertexBufferObject()
-    {
-        System.Diagnostics.Debug.Fail("VertexBufferObject was not disposed!");
-    }
+	~VertexBufferObject()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
 #endif
 
-    public bool Write(nint dataPtr, uint dstOffsetBytes, uint srcOffsetBytes, uint lengthBytes)
+	public bool Write(nint dataPtr, uint dstOffsetBytes, uint srcOffsetBytes, uint lengthBytes)
     {
         if (_disposed)
             return false;

@@ -4,19 +4,19 @@ namespace Engine.Rendering.Contexts.Objects.Scenes;
 
 public class MultiSceneRenderer : Identifiable, ISceneRender {
 
-	private readonly List<SceneRenderer> _sceneRenderers;
+	private readonly List<ISceneRender> _sceneRenderers;
 
 	public MultiSceneRenderer() {
-		this._sceneRenderers = new List<SceneRenderer>();
+		_sceneRenderers = new();
 	}
 
-	public void Add( SceneRenderer sceneRenderer ) => this._sceneRenderers.Add( sceneRenderer );
+	public void Add( ISceneRender sceneRenderer ) => _sceneRenderers.Add( sceneRenderer );
 
-	public void Remove( SceneRenderer sceneRenderer ) => this._sceneRenderers.Remove( sceneRenderer );
+	public void Remove( ISceneRender sceneRenderer ) => _sceneRenderers.Remove( sceneRenderer );
 
-	public void Render( IDataBlockCollection? dataBlock = null, Action<bool>? blendActivationFunction = null, uint shaderUse = 0, PrimitiveType prim = PrimitiveType.Triangles ) {
-		for ( int i = 0; i < this._sceneRenderers.Count; i++ )
-			this._sceneRenderers[ i ].Render( dataBlock, blendActivationFunction, shaderUse, prim );
+	public void Render( string shaderIndex, IDataBlockCollection? dataBlock = null, Action<bool>? blendActivationFunction = null, PrimitiveType prim = PrimitiveType.Triangles ) {
+		for ( int i = 0; i < _sceneRenderers.Count; i++ )
+			_sceneRenderers[ i ].Render( shaderIndex, dataBlock, blendActivationFunction, prim );
 	}
 
 }

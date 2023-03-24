@@ -3,7 +3,7 @@ using Engine.Structure;
 using Engine.Structure.Interfaces;
 
 namespace Engine.GameLogic.ECPS;
-public sealed class Entity : DependencyInjectorBase, ISerializable {
+public sealed class Entity : DependencyInjectorBase, ICustomizedSerializable {
 
 	public Guid EntityId { get; private set; }
 	public Guid? ParentId { get; private set; }
@@ -22,9 +22,10 @@ public sealed class Entity : DependencyInjectorBase, ISerializable {
 
 	internal IEnumerable<ComponentBase> Components => _components.Values;
 
-	public static Guid TypeIdentity { get; } = new Guid( "8aa95334-e883-4de4-ac96-e0ca5deeb1dc" );
+	public static Guid SerializationIdentity { get; } = new Guid( "8aa95334-e883-4de4-ac96-e0ca5deeb1dc" );
+    public bool ShouldSerialize => true;
 
-	internal void SetId( Guid guid ) => EntityId = guid;
+    internal void SetId( Guid guid ) => EntityId = guid;
 
 	public void SetParentId( Guid? parentId ) {
 		if ( ParentId == parentId )
@@ -103,16 +104,16 @@ public sealed class Entity : DependencyInjectorBase, ISerializable {
 
 	private unsafe bool DeserializeComponent( byte[] componentData, out Type? componentType ) {
 		componentType = null;
-		if ( componentData.Length <= sizeof( Guid ) )
-			return Log.WarningThenReturn( $"Component data length not enough for a {nameof( Guid )}", false );
-		object? obj;
+        if (componentData.Length < sizeof(Guid))
+            return Log.WarningThenReturn($"Component data length not enough for a {nameof(Guid)}", false);
+        object? obj;
 		componentType = componentData.GetDeserializedType();
 		if ( componentType is null )
 			return Log.WarningThenReturn( $"Unable to determine component type from {nameof( Guid )}", false );
 		obj = AddOrGet( componentType );
 		if ( obj is null )
 			return Log.WarningThenReturn( "Construction of component failed", false );
-		if ( obj is not ISerializable serializable )
+		if ( obj is not ICustomizedSerializable serializable )
 			return Log.WarningThenReturn( "Component is not serializable", false );
 		if ( !serializable.DeserializeData( componentData[ sizeof( Guid ).. ] ) )
 			return Log.WarningThenReturn( "Deserializing the component failed", false );
@@ -123,7 +124,7 @@ public sealed class Entity : DependencyInjectorBase, ISerializable {
 		unsafe {
 			List<byte[]> serializedComponents = new();
 			foreach ( var component in Components )
-				if ( component is ISerializable s )
+				if ( component is ICustomizedSerializable s && s.ShouldSerialize )
 					serializedComponents.Add( s.Serialize() );
 			var data = Segmentation.SegmentWithPadding( (uint) sizeof( Guid ) * 2, 0, serializedComponents );
 			EntityId.CopyInto( data );

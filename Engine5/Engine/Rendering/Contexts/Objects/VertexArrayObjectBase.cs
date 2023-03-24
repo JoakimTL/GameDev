@@ -15,12 +15,19 @@ public abstract class VertexArrayObjectBase : Identifiable, IDisposable
     {
         _numBufferBindings = 0;
         VAOID = Gl.CreateVertexArray();
-    }
+	}
 
-    /// <summary>
-    /// Guaranteed to be called in a context call. Direct method calls should be used inside this method, not indirect.
-    /// </summary>
-    protected abstract void Setup();
+#if DEBUG
+	~VertexArrayObjectBase()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
+#endif
+
+	/// <summary>
+	/// Guaranteed to be called in a context call. Direct method calls should be used inside this method, not indirect.
+	/// </summary>
+	protected abstract void Setup();
 
     #region Setup
     protected void SetBindingDivisor(uint binding, uint divisor)
@@ -125,6 +132,7 @@ public abstract class VertexArrayObjectBase : Identifiable, IDisposable
     public void Dispose()
     {
         Gl.DeleteVertexArrays(VAOID);
+        GC.SuppressFinalize(this);
     }
 
     //https://community.khronos.org/t/gldrawelementsindirect-with-element-array-buffer-offset/69421

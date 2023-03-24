@@ -27,8 +27,6 @@ public class RenderBufferObject : SegmentedBuffer
         _hasResized = true;
     }
 
-    public ISegmentedBufferSegment? Allocate(ulong sizeBytes) => AllocateSegment(sizeBytes);
-
     internal unsafe void SyncChanges(VertexBufferObject vbo)
     {
         if (_hasResized)

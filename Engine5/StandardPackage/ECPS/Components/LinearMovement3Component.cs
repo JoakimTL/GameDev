@@ -5,7 +5,7 @@ using Engine.GameLogic.ECPS;
 
 namespace StandardPackage.ECPS.Components;
 
-public sealed class LinearMovement3Component : ComponentBase, ISerializable {
+public sealed class LinearMovement3Component : ComponentBase, ICustomizedSerializable {
 	public Vector3 Velocity { get; set; }
 	public Vector3 Force { get; private set; }
 	public Vector3 Momentum { get; internal set; }
@@ -14,7 +14,8 @@ public sealed class LinearMovement3Component : ComponentBase, ISerializable {
 
 	protected override string UniqueNameTag => $"{Velocity}|{Force}";
 
-	public static Guid TypeIdentity { get; } = new( "c7a1da80-eec7-4a4e-8dec-cbd7630a174e" );
+	public static Guid SerializationIdentity { get; } = new( "c7a1da80-eec7-4a4e-8dec-cbd7630a174e" );
+	public bool ShouldSerialize => true;
 
 	public LinearMovement3Component() {
 		Velocity = Vector3.Zero;

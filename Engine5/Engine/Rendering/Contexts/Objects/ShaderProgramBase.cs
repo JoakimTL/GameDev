@@ -26,13 +26,13 @@ public abstract class ShaderProgramBase : Identifiable, IDisposable
     }
 
 #if DEBUG
-    ~ShaderProgramBase()
-    {
-        System.Diagnostics.Debug.Fail("Shader program was not disposed!");
-    }
+	~ShaderProgramBase()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
 #endif
 
-    internal void CreateProgram(ShaderSourceService shaderSourceService)
+	internal void CreateProgram(ShaderSourceService shaderSourceService)
     {
         AttachShaders(shaderSourceService);
         Initialize();

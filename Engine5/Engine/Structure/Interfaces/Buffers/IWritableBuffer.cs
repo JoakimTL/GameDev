@@ -2,7 +2,7 @@
 
 public interface IWritableBuffer : IBuffer {
 	/// <returns>True if write was successful</returns>
-	bool Write<T>( ulong offsetBytes, IEnumerable<T> data ) where T : unmanaged;
+	bool Write<T>( ulong offsetBytes, T[] data ) where T : unmanaged;
 	/// <returns>True if write was successful</returns>
 	bool Write<T>( ulong offsetBytes, ReadOnlyMemory<T> data ) where T : unmanaged;
 	/// <returns>True if write was successful</returns>

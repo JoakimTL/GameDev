@@ -2,14 +2,15 @@
 
 namespace Engine.GameLogic.ECPS.Components;
 
-public sealed class NameComponent : ComponentBase, ISerializable {
+public sealed class NameComponent : ComponentBase, ICustomizedSerializable {
 	public string EntityName { get; private set; }
 
 	protected override string UniqueNameTag => $"{EntityName}";
 
-	public static Guid TypeIdentity { get; } = new( "21d318d8-f61c-4dee-99aa-9513628b8976" );
+	public static Guid SerializationIdentity { get; } = new( "21d318d8-f61c-4dee-99aa-9513628b8976" );
+    public bool ShouldSerialize => true;
 
-	public NameComponent() {
+    public NameComponent() {
 		EntityName = "Unnamed";
 	}
 

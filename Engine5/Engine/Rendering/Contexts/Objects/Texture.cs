@@ -40,14 +40,15 @@ public class Texture : Identifiable, IDisposable
 
     public Texture(string name, TextureTarget target, Vector2i size, InternalFormat format, int samples = 0, params (TextureParameterName, int)[] parameters) : this(name, target, new Vector2i[] { size }, format, samples, parameters) { }
 
+
 #if DEBUG
-    ~Texture()
-    {
-        System.Diagnostics.Debug.Fail("Texture was not disposed!");
-    }
+	~Texture()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
 #endif
 
-    public Vector2i GetMipmap(uint level)
+	public Vector2i GetMipmap(uint level)
     {
         if (level > _sizes.Length)
             return 0;

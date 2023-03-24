@@ -12,7 +12,7 @@ public class Gravity3System : SystemBase {
 	private readonly IGravity3ValueProvider _settings;
 
 	public Gravity3System( IGravity3ValueProvider settings ) {
-		this._settings = settings ?? throw new ArgumentNullException( nameof( settings ) );
+		_settings = settings ?? throw new ArgumentNullException( nameof( settings ) );
 	}
 
 	public override void Update( IEnumerable<Entity> entities, float time, float deltaTime ) {

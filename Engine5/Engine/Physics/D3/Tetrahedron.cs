@@ -14,13 +14,21 @@ public readonly struct Tetrahedron
 
     public Tetrahedron(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
     {
-        this.A = a;
-        this.B = b;
-        this.C = c;
-        this.D = d;
+        A = a;
+        B = b;
+        C = c;
+        D = d;
     }
 
     public Tetrahedron(Face<Vector3> face, Vector3 p) : this(face.A, face.B, face.C, p) { }
+
+    public Tetrahedron(Tetrahedron original, Vector3 centerOfMass, Matrix4x4 transform)
+    {
+        A = Vector3.Transform(original.A - centerOfMass, transform);
+        B = Vector3.Transform(original.A - centerOfMass, transform);
+        C = Vector3.Transform(original.B - centerOfMass, transform);
+        D = Vector3.Transform(original.D - centerOfMass, transform);
+    }
 
     public Matrix4x4 GetInertiaTensor(Vector3 centerOfMass)
     {

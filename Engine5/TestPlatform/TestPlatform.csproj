@@ -17,4 +17,9 @@
     <ProjectReference Include="..\StandardPackage\StandardPackage.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ECPS\Processors\" />
+    <Folder Include="ECPS\Systems\" />
+  </ItemGroup>
+
 </Project>

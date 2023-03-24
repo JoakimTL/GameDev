@@ -10,13 +10,13 @@ public class Simplex2Noise : INoiseProvider<Vector2, float>
 
     public Simplex2Noise(uint seed, Vector2 spread)
     {
-        this._seed = seed;
+        _seed = seed;
         _spread = spread;
     }
 
     public float Sample(Vector2 input)
     {
-        Vector2 pointInGenSpace = input / this._spread;
+        Vector2 pointInGenSpace = input / _spread;
         Vector2i low = Vector2i.Floor(pointInGenSpace);
         Vector2 frac = pointInGenSpace - low.AsFloat;
 
@@ -50,7 +50,7 @@ public class Simplex2Noise : INoiseProvider<Vector2, float>
     {
         unchecked
         {
-            uint v = 42595009 + this._seed;
+            uint v = 42595009 + _seed;
             v *= 40631027;
             v ^= (uint)((p.X * 4919) + (p.Y * 5879));
             v *= 40014307;

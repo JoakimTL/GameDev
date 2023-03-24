@@ -1,6 +1,7 @@
 ﻿namespace Engine.Rendering.Contexts.Objects;
 
 public interface IMesh {
+	Type VertexType { get; }
 	/// <summary>
 	/// Number of indices in the mesh.
 	/// </summary>

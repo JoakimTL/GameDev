@@ -4,16 +4,17 @@ using Engine.Structure.Interfaces;
 using System.Numerics;
 
 namespace Engine.GameLogic.ECPS.Components;
-public sealed class Transform3Component : ComponentBase, ISerializable {
+public sealed class Transform3Component : ComponentBase, ICustomizedSerializable {
 	public readonly Transform3 Transform;
 
 	protected override string UniqueNameTag => $"{Transform}";
 
 	public unsafe ulong SerializedLength => (uint) sizeof( TransformData<Vector3, Quaternion, Vector3> );
 
-	public static Guid TypeIdentity { get; } = new( "58e72979-eba6-4cd5-913b-d5054db8a05b" );
+	public static Guid SerializationIdentity { get; } = new( "58e72979-eba6-4cd5-913b-d5054db8a05b" );
+    public bool ShouldSerialize => true;
 
-	public Transform3Component() {
+    public Transform3Component() {
 		Transform = new();
 		Transform.MatrixChanged += OnMatrixChanged;
 	}

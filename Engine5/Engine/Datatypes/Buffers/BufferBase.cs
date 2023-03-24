@@ -17,7 +17,7 @@ public abstract unsafe class BufferBase : Identifiable, IBuffer, IReadableBuffer
 	/// <param name="safeguardMultiThreading">If true the buffer will take precautions and undergo locking for each operation to ensure only one thread has access at a time. This only affects writing and modifications to the buffer.</param>
 	protected BufferBase( string name, ulong initialSizeBytes, bool safeguardMultiThreading ) : base( name ) {
 		SizeBytes = initialSizeBytes;
-		this._multithreadingLock = safeguardMultiThreading ? new( true ) : null;
+		_multithreadingLock = safeguardMultiThreading ? new( true ) : null;
 		_bufferPointer = NativeMemory.Alloc( (nuint) SizeBytes.ToUlong() );
 	}
 
@@ -100,4 +100,7 @@ public abstract unsafe class BufferBase : Identifiable, IBuffer, IReadableBuffer
 		return new ReadOnlySpan<T>( ( (byte*) _bufferPointer ) + offset, (int) length ).ToArray();
 	}
 
+#if DEBUG
+	internal ReadOnlyMemory<byte> GetDebugData(ulong offsetBytes, uint lengthBytes) => DebugUtilities.PointerToMemory((byte*)_bufferPointer + offsetBytes, lengthBytes);
+#endif
 }

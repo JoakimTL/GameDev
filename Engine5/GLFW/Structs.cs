@@ -25,7 +25,7 @@ public struct Cursor : IEquatable<Cursor> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="Cursor" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( Cursor other ) => this.cursor.Equals( other.cursor );
+	public bool Equals( Cursor other ) => cursor.Equals( other.cursor );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="object" />, is equal to this instance.
@@ -46,7 +46,7 @@ public struct Cursor : IEquatable<Cursor> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => this.cursor.GetHashCode();
+	public override int GetHashCode() => cursor.GetHashCode();
 
 	/// <summary>
 	///     Implements the operator ==.
@@ -100,7 +100,7 @@ public struct EGLContext : IEquatable<EGLContext> {
 	/// <returns>
 	///     A <see cref="string" /> that represents this instance.
 	/// </returns>
-	public override string ToString() => this.handle.ToString();
+	public override string ToString() => handle.ToString();
 
 	/// <summary>
 	///     Determines whether the specified <see cref="EGLContext" />, is equal to this instance.
@@ -109,7 +109,7 @@ public struct EGLContext : IEquatable<EGLContext> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="EGLContext" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( EGLContext other ) => this.handle.Equals( other.handle );
+	public bool Equals( EGLContext other ) => handle.Equals( other.handle );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="object" />, is equal to this instance.
@@ -130,7 +130,7 @@ public struct EGLContext : IEquatable<EGLContext> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => this.handle.GetHashCode();
+	public override int GetHashCode() => handle.GetHashCode();
 
 	/// <summary>
 	///     Implements the operator ==.
@@ -183,7 +183,7 @@ public struct EGLDisplay : IEquatable<EGLDisplay> {
 	/// <returns>
 	///     A <see cref="string" /> that represents this instance.
 	/// </returns>
-	public override string ToString() => this.handle.ToString();
+	public override string ToString() => handle.ToString();
 
 	/// <summary>
 	///     Determines whether the specified <see cref="EGLDisplay" />, is equal to this instance.
@@ -192,7 +192,7 @@ public struct EGLDisplay : IEquatable<EGLDisplay> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="EGLDisplay" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( EGLDisplay other ) => this.handle.Equals( other.handle );
+	public bool Equals( EGLDisplay other ) => handle.Equals( other.handle );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="System.object" />, is equal to this instance.
@@ -213,7 +213,7 @@ public struct EGLDisplay : IEquatable<EGLDisplay> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => this.handle.GetHashCode();
+	public override int GetHashCode() => handle.GetHashCode();
 
 	/// <summary>
 	///     Implements the operator ==.
@@ -266,7 +266,7 @@ public struct EGLSurface : IEquatable<EGLSurface> {
 	/// <returns>
 	///     A <see cref="string" /> that represents this instance.
 	/// </returns>
-	public override string ToString() => this.handle.ToString();
+	public override string ToString() => handle.ToString();
 
 	/// <summary>
 	///     Determines whether the specified <see cref="EGLSurface" />, is equal to this instance.
@@ -275,7 +275,7 @@ public struct EGLSurface : IEquatable<EGLSurface> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="EGLSurface" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( EGLSurface other ) => this.handle.Equals( other.handle );
+	public bool Equals( EGLSurface other ) => handle.Equals( other.handle );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="System.object" />, is equal to this instance.
@@ -296,7 +296,7 @@ public struct EGLSurface : IEquatable<EGLSurface> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => this.handle.GetHashCode();
+	public override int GetHashCode() => handle.GetHashCode();
 
 	/// <summary>
 	///     Implements the operator ==.
@@ -335,14 +335,14 @@ public struct GamePadState {
 	/// </summary>
 	/// <param name="button">The button to retrieve the state of.</param>
 	/// <returns>The button state, either <see cref="InputState.Press" /> or <see cref="InputState.Release" />.</returns>
-	public InputState GetButtonState( GamePadButton button ) => this.states[ (int) button ];
+	public InputState GetButtonState( GamePadButton button ) => states[ (int) button ];
 
 	/// <summary>
 	///     Gets the value of the specified <paramref name="axis" />.
 	/// </summary>
 	/// <param name="axis">The axis to retrieve the value of.</param>
 	/// <returns>The axis value, in the range of <c>-1.0</c> and <c>1.0</c> inclusive.</returns>
-	public float GetAxis( GamePadAxis axis ) => this.axes[ (int) axis ];
+	public float GetAxis( GamePadAxis axis ) => axes[ (int) axis ];
 }
 
 /// <summary>
@@ -382,10 +382,10 @@ public struct GammaRamp {
 	/// <param name="blue">An array of value describing the response of the blue channel.</param>
 	public GammaRamp( ushort[] red, ushort[] green, ushort[] blue ) {
 		if ( red.Length == green.Length && green.Length == blue.Length ) {
-			this.Red = red;
-			this.Green = green;
-			this.Blue = blue;
-			this.Size = (uint) red.Length;
+			Red = red;
+			Green = green;
+			Blue = blue;
+			Size = (uint) red.Length;
 		} else {
 			throw new ArgumentException(
 				$"{nameof( red )}, {nameof( green )}, and {nameof( blue )} must all be equal length." );
@@ -449,7 +449,7 @@ public struct GLXContext : IEquatable<GLXContext> {
 	/// <returns>
 	///     A <see cref="string" /> that represents this instance.
 	/// </returns>
-	public override string ToString() => this.handle.ToString();
+	public override string ToString() => handle.ToString();
 
 	/// <summary>
 	///     Determines whether the specified <see cref="GLXContext" />, is equal to this instance.
@@ -458,7 +458,7 @@ public struct GLXContext : IEquatable<GLXContext> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="GLXContext" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( GLXContext other ) => this.handle.Equals( other.handle );
+	public bool Equals( GLXContext other ) => handle.Equals( other.handle );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="object" />, is equal to this instance.
@@ -479,7 +479,7 @@ public struct GLXContext : IEquatable<GLXContext> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => this.handle.GetHashCode();
+	public override int GetHashCode() => handle.GetHashCode();
 
 	/// <summary>
 	///     Implements the operator ==.
@@ -532,7 +532,7 @@ public struct HGLRC : IEquatable<HGLRC> {
 	/// <returns>
 	///     A <see cref="string" /> that represents this instance.
 	/// </returns>
-	public override string ToString() => this.handle.ToString();
+	public override string ToString() => handle.ToString();
 
 	/// <summary>
 	///     Determines whether the specified <see cref="HGLRC" />, is equal to this instance.
@@ -541,7 +541,7 @@ public struct HGLRC : IEquatable<HGLRC> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="HGLRC" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( HGLRC other ) => this.handle.Equals( other.handle );
+	public bool Equals( HGLRC other ) => handle.Equals( other.handle );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="System.object" />, is equal to this instance.
@@ -562,7 +562,7 @@ public struct HGLRC : IEquatable<HGLRC> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => this.handle.GetHashCode();
+	public override int GetHashCode() => handle.GetHashCode();
 
 	/// <summary>
 	///     Implements the operator ==.
@@ -612,9 +612,9 @@ public struct Image {
 	/// <param name="height">The width, in pixels, of this image..</param>
 	/// <param name="pixels">Pointer to the RGBA pixel data of this image, arranged left-to-right, top-to-bottom.</param>
 	public Image( int width, int height, nint pixels ) {
-		this.Width = width;
-		this.Height = height;
-		this.Pixels = pixels;
+		Width = width;
+		Height = height;
+		Pixels = pixels;
 	}
 
 	// TODO: Implement manual load of bmp
@@ -651,7 +651,7 @@ public struct NSOpenGLContext : IEquatable<NSOpenGLContext> {
 	/// <returns>
 	///     A <see cref="string" /> that represents this instance.
 	/// </returns>
-	public override string ToString() => this.handle.ToString();
+	public override string ToString() => handle.ToString();
 
 	/// <summary>
 	///     Determines whether the specified <see cref="NSOpenGLContext" />, is equal to this instance.
@@ -660,7 +660,7 @@ public struct NSOpenGLContext : IEquatable<NSOpenGLContext> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="NSOpenGLContext" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( NSOpenGLContext other ) => this.handle.Equals( other.handle );
+	public bool Equals( NSOpenGLContext other ) => handle.Equals( other.handle );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="object" />, is equal to this instance.
@@ -681,7 +681,7 @@ public struct NSOpenGLContext : IEquatable<NSOpenGLContext> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => this.handle.GetHashCode();
+	public override int GetHashCode() => handle.GetHashCode();
 
 	/// <summary>
 	///     Implements the operator ==.
@@ -735,7 +735,7 @@ public struct OSMesaContext : IEquatable<OSMesaContext> {
 	/// <returns>
 	///     A <see cref="string" /> that represents this instance.
 	/// </returns>
-	public override string ToString() => this.handle.ToString();
+	public override string ToString() => handle.ToString();
 
 	/// <summary>
 	///     Determines whether the specified <see cref="OSMesaContext" />, is equal to this instance.
@@ -744,7 +744,7 @@ public struct OSMesaContext : IEquatable<OSMesaContext> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="OSMesaContext" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( OSMesaContext other ) => this.handle.Equals( other.handle );
+	public bool Equals( OSMesaContext other ) => handle.Equals( other.handle );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="object" />, is equal to this instance.
@@ -765,7 +765,7 @@ public struct OSMesaContext : IEquatable<OSMesaContext> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => this.handle.GetHashCode();
+	public override int GetHashCode() => handle.GetHashCode();
 
 	/// <summary>
 	///     Implements the operator ==.

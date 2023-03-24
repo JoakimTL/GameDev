@@ -17,13 +17,13 @@ public abstract class ShaderPipelineBase : Identifiable, IDisposable
     }
 
 #if DEBUG
-    ~ShaderPipelineBase()
-    {
-        System.Diagnostics.Debug.Fail("Shader pipeline was not disposed!");
-    }
+	~ShaderPipelineBase()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
 #endif
 
-    protected abstract IEnumerable<ShaderProgramBase> GetShaderPrograms(ShaderProgramService shaderProgramService);
+	protected abstract IEnumerable<ShaderProgramBase> GetShaderPrograms(ShaderProgramService shaderProgramService);
 
     internal void CreatePipeline(ShaderProgramService shaderProgramService)
     {

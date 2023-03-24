@@ -123,7 +123,7 @@ public static unsafe class DataExtensions {
 	/// <param name="serializable">Object to serialize</param>
 	/// <param name="data"></param>
 	/// <returns></returns>
-	public static byte[] Serialize( this ISerializable serializable ) {
+	public static byte[] Serialize( this ICustomizedSerializable serializable ) {
 		byte[] serializedData = serializable.SerializeData();
 		byte[] returnData = new byte[ serializedData.Length + sizeof( Guid ) ];
 		fixed ( byte* dstPtr = returnData )
@@ -153,7 +153,7 @@ public static unsafe class DataExtensions {
 		obj = type.GetInjectedInstance( injector );
 		if ( obj is null )
 			return Log.WarningThenReturnDefault<object?>( "Construction of type failed" );
-		if ( obj is not ISerializable serializable )
+		if ( obj is not ICustomizedSerializable serializable )
 			return Log.WarningThenReturnDefault<object?>( "Constructed type was not serializable" );
 		if ( !serializable.DeserializeData( serializedData[ sizeof( Guid ).. ] ) )
 			return Log.WarningThenReturnDefault<object?>( "Deserializing the serializable's data failed" );

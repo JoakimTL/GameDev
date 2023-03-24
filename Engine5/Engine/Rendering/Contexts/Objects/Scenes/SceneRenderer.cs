@@ -10,18 +10,18 @@ public class SceneRenderer : Identifiable, ISceneRender {
 	private readonly DataBlockCollectionMerge _merger;
 
 	public SceneRenderer( ISceneRender scene, IDataBlockCollection? dataBlock = null, Action<bool>? blendActivationFunction = null ) {
-		this.Scene = scene;
-		this.DataBlock = dataBlock;
-		this.BlendActivationFunction = blendActivationFunction;
-		this._merger = new DataBlockCollectionMerge();
+		Scene = scene;
+		DataBlock = dataBlock;
+		BlendActivationFunction = blendActivationFunction;
+		_merger = new DataBlockCollectionMerge();
 	}
 
-	public void Render( IDataBlockCollection? dataBlock = null, Action<bool>? blendActivationFunction = null, uint shaderUse = 0, PrimitiveType prim = PrimitiveType.Triangles ) {
-		this._merger.Clear();
-		if ( this.DataBlock is not null )
-			this._merger.AddMerger( this.DataBlock );
+	public void Render( string shaderIndex, IDataBlockCollection? dataBlock = null, Action<bool>? blendActivationFunction = null, PrimitiveType prim = PrimitiveType.Triangles ) {
+		_merger.Clear();
+		if ( DataBlock is not null )
+			_merger.AddMerger( DataBlock );
 		if ( dataBlock is not null )
-			this._merger.AddMerger( dataBlock );
-		this.Scene.Render( this._merger, blendActivationFunction ?? this.BlendActivationFunction, shaderUse, prim );
+			_merger.AddMerger( dataBlock );
+		Scene.Render( shaderIndex, _merger, blendActivationFunction ?? BlendActivationFunction, prim );
 	}
 }

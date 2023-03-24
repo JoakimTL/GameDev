@@ -14,11 +14,11 @@ public class Clock64 : Identifiable
 
     public Clock64(double speed = 1)
     {
-        this._speed = speed;
-        this._lastPause = 0;
-        this._talliedTime = 0;
+        _speed = speed;
+        _lastPause = 0;
+        _talliedTime = 0;
 
-        this.Paused = false;
+        Paused = false;
     }
 
     /// <summary>
@@ -42,20 +42,20 @@ public class Clock64 : Identifiable
     /// <summary>
     /// The speed of the clock. This is how many seconds the clock tallies for each real second.
     /// </summary>
-    public double Speed { get => this._speed; set => SetSpeed(value); }
+    public double Speed { get => _speed; set => SetSpeed(value); }
     /// <summary>
     /// Whether the clock is tallying or not. Useful for stopping a system reliant on timekeeping (say a game-world).
     /// </summary>
-    public bool Paused { get => this._paused; set => SetState(value); }
+    public bool Paused { get => _paused; set => SetState(value); }
 
     private double GetTotalTime()
     {
-        if (!this._paused)
-            return this._talliedTime + GetSessionTime();
-        return this._talliedTime;
+        if (!_paused)
+            return _talliedTime + GetSessionTime();
+        return _talliedTime;
     }
 
-    private double GetSessionTime() => (StartupTime - this._lastPause) * this._speed;
+    private double GetSessionTime() => (StartupTime - _lastPause) * _speed;
 
     /// <summary>
     /// Changes the speed of the clock.
@@ -63,11 +63,11 @@ public class Clock64 : Identifiable
     /// <param name="value">How many seconds the clock tallies per real-time seconds.</param>
     private void SetSpeed(double value)
     {
-        this._talliedTime += GetSessionTime();
-        this._speed = value;
-        if (!this._paused)
+        _talliedTime += GetSessionTime();
+        _speed = value;
+        if (!_paused)
             //Unpaused!
-            this._lastPause = StartupTime;
+            _lastPause = StartupTime;
     }
 
     /// <summary>
@@ -79,14 +79,14 @@ public class Clock64 : Identifiable
         if (value)
         {
             //Paused!
-            this._talliedTime += GetSessionTime();
+            _talliedTime += GetSessionTime();
         }
         else
         {
             //Unpaused!
-            this._lastPause = StartupTime;
+            _lastPause = StartupTime;
         }
-        this._paused = value;
+        _paused = value;
     }
 
 }

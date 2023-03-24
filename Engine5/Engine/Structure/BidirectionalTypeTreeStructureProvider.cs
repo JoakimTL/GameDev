@@ -16,7 +16,7 @@ public class BidirectionalTypeTree : Identifiable
     public BidirectionalTypeTree(Type processType)
     {
         _nodes = new();
-        this._processType = processType;
+        _processType = processType;
     }
 
     public void Add(Type t)

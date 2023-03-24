@@ -46,13 +46,20 @@ public sealed class Window : Identifiable, IUpdateable, IDisposable
         Log.Line($"Max uniform spec: Bindings: {maxBindings}, Locations: {maxLocations}, Block size: {maxBlockSize}B", Log.Level.NORMAL, ConsoleColor.Blue);
         Gl.GetInteger(GetPName.MaxShaderStorageBufferBindings, out maxBindings);
         Log.Line($"Max shader storage spec: Bindings: {maxBindings}", Log.Level.NORMAL, ConsoleColor.Blue);
-        //TODO: move debug callback to GL event handler
-        //Event handler should be a render service, as it's not a context specific service.
-        //this._debugCallback = GLDebugHandler;
-        //Gl.DebugMessageCallback( this._debugCallback, nint.Zero );
-    }
+		//TODO: move debug callback to GL event handler
+		//Event handler should be a render service, as it's not a context specific service.
+		//this._debugCallback = GLDebugHandler;
+		//Gl.DebugMessageCallback( this._debugCallback, nint.Zero );
+	}
 
-    public void Bind()
+#if DEBUG
+	~Window()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
+#endif
+
+	public void Bind()
     {
         //TODO
         //Framebuffer.Unbind( FramebufferTarget.DrawFramebuffer );
@@ -128,5 +135,6 @@ public sealed class Window : Identifiable, IUpdateable, IDisposable
     {
         _context.Dispose();
         WindowUtilities.DestroyWindow(Pointer);
+        GC.SuppressFinalize(this);
     }
 }

@@ -1,7 +1,9 @@
 ﻿namespace Engine.Structure.Interfaces;
 
-public interface ISerializable {
-	static abstract Guid TypeIdentity { get; }
-	bool DeserializeData( byte[] data );
+public interface ICustomizedSerializable
+{
+    static abstract Guid SerializationIdentity { get; }
+    bool ShouldSerialize { get; }
+    bool DeserializeData( byte[] data );
 	byte[] SerializeData();
 }

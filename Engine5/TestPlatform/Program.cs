@@ -1,10 +1,4 @@
-﻿using Engine;
-using Engine.GameLogic.ECPS;
-using Engine.GameLogic.ECPS.Components;
-using StandardPackage.ECPS.Components;
-
-
-new Engine.Rendering.RenderModule();
+﻿new Engine.Rendering.RenderModule();
 new TestPlatform.TestGameLogicModule();
 
 //BenchmarkRunner.Run<Benchmarking2>();

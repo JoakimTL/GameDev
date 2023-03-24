@@ -2,10 +2,12 @@
 using Engine.Rendering.OGL;
 using Engine.Structure.Interfaces;
 using Engine.Structure.ServiceProvider;
+using OpenGL;
 
 namespace Engine.Rendering;
 
-public sealed class Context : IUpdateable {
+public sealed class Context : Identifiable, IUpdateable
+{
 	private readonly RestrictedServiceProvider<IContextService> _serviceProvider;
 	private readonly ServiceProviderDisposalExtension _serviceProviderDisposer;
 	private readonly ServiceProviderUpdateExtension _serviceProviderUpdater;
@@ -13,28 +15,37 @@ public sealed class Context : IUpdateable {
 	private readonly Window _window;
 	private Thread? _contextThread = null;
 
-	public Context( Window window ) {
+	public Context(Window window)
+	{
 		_window = window;
 		_serviceProvider = new();
-		_serviceProvider.AddConstant( _window );
-		_serviceProviderUpdater = new( _serviceProvider );
-		_serviceProviderDisposer = new( _serviceProvider );
-		_serviceProviderInitializer = new( _serviceProvider );
+		_serviceProvider.AddConstant(_window);
+		_serviceProviderUpdater = new(_serviceProvider);
+		_serviceProviderDisposer = new(_serviceProvider);
+		_serviceProviderInitializer = new(_serviceProvider);
 	}
 
-	public void Bind() {
-		ContextUtilities.MakeContextCurrent( _window.Pointer );
+	public void Bind()
+	{
+		ContextUtilities.MakeContextCurrent(_window.Pointer);
 		_contextThread = Thread.CurrentThread;
 		_serviceProvider.Get<VertexArrayLayoutService>();
+
+		foreach (GetPName paramName in Enum.GetValues<GetPName>())
+		{
+			Gl.GetInteger(paramName, out uint value);
+			this.LogLine($"{paramName}: {value}", Log.Level.NORMAL);
+		}
 	}
 
 	public bool IsContextThread() => Thread.CurrentThread == _contextThread;
 
 	public T Service<T>() where T : IContextService => _serviceProvider.Get<T>();
 
-	public void Update( float time, float deltaTime ) {
-		_serviceProviderInitializer.Update( time, deltaTime );
-		_serviceProviderUpdater.Update( time, deltaTime );
+	public void Update(float time, float deltaTime)
+	{
+		_serviceProviderInitializer.Update(time, deltaTime);
+		_serviceProviderUpdater.Update(time, deltaTime);
 	}
 
 

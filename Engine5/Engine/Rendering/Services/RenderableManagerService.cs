@@ -9,8 +9,8 @@ public class RenderableManagerService : IRenderService, IInitializable, IUpdatea
 
 
 
-	public RenderableManagerService() {
-		_renderableContainerService = Global.Get<RenderableContainerService>();
+	public RenderableManagerService( RenderableContainerService renderableContainerService) {
+		_renderableContainerService = renderableContainerService;
 	}
 
 	public void Initialize() {

@@ -121,7 +121,7 @@ public class ModuleContainerService : IGlobalService
 
             public ModuleSystemTickerTimed(ModuleBase moduleBase, bool essential, ITimedSystem timedSystem) : base(moduleBase)
             {
-                this._timedSystem = timedSystem;
+                _timedSystem = timedSystem;
                 _interval = _timedSystem.SystemTickInterval;
                 _timer = new TickingTimer(moduleBase.IdentifiableName, _interval, !essential);
                 _timer.Elapsed += Tick;

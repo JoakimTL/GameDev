@@ -7,10 +7,10 @@ public struct Vector4d {
 	public double X, Y, Z, W;
 
 	public Vector4d( double x, double y, double z, double w ) {
-		this.X = x;
-		this.Y = y;
-		this.Z = z;
-		this.W = w;
+		X = x;
+		Y = y;
+		Z = z;
+		W = w;
 	}
 
 	public Vector4d Add( Vector4d other )

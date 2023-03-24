@@ -34,9 +34,16 @@ public sealed class ShaderSource : Identifiable, IFileSource, IDisposable
             this.LogWarning($"{logLength}-{ss}");
             Dispose();
         }
-    }
+	}
 
-    private void FileChange(string path) => FileChanged?.Invoke();
+#if DEBUG
+	~ShaderSource()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
+#endif
+
+	private void FileChange(string path) => FileChanged?.Invoke();
 
     public string GetData() => ReadSource(Filepath, out string source) ? source : string.Empty;
 
@@ -106,5 +113,6 @@ public sealed class ShaderSource : Identifiable, IFileSource, IDisposable
     public void Dispose()
     {
         Gl.DeleteShader(ShaderID);
+        GC.SuppressFinalize(this);
     }
 }

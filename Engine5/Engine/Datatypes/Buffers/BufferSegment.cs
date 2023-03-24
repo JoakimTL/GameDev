@@ -12,12 +12,15 @@ internal unsafe class BufferSegment : Identifiable, ISegmentedBufferSegment {
 	public ulong SizeBytes { get; }
 
 	public event IListenableBufferSegment.BufferSegmentOffsetEvent? OffsetChanged;
+#if DEBUG
+	public ReadOnlyMemory<byte> Bytes => _underlyingBuffer.GetDebugData(OffsetBytes, (uint)SizeBytes);
+#endif
 
 	internal BufferSegment( SegmentedBuffer buffer, ulong offsetBytes, ulong sizeBytes, Func<ulong, nuint, ulong, bool> writeFunction ) {
-		this._underlyingBuffer = buffer;
-		this.OffsetBytes = offsetBytes;
-		this.SizeBytes = sizeBytes;
-		this._writeFunction = writeFunction;
+		_underlyingBuffer = buffer;
+		OffsetBytes = offsetBytes;
+		SizeBytes = sizeBytes;
+		_writeFunction = writeFunction;
 	}
 
 	internal void SetOffset( ulong offsetBytes ) {
@@ -68,14 +71,13 @@ internal unsafe class BufferSegment : Identifiable, ISegmentedBufferSegment {
 		return _underlyingBuffer.Snapshot<T>( OffsetBytes + offsetBytes, lengthElements );
 	}
 
-	public bool Write<T>( ulong offsetBytes, IEnumerable<T> data ) where T : unmanaged {
+	public bool Write<T>( ulong offsetBytes, T[] data ) where T : unmanaged {
 		if ( _disposed ) {
 			this.LogWarning( "Tried to access disposed segment." );
 			return false;
 		}
-		var dataArray = data.ToArray();
-		ulong elementSize = (ulong) dataArray.Length * (uint) sizeof( T );
-		fixed ( T* dataPtr = dataArray )
+		ulong elementSize = (ulong)data.Length * (uint) sizeof( T );
+		fixed ( T* dataPtr = data)
 			return Write( offsetBytes, dataPtr, elementSize );
 	}
 

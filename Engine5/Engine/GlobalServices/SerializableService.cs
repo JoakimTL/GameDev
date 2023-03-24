@@ -12,8 +12,8 @@ public sealed class SerializableService : IGlobalService {
 		_guidFromTypes = new();
 		_typeFromGuids = new();
 
-		foreach ( var type in typeService.DerivedTypes.Where( p => p.IsAssignableTo( typeof( ISerializable ) ) ) ) {
-			var prop = type.GetProperty( nameof( ISerializable.TypeIdentity ), BindingFlags.Static | BindingFlags.Public );
+		foreach ( var type in typeService.DerivedTypes.Where( p => p.IsAssignableTo( typeof( ICustomizedSerializable ) ) ) ) {
+			var prop = type.GetProperty( nameof( ICustomizedSerializable.SerializationIdentity ), BindingFlags.Static | BindingFlags.Public );
 			Guid guid = prop?.GetValue( type, null ) as Guid? ?? Guid.Empty;
 			if ( guid == Guid.Empty ) {
 				Log.Warning( $"Unable to load guid for {type}." );
