@@ -17,7 +17,6 @@ public sealed class RenderableContainerService : IGlobalService
 	public RenderableContainerService()
 	{
 		_renderables = new();
-
 	}
 
 	public void Add(IRenderable renderable)
