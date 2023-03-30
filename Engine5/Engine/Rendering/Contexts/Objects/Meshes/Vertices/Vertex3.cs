@@ -5,7 +5,7 @@ using OpenGL;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Engine.Datatypes.Vertices;
+namespace Engine.Rendering.Contexts.Objects.Meshes.Vertices;
 
 [Identity(nameof(Vertex3))]
 [VAO.Setup(0, 0, 0), StructLayout(LayoutKind.Explicit, Pack = 1)]
@@ -22,33 +22,33 @@ public struct Vertex3
 
 	public Vertex3(in Vector3 position)
 	{
-		this.Translation = position;
-		this.UV = default;
-		this.Normal = default;
-		this.Color = Color16x4.White;
+		Translation = position;
+		UV = default;
+		Normal = default;
+		Color = Color16x4.White;
 	}
 
 	public Vertex3(in Vector3 position, in Vector2 uv)
 	{
-		this.Translation = position;
-		this.UV = uv;
-		this.Normal = default;
-		this.Color = Color16x4.White;
+		Translation = position;
+		UV = uv;
+		Normal = default;
+		Color = Color16x4.White;
 	}
 
 	public Vertex3(in Vector3 position, in Vector2 uv, in Vector3 normal, in Vector4 color)
 	{
-		this.Translation = position;
-		this.UV = uv;
-		this.Normal = normal;
-		this.Color = color;
+		Translation = position;
+		UV = uv;
+		Normal = normal;
+		Color = color;
 	}
 
 	public Vertex3(in Vector3 position, in Vector2 uv, in Vector3 normal, in Color16x4 color)
 	{
-		this.Translation = position;
-		this.UV = uv;
-		this.Normal = normal;
-		this.Color = color;
+		Translation = position;
+		UV = uv;
+		Normal = normal;
+		Color = color;
 	}
 }

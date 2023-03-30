@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Engine.Rendering.Contexts.Objects.Scenes;
 
-public unsafe class SortedScene : Identifiable {
+public unsafe class SortedScene : Identifiable, IDisposable {
 
 	public string ShaderIndex { get; }
 	private readonly List<SceneObjectUsage> _sortedSceneObjects;
@@ -29,6 +29,13 @@ public unsafe class SortedScene : Identifiable {
 		_scene.SceneObjectAdded += SceneObjectAdded;
 		_scene.SceneObjectRemoved += SceneObjectRemoved;
 	}
+
+#if DEBUG
+	~SortedScene()
+	{
+		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+	}
+#endif
 
 	private void SceneObjectAdded( ISceneObject so ) {
 		so.RenderPropertiesChanged += SceneObjectChanged;
@@ -144,5 +151,15 @@ public unsafe class SortedScene : Identifiable {
 		dataBlocks?.DirectUnbindBuffers();
 		blendActivationFunction?.Invoke( false );
 
+	}
+
+	public void Dispose()
+	{
+		_commandBuffer.Dispose();
+		NativeMemory.Free(_commands);
+		foreach (var so in _sortedSceneObjects)
+			so.SceneObject.RenderPropertiesChanged -= SceneObjectChanged;
+		_sortedSceneObjects.Clear();
+		_renderStages.Clear();
 	}
 }

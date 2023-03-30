@@ -7,6 +7,9 @@ public sealed class MeshDataAsset : LoadedAssetBase
 
     private LoadedAssetMesh? _mesh;
 
+    public Type? VertexType => _mesh?.VertexType;
+    public IMesh? Mesh => _mesh;
+
     internal MeshDataAsset(string path) : base(path)
     {
         _mesh = null;

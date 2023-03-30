@@ -1,10 +1,9 @@
 ﻿using Engine.Rendering.Contexts.Objects.Meshes;
 using System.Globalization;
 using System.Numerics;
-using Engine.Datatypes.Vertices;
 using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
+using Engine.Rendering.Contexts.Objects.Meshes.Vertices;
 
 namespace Engine.Rendering.Contexts.Services;
 

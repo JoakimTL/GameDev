@@ -4,7 +4,7 @@ namespace Engine.Rendering.Contexts.Objects;
 
 public interface ISceneObject {
 
-	VertexArrayObjectBase VertexArrayObject { get; }
+	VertexArrayObjectBase? VertexArrayObject { get; }
 	ShaderBundleBase? ShaderBundle { get; }
 	ulong Uid { get; }
 	ulong SortingIndex { get; }

@@ -1,11 +1,14 @@
-﻿using OpenGL;
+﻿using Engine.Structure.Interfaces;
+using OpenGL;
 
 namespace Engine.Rendering.Contexts.Objects.Scenes;
 
-public abstract class Scene : Identifiable, ISceneRender {
+public abstract class Scene : Identifiable, ISceneRender, IDisposable {
 
 	private HashSet<ISceneObject> _sceneObjects;
 	private Dictionary<string, SortedScene> _sortedSceneByShaderIndex;
+
+	public bool Populated => _sceneObjects.Count > 0;
 
 	public event Action<ISceneObject>? SceneObjectAdded;
 	public event Action<ISceneObject>? SceneObjectRemoved;
@@ -27,7 +30,7 @@ public abstract class Scene : Identifiable, ISceneRender {
 	}
 
 	public void Remove( ISceneObject so ) {
-		if ( _sceneObjects.Add( so ) ) {
+		if ( _sceneObjects.Remove( so ) ) {
 			so.SceneObjectDisposed -= Remove;
 			SceneObjectRemoved?.Invoke( so );
 		}
@@ -39,5 +42,15 @@ public abstract class Scene : Identifiable, ISceneRender {
 	public void Render( string shaderIndex, IDataBlockCollection? dataBlocks, Action<bool>? blendActivationFunction, PrimitiveType prim = PrimitiveType.Triangles ) {
 		if ( _sortedSceneByShaderIndex.TryGetValue( shaderIndex, out SortedScene? sortedScene ) )
 			sortedScene.Render( dataBlocks, blendActivationFunction, prim );
+	}
+
+	public void Dispose()
+	{
+		foreach (var sortedScene in _sortedSceneByShaderIndex.Values)
+			sortedScene.Dispose();
+		_sortedSceneByShaderIndex.Clear();
+		foreach (var so in _sceneObjects)
+			so.SceneObjectDisposed -= Remove;
+		_sceneObjects.Clear();
 	}
 }

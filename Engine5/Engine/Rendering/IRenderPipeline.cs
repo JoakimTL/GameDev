@@ -1,7 +1,8 @@
-﻿namespace Engine.Rendering;
+﻿using Engine.Structure.Interfaces;
 
-public interface IRenderPipeline
+namespace Engine.Rendering;
+
+public interface IRenderPipeline : IUpdateable
 {
-    void Render();
     void DrawToScreen();
 }

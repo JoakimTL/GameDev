@@ -5,7 +5,7 @@ using OpenGL;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Engine.Datatypes.Vertices;
+namespace Engine.Rendering.Contexts.Objects.Meshes.Vertices;
 
 [Identity(nameof(Vertex2))]
 [VAO.Setup(0, 0, 0), StructLayout(LayoutKind.Explicit, Pack = 1)]
@@ -20,15 +20,15 @@ public struct Vertex2
 
 	public Vertex2(Vector2 translation, Vector2 uv, Vector4 color)
 	{
-		this.Translation = translation;
-		this.UV = uv;
-		this.Color = color;
+		Translation = translation;
+		UV = uv;
+		Color = color;
 	}
 
 	public Vertex2(Vector2 translation, Vector2 uv, Color16x4 color)
 	{
-		this.Translation = translation;
-		this.UV = uv;
-		this.Color = color;
+		Translation = translation;
+		UV = uv;
+		Color = color;
 	}
 }

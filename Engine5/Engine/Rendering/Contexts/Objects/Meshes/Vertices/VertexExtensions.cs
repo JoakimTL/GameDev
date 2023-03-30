@@ -1,7 +1,7 @@
 ﻿using Engine.Datatypes.Colors;
 using System.Numerics;
 
-namespace Engine.Datatypes.Vertices;
+namespace Engine.Rendering.Contexts.Objects.Meshes.Vertices;
 
 public static class VertexExtensions
 {

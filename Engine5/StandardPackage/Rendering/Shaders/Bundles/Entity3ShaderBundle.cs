@@ -5,7 +5,7 @@ using StandardPackage.Rendering.Shaders.Pipelines;
 
 namespace StandardPackage.Rendering.Shaders.Bundles;
 
-[Identity("shader_e3")]
+[Identity(nameof(Entity3ShaderBundle))]
 public sealed class Entity3ShaderBundle : ShaderBundleBase
 {
     protected override void AddPipelines(ShaderPipelineService pipelineService)

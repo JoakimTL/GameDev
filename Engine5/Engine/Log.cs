@@ -172,8 +172,42 @@ public static class Log
     public static void LogLine(this Identifiable idf, string text, Level logLevel, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true) => Line($"{idf.FullName}: {text}", logLevel, color, stackLevel, logToConsole);
     public static void LogText(this Identifiable idf, string text, Level logLevel, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true) => Text($"{idf.FullName}: {text}", logLevel, color, stackLevel, logToConsole);
 
+	public static T LogWarningThenReturn<T>(this Identifiable idf, string text, T @return, bool logToConsole = true, bool stacktrace = false)
+	{
+		idf.LogWarning(text, logToConsole, stacktrace);
+		return @return;
+	}
 
-    private enum InternalLevel
+	public static T? LogLineThenReturn<T>(this Identifiable idf, string text, Level logLevel, T? @return, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true)
+	{
+		idf.LogLine(text, logLevel, color, stackLevel, logToConsole);
+		return @return;
+	}
+
+	public static T? LogTextThenReturnDefault<T>(this Identifiable idf, string text, Level logLevel, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true)
+	{
+		idf.LogText(text, logLevel, color, stackLevel, logToConsole);
+		return default;
+	}
+	public static T? LogWarningThenReturnDefault<T>(this Identifiable idf, string text, bool logToConsole = true, bool stacktrace = false)
+	{
+		idf.LogWarning(text, logToConsole, stacktrace);
+		return default;
+	}
+
+	public static T? LogLineThenReturnDefault<T>(this Identifiable idf, string text, Level logLevel, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true)
+	{
+		idf.LogLine(text, logLevel, color, stackLevel, logToConsole);
+		return default;
+	}
+
+	public static T? LogTextThenReturn<T>(this Identifiable idf, string text, Level logLevel, T? @return, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true)
+	{
+		idf.LogText(text, logLevel, color, stackLevel, logToConsole);
+		return @return;
+	}
+
+	private enum InternalLevel
     {
         CRITICAL,
         HIGH,

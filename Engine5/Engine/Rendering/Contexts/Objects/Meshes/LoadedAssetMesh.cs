@@ -1,5 +1,4 @@
 ﻿using Engine.Datatypes.Buffers;
-using Engine.Structure.Interfaces.Buffers;
 
 namespace Engine.Rendering.Contexts.Objects.Meshes;
 

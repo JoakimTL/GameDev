@@ -3,9 +3,14 @@ public abstract class ComponentBase : Identifiable {
 	public Entity? Owner { get; private set; }
 	public event EntityComponentEvent? ComponentChanged;
 
-	internal void SetOwner( Entity? e ) {
+	internal void SetOwner( Entity? e )
+	{
+		if (Owner is not null)
+			Owner.ParentChanged -= OnOwnerParentChanged;
 		Owner = e;
 		OnOwnerChanged();
+		if (Owner is not null)
+			Owner.ParentChanged += OnOwnerParentChanged;
 	}
 
 	protected void AlertComponentChanged()
@@ -16,4 +21,5 @@ public abstract class ComponentBase : Identifiable {
 
 	protected virtual void OnDispose() { }
 	protected virtual void OnOwnerChanged() { }
+	protected virtual void OnOwnerParentChanged(Entity owner, Entity? newParent) { }
 }

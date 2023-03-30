@@ -1,6 +1,6 @@
 ﻿namespace Engine.Rendering.Contexts.Objects.Scenes;
 
-public class LayeredScene : Scene {
+public abstract class LayeredScene : Scene {
 	public LayeredScene( IEnumerable<string> shaderIndices ) : base( shaderIndices ) { }
 
 	public override int SortMethod( SceneObjectUsage x, SceneObjectUsage y ) {

@@ -1,9 +1,9 @@
 ﻿namespace Engine.Rendering.Contexts.Objects.Scenes;
 
-public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable {
+public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable
+{
 
-	public VertexArrayObjectBase VertexArrayObject { get; }
-
+	public VertexArrayObjectBase? VertexArrayObject { get; private set; }
 	public ShaderBundleBase? ShaderBundle { get; private set; }
 	public IMesh? Mesh { get; private set; }
 	public ISceneInstanceData? SceneData { get; private set; }
@@ -15,10 +15,6 @@ public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable 
 	public event Action<ISceneObject>? RenderPropertiesChanged;
 	public event Action<ISceneObject>? SceneObjectDisposed;
 
-	public SceneObjectBase( VertexArrayObjectBase vao ) {
-		VertexArrayObject = vao;
-	}
-
 #if DEBUG
 	~SceneObjectBase()
 	{
@@ -26,54 +22,67 @@ public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable 
 	}
 #endif
 
-	private void SetSortingIndex() {
+	private void SetSortingIndex()
+	{
 		SortingIndex = 0;
-		if ( ShaderBundle is null || VertexArrayObject is null )
+		if (ShaderBundle is null || VertexArrayObject is null)
 			return;
-		SortingIndex = (ulong) ShaderBundle.BundleID << 32 | VertexArrayObject.VAOID;
+		SortingIndex = (ulong)ShaderBundle.BundleID << 32 | VertexArrayObject.VAOID;
 	}
 
 	private void CheckValidity() => Valid = SortingIndex > 0 && Mesh is not null && SceneData is not null;
 
-	private void DataChanged() => RenderPropertiesChanged?.Invoke( this );
+	private void DataChanged() => RenderPropertiesChanged?.Invoke(this);
 
-	protected void SetMesh( IMesh? newMesh ) {
-		if ( Mesh == newMesh )
+	protected void SetVertexArrayObject(VertexArrayObjectBase? newVao)
+	{
+		if (VertexArrayObject == newVao)
 			return;
-		if ( Mesh is not null )
+		VertexArrayObject = newVao;
+		CheckValidity();
+		RenderPropertiesChanged?.Invoke(this);
+	}
+
+	protected void SetMesh(IMesh? newMesh)
+	{
+		if (Mesh == newMesh)
+			return;
+		if (Mesh is not null)
 			Mesh.Changed -= DataChanged;
 		Mesh = newMesh;
-		if ( Mesh is not null )
+		if (Mesh is not null)
 			Mesh.Changed += DataChanged;
 		CheckValidity();
-		RenderPropertiesChanged?.Invoke( this );
+		RenderPropertiesChanged?.Invoke(this);
 	}
 
-
-	protected void SetSceneData( ISceneInstanceData? newSceneData ) {
-		if ( SceneData == newSceneData )
+	protected void SetSceneData(ISceneInstanceData? newSceneData)
+	{
+		if (SceneData == newSceneData)
 			return;
-		if ( SceneData is not null )
+		if (SceneData is not null)
 			SceneData.Changed -= DataChanged;
 		SceneData = newSceneData;
-		if ( SceneData is not null )
+		if (SceneData is not null)
 			SceneData.Changed += DataChanged;
 		CheckValidity();
-		RenderPropertiesChanged?.Invoke( this );
+		RenderPropertiesChanged?.Invoke(this);
 	}
 
-	protected void SetShaders( ShaderBundleBase? newShaderBundle ) {
-		if ( ShaderBundle == newShaderBundle )
+	protected void SetShaders(ShaderBundleBase? newShaderBundle)
+	{
+		if (ShaderBundle == newShaderBundle)
 			return;
 		ShaderBundle = newShaderBundle;
 		SetSortingIndex();
 		CheckValidity();
-		RenderPropertiesChanged?.Invoke( this );
+		RenderPropertiesChanged?.Invoke(this);
 	}
 
-	public bool TryGetIndirectCommand( out IndirectCommand? command ) {
+	public bool TryGetIndirectCommand(out IndirectCommand? command)
+	{
 		command = null;
-		if ( !Valid || Mesh is null || SceneData is null || SceneData.ActiveInstances == 0 )
+		if (!Valid || Mesh is null || SceneData is null || SceneData.ActiveInstances == 0)
 			return false;
 		command = new(
 			Mesh.ElementCount,
@@ -87,9 +96,10 @@ public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable 
 
 	public abstract void Bind();
 
-	public void Dispose() {
+	public void Dispose()
+	{
 		SceneData?.Dispose();
-		SceneObjectDisposed?.Invoke( this );
-		GC.SuppressFinalize( this );
+		SceneObjectDisposed?.Invoke(this);
+		GC.SuppressFinalize(this);
 	}
 }

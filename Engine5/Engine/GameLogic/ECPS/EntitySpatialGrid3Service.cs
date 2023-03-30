@@ -104,7 +104,7 @@ public class EntitySpatialGrid3Service : IGameLogicService {
 	}
 
 	public IEnumerable<EntityByComponentContainer> GetActiveGrids() {
-		return _entityContainerGrid.Values.Where( p => p.Any() ); //Can be optimized to not use LINQ
+		return _entityContainerGrid.Values.Where( p => p.Any() ); //TODO: Can be optimized by not using LINQ
 	}
 
 	private Vector3i GetGridCoordinate( Vector3 worldTranslation ) => Vector3i.Floor( worldTranslation * InverseGridScale );

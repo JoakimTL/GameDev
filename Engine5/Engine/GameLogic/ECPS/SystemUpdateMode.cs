@@ -1,6 +1,4 @@
-﻿using Engine.GameLogic.ECPS.Components;
-
-namespace Engine.GameLogic.ECPS;
+﻿namespace Engine.GameLogic.ECPS;
 
 /// <summary>
 /// Describes the mode of updating.
@@ -15,11 +13,11 @@ public enum SystemUpdateMode {
 	/// </summary>
 	All,
 	/// <summary>
-	/// Updates entities in separate batches, separated spatially in a 2d grid. Applies only to entities with a <see cref="Transform2Component"/>.
+	/// Updates entities in separate batches, separated spatially in a 2d grid. Applies only to entities with a <see cref="Components.Transform2Component"/>.
 	/// </summary>
 	Grid2,
 	/// <summary>
-	/// Updates entities in separate batches, separated spatially in a 3d grid. Applies only to entities with a <see cref="Transform3Component"/>.
+	/// Updates entities in separate batches, separated spatially in a 3d grid. Applies only to entities with a <see cref="Components.Transform3Component"/>.
 	/// </summary>
 	Grid3
 }

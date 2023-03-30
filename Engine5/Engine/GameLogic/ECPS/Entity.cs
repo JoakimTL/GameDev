@@ -42,16 +42,18 @@ public sealed class Entity : DependencyInjectorBase, ICustomizedSerializable {
 	}
 
 	public T AddOrGet<T>() where T : ComponentBase, new() => (T) AddOrGet( typeof( T ) );
-	public T? Get<T>() where T : ComponentBase, new() => Get( typeof( T ) ) as T;
+	public T? Get<T>() where T : ComponentBase, new() => Get(typeof(T)) as T;
+	public T GetOrThrow<T>() where T : ComponentBase, new() => Get(typeof(T)) as T ?? throw new NullReferenceException($"Missing component {typeof(T).Name}");
 	public T? RemoveAndGet<T>() where T : ComponentBase, new() => RemoveAndGet( typeof( T ) ) as T;
-	public void Remove<T>() where T : ComponentBase, new() => _components.Remove( typeof( T ) );
-	public void Remove( Type compoentType ) => _components.Remove( compoentType );
+	public void Remove<T>() where T : ComponentBase, new() => RemoveAndGet( typeof( T ) );
+	public void Remove( Type compoentType ) => RemoveAndGet( compoentType );
 
 	private ComponentBase? Get( Type t ) => _components.TryGetValue( t, out var c ) ? c : null;
 
 	private ComponentBase? RemoveAndGet( Type type ) {
 		if ( _components.Remove( type, out var value ) ) {
 			ComponentRemoved?.Invoke( value );
+			value.Dispose();
 			return value;
 		}
 		return null;
@@ -92,7 +94,7 @@ public sealed class Entity : DependencyInjectorBase, ICustomizedSerializable {
 
 				var segments = Segmentation.Parse( data, (uint) sizeof( Guid ) * 2 );
 				if ( segments is null )
-					return Log.WarningThenReturn( $"Error parsing component data for {EntityId}!", false );
+					return this.LogWarningThenReturn( $"Error parsing component data for {EntityId}!", false );
 				for ( int i = 0; i < segments.Length; i++ )
 					if ( !DeserializeComponent( segments[ i ], out Type? addedType ) )
 						if ( addedType is not null )
@@ -105,18 +107,18 @@ public sealed class Entity : DependencyInjectorBase, ICustomizedSerializable {
 	private unsafe bool DeserializeComponent( byte[] componentData, out Type? componentType ) {
 		componentType = null;
         if (componentData.Length < sizeof(Guid))
-            return Log.WarningThenReturn($"Component data length not enough for a {nameof(Guid)}", false);
+            return this.LogWarningThenReturn($"Component data length not enough for a {nameof(Guid)}", false);
         object? obj;
 		componentType = componentData.GetDeserializedType();
 		if ( componentType is null )
-			return Log.WarningThenReturn( $"Unable to determine component type from {nameof( Guid )}", false );
+			return this.LogWarningThenReturn( $"Unable to determine component type from {nameof( Guid )}", false );
 		obj = AddOrGet( componentType );
 		if ( obj is null )
-			return Log.WarningThenReturn( "Construction of component failed", false );
+			return this.LogWarningThenReturn( "Construction of component failed", false );
 		if ( obj is not ICustomizedSerializable serializable )
-			return Log.WarningThenReturn( "Component is not serializable", false );
+			return this.LogWarningThenReturn( "Component is not serializable", false );
 		if ( !serializable.DeserializeData( componentData[ sizeof( Guid ).. ] ) )
-			return Log.WarningThenReturn( "Deserializing the component failed", false );
+			return this.LogWarningThenReturn( "Deserializing the component failed", false );
 		return true;
 	}
 

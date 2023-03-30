@@ -1,4 +1,5 @@
-﻿using Engine.Rendering.OGL;
+﻿using Engine.Rendering.Contexts.Services;
+using Engine.Rendering.OGL;
 using Engine.Rendering.Services;
 using Engine.Structure;
 using Engine.Structure.Interfaces;
@@ -30,7 +31,6 @@ public class RenderModule : ModuleBase<IRenderService>, ISystem, IInitializable,
 		GlfwUtilities.Init();
 		//TODO: Fetch window saved settings
 		Get<WindowService>().Create( new WindowSettings() );
-		Get<RenderableManagerService>();
 		//Add other services. The rendermodule should be a selfcontained module extracting information from other modules
 		//For voxel rendering use a mesh renderer inside a rendercomponent
 		OnInitialize();

@@ -98,14 +98,29 @@ public static unsafe class DataExtensions {
 			*(T*) ( (byte*) dstPtr + offsetBytes ) = source;
 	}
 
-	public static void CopyInto<T, M>( this ReadOnlySpan<T> source, M[] destination, uint offsetBytes = 0 ) where T : unmanaged where M : unmanaged {
-		if ( source.Length * sizeof( T ) + offsetBytes > destination.Length * sizeof( M ) ) {
-			Log.Warning( "Cannot copy outside the array." );
+	public static void CopyInto<T, M>(this Span<T> source, M[] destination, uint offsetBytes = 0) where T : unmanaged where M : unmanaged
+	{
+		if (source.Length * sizeof(T) + offsetBytes > destination.Length * sizeof(M))
+		{
+			Log.Warning("Cannot copy outside the array.");
 			return;
 		}
-		fixed ( void* dstPtr = destination )
-		fixed ( void* srcPtr = source )
-			Buffer.MemoryCopy( (byte*) srcPtr + offsetBytes, dstPtr, destination.Length * sizeof( M ), source.Length * sizeof( T ) - offsetBytes );
+		fixed (void* dstPtr = destination)
+		fixed (void* srcPtr = source)
+			Buffer.MemoryCopy((byte*)srcPtr + offsetBytes, dstPtr, destination.Length * sizeof(M), source.Length * sizeof(T) - offsetBytes);
+	}
+
+
+	public static void CopyInto<T, M>(this ReadOnlySpan<T> source, M[] destination, uint offsetBytes = 0) where T : unmanaged where M : unmanaged
+	{
+		if (source.Length * sizeof(T) + offsetBytes > destination.Length * sizeof(M))
+		{
+			Log.Warning("Cannot copy outside the array.");
+			return;
+		}
+		fixed (void* dstPtr = destination)
+		fixed (void* srcPtr = source)
+			Buffer.MemoryCopy((byte*)srcPtr + offsetBytes, dstPtr, destination.Length * sizeof(M), source.Length * sizeof(T) - offsetBytes);
 	}
 
 	public static void CopyInto<T, M>( this T source, Span<M> destination, uint offsetBytes = 0 ) where T : unmanaged where M : unmanaged {
