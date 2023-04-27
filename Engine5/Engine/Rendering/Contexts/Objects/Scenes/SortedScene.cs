@@ -17,6 +17,10 @@ public unsafe class SortedScene : Identifiable, IDisposable {
 	private readonly Scene _scene;
 	private readonly uint _initialSize;
 
+#if DEBUG
+	private Memory<byte> Commands => DebugUtilities.PointerToMemory((byte*) _commands, _byteCount);
+#endif
+
 	public SortedScene( Scene scene, string shaderIndex, uint initialSize ) {
 		_scene = scene;
 		ShaderIndex = shaderIndex;
@@ -87,7 +91,7 @@ public unsafe class SortedScene : Identifiable, IDisposable {
 		//This means something changed. We must rebuild the indirect buffers.
 		for ( int i = 0; i < _sortedSceneObjects.Count; i++ ) {
 			ISceneObject so = _sortedSceneObjects[ i ].SceneObject;
-			if ( so.ShaderBundle is not null && so.VertexArrayObject is not null && so.TryGetIndirectCommand( out IndirectCommand? command ) && command.HasValue ) {
+			if ( so.ShaderBundle is not null && so.VertexArrayObject is not null && so.TryGetIndirectCommand( out IndirectCommand command ) ) {
 				if ( so.ShaderBundle != currentShader || so.VertexArrayObject != currentVAO ) {
 					if ( currentShader is not null && currentVAO is not null && currentTransparency.HasValue ) {
 						_renderStages.Add( new( currentVAO, currentShader, (int) count, offset ) );
@@ -99,7 +103,7 @@ public unsafe class SortedScene : Identifiable, IDisposable {
 					count = 1;
 				} else
 					count++;
-				_commands[ renderCount++ ] = command.Value;
+				_commands[ renderCount++ ] = command;
 			}
 		}
 
@@ -136,8 +140,8 @@ public unsafe class SortedScene : Identifiable, IDisposable {
 					blendActivationFunction?.Invoke( newShader.UsesTransparency );
 				currentShader = newShader;
 				ShaderPipelineBase s = newShader;
-				s.DirectBind();
-				dataBlocks?.DirectBindShader( s );
+				s.Bind();
+				dataBlocks?.BindShader( s );
 			}
 
 			if ( stage.VAO != currentVAO ) {
@@ -148,7 +152,7 @@ public unsafe class SortedScene : Identifiable, IDisposable {
 			Gl.MultiDrawElementsIndirect( prim, DrawElementsType.UnsignedInt, (nint) ( stage.Offset * (uint) Marshal.SizeOf<IndirectCommand>() ), stage.CommandCount, 0 );
 		}
 
-		dataBlocks?.DirectUnbindBuffers();
+		dataBlocks?.UnbindBuffers();
 		blendActivationFunction?.Invoke( false );
 
 	}

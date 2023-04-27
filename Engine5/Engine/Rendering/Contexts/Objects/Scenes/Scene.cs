@@ -1,5 +1,4 @@
-﻿using Engine.Structure.Interfaces;
-using OpenGL;
+﻿using OpenGL;
 
 namespace Engine.Rendering.Contexts.Objects.Scenes;
 

@@ -9,14 +9,16 @@ public class BidirectionalTypeTree : Identifiable
 
     private readonly ConcurrentDictionary<Type, BidirectionalNode> _nodes;
     private readonly Type _processType;
+    private readonly bool _addConstructorParameterTypesAsParents;
     private bool _needsUpdate;
 
     public event Action? TreeUpdated;
 
-    public BidirectionalTypeTree(Type processType)
+    public BidirectionalTypeTree(Type processType, bool addConstructorParameterTypesAsParents = false)
     {
         _nodes = new();
         _processType = processType;
+        _addConstructorParameterTypesAsParents = addConstructorParameterTypesAsParents;
     }
 
     public void Add(Type t)
@@ -45,7 +47,16 @@ public class BidirectionalTypeTree : Identifiable
         foreach (BidirectionalNode node in _nodes.Values)
         {
             Type t = node.Value;
-            IEnumerable<Type> preceding = t.GetCustomAttributes<ProcessAfterAttribute>().Where(p => p.ProcessType == _processType).Select(p => p.PrecedingType);
+            HashSet<Type> preceding = t.GetCustomAttributes<ProcessAfterAttribute>().Where(p => p.ProcessType == _processType).Select(p => p.PrecedingType).ToHashSet();
+            if (_addConstructorParameterTypesAsParents)
+            {
+                var ctor = t.GetConstructors().FirstOrDefault();
+                if (ctor is not null)
+                {
+                    foreach (var p in ctor.GetParameters().Select(p => p.ParameterType))
+                        preceding.Add(p);
+                }
+            }
             IEnumerable<Type> following = t.GetCustomAttributes<ProcessBeforeAttribute>().Where(p => p.ProcessType == _processType).Select(p => p.FollowingType);
             foreach (Type pre in preceding)
             {

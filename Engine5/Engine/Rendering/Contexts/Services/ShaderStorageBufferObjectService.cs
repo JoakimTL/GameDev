@@ -6,13 +6,11 @@ namespace Engine.Rendering.Contexts.Services;
 public sealed class ShaderStorageBufferObjectService : Identifiable, IContextService, IDisposable
 {
 	private readonly Dictionary<string, ShaderStorageBufferObject> _ssbos;
-	private readonly RenderBufferObjectService _renderBufferObjectService;
 	private readonly VertexBufferObjectService _vertexBufferObjectService;
 
-	public ShaderStorageBufferObjectService(RenderBufferObjectService renderBufferObjectService, VertexBufferObjectService vertexBufferObjectService)
+	public ShaderStorageBufferObjectService(VertexBufferObjectService vertexBufferObjectService)
 	{
 		_ssbos = new();
-		_renderBufferObjectService = renderBufferObjectService;
 		_vertexBufferObjectService = vertexBufferObjectService;
 	}
 
@@ -20,7 +18,7 @@ public sealed class ShaderStorageBufferObjectService : Identifiable, IContextSer
 	{
 		if (!_ssbos.TryGetValue(name, out var value))
 		{
-			_ssbos.Add(name, value = new(_renderBufferObjectService.ShaderStorage, _vertexBufferObjectService.ShaderStorage, name, sizeBytes, shaderTypes));
+			_ssbos.Add(name, value = new(_vertexBufferObjectService.ShaderStorage, name, sizeBytes, shaderTypes));
 			value.Disposed += OnDisposed;
 		}
 		return value;

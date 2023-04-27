@@ -36,10 +36,7 @@ public class VertexBufferObject : Identifiable, IDisposable
     {
         if (_disposed)
             return false;
-        unsafe
-        {
-            Gl.NamedBufferSubData(BufferId, (nint)dstOffsetBytes, lengthBytes, new nint((byte*)dataPtr.ToPointer() + srcOffsetBytes));
-        }
+        Gl.NamedBufferSubData(BufferId, (nint)dstOffsetBytes, lengthBytes, (nint)(dataPtr + srcOffsetBytes));
         return true;
     }
 

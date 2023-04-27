@@ -9,8 +9,8 @@ public sealed class VertexBufferObjectService : Identifiable, IContextService, I
 	private readonly Dictionary<Type, VertexBufferObject> _vbos;
 
 	public VertexBufferObject ElementBuffer { get; private set; } = null!;
-	public VertexBufferObject UniformBuffer { get; private set; } = null!;
-	public VertexBufferObject ShaderStorage { get; private set; } = null!;
+	public SegmentedVertexBufferObject UniformBuffer { get; private set; } = null!;
+	public SegmentedVertexBufferObject ShaderStorage { get; private set; } = null!;
 
 	public VertexBufferObjectService()
 	{
@@ -19,9 +19,9 @@ public sealed class VertexBufferObjectService : Identifiable, IContextService, I
 
 	public void Initialize()
 	{
-		ElementBuffer = new VertexBufferObject(nameof(ElementBuffer), 65_536u, BufferUsage.DynamicDraw);
-		UniformBuffer = new VertexBufferObject(nameof(UniformBuffer), 65_536u, BufferUsage.DynamicDraw);
-		ShaderStorage = new VertexBufferObject(nameof(ShaderStorage), 65_536u, BufferUsage.DynamicDraw);
+		ElementBuffer = new(nameof(ElementBuffer), 65_536u, BufferUsage.DynamicDraw);
+		UniformBuffer = new(nameof(UniformBuffer), 65_536u, BufferUsage.DynamicDraw, 256);
+		ShaderStorage = new(nameof(ShaderStorage), 65_536u, BufferUsage.DynamicDraw);
 	}
 
 	public VertexBufferObject Get(Type t)

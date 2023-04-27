@@ -29,15 +29,16 @@ public abstract class FrameBuffer : Identifiable, IDisposable
     }
 
 #if DEBUG
-	~FrameBuffer()
-	{
-		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
-	}
+    ~FrameBuffer()
+    {
+        System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+    }
 #endif
 
     public Texture CreateTexture(TextureTarget target, InternalFormat internalFormat, params (TextureParameterName, int)[] parameters)
     {
-        Texture t = new($"FBO#{IdentifiableName}:{internalFormat}", target, Size, internalFormat, 0, parameters);
+        Texture t = new($"FBO#{IdentifiableName}:{internalFormat}", target, Size, internalFormat, null, 0, parameters);
+        _textures.Add(t);
         this.LogLine($"Created new texture [{t}]!", Log.Level.LOW, ConsoleColor.Cyan);
         return t;
     }
@@ -125,12 +126,9 @@ public abstract class FrameBuffer : Identifiable, IDisposable
             _renderBuffers.Clear();
         }
 
-        if (_textures.Count > 0)
-        {
-            for (int i = 0; i < _textures.Count; i++)
-                _textures[i].Dispose();
-            _textures.Clear();
-        }
+        for (int i = 0; i < _textures.Count; i++)
+            _textures[i].Dispose();
+        _textures.Clear();
     }
 
     protected void Validate()

@@ -1,10 +1,6 @@
 ﻿using Engine;
 using Engine.GameLogic.ECPS;
-using Engine.GlobalServices;
-using Engine.Rendering.Contexts.Objects;
-using Engine.Structure.Attributes;
 using Engine.Structure.Interfaces;
-using System.Reflection;
 
 namespace StandardPackage.ECPS.Components;
 

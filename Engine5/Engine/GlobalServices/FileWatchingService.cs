@@ -20,7 +20,7 @@ public sealed class FileWatchingService : Identifiable, IDisposable, IGlobalServ
         string directoryPath = Path.GetDirectoryName(filePath) ?? throw new NullReferenceException();
         if (!_watchers.TryGetValue(directoryPath, out FileSystemWatcher? watcher))
         {
-            _watchers.TryAdd(directoryPath, watcher = new FileSystemWatcher(filePath));
+            _watchers.TryAdd(directoryPath, watcher = new FileSystemWatcher(directoryPath));
             watcher.Changed += FileChanged;
         }
         if (!_trackedFilepaths.TryGetValue(filePath, out var trackers))

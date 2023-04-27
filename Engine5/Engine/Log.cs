@@ -9,7 +9,7 @@ namespace Engine;
 public static class Log
 {
 
-    public static Level LoggingLevel { get; set; } = Level.NORMAL;
+    public static Level LoggingLevel { get; set; } = Level.VERBOSE;
     public static string Prefix => $"[{DateTime.Now:yyyy/MM/dd/HH:mm:ss.fff}][{Thread.CurrentThread.Name}:{Environment.CurrentManagedThreadId}/{Thread.CurrentThread.CurrentCulture.Name}]";
 
     private static bool _initialized;

@@ -54,7 +54,7 @@ public abstract class ShaderProgramBase : Identifiable, IDisposable
         _sources.Add(shader.ShaderType, shader);
         Gl.AttachShader(ProgramID, shader.ShaderID);
         Mask |= GetMask(shader);
-        this.LogLine($"Attached [{shader.ShaderID}]!", Log.Level.LOW, color: ConsoleColor.DarkGreen);
+        this.LogLine($"Attached [{shader.Filepath}]!", Log.Level.LOW, color: ConsoleColor.DarkGreen);
     }
 
     public void DetachShader(ShaderSource shader)

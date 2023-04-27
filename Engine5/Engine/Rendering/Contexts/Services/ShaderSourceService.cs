@@ -31,9 +31,15 @@ public sealed class ShaderSourceService : Identifiable, IContextService, IDispos
 
     private ShaderSource? Add(string path)
     {
+        path = path.Replace("/", "\\");
+        if (!path.StartsWith("assets\\shaders\\"))
+            path = "assets\\shaders\\" + path;
         if (!File.Exists(path))
         {
             this.LogWarning($"File {path} does not exist!");
+#if DEBUG
+            DebugUtilities.Breakpoint(this);
+#endif
             return null;
         }
 

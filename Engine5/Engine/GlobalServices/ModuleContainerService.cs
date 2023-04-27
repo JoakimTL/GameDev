@@ -4,7 +4,7 @@ using Engine.Time;
 
 namespace Engine.GlobalServices;
 
-public class ModuleContainerService : IGlobalService
+public class ModuleContainerService : Identifiable, IGlobalService
 {
 
     private TickingTimer _moduleTickTimer;
@@ -31,6 +31,7 @@ public class ModuleContainerService : IGlobalService
                 _modules.Remove(module);
                 if (module is ISystem && module is IDisposable disposable)
                     disposable.Dispose();
+                this.LogLine($"Removed module {module}", Log.Level.NORMAL, ConsoleColor.Blue);
             }
 
             if (!_modules.Any(p => p.Essential))
@@ -38,7 +39,10 @@ public class ModuleContainerService : IGlobalService
                     m.ForceStop();
 
             foreach (var kvp in _moduleTickers.Where(p => !p.Key.Active))
+            {
                 _moduleTickers.Remove(kvp.Key);
+                this.LogLine($"Removed module ticker for {kvp.Key}", Log.Level.NORMAL, ConsoleColor.Blue);
+            }
 
             if (_modules.Count == 0 && _moduleTickers.Count == 0)
                 Shutdown();
@@ -47,6 +51,7 @@ public class ModuleContainerService : IGlobalService
 
     private void Shutdown()
     {
+        this.LogLine($"Shutting down gracefully", Log.Level.NORMAL, ConsoleColor.Blue);
         _moduleTickTimer.Stop();
         Global.Shutdown();
     }
@@ -56,6 +61,7 @@ public class ModuleContainerService : IGlobalService
         lock (_modules)
             if (_modules.Add(moduleBase))
             {
+                this.LogLine($"Added module {moduleBase}.", Log.Level.NORMAL, ConsoleColor.Magenta);
                 if (moduleBase is ISystem system)
                 {
                     ITimedSystem? timedSystem = moduleBase as ITimedSystem;
@@ -67,7 +73,7 @@ public class ModuleContainerService : IGlobalService
             }
     }
 
-    private abstract class ModuleSystemTickerBase : IUpdateable, IDisposable
+    private abstract class ModuleSystemTickerBase : Identifiable, IUpdateable, IDisposable
     {
         private ModuleBase _moduleBase;
         private IInitializable? _initializableModule;
@@ -87,20 +93,31 @@ public class ModuleContainerService : IGlobalService
         public void Update(float time, float deltaTime)
         {
             if (_moduleBase.Active)
-                try
+            {
+                if (_initializableModule is not null)
                 {
-                    if (_initializableModule is not null)
+                    try
                     {
                         _initializableModule.Initialize();
-                        _initializableModule = null;
                     }
+                    catch (Exception e)
+                    {
+                        this.LogError(e);
+                        _disposableModule?.Dispose();
+                    }
+                    _initializableModule = null;
+                }
+                try
+                {
                     if (_updateableModule is not null)
                         _updateableModule.Update(time, deltaTime);
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e);
+                    this.LogError(e);
+                    _disposableModule?.Dispose();
                 }
+            }
             else
             {
                 if (_disposableModule is not null)
@@ -139,7 +156,6 @@ public class ModuleContainerService : IGlobalService
                 {
                     _interval = _timedSystem.SystemTickInterval;
                     _timer.SetInterval(_interval);
-                    Console.WriteLine("Time interval changed!");
                 }
                 Update((float)time, (float)deltaTime);
             }

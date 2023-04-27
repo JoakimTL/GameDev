@@ -1,7 +1,6 @@
 ﻿using Engine.GameLogic.ECPS;
 using Engine.GlobalServices;
 using Engine.Rendering;
-using Engine.Rendering.Contexts.Objects;
 
 namespace StandardPackage.ECPS.Components;
 
@@ -26,7 +25,6 @@ public sealed class RenderableComponent : ComponentBase, IRenderable
 		_meshComponent = meshComponent;
 		_sceneComponent = sceneComponent;
 		_instanceDataComponent = instanceDataComponent;
-		//TODO        //ShaderComponent.ComponentChanged += OnChanged();
 		_sceneComponent.ComponentChanged += OnSceneComponentChanged;
 		_materialComponent.ComponentChanged += OnRenderDataComponentChanged;
 		_meshComponent.ComponentChanged += OnRenderDataComponentChanged;
@@ -38,7 +36,5 @@ public sealed class RenderableComponent : ComponentBase, IRenderable
 
 	protected override void OnOwnerChanged() => Engine.Global.Get<RenderableContainerService>().Add(this);
 	protected override void OnDispose() => Engine.Global.Get<RenderableContainerService>().Remove(this);
-	//THIS -> CHANGED -> ENTITY_RENDERABLE_SERVICE -> UPDATE RENDERABLES -> UPDATE SCENE_INSTANCE
-	// Y   ->   Y     ->             n            
 
 }

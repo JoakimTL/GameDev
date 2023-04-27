@@ -31,7 +31,11 @@ public abstract class VertexArrayObjectBase : Identifiable, IDisposable
 
     #region Setup
     protected void SetBindingDivisor(uint binding, uint divisor)
-        => Gl.VertexArrayBindingDivisor(VAOID, binding, divisor);
+    {
+        Gl.VertexArrayBindingDivisor(VAOID, binding, divisor);
+        this.LogLine($"Set divisor for binding {binding} to {divisor}!", Log.Level.LOW);
+    }
+
     protected void SetAttribBinding(uint binding, uint attribIndex)
         => Gl.VertexArrayAttribBinding(VAOID, attribIndex, binding);
     protected void SetAttribFormat(uint attribIndex, int size, VertexAttribType type, bool normalized, uint relativeOffset)
@@ -54,7 +58,7 @@ public abstract class VertexArrayObjectBase : Identifiable, IDisposable
     protected uint AddBuffer(uint bufferId, ulong offset, int stride)
     {
         uint binding = _numBufferBindings++;
-        Gl.VertexArrayVertexBuffer(VAOID, binding, bufferId, (IntPtr)offset, stride);
+        Gl.VertexArrayVertexBuffer(VAOID, binding, bufferId, (nint)offset, stride);
         this.LogLine($"Added {bufferId} at offset {offset}, with stride {stride}B as binding {binding}!", Log.Level.NORMAL);
         return binding;
     }

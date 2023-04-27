@@ -33,8 +33,7 @@ public class CompositeVertexArrayObject : VertexArrayObjectBase
             var layout = _layouts[i];
             uint binding = AddBuffer(layout.Buffer, layout.OffsetBytes, layout.StrideBytes);
 
-            if (layout.InstanceDivisor != 0)
-                SetBindingDivisor(binding, layout.InstanceDivisor);
+            SetBindingDivisor(binding, layout.InstanceDivisor);
 
             for (int j = 0; j < layout.Attributes.Count; j++)
             {

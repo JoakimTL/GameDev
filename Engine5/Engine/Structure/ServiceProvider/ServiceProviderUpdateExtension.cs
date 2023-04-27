@@ -3,7 +3,7 @@
 namespace Engine.Structure.ServiceProvider;
 
 public sealed class ServiceProviderUpdateExtension : HierarchicalServiceProviderExtension<IUpdateable>, IUpdateable {
-	public ServiceProviderUpdateExtension( ServiceProvider serviceProvider ) : base( serviceProvider, typeof( IUpdateable ) ) { }
+	public ServiceProviderUpdateExtension( ServiceProvider serviceProvider ) : base( serviceProvider, typeof( IUpdateable ), false ) { }
 
 	public void Update( float time, float deltaTime ) {
 		_tree.Update();

@@ -28,7 +28,7 @@ public sealed class ShaderBundleService : Identifiable, IContextService {
 
 	private Dictionary<string, Type> LoadBundleIdentities() {
 		Dictionary<string, Type> bundleTypes = new();
-		foreach ( var type in Global.Get<TypeService>().DerivedTypes.Where( q => q.IsAssignableTo( typeof( ShaderBundleBase ) ) ) ) {
+		foreach ( var type in Global.Get<TypeService>().DerivedTypes.Where( q => !q.IsAbstract && q.IsAssignableTo( typeof( ShaderBundleBase ) ) ) ) {
 			IdentityAttribute? identity = type.GetCustomAttribute<IdentityAttribute>();
 			if ( identity is null ) {
 				this.LogWarning( $"{type} is missing an Identity!" );

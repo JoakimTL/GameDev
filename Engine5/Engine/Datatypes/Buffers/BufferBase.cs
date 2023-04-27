@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Engine.Datatypes.Buffers;
 public abstract unsafe class BufferBase : Identifiable, IBuffer, IReadableBuffer, IReadableBufferIndexable, IListenableWriteableBuffer, IListenableResizeableBuffer {
-	public ulong SizeBytes { get; protected set; }
+	public ulong SizeBytes { get; private set; }
 	private void* _bufferPointer;
 	protected readonly AutoResetEvent? _multithreadingLock;
 
@@ -30,6 +30,9 @@ public abstract unsafe class BufferBase : Identifiable, IBuffer, IReadableBuffer
 			}
 		if ( offsetBytes + sizeBytes > SizeBytes ) {
 			this.LogWarning( "Tried to write data outside buffer." );
+#if DEBUG
+			DebugUtilities.Breakpoint(this);
+#endif
 			return false;
 		}
 		Buffer.MemoryCopy( data, (byte*) _bufferPointer + offsetBytes.ToUlong(), ( SizeBytes - offsetBytes ).ToUlong(), sizeBytes.ToUlong() );
@@ -50,8 +53,9 @@ public abstract unsafe class BufferBase : Identifiable, IBuffer, IReadableBuffer
 				this.LogWarning( "Buffer write timed out." );
 				return false;
 			}
-		NativeMemory.Realloc( _bufferPointer, (nuint) newSizeBytes.ToUlong() );
-		Resized?.Invoke( newSizeBytes );
+		NativeMemory.Realloc( _bufferPointer, (nuint) newSizeBytes );
+		SizeBytes = newSizeBytes;
+        Resized?.Invoke( newSizeBytes );
 		if ( performLocking )
 			Unlock();
 		return true;

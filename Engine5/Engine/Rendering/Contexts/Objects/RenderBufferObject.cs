@@ -31,6 +31,7 @@ public class RenderBufferObject : SegmentedBuffer
     {
         if (_hasResized)
         {
+            _hasResized = false;
             _writeTracker.Clear();
             vbo.ResizeWrite((nint)Pointer, (uint)SizeBytes);
         }

@@ -125,7 +125,10 @@ internal unsafe class BufferSegment : Identifiable, ISegmentedBufferSegment {
 		}
 		if ( !this.IsInsideSegment( offsetBytes, sizeBytes ) ) {
 			this.LogWarning( "Tried to write data outside segment." );
-			return false;
+#if DEBUG
+            DebugUtilities.Breakpoint(this);
+#endif
+            return false;
 		}
 		return _writeFunction.Invoke( offsetBytes, (nuint) data, sizeBytes );
 	}

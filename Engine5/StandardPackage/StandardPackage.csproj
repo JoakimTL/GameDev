@@ -8,7 +8,46 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="assets\materials\testMaterial.mat" />
+    <None Remove="assets\meshes\box.obj" />
+    <None Remove="assets\shaders\gBuffer.frag" />
+    <None Remove="assets\shaders\geometry3.frag" />
+    <None Remove="assets\shaders\geometry3.vert" />
+    <None Remove="assets\shaders\pfx.frag" />
+    <None Remove="assets\shaders\pfx.vert" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="assets\materials\testMaterial.mat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\meshes\box.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\gBuffer.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\geometry3.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\geometry3.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\pfx.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\pfx.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.csproj" />
+    <ProjectReference Include="..\GLFW\GLFW.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="assets\textures\" />
   </ItemGroup>
 
 </Project>

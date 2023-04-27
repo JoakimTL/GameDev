@@ -42,5 +42,9 @@ public abstract class GameLogicModuleBase : ModuleBase<IGameLogicService>, IInit
     protected abstract void OnUpdate(float time, float deltaTime);
 
     public void Dispose()
-        => _serviceProviderDisposer.Dispose();
+    {
+        this.LogLine("Disposing", Log.Level.NORMAL);
+        _serviceProviderDisposer.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

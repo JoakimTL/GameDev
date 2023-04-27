@@ -21,14 +21,20 @@ public sealed class RenderableContainerService : IGlobalService
 
 	public void Add(IRenderable renderable)
 	{
-		if (_renderables.Add(renderable))
-			AddedRenderable?.Invoke(renderable);
+		lock (_renderables)
+		{
+			if (_renderables.Add(renderable))
+				AddedRenderable?.Invoke(renderable);
+		}
 	}
 
 	public void Remove(IRenderable renderable)
-	{
-		if (_renderables.Remove(renderable))
-			RemovedRenderable?.Invoke(renderable);
+    {
+		lock (_renderables)
+		{
+			if (_renderables.Remove(renderable))
+				RemovedRenderable?.Invoke(renderable);
+		}
 	}
 
 	public IReadOnlySet<IRenderable> Renderables => _renderables;

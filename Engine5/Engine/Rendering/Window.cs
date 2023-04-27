@@ -1,4 +1,5 @@
 ﻿using Engine.Datatypes.Vectors;
+using Engine.Rendering.Contexts.Objects;
 using Engine.Rendering.OGL;
 using Engine.Structure.Interfaces;
 using GlfwBinding;
@@ -33,6 +34,7 @@ public sealed class Window : Identifiable, IUpdateable, IDisposable
         _viewport = new();
         _context = new(this);
         _context.Bind();
+        _context.Initialize();
         Gl.BindAPI();
         //ContextUtilities.SwapInterval( settings?.vsyncLevel ?? 0 );
         Log.Line("Using OpenGL version: " + Gl.GetString(StringName.Version), Log.Level.NORMAL, ConsoleColor.Blue);
@@ -61,8 +63,7 @@ public sealed class Window : Identifiable, IUpdateable, IDisposable
 
 	public void Bind()
     {
-        //TODO
-        //Framebuffer.Unbind( FramebufferTarget.DrawFramebuffer );
+        FrameBuffer.Unbind( FramebufferTarget.DrawFramebuffer );
         _viewport.Set(0, Size);
     }
 

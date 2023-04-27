@@ -5,6 +5,7 @@ namespace Engine.Rendering.Contexts.Objects;
 
 public class Texture : Identifiable, IDisposable
 {
+    public string? FilePath { get; }
     private readonly ulong _handle;
     private readonly Vector2i[] _sizes;
     public TextureTarget Target { get; }
@@ -15,11 +16,12 @@ public class Texture : Identifiable, IDisposable
 
     protected override string UniqueNameTag => $"{TextureID},{_handle}";
 
-    public Texture(string name, TextureTarget target, Vector2i[] sizes, InternalFormat format, int samples = 0, params (TextureParameterName, int)[] parameters) : base(name)
+    public Texture(string name, TextureTarget target, Vector2i[] sizes, InternalFormat format, string? filePath = null, int samples = 0, params (TextureParameterName, int)[] parameters) : base(name)
     {
         if (sizes.Length == 0)
             throw new ArgumentOutOfRangeException(nameof(sizes), "Must be greater than zero");
         Target = target;
+        FilePath = filePath;
         _sizes = sizes;
         Resident = false;
         this.LogLine($"Created with format [{format}]!", Log.Level.LOW);
@@ -38,17 +40,17 @@ public class Texture : Identifiable, IDisposable
         _handle = Gl.GetTextureHandleARB(TextureID);
     }
 
-    public Texture(string name, TextureTarget target, Vector2i size, InternalFormat format, int samples = 0, params (TextureParameterName, int)[] parameters) : this(name, target, new Vector2i[] { size }, format, samples, parameters) { }
+    public Texture(string name, TextureTarget target, Vector2i size, InternalFormat format, string? filePath = null, int samples = 0, params (TextureParameterName, int)[] parameters) : this(name, target, new Vector2i[] { size }, format, filePath, samples, parameters) { }
 
 
 #if DEBUG
-	~Texture()
-	{
-		System.Diagnostics.Debug.Fail($"{this} was not disposed!");
-	}
+    ~Texture()
+    {
+        System.Diagnostics.Debug.Fail($"{this} was not disposed!");
+    }
 #endif
 
-	public Vector2i GetMipmap(uint level)
+    public Vector2i GetMipmap(uint level)
     {
         if (level > _sizes.Length)
             return 0;
@@ -111,6 +113,7 @@ public class Texture : Identifiable, IDisposable
 
     public void Dispose()
     {
+        this.LogLine("Disposed!", Log.Level.VERBOSE);
         Unbind();
         Gl.DeleteTextures(new uint[] { TextureID });
         GC.SuppressFinalize(this);

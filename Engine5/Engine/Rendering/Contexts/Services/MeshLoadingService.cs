@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Diagnostics.CodeAnalysis;
 using Engine.Rendering.Contexts.Objects.Meshes.Vertices;
+using Engine.Rendering.Contexts.Objects;
 
 namespace Engine.Rendering.Contexts.Services;
 
@@ -31,12 +32,11 @@ public sealed class MeshLoadingService : Identifiable, IContextService
 					uint vertexSize = (uint)Marshal.SizeOf<Vertex3>();
 					var vertexSegment = _renderBufferObjectService.Get(typeof(Vertex3)).AllocateSegment((uint)vertices.Length * vertexSize)
 						?? throw new OutOfMemoryException($"{_renderBufferObjectService.Get(typeof(Vertex3))} ran out of memory for vertex data");
-					uint elementSize = sizeof(uint);
-					var elementSegment = _renderBufferObjectService.ElementBuffer.AllocateSegment((uint)indices.Length * elementSize)
+					var elementSegment = _renderBufferObjectService.ElementBuffer.AllocateSegment((uint)indices.Length * IMesh.ElementSizeBytes)
 						?? throw new OutOfMemoryException($"{_renderBufferObjectService.ElementBuffer} ran out of memory for element data");
 					vertexSegment.Write(0, vertices);
 					elementSegment.Write(0, indices);
-					mesh = new LoadedAssetMesh(typeof(Vertex3), vertexSegment, vertexSize, elementSegment, elementSize);
+					mesh = new LoadedAssetMesh(path, typeof(Vertex3), vertexSegment, vertexSize, elementSegment);
 					break;
 				}
 			case ".d3m":
@@ -47,12 +47,11 @@ public sealed class MeshLoadingService : Identifiable, IContextService
 					uint vertexSize = (uint)Marshal.SizeOf<Vertex3>();
 					var vertexSegment = _renderBufferObjectService.Get(typeof(Vertex3)).AllocateSegment((uint)vertices.Length * vertexSize)
 						?? throw new OutOfMemoryException($"{_renderBufferObjectService.Get(typeof(Vertex3))} ran out of memory for vertex data");
-					uint elementSize = sizeof(uint);
-					var elementSegment = _renderBufferObjectService.ElementBuffer.AllocateSegment((uint)indices.Length * elementSize)
+					var elementSegment = _renderBufferObjectService.ElementBuffer.AllocateSegment((uint)indices.Length * IMesh.ElementSizeBytes)
 						?? throw new OutOfMemoryException($"{_renderBufferObjectService.ElementBuffer} ran out of memory for element data");
 					vertexSegment.Write(0, vertices);
 					elementSegment.Write(0, indices);
-					mesh = new LoadedAssetMesh(typeof(Vertex3), vertexSegment, vertexSize, elementSegment, elementSize);
+					mesh = new LoadedAssetMesh(path, typeof(Vertex3), vertexSegment, vertexSize, elementSegment);
 					break;
 				}
 			case ".d2m":
@@ -63,12 +62,11 @@ public sealed class MeshLoadingService : Identifiable, IContextService
 					uint vertexSize = (uint)Marshal.SizeOf<Vertex2>();
 					var vertexSegment = _renderBufferObjectService.Get(typeof(Vertex2)).AllocateSegment((uint)vertices.Length * vertexSize)
 						?? throw new OutOfMemoryException($"{_renderBufferObjectService.Get(typeof(Vertex2))} ran out of memory for vertex data");
-					uint elementSize = sizeof(uint);
-					var elementSegment = _renderBufferObjectService.ElementBuffer.AllocateSegment((uint)indices.Length * elementSize)
+					var elementSegment = _renderBufferObjectService.ElementBuffer.AllocateSegment((uint)indices.Length * IMesh.ElementSizeBytes)
 						?? throw new OutOfMemoryException($"{_renderBufferObjectService.ElementBuffer} ran out of memory for element data");
 					vertexSegment.Write(0, vertices);
 					elementSegment.Write(0, indices);
-					mesh = new LoadedAssetMesh(typeof(Vertex2), vertexSegment, vertexSize, elementSegment, elementSize);
+					mesh = new LoadedAssetMesh(path, typeof(Vertex2), vertexSegment, vertexSize, elementSegment);
 					break;
 				}
 			default:
@@ -147,37 +145,65 @@ public sealed class MeshLoadingService : Identifiable, IContextService
 
 		string? line;
 		StreamReader file = new($"{Directory.GetCurrentDirectory()}\\{filepath}");
-		while ((line = file.ReadLine()) is not null)
+        List<Vector3> vertexList = new();
+        List<Vector3> normalList = new();
+        List<Vector2> uvList = new();
+		List<string> faces = new();
+        //List<((uint v, uint n, uint t) f1, (uint v, uint n, uint t) f2, (uint v, uint n, uint t) f3)> faces = new();
+        var numberFormat = CultureInfo.InvariantCulture.NumberFormat;
+        while ((line = file.ReadLine()) is not null)
 		{
-
-			string[] tokens = RemoveEmptyStrings(line.Split(' '));
-
-			if (tokens.Length == 0 || tokens[0].Equals("#"))
+			if (line.StartsWith("#"))
 				continue;
-			else if (tokens[0].Equals("v"))
-				tVertices.Add(
-					new Vertex3(
-						new Vector3(
-							float.Parse(tokens[1], CultureInfo.InvariantCulture.NumberFormat),
-							float.Parse(tokens[2], CultureInfo.InvariantCulture.NumberFormat),
-							float.Parse(tokens[3], CultureInfo.InvariantCulture.NumberFormat)
-						)
-					)
-				);
-			else if (tokens[0].Equals("f"))
-			{
-				tIndices.Add(uint.Parse(tokens[1].Split('/')[0]) - 1);
-				tIndices.Add(uint.Parse(tokens[2].Split('/')[0]) - 1);
-				tIndices.Add(uint.Parse(tokens[3].Split('/')[0]) - 1);
 
-				if (tokens.Length > 4)
-				{
-					tIndices.Add(uint.Parse(tokens[1].Split('/')[0]) - 1);
-					tIndices.Add(uint.Parse(tokens[3].Split('/')[0]) - 1);
-					tIndices.Add(uint.Parse(tokens[4].Split('/')[0]) - 1);
-				}
-			}
+			var lineSplit = line.Split(' ');
+
+            if (line.StartsWith("v "))
+            {
+                vertexList.Add(new(float.Parse(lineSplit[1], numberFormat), float.Parse(lineSplit[2], numberFormat), float.Parse(lineSplit[3], numberFormat)));
+                continue;
+            }
+
+            if (line.StartsWith("vn "))
+            {
+                normalList.Add(new(float.Parse(lineSplit[1], numberFormat), float.Parse(lineSplit[2], numberFormat), float.Parse(lineSplit[3], numberFormat)));
+                continue;
+            }
+
+            if (line.StartsWith("vt "))
+            {
+                uvList.Add(new(float.Parse(lineSplit[1], numberFormat), float.Parse(lineSplit[2], numberFormat)));
+                continue;
+            }
+
+            if (line.StartsWith("f "))
+            {
+				faces.Add(line[2..]);
+                continue;
+            }
 		}
+
+		for (int i = 0; i < faces.Count; i++)
+		{
+            var faceVertices = faces[i].Split(' ').Select(p => p.Split('/').Select(q => uint.Parse(q, numberFormat) - 1).ToArray()).ToArray();
+			uint vertexStart = (uint) tVertices.Count;
+
+			for (int j = 0; j < faceVertices.Length; j++)
+			{
+				var face = faceVertices[j];
+				tVertices.Add(new(vertexList[(int)face[0]], uvList[(int)face[1]], normalList[(int)face[2]], Vector4.One));
+            }
+
+            tIndices.Add(vertexStart);
+            tIndices.Add(vertexStart + 1);
+            tIndices.Add(vertexStart + 2);
+			if(faceVertices.Length > 3)
+			{
+                tIndices.Add(vertexStart);
+                tIndices.Add(vertexStart + 2);
+                tIndices.Add(vertexStart + 3);
+            }
+        }
 
 		file.Close();
 

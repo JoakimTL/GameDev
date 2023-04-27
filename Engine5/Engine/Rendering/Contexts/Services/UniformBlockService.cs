@@ -6,13 +6,11 @@ namespace Engine.Rendering.Contexts.Services;
 public sealed class UniformBlockService : Identifiable, IContextService, IDisposable
 {
 	private readonly Dictionary<string, UniformBlock> _ubs;
-	private readonly RenderBufferObjectService _renderBufferObjectService;
 	private readonly VertexBufferObjectService _vertexBufferObjectService;
 
-	public UniformBlockService(RenderBufferObjectService renderBufferObjectService, VertexBufferObjectService vertexBufferObjectService)
+	public UniformBlockService(VertexBufferObjectService vertexBufferObjectService)
 	{
 		_ubs = new();
-		_renderBufferObjectService = renderBufferObjectService;
 		_vertexBufferObjectService = vertexBufferObjectService;
 	}
 
@@ -20,7 +18,7 @@ public sealed class UniformBlockService : Identifiable, IContextService, IDispos
 	{
 		if (!_ubs.TryGetValue(name, out var value))
 		{
-			_ubs.Add(name, value = new(_renderBufferObjectService.ShaderStorage, _vertexBufferObjectService.ShaderStorage, name, sizeBytes, shaderTypes));
+			_ubs.Add(name, value = new(_vertexBufferObjectService.ShaderStorage, name, sizeBytes, shaderTypes));
 			value.Disposed += OnDisposed;
 		}
 		return value;

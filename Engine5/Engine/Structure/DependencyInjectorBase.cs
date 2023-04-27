@@ -19,13 +19,13 @@ public abstract class DependencyInjectorBase : Identifiable {
 		Type[] parameterTypes = ctor.GetParameters().Select( p => p.ParameterType ).ToArray();
 
 		if ( parameterTypes.Any( p => p == t ) )
-			throw new Exception( $"Object {t.FullName} can't depend on itself!" );
+			throw new Exception( $"{this.FullName}: Object {t.FullName} can't depend on itself!" );
 
 		Type selfType = GetType();
 		object?[]? parameters = parameterTypes.Select( p => p == selfType ? this : GetInternal( p ) ).ToArray();
 
 		if ( parameters.Any( p => p is null ) )
-			throw new Exception( $"Unable to load all dependencies for {t.FullName}!" );
+			throw new Exception( $"{this.FullName}: Unable to load all dependencies for {t.FullName}! Missing {string.Join(", ", parameterTypes.Except(parameters.Where(p => p is not null).Select(p => p!.GetType())))}" );
 		var obj = ctor.Invoke( parameters );
 
 		if ( loadRequiredTypes )

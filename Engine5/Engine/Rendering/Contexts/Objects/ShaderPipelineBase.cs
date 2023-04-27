@@ -54,7 +54,7 @@ public abstract class ShaderPipelineBase : Identifiable, IDisposable
         }
     }
 
-    public void DirectBind() => Gl.BindProgramPipeline(PipelineId);
+    public void Bind() => Gl.BindProgramPipeline(PipelineId);
     public static void DirectUnbind() => Gl.BindProgramPipeline(0);
 
     public void Dispose()

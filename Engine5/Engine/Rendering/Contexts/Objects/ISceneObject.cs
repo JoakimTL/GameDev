@@ -10,7 +10,7 @@ public interface ISceneObject {
 	ulong SortingIndex { get; }
 	bool Valid { get; }
 	uint Layer { get; }
-	bool TryGetIndirectCommand( out IndirectCommand? validCommand );
+	bool TryGetIndirectCommand( out IndirectCommand validCommand );
 	void Bind();
 	event Action<ISceneObject>? RenderPropertiesChanged;
 	event Action<ISceneObject>? SceneObjectDisposed;

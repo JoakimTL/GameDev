@@ -1,7 +1,9 @@
 ﻿namespace Engine.Rendering.Contexts.Objects;
 
-public interface IMesh {
-	Type VertexType { get; }
+public interface IMesh
+{
+    public const uint ElementSizeBytes = sizeof(uint);
+    Type VertexType { get; }
 	/// <summary>
 	/// Number of indices in the mesh.
 	/// </summary>

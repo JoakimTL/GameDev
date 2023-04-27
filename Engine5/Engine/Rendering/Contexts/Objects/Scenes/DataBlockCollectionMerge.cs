@@ -12,13 +12,13 @@ public class DataBlockCollectionMerge : Identifiable, IDataBlockCollection {
 
 	public void Clear() => _collections.Clear();
 
-	public void DirectUnbindBuffers() {
+	public void UnbindBuffers() {
 		for ( int i = 0; i < _collections.Count; i++ )
-			_collections[ i ].DirectUnbindBuffers();
+			_collections[ i ].UnbindBuffers();
 	}
 
-	public void DirectBindShader( ShaderPipelineBase s ) {
+	public void BindShader( ShaderPipelineBase s ) {
 		for ( int i = 0; i < _collections.Count; i++ )
-			_collections[ i ].DirectBindShader( s );
+			_collections[ i ].BindShader( s );
 	}
 }

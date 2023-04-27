@@ -1,4 +1,4 @@
-﻿new Engine.Rendering.RenderModule();
+﻿new TestPlatform.TestGameRenderModule();
 new TestPlatform.TestGameLogicModule();
 
 //BenchmarkRunner.Run<Benchmarking2>();

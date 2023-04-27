@@ -1,4 +1,6 @@
-﻿namespace Engine.Rendering.Contexts.Objects.Scenes;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Engine.Rendering.Contexts.Objects.Scenes;
 
 public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable
 {
@@ -39,7 +41,8 @@ public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable
 		if (VertexArrayObject == newVao)
 			return;
 		VertexArrayObject = newVao;
-		CheckValidity();
+        SetSortingIndex();
+        CheckValidity();
 		RenderPropertiesChanged?.Invoke(this);
 	}
 
@@ -79,9 +82,9 @@ public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable
 		RenderPropertiesChanged?.Invoke(this);
 	}
 
-	public bool TryGetIndirectCommand(out IndirectCommand? command)
+	public bool TryGetIndirectCommand(out IndirectCommand command)
 	{
-		command = null;
+		command = new();
 		if (!Valid || Mesh is null || SceneData is null || SceneData.ActiveInstances == 0)
 			return false;
 		command = new(

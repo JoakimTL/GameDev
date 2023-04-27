@@ -16,6 +16,8 @@ namespace Engine.Rendering.Contexts.Services;
 public sealed class TextureService : IContextService, IUpdateable, IDisposable
 {
 
+    //Needs to be redone. A weakref service should keep track of textures and signal if they're dereferenced
+
     private readonly Dictionary<string, Texture> _textures;
     private readonly ConcurrentQueue<string> _updatedTextures;
     private readonly FileWatchingService _fileWatchingService;
@@ -70,7 +72,7 @@ public sealed class TextureService : IContextService, IUpdateable, IDisposable
         if (!LoadRawData(filepath, out uint[]? pixelData, out Vector2i res))
             return false;
 
-        t = new(filepath, TextureTarget.Texture2d, res, InternalFormat.Rgba8, samples, (TextureParameterName.TextureMagFilter, (int)filter), (TextureParameterName.TextureMinFilter, (int)filter));
+        t = new(filepath, TextureTarget.Texture2d, res, InternalFormat.Rgba8, filepath, samples, (TextureParameterName.TextureMagFilter, (int)filter), (TextureParameterName.TextureMinFilter, (int)filter));
         _fileWatchingService.Track(filepath, FileChanged);
 
         unsafe
@@ -94,31 +96,29 @@ public sealed class TextureService : IContextService, IUpdateable, IDisposable
             return false;
         }
 
-        using (Image<Rgba32>? img = Image.Load<Rgba32>(filepath))
+        using Image<Rgba32>? img = Image.Load<Rgba32>(filepath);
+        resolution = (img.Width, img.Height);
+        IMemoryGroup<Rgba32>? pixels = img.GetPixelMemoryGroup();
+        if (pixels is null)
         {
-            resolution = (img.Width, img.Height);
-            IMemoryGroup<Rgba32>? pixels = img.GetPixelMemoryGroup();
-            if (pixels is null)
-            {
-                Log.Warning($"Failed to load texture {filepath}!");
-                return false;
-            }
+            Log.Warning($"Failed to load texture {filepath}!");
+            return false;
+        }
 
-            pixelData = new uint[pixels.TotalLength];
+        pixelData = new uint[pixels.TotalLength];
 
-            unsafe
+        unsafe
+        {
+            uint bytesCopied = 0;
+            fixed (uint* dst = pixelData)
             {
-                uint bytesCopied = 0;
-                fixed (uint* dst = pixelData)
+                foreach (Memory<Rgba32> memory in pixels)
                 {
-                    foreach (Memory<Rgba32> memory in pixels)
+                    using (System.Buffers.MemoryHandle memHandle = memory.Pin())
                     {
-                        using (System.Buffers.MemoryHandle memHandle = memory.Pin())
-                        {
-                            uint bytesToCopy = (uint)memory.Length * sizeof(uint);
-                            Unsafe.CopyBlock(&dst[bytesCopied], memHandle.Pointer, bytesToCopy);
-                            bytesCopied += bytesToCopy;
-                        }
+                        uint bytesToCopy = (uint)memory.Length * sizeof(uint);
+                        Unsafe.CopyBlock(&dst[bytesCopied], memHandle.Pointer, bytesToCopy);
+                        bytesCopied += bytesToCopy;
                     }
                 }
             }

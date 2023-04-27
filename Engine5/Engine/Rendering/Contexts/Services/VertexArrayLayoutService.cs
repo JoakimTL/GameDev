@@ -38,7 +38,7 @@ public class VertexArrayLayoutService : Identifiable, IContextService, IInitiali
                 continue;
             }
 
-            var valSetup = layoutType.GetCustomAttribute<VAO.SetupAttribute>() ?? throw new Exception($"Should not happen. A type is missing the {nameof(VAO.SetupAttribute)} attribute.");
+            var valSetup = layoutType.GetCustomAttribute<VAO.SetupAttribute>().NotNull();
 
             int strideBytes = valSetup.StrideBytesOverride >= 0
                 ? valSetup.StrideBytesOverride
