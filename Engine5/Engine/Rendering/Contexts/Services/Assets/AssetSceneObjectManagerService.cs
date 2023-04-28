@@ -23,6 +23,7 @@ public sealed class AssetSceneObjectManagerService : Identifiable, IContextServi
     private readonly ConcurrentQueue<IRenderable> _outgoingRenderables;
     private readonly Dictionary<IRenderable, AssetSceneObject> _sceneObjects;
     private readonly ConcurrentQueue<IRenderable> _updatedRenderablesData;
+    private readonly HashSet<IRenderable> _nextUpdatedRenderablesData;
     private readonly ConcurrentQueue<IRenderable> _updatedRenderablesScene;
     private readonly Dictionary<IRenderable, Scene> _renderableScene;
 
@@ -41,6 +42,7 @@ public sealed class AssetSceneObjectManagerService : Identifiable, IContextServi
         _outgoingRenderables = new();
         _sceneObjects = new();
         _updatedRenderablesData = new();
+        _nextUpdatedRenderablesData = new();
         _updatedRenderablesScene = new();
         _renderableScene = new();
 
@@ -125,15 +127,16 @@ public sealed class AssetSceneObjectManagerService : Identifiable, IContextServi
                     _assetMeshDataService.Discarded(so.CurrentMesh.MeshDataAssetName);
                 newMesh = newMeshAssetPath is not null ? _assetMeshDataService.Request(newMeshAssetPath) : null;
             }
-            var newVao = GetVao(newMesh?.VertexType, renderable.InstanceData?.InstanceDataType);
+            var instanceDataType = renderable.InstanceData?.InstanceDataType;
+            var newVao = GetVao(newMesh?.VertexType, instanceDataType);
             so.Set(newMaterial, newMesh, newVao);
 
-            if (renderable.InstanceData?.InstanceDataType is not null)
+            //TODO: Will have to eventually actually use multiple instances, first solve interpolation.
+            if (instanceDataType is not null)
             {
-                var instanceDataType = renderable.InstanceData.InstanceDataType;
                 var instanceLayout = _vertexArrayLayoutService.Get(instanceDataType);
-                var instanceData = renderable.InstanceData.GetData();
-                if (instanceLayout is not null && instanceData is not null)
+                var instanceData = renderable.InstanceData!.GetInstanceData(time, out bool extrapolating);
+                if (instanceLayout is not null && instanceData.Length > 0)
                 {
                     uint incompleteInstanceSizeBytes = (uint)Marshal.SizeOf(instanceDataType);
                     uint instanceSizeWithTexturesBytes = (uint)instanceLayout.StrideBytes;
@@ -143,10 +146,15 @@ public sealed class AssetSceneObjectManagerService : Identifiable, IContextServi
                         so.SetSceneInstanceData(new(_renderBufferObjectService.Get(instanceDataType).AllocateSegment(numInstances * instanceSizeWithTexturesBytes).NotNull(), instanceSizeWithTexturesBytes, true), instanceDataType);
                     else if (so.InstanceDataType != instanceDataType || so.InstanceData.MaxInstances < numInstances)
                         so.SetSceneInstanceDataSegment(_renderBufferObjectService.Get(instanceDataType).AllocateSegment(numInstances * instanceSizeWithTexturesBytes).NotNull(), instanceSizeWithTexturesBytes, true, instanceDataType);
-                    so.UpdateInstanceData(instanceSizeWithTexturesBytes, incompleteInstanceSizeBytes, numInstances);
+                    so.UpdateInstanceData(instanceData, instanceSizeWithTexturesBytes, incompleteInstanceSizeBytes, numInstances);
+                    _nextUpdatedRenderablesData.Add(renderable);
                 }
             }
         }
+
+        foreach (var renderable in _nextUpdatedRenderablesData)
+            _updatedRenderablesData.Enqueue(renderable);
+        _nextUpdatedRenderablesData.Clear();
     }
 
     private VertexArrayObjectBase? GetVao(Type? meshDataType, Type? instanceDataType)

@@ -1,5 +1,4 @@
-﻿using Engine.Rendering.Contexts.Objects.VAOs;
-using Engine.Structure;
+﻿using Engine.Structure;
 using Engine.Structure.Interfaces;
 using OpenGL;
 

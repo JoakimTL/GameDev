@@ -48,11 +48,8 @@ internal class AssetSceneObject : SceneObjectBase
         InstanceDataType = type;
     }
 
-    internal void UpdateInstanceData(uint instanceSizeWithTexturesBytes, uint incompleteInstanceSizeBytes, uint instanceCount)
+    internal void UpdateInstanceData(ReadOnlySpan<byte> data, uint instanceSizeWithTexturesBytes, uint incompleteInstanceSizeBytes, uint instanceCount)
     {
-        byte[]? data = Renderable.InstanceData?.GetData();
-        if (data is null)
-            return;
         if (InstanceData is null)
             return;
         unsafe

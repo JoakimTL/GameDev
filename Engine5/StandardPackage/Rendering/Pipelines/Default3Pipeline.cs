@@ -11,7 +11,6 @@ using Engine.Structure.Interfaces;
 using OpenGL;
 using StandardPackage.Rendering.Framebuffers;
 using StandardPackage.Rendering.Scenes;
-using System.Resources;
 using System.Runtime.InteropServices;
 
 namespace StandardPackage.Rendering.Pipelines;

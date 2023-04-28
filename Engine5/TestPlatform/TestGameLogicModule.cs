@@ -17,22 +17,21 @@ internal class TestGameLogicModule : GameLogicModuleBase, ITimedSystem
     private Entity? _e;
     private float lastTime;
 
-    public int SystemTickInterval => 100;
+    public int SystemTickInterval => 10;
 
     protected override void OnInitialize()
     {
         _e = Get<EntityContainerService>()._container.Create();
         _e.AddOrGet<LinearMovement3Component>().Impulse(new(0, 0, 0));
         _e.AddOrGet<Mass3Component>();
-        _e.AddOrGet<RotationalMovement3Component>().Twirl(new(0, 0, 5));
+        _e.AddOrGet<RotationalMovement3Component>().Twirl(new(0, 0, 1f));
         _e.AddOrGet<Transform3Component>();
-        _e.AddOrGet<RenderInstanceDataComponent>();
+        _e.AddOrGet<RenderInstance3DataComponent>();
         _e.AddOrGet<RenderMaterialAssetComponent>().SetMaterial("testMaterial");
         _e.AddOrGet<RenderMeshAssetComponent>().SetMesh("box");
         _e.AddOrGet<RenderSceneComponent>().SetScene<Default3Scene>();
     }
 
-    //TODO: Find out why the fuck this module sometimes starts and other times just don't
     //TODO: interpolation between these ticks.
 
     protected override void OnUpdate(float time, float deltaTime)
@@ -41,7 +40,7 @@ internal class TestGameLogicModule : GameLogicModuleBase, ITimedSystem
         {
             var transform = _e.Get<Transform3Component>();
             if (transform is not null)
-                _e?.Get<RenderInstanceDataComponent>()?.SetData(stackalloc Entity3SceneData[] { new() { ModelMatrix = transform.Transform.Matrix, Color = Vector4.One } });
+                _e?.Get<RenderInstance3DataComponent>()?.Set(time, transform.Transform.GlobalData, Vector4.One);
         }
         if (time - lastTime > 1)
         {

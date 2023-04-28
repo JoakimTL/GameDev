@@ -9,7 +9,7 @@ public sealed class RenderableComponent : ComponentBase, IRenderable
 	private readonly RenderMaterialAssetComponent _materialComponent;
 	private readonly RenderMeshAssetComponent _meshComponent;
 	private readonly RenderSceneComponent _sceneComponent;
-	private readonly RenderInstanceDataComponent _instanceDataComponent;
+	private readonly RenderInstance3DataComponent _instanceDataComponent;
 
 	public string? MaterialAssetName => _materialComponent.AssetName;
 	public string? MeshDataAssetName => _meshComponent.AssetName;
@@ -19,7 +19,7 @@ public sealed class RenderableComponent : ComponentBase, IRenderable
 	public event Action<IRenderable>? RenderableSceneChanged;
 	public event Action<IRenderable>? RenderableDataChanged;
 
-	public RenderableComponent(RenderMaterialAssetComponent materialComponent, RenderMeshAssetComponent meshComponent, RenderSceneComponent sceneComponent, RenderInstanceDataComponent instanceDataComponent)
+	public RenderableComponent(RenderMaterialAssetComponent materialComponent, RenderMeshAssetComponent meshComponent, RenderSceneComponent sceneComponent, RenderInstance3DataComponent instanceDataComponent)
 	{
 		_materialComponent = materialComponent;
 		_meshComponent = meshComponent;

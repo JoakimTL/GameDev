@@ -17,4 +17,11 @@ public struct Entity3SceneData
     public Color16x4 Color;
     [VAO.Data(VertexAttribType.UnsignedByte, 1, normalized: true), FieldOffset(72)]
     public byte NormalMapped;
+
+    public static Entity3SceneData Interpolate(Entity3SceneData a, Entity3SceneData b, float interpolation) => new()
+    {
+        ModelMatrix = a.ModelMatrix * interpolation + b.ModelMatrix * (1 - interpolation),
+        Color = (Vector4)a.Color * interpolation + (Vector4)b.Color * (1 - interpolation),
+        NormalMapped = a.NormalMapped
+    };
 }

@@ -1,6 +1,28 @@
 ﻿new TestPlatform.TestGameRenderModule();
 new TestPlatform.TestGameLogicModule();
 
+
+//using StandardPackage.Rendering.VertexArrayLayouts;
+//using System.Numerics;
+//using System.Runtime.InteropServices;
+
+//Entity3SceneData data = new () { ModelMatrix = Matrix4x4.Identity, Color = Vector4.One};
+
+//object? InstanceData;
+
+//var ctors = typeof(Entity3SceneData).GetConstructors();
+//var ctor = ctors.FirstOrDefault(p => p.GetParameters().Length == 0);
+//InstanceData = Activator.CreateInstance(typeof(Entity3SceneData));
+
+//if (InstanceData is not null)
+//{
+//	unsafe
+//	{
+//		Marshal.PtrToStructure((nint)(&data), InstanceData);
+//	}
+//}
+
+//var id = InstanceData;
 //BenchmarkRunner.Run<Benchmarking2>();
 //Console.ReadLine();
 

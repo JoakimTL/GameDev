@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Engine.Rendering.Contexts.Objects.Scenes;
+﻿namespace Engine.Rendering.Contexts.Objects.Scenes;
 
 public abstract class SceneObjectBase : Identifiable, ISceneObject, IDisposable
 {

@@ -109,8 +109,7 @@ public class ModuleContainerService : Identifiable, IGlobalService
                 }
                 try
                 {
-                    if (_updateableModule is not null)
-                        _updateableModule.Update(time, deltaTime);
+                    _updateableModule?.Update(time, deltaTime);
                 }
                 catch (Exception e)
                 {
@@ -143,11 +142,7 @@ public class ModuleContainerService : Identifiable, IGlobalService
                 _timer = new TickingTimer(moduleBase.IdentifiableName, _interval, !essential);
                 _timer.Elapsed += Tick;
                 _timer.Start();
-            }
-
-            public override void Dispose()
-            {
-                _timer.Stop();
+                this.LogLine($"Started!", Log.Level.NORMAL, ConsoleColor.Magenta);
             }
 
             private void Tick(double time, double deltaTime)
@@ -158,6 +153,13 @@ public class ModuleContainerService : Identifiable, IGlobalService
                     _timer.SetInterval(_interval);
                 }
                 Update((float)time, (float)deltaTime);
+            }
+
+            public override void Dispose()
+            {
+                this.LogLine($"Disposed!", Log.Level.NORMAL, ConsoleColor.Magenta);
+                _timer.Stop();
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -176,6 +178,7 @@ public class ModuleContainerService : Identifiable, IGlobalService
 
             private void ModuleThreadRun()
             {
+                this.LogLine($"Started!", Log.Level.NORMAL, ConsoleColor.Magenta);
                 while (_active)
                 {
                     float tickTime = Clock32.StartupTime;
@@ -187,7 +190,9 @@ public class ModuleContainerService : Identifiable, IGlobalService
 
             public override void Dispose()
             {
+                this.LogLine($"Disposed!", Log.Level.NORMAL, ConsoleColor.Magenta);
                 _active = false;
+                GC.SuppressFinalize(this);
             }
         }
     }

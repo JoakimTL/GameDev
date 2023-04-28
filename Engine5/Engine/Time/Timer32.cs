@@ -52,7 +52,7 @@ public class TickingTimer : Identifiable
     public TickingTimer(string? name, int interval, bool background = true)
     {
         _interval = interval;
-        Enabled = false;
+        Enabled = true;
 
         _tickerEvent = new ManualResetEvent(false);
         _startEvent = new AutoResetEvent(false);
@@ -68,6 +68,7 @@ public class TickingTimer : Identifiable
     //The function called by the timer thread
     private void InternalTimerCallback()
     {
+        this.LogLine($"Time thread started {Enabled}!", Log.Level.NORMAL, ConsoleColor.Magenta);
         while (Enabled)
         {
             _startEvent.WaitOne();
@@ -112,7 +113,35 @@ public class TickingTimer : Identifiable
                     _remainingInterval = 0;
             }
         }
+        this.LogLine($"Timer stopped!", Log.Level.NORMAL, ConsoleColor.Magenta);
     }
+
+    /*
+[2023/04/28/09:26:37.255][Entry:1/][NORMAL]: ThreadService/:6: Started new thread [Module Tick Timer:11]!
+[2023/04/28/09:26:37.263][Module Tick Timer:11/][NORMAL]: ThreadService/:6: Started new thread [Engine Logging:12]!
+[2023/04/28/09:26:37.255][Module Tick Timer:11/][NORMAL]: TickingTimer/:5: Started timer!
+[2023/04/28/09:26:37.266][Module Tick Timer:11/][NORMAL]: TickingTimer/:5: Timer stopped!
+[2023/04/28/09:26:37.275][Entry:1/][NORMAL]: ModuleContainerService/:4: Added module TestGameRenderModule/:1.
+[2023/04/28/09:26:37.276][Entry:1/][NORMAL]: ThreadService/:6: Started new thread [:13]!
+[2023/04/28/09:26:37.278][:13/][NORMAL]: ModuleSystemTickerBase/:7: Started!
+[2023/04/28/09:26:37.278][Entry:1/][NORMAL]: ModuleContainerService/:4: Added module TestGameLogicModule/:12.
+[2023/04/28/09:26:37.279][Entry:1/][NORMAL]: ThreadService/:6: Started new thread [:14]!
+[2023/04/28/09:26:37.279][Entry:1/][NORMAL]: ModuleSystemTickerBase/:13: Started!
+[2023/04/28/09:26:37.281][:14/][NORMAL]: TickingTimer/:14: Started timer!
+
+[2023/04/28/09:28:59.916][Module Tick Timer:11/][NORMAL]: ThreadService/:6: Started new thread [Engine Logging:12]!
+[2023/04/28/09:28:59.909][Entry:1/][NORMAL]: ThreadService/:6: Started new thread [Module Tick Timer:11]!
+[2023/04/28/09:28:59.909][Module Tick Timer:11/][NORMAL]: TickingTimer/:5: Started timer!
+[2023/04/28/09:28:59.924][Module Tick Timer:11/][NORMAL]: TickingTimer/:5: Timer stopped!
+[2023/04/28/09:28:59.930][Entry:1/][NORMAL]: ModuleContainerService/:4: Added module TestGameRenderModule/:1.
+[2023/04/28/09:28:59.931][Entry:1/][NORMAL]: ThreadService/:6: Started new thread [:13]!
+[2023/04/28/09:28:59.933][:13/][NORMAL]: ModuleSystemTickerBase/:7: Started!
+[2023/04/28/09:28:59.934][Entry:1/][NORMAL]: ModuleContainerService/:4: Added module TestGameLogicModule/:12.
+[2023/04/28/09:28:59.941][:14/][NORMAL]: TickingTimer/:14: Started timer!
+[2023/04/28/09:28:59.941][:14/][NORMAL]: TickingTimer/:14: Timer stopped!
+[2023/04/28/09:28:59.938][Entry:1/][NORMAL]: ThreadService/:6: Started new thread [:14]!
+[2023/04/28/09:28:59.946][Entry:1/][NORMAL]: ModuleSystemTickerBase/:13: Started!
+     */
 
     /// <summary>
     /// Starts the timer, with a set interval<br />To stop the timer use <see cref="Stop"/>!
