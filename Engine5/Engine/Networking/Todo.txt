@@ -1,0 +1,17 @@
+//
+
+A messaging module
+	Messages: Queue messages out, with data and a target. The target can be empty or a player name. An empty target means either send towards the server if you're a client or send to all as the server. Clients request to send to other clients should go ignored by the client networking, but the server might honor the target route.
+	Packets: A packet contains a target, a sender and a bunch of data. The target and sender are addresses. The target is usually used by the server as it holds player addresses. The target and sender are not sent as data, as they are contained within the packet header.
+		Packets in the transfer layer ALWAYS have a header of 8 bytes. The first 4 bytes are the expected length of the entire packet, the last 4 bytes being the packet type id.
+		Outside of the transfer layer the header doesn't exist. When sending packet data the header is added before sending and when receiving the data is removed.
+
+
+ * Socket connects -> added as tunnel here.
+ * An instance of "NamedConnection" is created whenever a connection packet with a new login name is sent. 
+ * Tcp connection packet with name -> added into named connection.
+ * Udp connection packet with name -> added into named connection.
+ * If any connection in the named connection is closed abruptly it is assumed the connection should close.
+ * Tcp connection is abruptly closed or a disconnect packet is received -> named connection closes.
+ * Closing this connection causes the tunnels to close with an event.
+ * Closing tunnels should remove the tunnel from this list.

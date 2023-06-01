@@ -15,13 +15,13 @@ public abstract class RenderInstanceDataComponentBase<T> : ComponentBase, IRende
 
     public RenderInstanceDataComponentBase()
     {
-        _instanceTypeIdentity = InstanceDataType.GetCustomAttribute<IdentityAttribute>()?.Identity ?? throw new ArgumentNullException($"No identity found for {typeof(T)}");
-        InstanceData = new byte[Marshal.SizeOf<T>()];
+		this._instanceTypeIdentity = this.InstanceDataType.GetCustomAttribute<IdentityAttribute>()?.Identity ?? throw new ArgumentNullException($"No identity found for {typeof(T)}");
+		this.InstanceData = new byte[Marshal.SizeOf<T>()];
     }
 
     protected void SetData(T data)
     {
-        data.CopyInto(InstanceData);
+        data.CopyInto( this.InstanceData );
         AlertComponentChanged();
     }
 

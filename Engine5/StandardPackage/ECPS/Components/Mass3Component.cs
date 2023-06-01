@@ -11,23 +11,23 @@ public sealed class Mass3Component : ComponentBase, ICustomizedSerializable
     public double Mass { get; set; }
     public Matrix4x4 InertiaTensor { get; set; }
 
-    protected override string UniqueNameTag => $"{Mass}kg";
+    protected override string UniqueNameTag => $"{this.Mass}kg";
 
     public static Guid SerializationIdentity { get; } = new("4be73127-7168-4d6f-aef6-11265d5b83ed");
     public bool ShouldSerialize => true;
 
     public Mass3Component()
     {
-        Mass = 1;
-        InertiaTensor = Matrix4x4.Identity;
+		this.Mass = 1;
+		this.InertiaTensor = Matrix4x4.Identity;
     }
 
     public void SetFromShape(IShape shape)
     {
-        if (Mass == shape.Mass && InertiaTensor == shape.InertiaTensor)
+        if ( this.Mass == shape.Mass && this.InertiaTensor == shape.InertiaTensor)
             return;
-        Mass = shape.Mass;
-        InertiaTensor = shape.InertiaTensor;
+		this.Mass = shape.Mass;
+		this.InertiaTensor = shape.InertiaTensor;
         AlertComponentChanged();
     }
 
@@ -39,8 +39,8 @@ public sealed class Mass3Component : ComponentBase, ICustomizedSerializable
                 return Log.WarningThenReturn($"Length of data must be equal to or longer than {sizeof(Vector3)}", false);
             fixed (byte* srcPtr = data)
             {
-                Mass = *(double*)srcPtr;
-                InertiaTensor = *(Matrix4x4*)(srcPtr + sizeof(double));
+				this.Mass = *(double*)srcPtr;
+				this.InertiaTensor = *(Matrix4x4*)(srcPtr + sizeof(double));
             }
         }
         return true;
@@ -53,8 +53,8 @@ public sealed class Mass3Component : ComponentBase, ICustomizedSerializable
             byte[] data = new byte[sizeof(double) + sizeof(Matrix4x4)];
             fixed (byte* dstPtr = data)
             {
-                *(double*)dstPtr = Mass;
-                *(Matrix4x4*)(dstPtr + sizeof(double)) = InertiaTensor;
+                *(double*)dstPtr = this.Mass;
+                *(Matrix4x4*)(dstPtr + sizeof(double)) = this.InertiaTensor;
             }
             return data;
         }

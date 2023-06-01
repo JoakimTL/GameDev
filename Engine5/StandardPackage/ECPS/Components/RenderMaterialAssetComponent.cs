@@ -14,9 +14,9 @@ public sealed class RenderMaterialAssetComponent : ComponentBase, ICustomizedSer
 
 	public void SetMaterial(string assetName)
 	{
-		if (assetName == AssetName)
+		if (assetName == this.AssetName )
 			return;
-		AssetName = assetName;
+		this.AssetName = assetName;
 		AlertComponentChanged();
 	}
 
@@ -27,10 +27,10 @@ public sealed class RenderMaterialAssetComponent : ComponentBase, ICustomizedSer
 		string? deserialized = data.CreateString();
 		if (deserialized is null)
 			return false;
-		AssetName = deserialized;
+		this.AssetName = deserialized;
 		AlertComponentChanged();
 		return true;
 	}
 
-	public byte[] SerializeData() => AssetName?.ToBytes() ?? Array.Empty<byte>();
+	public byte[] SerializeData() => this.AssetName?.ToBytes() ?? Array.Empty<byte>();
 }

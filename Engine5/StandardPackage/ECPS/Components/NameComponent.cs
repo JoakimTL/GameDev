@@ -8,19 +8,19 @@ public sealed class NameComponent : ComponentBase, ICustomizedSerializable
 {
 	public string EntityName { get; private set; }
 
-	protected override string UniqueNameTag => $"{EntityName}";
+	protected override string UniqueNameTag => $"{this.EntityName}";
 
 	public static Guid SerializationIdentity { get; } = new("21d318d8-f61c-4dee-99aa-9513628b8976");
 	public bool ShouldSerialize => true;
 
 	public NameComponent()
 	{
-		EntityName = "Unnamed";
+		this.EntityName = "Unnamed";
 	}
 
 	public void SetName(string newName)
 	{
-		EntityName = newName;
+		this.EntityName = newName;
 		AlertComponentChanged();
 	}
 
@@ -31,9 +31,9 @@ public sealed class NameComponent : ComponentBase, ICustomizedSerializable
 		string? deserialized = data.CreateString();
 		if (deserialized is null)
 			return false;
-		EntityName = deserialized;
+		this.EntityName = deserialized;
 		return true;
 	}
 
-	public byte[] SerializeData() => EntityName.ToBytes();
+	public byte[] SerializeData() => this.EntityName.ToBytes();
 }

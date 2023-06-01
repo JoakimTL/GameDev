@@ -6,12 +6,12 @@ public class CharacterAttributesComponent : ComponentBase {
 	private readonly float[] _attributeValues;
 
 	public CharacterAttributesComponent() {
-		_attributeValues = new float[ Enum.GetValues<CharacterAttribute>().Length ];
+		this._attributeValues = new float[ Enum.GetValues<CharacterAttribute>().Length ];
 	}
 
 	public float this[ CharacterAttribute skill ] {
-		get => _attributeValues[ (int) skill ];
-		set => _attributeValues[ (int) skill ] = value;
+		get => this._attributeValues[ (int) skill ];
+		set => this._attributeValues[ (int) skill ] = value;
 	}
 
 }
@@ -20,12 +20,12 @@ public class CharacterSkillsComponent : ComponentBase {
 	private readonly float[] _skillValues;
 
 	public CharacterSkillsComponent() {
-		_skillValues = new float[ Enum.GetValues<CharacterSkills>().Length ];
+		this._skillValues = new float[ Enum.GetValues<CharacterSkills>().Length ];
 	}
 
 	public float this[ CharacterSkills skill ] {
-		get => _skillValues[ (int) skill ];
-		set => _skillValues[ (int) skill ] = value;
+		get => this._skillValues[ (int) skill ];
+		set => this._skillValues[ (int) skill ] = value;
 	}
 
 }

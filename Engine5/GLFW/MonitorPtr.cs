@@ -23,7 +23,7 @@ public struct MonitorPtr : IEquatable<MonitorPtr> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( MonitorPtr other ) => _handle.Equals( other._handle );
+	public bool Equals( MonitorPtr other ) => this._handle.Equals( other._handle );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="object" />, is equal to this instance.
@@ -44,7 +44,7 @@ public struct MonitorPtr : IEquatable<MonitorPtr> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => HashCode.Combine( _handle );
+	public override int GetHashCode() => HashCode.Combine( this._handle );
 
 	/// <summary>
 	///     Implements the operator ==.
@@ -72,7 +72,7 @@ public struct MonitorPtr : IEquatable<MonitorPtr> {
 	/// <returns>
 	///     A <see cref="string" /> that represents this instance.
 	/// </returns>
-	public override string ToString() => _handle.ToString();
+	public override string ToString() => this._handle.ToString();
 
 	/// <summary>
 	///     Gets the position, in screen coordinates of the valid work are for the monitor.
@@ -81,7 +81,7 @@ public struct MonitorPtr : IEquatable<MonitorPtr> {
 
 	public System.Drawing.Rectangle WorkArea {
 		get {
-			Glfw.GetMonitorWorkArea( _handle, out int x, out int y, out int width, out int height );
+			Glfw.GetMonitorWorkArea( this._handle, out int x, out int y, out int width, out int height );
 			return new System.Drawing.Rectangle( x, y, width, height );
 		}
 	}
@@ -94,7 +94,7 @@ public struct MonitorPtr : IEquatable<MonitorPtr> {
 
 	public System.Numerics.Vector2 ContentScale {
 		get {
-			Glfw.GetMonitorContentScale( _handle, out float x, out float y );
+			Glfw.GetMonitorContentScale( this._handle, out float x, out float y );
 			return new System.Numerics.Vector2( x, y );
 		}
 	}
@@ -105,7 +105,7 @@ public struct MonitorPtr : IEquatable<MonitorPtr> {
 	/// <seealso cref="Glfw.GetMonitorUserPointer" />
 	/// <seealso cref="Glfw.SetMonitorUserPointer" />
 	public nint UserPointer {
-		get => Glfw.GetMonitorUserPointer( _handle );
-		set => Glfw.SetMonitorUserPointer( _handle, value );
+		get => Glfw.GetMonitorUserPointer( this._handle );
+		set => Glfw.SetMonitorUserPointer( this._handle, value );
 	}
 }

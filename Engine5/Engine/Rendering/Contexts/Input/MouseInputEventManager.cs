@@ -52,12 +52,13 @@ public class MouseInputEventManager : Identifiable
     /// </summary>
     public event MouseMoveHandler? MovedHidden;
 
-    internal MouseInputEventManager(Window window)
+    internal MouseInputEventManager(Window window, GlobalServices.InputService inputService)
     {
         _window = window;
         _data = new MouseData();
         State = new MouseState(_data);
         _data.inside = InputUtilities.GetWindowAttribute(_window.Pointer, WindowAttribute.MouseHover) != 0;
+        inputService.SetMouseData(_data);
 
         _enterCallback = OnEnter;
         _buttonCallback = OnButton;

@@ -1,4 +1,5 @@
-﻿using Engine.Rendering.Contexts.Input;
+﻿using Engine.GlobalServices;
+using Engine.Rendering.Contexts.Input;
 
 namespace Engine.Rendering.Contexts.Services;
 
@@ -9,10 +10,10 @@ public sealed class InputEventService : IContextService
     public KeyboardInputEventManager Keyboard { get; }
     public WindowInputEventManager Window { get; }
 
-    public InputEventService(Window window)
+    public InputEventService(Window window, InputService inputService)
     {
-        Mouse = new(window);
-        Keyboard = new(window);
+        Mouse = new(window, inputService);
+        Keyboard = new(window, inputService);
         Window = new(window);
     }
 }

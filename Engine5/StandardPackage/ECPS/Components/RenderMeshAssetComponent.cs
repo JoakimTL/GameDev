@@ -13,9 +13,9 @@ public sealed class RenderMeshAssetComponent : ComponentBase, ICustomizedSeriali
 
 	public void SetMesh(string assetName)
 	{
-		if (assetName == AssetName)
+		if (assetName == this.AssetName )
 			return;
-		AssetName = assetName;
+		this.AssetName = assetName;
 		AlertComponentChanged();
 	}
 
@@ -26,12 +26,12 @@ public sealed class RenderMeshAssetComponent : ComponentBase, ICustomizedSeriali
 		string? deserialized = data.CreateString();
 		if (deserialized is null)
 			return false;
-		AssetName = deserialized;
+		this.AssetName = deserialized;
 		AlertComponentChanged();
 		return true;
 	}
 
-	public byte[] SerializeData() => AssetName?.ToBytes() ?? Array.Empty<byte>();
+	public byte[] SerializeData() => this.AssetName?.ToBytes() ?? Array.Empty<byte>();
 
 	//Remember: no OGL stuff here, that will be handled on the OGL thread
 }

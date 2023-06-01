@@ -40,6 +40,8 @@ public class TickingTimer : Identifiable
         set => SetInterval(value);
     }
 
+    protected override string UniqueNameTag => $"{_interval}ms";
+
     /// <summary>
     /// This event is raised every time the interval elapses.
     /// </summary>
@@ -49,7 +51,7 @@ public class TickingTimer : Identifiable
     /// Creates a new <see cref="TickingTimer"/>, with a custom interval.
     /// </summary>
     /// <param name="interval">The interval between each tick, in milliseconds.</param>
-    public TickingTimer(string? name, int interval, bool background = true)
+    public TickingTimer(string? name, int interval, bool background = true) : base(name ?? "")
     {
         _interval = interval;
         Enabled = true;
@@ -76,6 +78,7 @@ public class TickingTimer : Identifiable
 
             _tickCount = 0;
             _startTime = Stopwatch.GetTimestamp() / TimeSpan.TicksPerMillisecond;
+            _previousElapseTime = Clock64.StartupTime;
             _remainingInterval = _interval;
 
             while (Enabled)
@@ -109,8 +112,18 @@ public class TickingTimer : Identifiable
                 //Setting the remaining interval for the next tick such that the timer has the expected number of ticks. When the 50 ticks happen over 50 intervals is not as important as 50 ticks happening by the time 50 intervals have elapsed.
                 _remainingInterval = _interval - (int)(actualTime - expectedTime);
 
-                if (_remainingInterval < 0)
+                if (_remainingInterval + Interval < 0)
+                {
+                    var skippedTicks = (-_remainingInterval) / Interval + 1;
+                    this.LogWarning($"Skipping {skippedTicks} tick{(skippedTicks > 1 ? "s" : "")}! This is equal to {skippedTicks * Interval}ms!");
+                    _tickCount += skippedTicks;
+                    expectedTime = _startTime + (_interval * _tickCount);
+                    _remainingInterval = _interval - (int)(actualTime - expectedTime);
+                }
+                else if (_remainingInterval < 0)
+                {
                     _remainingInterval = 0;
+                }
             }
         }
         this.LogLine($"Timer stopped!", Log.Level.NORMAL, ConsoleColor.Magenta);

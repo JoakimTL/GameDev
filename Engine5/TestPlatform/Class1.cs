@@ -21,6 +21,6 @@ public class TestAttribute : Attribute {
 }
 public class TestAttribute<T> : TestAttribute {
 	public TestAttribute() {
-		test = typeof( T ).FullName ?? "none";
+		this.test = typeof( T ).FullName ?? "none";
 	}
 }

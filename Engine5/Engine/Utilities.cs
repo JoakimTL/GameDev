@@ -1,4 +1,6 @@
 ﻿using Engine.Structure;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Engine;
@@ -43,4 +45,7 @@ public static unsafe class Extensions {
 	/// <returns></returns>
 	public static object? GetInjectedInstance( this Type type, IDependencyInjector? injector = null )
 		=> ( injector ?? TransientInjector.Singleton ).Get( type );
+
+	public static T? CompileMethod<T>( this MethodInfo method, Type? callerType, params Type[] parameters )
+		=> Expression.Lambda<T>( Expression.Invoke( Expression.Call( callerType is not null ? Expression.Parameter( callerType ) : null, method ), parameters.Select( Expression.Parameter ) ) ).Compile();
 }

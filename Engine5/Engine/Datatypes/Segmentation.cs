@@ -63,23 +63,38 @@ public static class Segmentation {
 	public static byte[] Segment( params byte[][] data ) => SegmentWithPadding( 0, 0, data );
 
 	public static byte[][]? Parse( byte[] data, uint offsetBytes = 0 ) {
-		if ( data.Length == 0 ) {
-			Log.Error( "Can't parse 0 bytes!" );
-			return null;
-		}
+		if ( data.Length == 0 )
+			return Log.WarningThenReturn( "No data to parse.", Array.Empty<byte[]>() );
 
 		unsafe {
 			fixed ( byte* srcPtr = data )
 				return Parse( srcPtr, (uint) data.Length, offsetBytes );
 		}
 	}
+	public static byte[][] ParseOrThrow( byte[] data, uint offsetBytes = 0 ) {
+		if ( data.Length == 0 )
+			return Log.WarningThenReturn("No data to parse.", Array.Empty<byte[]>());
+
+		unsafe {
+			fixed ( byte* srcPtr = data )
+				return ParseOrThrow( srcPtr, (uint) data.Length, offsetBytes );
+		}
+	}
 
 	private static unsafe byte[][]? Parse( byte* srcPtr, uint maxLength, uint offsetBytes ) {
-		if ( offsetBytes > maxLength ) {
-			Log.Error( "Offset can't be greater than size of data!" );
-			return null;
-		}
+		if ( offsetBytes > maxLength )
+			return Log.WarningThenReturnDefault<byte[][]>( "Offset can't be greater than size of data!" );
+		return ParseInternal( srcPtr, maxLength, offsetBytes );
+	}
 
+
+	private static unsafe byte[][] ParseOrThrow( byte* srcPtr, uint maxLength, uint offsetBytes ) {
+		if ( offsetBytes > maxLength )
+			throw new ArgumentException( "Offset can't be greater than size of data!" );
+		return ParseInternal( srcPtr, maxLength, offsetBytes );
+	}
+
+	private static unsafe byte[][] ParseInternal( byte* srcPtr, uint maxLength, uint offsetBytes ) {
 		//Set preliminary data
 		byte headerByte = srcPtr[ offsetBytes++ ];
 		uint headerCountSize = ( headerByte & (uint) 0b11 ) + 1;

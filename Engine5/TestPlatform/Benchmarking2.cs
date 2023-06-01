@@ -33,32 +33,32 @@ public unsafe class Benchmarking2 {
 		//	_toInsert[ i ] = rand.Next();
 		//}
 
-		destinationArray = new byte[ Size ];
-		destinationMemory = new byte[ Size ];
+		this.destinationArray = new byte[ this.Size ];
+		this.destinationMemory = new byte[ this.Size ];
 	}
 
 	[Benchmark]
 	public void ArrayFixed() {
-		fixed ( byte* dstPtr = destinationArray ) {
-			for ( int i = 0; i < Size; i++ )
+		fixed ( byte* dstPtr = this.destinationArray ) {
+			for ( int i = 0; i < this.Size; i++ )
 				dstPtr[ i ] = (byte) ( i % 256 );
 		}
 	}
 
 	[Benchmark]
 	public void MemoryPin() {
-		using System.Buffers.MemoryHandle dstHandle = destinationMemory.Pin();
+		using System.Buffers.MemoryHandle dstHandle = this.destinationMemory.Pin();
 		unsafe {
 			byte* dstPtr = (byte*) dstHandle.Pointer;
-			for ( int i = 0; i < Size; i++ )
+			for ( int i = 0; i < this.Size; i++ )
 				dstPtr[ i ] = (byte) ( i % 256 );
 		}
 	}
 
 	[Benchmark]
 	public void MemoryFixed() {
-		fixed ( byte* dstPtr = destinationMemory.Span ) {
-			for ( int i = 0; i < Size; i++ )
+		fixed ( byte* dstPtr = this.destinationMemory.Span ) {
+			for ( int i = 0; i < this.Size; i++ )
 				dstPtr[ i ] = (byte) ( i % 256 );
 		}
 	}

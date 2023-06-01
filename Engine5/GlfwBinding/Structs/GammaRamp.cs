@@ -28,10 +28,10 @@ public readonly struct GammaRamp
     {
         if (red.Length == green.Length && green.Length == blue.Length)
         {
-            Red = red;
-            Green = green;
-            Blue = blue;
-            Size = (uint)red.Length;
+			this.Red = red;
+			this.Green = green;
+			this.Blue = blue;
+			this.Size = (uint)red.Length;
         }
         else
         {

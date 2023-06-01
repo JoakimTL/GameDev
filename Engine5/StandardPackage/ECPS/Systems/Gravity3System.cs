@@ -12,7 +12,7 @@ public class Gravity3System : SystemBase {
 	private readonly IGravity3ValueProvider _settings;
 
 	public Gravity3System( IGravity3ValueProvider settings ) {
-		_settings = settings ?? throw new ArgumentNullException( nameof( settings ) );
+		this._settings = settings ?? throw new ArgumentNullException( nameof( settings ) );
 	}
 
 	public override void Update( IEnumerable<Entity> entities, float time, float deltaTime ) {
@@ -20,8 +20,8 @@ public class Gravity3System : SystemBase {
 			Transform3Component transform = e.Get<Transform3Component>() ?? throw new NullReferenceException( nameof( Transform3Component ) );
 			LinearMovement3Component linMov = e.Get<LinearMovement3Component>() ?? throw new NullReferenceException( nameof( LinearMovement3Component ) );
 
-			var g = _settings.GetGravity( transform.Transform.GlobalTranslation );
-			if ( _settings.IsAcceleration )
+			var g = this._settings.GetGravity( transform.Transform.GlobalTranslation );
+			if ( this._settings.IsAcceleration )
 				linMov.Accelerate( g );
 			else
 				linMov.ApplyForce( g );

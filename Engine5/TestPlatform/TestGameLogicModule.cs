@@ -1,74 +1,73 @@
-﻿using Engine.GameLogic;
+﻿using Engine;
+using Engine.GameLogic;
 using Engine.GameLogic.ECPS;
 using Engine.GameLogic.ECPS.Components;
+using Engine.GlobalServices;
 using Engine.Structure.Attributes;
 using Engine.Structure.Interfaces;
 using StandardPackage.ECPS.Components;
 using StandardPackage.ECPS.Systems;
 using StandardPackage.Rendering.Scenes;
-using StandardPackage.Rendering.VertexArrayLayouts;
 using System.Numerics;
 
 namespace TestPlatform;
 
-internal class TestGameLogicModule : GameLogicModuleBase, ITimedSystem
-{
+internal class TestGameLogicModule : GameLogicModuleBase, ITimedSystem {
 
-    private Entity? _e;
-    private float lastTime;
+	private Entity? _e;
+	private float lastTime;
 
-    public int SystemTickInterval => 10;
+	public int SystemTickInterval => 50;
 
-    protected override void OnInitialize()
-    {
-        _e = Get<EntityContainerService>()._container.Create();
-        _e.AddOrGet<LinearMovement3Component>().Impulse(new(0, 0, 0));
-        _e.AddOrGet<Mass3Component>();
-        _e.AddOrGet<RotationalMovement3Component>().Twirl(new(0, 0, 1f));
-        _e.AddOrGet<Transform3Component>();
-        _e.AddOrGet<RenderInstance3DataComponent>();
-        _e.AddOrGet<RenderMaterialAssetComponent>().SetMaterial("testMaterial");
-        _e.AddOrGet<RenderMeshAssetComponent>().SetMesh("box");
-        _e.AddOrGet<RenderSceneComponent>().SetScene<Default3Scene>();
-    }
+	protected override void OnInitialize() {
+		this._e = Get<EntityContainerService>()._container.Create();
+		this._e.AddOrGet<LinearMovement3Component>().Impulse( new( 0, 0, 0 ) );
+		this._e.AddOrGet<Mass3Component>();
+		this._e.AddOrGet<RotationalMovement3Component>().Twirl( new( 0, 0, 0.5f ) );
+		this._e.AddOrGet<Transform3Component>();
+		this._e.AddOrGet<RenderInstance3DataComponent>();
+		this._e.AddOrGet<RenderMaterialAssetComponent>().SetMaterial( "testMaterial" );
+		this._e.AddOrGet<RenderMeshAssetComponent>().SetMesh( "box" );
+		this._e.AddOrGet<RenderSceneComponent>().SetScene<Default3Scene>();
+	}
 
-    //TODO: interpolation between these ticks.
+	//TODO: interpolation between these ticks.
 
-    protected override void OnUpdate(float time, float deltaTime)
-    {
-        if (_e is not null)
-        {
-            var transform = _e.Get<Transform3Component>();
-            if (transform is not null)
-                _e?.Get<RenderInstance3DataComponent>()?.Set(time, transform.Transform.GlobalData, Vector4.One);
-        }
-        if (time - lastTime > 1)
-        {
-            Console.WriteLine(Get<EntityContainerService>());
-            Console.WriteLine(Get<EntitySystemContainerService>());
-            Console.WriteLine(_e);
-            lastTime = time;
-        }
-    }
+	protected override void OnUpdate( float time, float deltaTime ) {
+		if ( this._e is not null ) {
+			var transform = this._e.Get<Transform3Component>();
+			if ( transform is not null ) {
+				transform.Transform.Translation = new Vector3( MathF.Sin( time ) * 2, MathF.Cos( time * 5 ) * 2, MathF.Cos( time  ) * 2 );
+
+				if ( !Global.Get<InputService>()[ GlfwBinding.Enums.Keys.L ] )
+					this._e.Get<RenderInstance3DataComponent>()?.Set( transform.Transform.GlobalData, Vector4.One );
+			}
+			if ( Global.Get<InputService>()[ GlfwBinding.Enums.Keys.K ] )
+				this._e.Get<RotationalMovement3Component>()?.Twirl( new( 1, 0, 0 ) );
+		}
+		if ( time - this.lastTime > 1 ) {
+			//Console.WriteLine(Get<EntityContainerService>());
+			//Console.WriteLine(Get<EntitySystemContainerService>());
+			Console.WriteLine( this._e );
+			this.lastTime = time;
+		}
+	}
 }
 
 
 [ProcessBefore<Gravity3System, SystemBase>]
-public class Gravity3ValueProvider : SystemBase, IGravity3ValueProvider
-{
-    public bool IsAcceleration => true;
+public class Gravity3ValueProvider : SystemBase, IGravity3ValueProvider {
+	public bool IsAcceleration => true;
 
-    private Vector3 _centerOfUniverse;
+	private Vector3 _centerOfUniverse;
 
-    public Vector3 GetGravity(Vector3 globalTranslation)
-    {
-        var v = globalTranslation - _centerOfUniverse;
-        var l = MathF.Max(v.LengthSquared(), 1);
-        return v / l;
-    }
+	public Vector3 GetGravity( Vector3 globalTranslation ) {
+		var v = globalTranslation - this._centerOfUniverse;
+		var l = MathF.Max( v.LengthSquared(), 1 );
+		return v / l;
+	}
 
-    public override void Update(IEnumerable<Entity> entities, float time, float deltaTime)
-    {
-        _centerOfUniverse = new Vector3(MathF.Cos(time) * 100, 0, MathF.Sin(time) * 100);
-    }
+	public override void Update( IEnumerable<Entity> entities, float time, float deltaTime ) {
+		this._centerOfUniverse = new Vector3( MathF.Cos( time ) * 100, 0, MathF.Sin( time ) * 100 );
+	}
 }

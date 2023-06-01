@@ -58,7 +58,7 @@ internal sealed class StringFormatMethodAttribute : Attribute
     /// </param>
     public StringFormatMethodAttribute(string formatParameterName)
     {
-        FormatParameterName = formatParameterName;
+		this.FormatParameterName = formatParameterName;
     }
 
     public string FormatParameterName { get; }
@@ -100,7 +100,7 @@ internal sealed class ValueProviderAttribute : Attribute
 {
     public ValueProviderAttribute(string name)
     {
-        Name = name;
+		this.Name = name;
     }
 
     public string Name { get; }
@@ -190,7 +190,7 @@ internal sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
 
     public NotifyPropertyChangedInvocatorAttribute(string parameterName)
     {
-        ParameterName = parameterName;
+		this.ParameterName = parameterName;
     }
 
     public string? ParameterName { get; }
@@ -262,8 +262,8 @@ internal sealed class ContractAnnotationAttribute : Attribute
 
     public ContractAnnotationAttribute(string contract, bool forceFullStates)
     {
-        Contract = contract;
-        ForceFullStates = forceFullStates;
+		this.Contract = contract;
+		this.ForceFullStates = forceFullStates;
     }
 
     public string Contract { get; }
@@ -291,7 +291,7 @@ internal sealed class LocalizationRequiredAttribute : Attribute
 
     public LocalizationRequiredAttribute(bool required)
     {
-        Required = required;
+		this.Required = required;
     }
 
     public bool Required { get; }
@@ -343,7 +343,7 @@ internal sealed class BaseTypeRequiredAttribute : Attribute
 {
     public BaseTypeRequiredAttribute(Type baseType)
     {
-        BaseType = baseType;
+		this.BaseType = baseType;
     }
 
     public Type BaseType { get; }
@@ -373,8 +373,8 @@ internal sealed class UsedImplicitlyAttribute : Attribute
 
     public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
     {
-        UseKindFlags = useKindFlags;
-        TargetFlags = targetFlags;
+		this.UseKindFlags = useKindFlags;
+		this.TargetFlags = targetFlags;
     }
 
     public ImplicitUseKindFlags UseKindFlags { get; }
@@ -410,8 +410,8 @@ internal sealed class MeansImplicitUseAttribute : Attribute
 
     public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
     {
-        UseKindFlags = useKindFlags;
-        TargetFlags = targetFlags;
+		this.UseKindFlags = useKindFlags;
+		this.TargetFlags = targetFlags;
     }
 
     [UsedImplicitly] public ImplicitUseKindFlags UseKindFlags { get; }
@@ -473,7 +473,7 @@ internal sealed class PublicAPIAttribute : Attribute
 
     public PublicAPIAttribute(string comment)
     {
-        Comment = comment;
+		this.Comment = comment;
     }
 
     public string? Comment { get; }
@@ -527,7 +527,7 @@ internal sealed class MustUseReturnValueAttribute : Attribute
 
     public MustUseReturnValueAttribute(string justification)
     {
-        Justification = justification;
+		this.Justification = justification;
     }
 
     public string? Justification { get; }
@@ -571,7 +571,7 @@ internal sealed class PathReferenceAttribute : Attribute
 
     public PathReferenceAttribute([PathReference] string basePath)
     {
-        BasePath = basePath;
+		this.BasePath = basePath;
     }
 
     public string? BasePath { get; }
@@ -665,7 +665,7 @@ internal sealed class AspMvcAreaMasterLocationFormatAttribute : Attribute
 {
     public AspMvcAreaMasterLocationFormatAttribute(string format)
     {
-        Format = format;
+		this.Format = format;
     }
 
     public string Format { get; }
@@ -677,7 +677,7 @@ internal sealed class AspMvcAreaPartialViewLocationFormatAttribute : Attribute
 {
     public AspMvcAreaPartialViewLocationFormatAttribute(string format)
     {
-        Format = format;
+		this.Format = format;
     }
 
     public string Format { get; }
@@ -689,7 +689,7 @@ internal sealed class AspMvcAreaViewLocationFormatAttribute : Attribute
 {
     public AspMvcAreaViewLocationFormatAttribute(string format)
     {
-        Format = format;
+		this.Format = format;
     }
 
     public string Format { get; }
@@ -701,7 +701,7 @@ internal sealed class AspMvcMasterLocationFormatAttribute : Attribute
 {
     public AspMvcMasterLocationFormatAttribute(string format)
     {
-        Format = format;
+		this.Format = format;
     }
 
     public string Format { get; }
@@ -713,7 +713,7 @@ internal sealed class AspMvcPartialViewLocationFormatAttribute : Attribute
 {
     public AspMvcPartialViewLocationFormatAttribute(string format)
     {
-        Format = format;
+		this.Format = format;
     }
 
     public string Format { get; }
@@ -725,7 +725,7 @@ internal sealed class AspMvcViewLocationFormatAttribute : Attribute
 {
     public AspMvcViewLocationFormatAttribute(string format)
     {
-        Format = format;
+		this.Format = format;
     }
 
     public string Format { get; }
@@ -747,7 +747,7 @@ internal sealed class AspMvcActionAttribute : Attribute
 
     public AspMvcActionAttribute(string anonymousProperty)
     {
-        AnonymousProperty = anonymousProperty;
+		this.AnonymousProperty = anonymousProperty;
     }
 
     public string? AnonymousProperty { get; }
@@ -767,7 +767,7 @@ internal sealed class AspMvcAreaAttribute : Attribute
 
     public AspMvcAreaAttribute(string anonymousProperty)
     {
-        AnonymousProperty = anonymousProperty;
+		this.AnonymousProperty = anonymousProperty;
     }
 
     public string? AnonymousProperty { get; }
@@ -789,7 +789,7 @@ internal sealed class AspMvcControllerAttribute : Attribute
 
     public AspMvcControllerAttribute(string anonymousProperty)
     {
-        AnonymousProperty = anonymousProperty;
+		this.AnonymousProperty = anonymousProperty;
     }
 
     public string? AnonymousProperty { get; }
@@ -921,7 +921,7 @@ internal sealed class HtmlElementAttributesAttribute : Attribute
 
     public HtmlElementAttributesAttribute(string name)
     {
-        Name = name;
+		this.Name = name;
     }
 
     public string? Name { get; }
@@ -932,7 +932,7 @@ internal sealed class HtmlAttributeValueAttribute : Attribute
 {
     public HtmlAttributeValueAttribute(string name)
     {
-        Name = name;
+		this.Name = name;
     }
 
     public string Name { get; }
@@ -982,7 +982,7 @@ internal sealed class CollectionAccessAttribute : Attribute
 {
     public CollectionAccessAttribute(CollectionAccessType collectionAccessType)
     {
-        CollectionAccessType = collectionAccessType;
+		this.CollectionAccessType = collectionAccessType;
     }
 
     public CollectionAccessType CollectionAccessType { get; }
@@ -1028,7 +1028,7 @@ internal sealed class AssertionConditionAttribute : Attribute
 {
     public AssertionConditionAttribute(AssertionConditionType conditionType)
     {
-        ConditionType = conditionType;
+		this.ConditionType = conditionType;
     }
 
     public AssertionConditionType ConditionType { get; }
@@ -1144,8 +1144,8 @@ internal sealed class AspChildControlTypeAttribute : Attribute
 {
     public AspChildControlTypeAttribute(string tagName, Type controlType)
     {
-        TagName = tagName;
-        ControlType = controlType;
+		this.TagName = tagName;
+		this.ControlType = controlType;
     }
 
     public string TagName { get; }
@@ -1173,7 +1173,7 @@ internal sealed class AspRequiredAttributeAttribute : Attribute
 {
     public AspRequiredAttributeAttribute(string attribute)
     {
-        Attribute = attribute;
+		this.Attribute = attribute;
     }
 
     public string Attribute { get; }
@@ -1184,7 +1184,7 @@ internal sealed class AspTypePropertyAttribute : Attribute
 {
     public AspTypePropertyAttribute(bool createConstructorReferences)
     {
-        CreateConstructorReferences = createConstructorReferences;
+		this.CreateConstructorReferences = createConstructorReferences;
     }
 
     public bool CreateConstructorReferences { get; }
@@ -1195,7 +1195,7 @@ internal sealed class RazorImportNamespaceAttribute : Attribute
 {
     public RazorImportNamespaceAttribute(string name)
     {
-        Name = name;
+		this.Name = name;
     }
 
     public string Name { get; }
@@ -1206,8 +1206,8 @@ internal sealed class RazorInjectionAttribute : Attribute
 {
     public RazorInjectionAttribute(string type, string fieldName)
     {
-        Type = type;
-        FieldName = fieldName;
+		this.Type = type;
+		this.FieldName = fieldName;
     }
 
     public string Type { get; }
@@ -1220,7 +1220,7 @@ internal sealed class RazorDirectiveAttribute : Attribute
 {
     public RazorDirectiveAttribute(string directive)
     {
-        Directive = directive;
+		this.Directive = directive;
     }
 
     public string Directive { get; }
@@ -1231,13 +1231,13 @@ internal sealed class RazorPageBaseTypeAttribute : Attribute
 {
     public RazorPageBaseTypeAttribute(string baseType)
     {
-        BaseType = baseType;
+		this.BaseType = baseType;
     }
 
     public RazorPageBaseTypeAttribute(string baseType, string pageName)
     {
-        BaseType = baseType;
-        PageName = pageName;
+		this.BaseType = baseType;
+		this.PageName = pageName;
     }
 
     public string BaseType { get; }

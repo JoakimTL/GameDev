@@ -11,24 +11,24 @@ public sealed class RenderableComponent : ComponentBase, IRenderable
 	private readonly RenderSceneComponent _sceneComponent;
 	private readonly RenderInstance3DataComponent _instanceDataComponent;
 
-	public string? MaterialAssetName => _materialComponent.AssetName;
-	public string? MeshDataAssetName => _meshComponent.AssetName;
-	public string? SceneName => _sceneComponent.SceneIdentity;
-	public IRenderableInstanceData? InstanceData => _instanceDataComponent;
+	public string? MaterialAssetName => this._materialComponent.AssetName;
+	public string? MeshDataAssetName => this._meshComponent.AssetName;
+	public string? SceneName => this._sceneComponent.SceneIdentity;
+	public IRenderableInstanceData? InstanceData => this._instanceDataComponent;
 
 	public event Action<IRenderable>? RenderableSceneChanged;
 	public event Action<IRenderable>? RenderableDataChanged;
 
 	public RenderableComponent(RenderMaterialAssetComponent materialComponent, RenderMeshAssetComponent meshComponent, RenderSceneComponent sceneComponent, RenderInstance3DataComponent instanceDataComponent)
 	{
-		_materialComponent = materialComponent;
-		_meshComponent = meshComponent;
-		_sceneComponent = sceneComponent;
-		_instanceDataComponent = instanceDataComponent;
-		_sceneComponent.ComponentChanged += OnSceneComponentChanged;
-		_materialComponent.ComponentChanged += OnRenderDataComponentChanged;
-		_meshComponent.ComponentChanged += OnRenderDataComponentChanged;
-		_instanceDataComponent.ComponentChanged += OnRenderDataComponentChanged;
+		this._materialComponent = materialComponent;
+		this._meshComponent = meshComponent;
+		this._sceneComponent = sceneComponent;
+		this._instanceDataComponent = instanceDataComponent;
+		this._sceneComponent.ComponentChanged += OnSceneComponentChanged;
+		this._materialComponent.ComponentChanged += OnRenderDataComponentChanged;
+		this._meshComponent.ComponentChanged += OnRenderDataComponentChanged;
+		this._instanceDataComponent.ComponentChanged += OnRenderDataComponentChanged;
 	}
 
 	private void OnSceneComponentChanged(ComponentBase component) => RenderableSceneChanged?.Invoke(this);

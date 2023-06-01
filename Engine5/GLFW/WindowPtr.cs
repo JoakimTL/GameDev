@@ -45,7 +45,7 @@ public struct WindowPtr : IEquatable<WindowPtr> {
 	/// <returns>
 	///     A <see cref="string" /> that represents this instance.
 	/// </returns>
-	public override string ToString() => handle.ToString();
+	public override string ToString() => this.handle.ToString();
 
 	/// <summary>
 	///     Determines whether the specified <see cref="WindowPtr" />, is equal to this instance.
@@ -54,7 +54,7 @@ public struct WindowPtr : IEquatable<WindowPtr> {
 	/// <returns>
 	///     <c>true</c> if the specified <see cref="WindowPtr" /> is equal to this instance; otherwise, <c>false</c>.
 	/// </returns>
-	public bool Equals( WindowPtr other ) => handle.Equals( other.handle );
+	public bool Equals( WindowPtr other ) => this.handle.Equals( other.handle );
 
 	/// <summary>
 	///     Determines whether the specified <see cref="System.object" />, is equal to this instance.
@@ -73,8 +73,8 @@ public struct WindowPtr : IEquatable<WindowPtr> {
 	///     Gets or sets the opacity of the window in the range of <c>0.0</c> and <c>1.0</c> inclusive.
 	/// </summary>
 	public float Opacity {
-		get => Glfw.GetWindowOpacity( handle );
-		set => Glfw.SetWindowOpacity( handle, Math.Min( 1.0f, Math.Max( 0.0f, value ) ) );
+		get => Glfw.GetWindowOpacity( this.handle );
+		set => Glfw.SetWindowOpacity( this.handle, Math.Min( 1.0f, Math.Max( 0.0f, value ) ) );
 	}
 
 	/// <summary>
@@ -83,7 +83,7 @@ public struct WindowPtr : IEquatable<WindowPtr> {
 	/// <returns>
 	///     A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
 	/// </returns>
-	public override int GetHashCode() => handle.GetHashCode();
+	public override int GetHashCode() => this.handle.GetHashCode();
 
 	/// <summary>
 	///     Implements the operator ==.

@@ -1,6 +1,11 @@
-﻿new TestPlatform.TestGameRenderModule();
-new TestPlatform.TestGameLogicModule();
+﻿//new TestPlatform.TestGameRenderModule();
+//new TestPlatform.TestGameLogicModule();
 
+using Engine.Networking.Module.Services;
+
+var socketFactory = new SocketFactory();
+var socket = socketFactory.CreateTcp();
+Console.WriteLine();
 
 //using StandardPackage.Rendering.VertexArrayLayouts;
 //using System.Numerics;

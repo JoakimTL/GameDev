@@ -30,8 +30,8 @@ namespace WFC
 
         public Tile(Color color)
         {
-            Id = _currentId++;
-            Color = color;
+			this.Id = _currentId++;
+			this.Color = color;
         }
     }
 
@@ -46,34 +46,34 @@ namespace WFC
         public Map(int size, IEnumerable<Tile> tiles)
         {
             this._size = size;
-            _tiles = tiles.ToArray();
-            _connections = new Dictionary<int, double>[_tiles.Length];
-            for (int i = 0; i < _tiles.Length; i++)
-                _connections[i] = new Dictionary<int, double>();
+			this._tiles = tiles.ToArray();
+			this._connections = new Dictionary<int, double>[ this._tiles.Length];
+            for (int i = 0; i < this._tiles.Length; i++)
+				this._connections[i] = new Dictionary<int, double>();
 
-            _map = new int[size * size];
+			this._map = new int[size * size];
         }
 
         public void AddTileConnection(Tile a, Tile b, double weight)
         {
-            _connections[a.Id][b.Id] = weight;
-            _connections[b.Id][a.Id] = weight;
+			this._connections[a.Id][b.Id] = weight;
+			this._connections[b.Id][a.Id] = weight;
         }
 
-        private double GetConnection(int a, int b) => _connections[a].TryGetValue(b, out double val) ? val : 0;
+        private double GetConnection(int a, int b) => this._connections[a].TryGetValue(b, out double val) ? val : 0;
 
-        public int GetIndex(int x, int y) => x >= 0 && x < _size && y >= 0 && y < _size ? x + y * _size : -1;
+        public int GetIndex(int x, int y) => x >= 0 && x < this._size && y >= 0 && y < this._size ? x + y * this._size : -1;
         public (int x, int y) GetCoordinates(int index)
         {
-            int y = Math.DivRem(index, _size, out int x);
+            int y = Math.DivRem(index, this._size, out int x);
             return (x, y);
         }
 
-        public void Seed(int x, int y, Tile t) => _map[GetIndex(x, y)] = t.Id;
+        public void Seed(int x, int y, Tile t) => this._map[GetIndex(x, y)] = t.Id;
 
         public void Generate(Random rand)
         {
-            if (_tiles.Length == 0)
+            if ( this._tiles.Length == 0)
                 return;
 
             int[] neighbourIds = new int[4];
@@ -105,16 +105,16 @@ namespace WFC
                 int ni;
                 ni = GetIndex(x - 1, y);
                 if (ni != -1)
-                    choices[0] = GetConnection(a, _map[ni]);
+                    choices[0] = GetConnection(a, this._map[ni]);
                 ni = GetIndex(x, y - 1);
                 if (ni != -1)
-                    choices[1] = GetConnection(a, _map[ni]);
+                    choices[1] = GetConnection(a, this._map[ni]);
                 ni = GetIndex(x + 1, y);
                 if (ni != -1)
-                    choices[2] = GetConnection(a, _map[ni]);
+                    choices[2] = GetConnection(a, this._map[ni]);
                 ni = GetIndex(x, y + 1);
                 if (ni != -1)
-                    choices[3] = GetConnection(a, _map[ni]);
+                    choices[3] = GetConnection(a, this._map[ni]);
 
                 double choiceSum = 0;
                 for (int i = 0; i < choices.Length; i++)
@@ -137,16 +137,16 @@ namespace WFC
                 return 0;
             }
 
-            for (int i = 0; i < _map.Length; i++)
+            for (int i = 0; i < this._map.Length; i++)
             {
-                if (_map[i] != 0)
+                if ( this._map[i] != 0)
                     seeded.Add(i);
             }
 
             if (seeded.Count == 0)
             {
-                int index = rand.Next(0, _map.Length);
-                _map[index] = rand.Next(1, _tiles.Length + 1);
+                int index = rand.Next(0, this._map.Length);
+				this._map[index] = rand.Next(1, this._tiles.Length + 1);
                 seeded.Add(index);
             }
 
@@ -160,7 +160,7 @@ namespace WFC
             {
                 var i = unseeded.Dequeue();
                 var p = GetCoordinates(i);
-                _map[i] = FindAppropriateTile(_map[i], p.x, p.y);
+				this._map[i] = FindAppropriateTile( this._map[i], p.x, p.y);
                 EnqueueUnseeded(p.x, p.y);
             }
         }

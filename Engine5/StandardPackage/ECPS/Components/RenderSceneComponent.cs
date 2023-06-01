@@ -17,10 +17,10 @@ public sealed class RenderSceneComponent : ComponentBase, ICustomizedSerializabl
 
 	public void SetScene<T>() where T : Scene, new()
 	{
-		if (typeof(T) != _currentSceneType)
+		if (typeof(T) != this._currentSceneType )
 		{
-			_currentSceneType = typeof(T);
-			SceneIdentity = _currentSceneType.GetCustomAttribute<IdentityAttribute>()?.Identity;
+			this._currentSceneType = typeof(T);
+			this.SceneIdentity = this._currentSceneType.GetCustomAttribute<IdentityAttribute>()?.Identity;
 			AlertComponentChanged();
 		}
 	}
@@ -32,10 +32,10 @@ public sealed class RenderSceneComponent : ComponentBase, ICustomizedSerializabl
 		string? deserialized = data.CreateString();
 		if (deserialized is null)
 			return false;
-		SceneIdentity = deserialized;
+		this.SceneIdentity = deserialized;
 		AlertComponentChanged();
 		return true;
 	}
 
-	public byte[] SerializeData() => SceneIdentity?.ToBytes() ?? Array.Empty<byte>();
+	public byte[] SerializeData() => this.SceneIdentity?.ToBytes() ?? Array.Empty<byte>();
 }

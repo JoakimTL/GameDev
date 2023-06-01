@@ -4,6 +4,7 @@ using Engine.Structure.Interfaces;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Engine;
 public static unsafe class DataExtensions {
@@ -20,7 +21,15 @@ public static unsafe class DataExtensions {
 		return unmanagedToRepresentBits;
 	}
 
-	public static unsafe T? ToUnmanaged<T>( this byte[] data, uint offset = 0 ) where T : unmanaged {
+	public static T ToUnmanaged<T>( this byte[] data, uint offset = 0 ) where T : unmanaged {
+		uint sizeBytes = (uint) sizeof( T );
+		if ( data.Length < sizeBytes + offset )
+			return Log.WarningThenReturnDefault<T>( $"Unable to load {typeof( T ).Name} from data!" );
+		fixed ( byte* srcPtr = data )
+			return *(T*) ( srcPtr + offset );
+	}
+
+	public static T? ToUnmanagedNullable<T>( this byte[] data, uint offset = 0 ) where T : unmanaged {
 		uint sizeBytes = (uint) sizeof( T );
 		if ( data.Length < sizeBytes + offset )
 			return Log.WarningThenReturnDefault<T?>( $"Unable to load {typeof( T ).Name} from data!" );
@@ -28,15 +37,15 @@ public static unsafe class DataExtensions {
 			return *(T*) ( srcPtr + offset );
 	}
 
-	public static unsafe T ToUnmanagedOrDefault<T>( this byte[] data, uint offset = 0 ) where T : unmanaged {
+	public static T ToUnmanagedOrThrow<T>( this byte[] data, uint offset = 0 ) where T : unmanaged {
 		uint sizeBytes = (uint) sizeof( T );
 		if ( data.Length < sizeBytes + offset )
-			return Log.WarningThenReturn( $"Unable to load {typeof( T ).Name} from data!", default( T ) );
+			throw new InvalidDataException( $"Data has length {data.Length}, but expected size was {sizeBytes + offset}!" );
 		fixed ( byte* srcPtr = data )
 			return *(T*) ( srcPtr + offset );
 	}
 
-	public static unsafe byte[] ToBytes<T>( this T data ) where T : unmanaged {
+	public static byte[] ToBytes<T>( this T data ) where T : unmanaged {
 		uint sizeBytes = (uint) sizeof( T );
 		byte[] returnData = new byte[ sizeBytes ];
 		fixed ( byte* dstPtr = returnData )
@@ -44,7 +53,7 @@ public static unsafe class DataExtensions {
 		return returnData;
 	}
 
-	public static unsafe byte[] ToBytes<T>( this Span<T> data ) where T : unmanaged {
+	public static byte[] ToBytes<T>( this Span<T> data ) where T : unmanaged {
 		uint sizeBytes = (uint) ( sizeof( T ) * data.Length );
 		byte[] returnData = new byte[ sizeBytes ];
 		fixed ( T* srcPtr = data )
@@ -53,27 +62,51 @@ public static unsafe class DataExtensions {
 		return returnData;
 	}
 
-	public static unsafe string? CreateString( this byte[] data ) {
+	public static string? CreateString( this byte[] data ) {
 		if ( data.Length % sizeof( char ) != 0 )
-			return Log.WarningThenReturnDefault<string?>( $"Data unaligned. Possible corruption!" );
+			return Log.WarningThenReturnDefault<string?>( $"Length must be divisible by {sizeof( char )}!" );
 		Span<char> chars;
 		fixed ( byte* srcPtr = data )
 			chars = new( srcPtr, data.Length / sizeof( char ) );
 		return new string( chars );
 	}
 
-	public static unsafe string? CreateString( this Span<byte> data ) {
+	public static string? CreateString( this Span<byte> data ) {
 		if ( data.Length % sizeof( char ) != 0 )
-			return Log.WarningThenReturnDefault<string?>( $"Data unaligned. Possible corruption!" );
+			return Log.WarningThenReturnDefault<string?>( $"Length must be divisible by {sizeof( char )}!" );
 		Span<char> chars;
 		fixed ( byte* srcPtr = data )
 			chars = new( srcPtr, data.Length / sizeof( char ) );
 		return new string( chars );
 	}
 
-	public static unsafe string? CreateString( void* srcPtr, uint lengthBytes ) {
+	public static string? CreateString( void* srcPtr, uint lengthBytes ) {
 		if ( lengthBytes % sizeof( char ) != 0 )
 			return Log.WarningThenReturnDefault<string?>( $"Length must be divisible by {sizeof( char )}!" );
+		return new string( new Span<char>( srcPtr, (int) lengthBytes / sizeof( char ) ) );
+	}
+
+	public static string CreateStringOrThrow( this byte[] data ) {
+		if ( data.Length % sizeof( char ) != 0 )
+			throw new ArgumentException($"Length must be divisible by {sizeof( char )}!", nameof(data) );
+		Span<char> chars;
+		fixed ( byte* srcPtr = data )
+			chars = new( srcPtr, data.Length / sizeof( char ) );
+		return new string( chars );
+	}
+
+	public static string CreateStringOrThrow( this Span<byte> data ) {
+		if ( data.Length % sizeof( char ) != 0 )
+			throw new ArgumentException( $"Length must be divisible by {sizeof( char )}!", nameof( data ) );
+		Span<char> chars;
+		fixed ( byte* srcPtr = data )
+			chars = new( srcPtr, data.Length / sizeof( char ) );
+		return new string( chars );
+	}
+
+	public static string CreateStringOrThrow( void* srcPtr, uint lengthBytes ) {
+		if ( lengthBytes % sizeof( char ) != 0 )
+			throw new ArgumentException( $"Length must be divisible by {sizeof( char )}!", nameof( lengthBytes ) );
 		return new string( new Span<char>( srcPtr, (int) lengthBytes / sizeof( char ) ) );
 	}
 
@@ -82,7 +115,7 @@ public static unsafe class DataExtensions {
 	/// </summary>
 	/// <param name="data"></param>
 	/// <returns></returns>
-	public static unsafe byte[] ToBytes( this string data ) {
+	public static byte[] ToBytes( this string data ) {
 		byte[] returnData = new byte[ data.Length * sizeof( char ) ];
 		fixed ( char* srcPtr = data )
 		fixed ( byte* dstPtr = returnData )
@@ -97,20 +130,27 @@ public static unsafe class DataExtensions {
 		}
 		fixed ( M* dstPtr = destination )
 			*(T*) ( (byte*) dstPtr + offsetBytes ) = source;
-	}
+    }
 
-	public static void CopyInto<T, M>(this Span<T> source, M[] destination, uint offsetBytes = 0) where T : unmanaged where M : unmanaged
-	{
-		if (source.Length * sizeof(T) + offsetBytes > destination.Length * sizeof(M))
-		{
-			Log.Warning("Cannot copy outside the array.");
+    public static void CopyInto<T, M>( this T[] source, M[] destination, uint offsetBytes = 0 ) where T : unmanaged where M : unmanaged {
+        if ( source.Length * sizeof( T ) + offsetBytes > destination.Length * sizeof( M ) ) {
+            Log.Warning( "Cannot copy outside the array." );
+            return;
+        }
+        fixed ( void* dstPtr = destination )
+        fixed ( void* srcPtr = source )
+            Buffer.MemoryCopy( (byte*) srcPtr + offsetBytes, dstPtr, destination.Length * sizeof( M ), source.Length * sizeof( T ) - offsetBytes );
+    }
+
+    public static void CopyInto<T, M>( this Span<T> source, M[] destination, uint offsetBytes = 0 ) where T : unmanaged where M : unmanaged {
+		if ( source.Length * sizeof( T ) + offsetBytes > destination.Length * sizeof( M ) ) {
+			Log.Warning( "Cannot copy outside the array." );
 			return;
 		}
-		fixed (void* dstPtr = destination)
-		fixed (void* srcPtr = source)
-			Buffer.MemoryCopy((byte*)srcPtr + offsetBytes, dstPtr, destination.Length * sizeof(M), source.Length * sizeof(T) - offsetBytes);
+		fixed ( void* dstPtr = destination )
+		fixed ( void* srcPtr = source )
+			Buffer.MemoryCopy( (byte*) srcPtr + offsetBytes, dstPtr, destination.Length * sizeof( M ), source.Length * sizeof( T ) - offsetBytes );
 	}
-
 
 	public static void CopyInto<T, M>(this ReadOnlySpan<T> source, M[] destination, uint offsetBytes = 0) where T : unmanaged where M : unmanaged
 	{
@@ -153,7 +193,7 @@ public static unsafe class DataExtensions {
 	public static Type? GetDeserializedType( this byte[] data ) {
 		if ( data.Length < sizeof( Guid ) )
 			return Log.WarningThenReturnDefault<Type?>( $"Length of data too short for {nameof( Guid )}" );
-		Type? type = Global.Get<SerializableService>().GetFromIdentity( data.ToUnmanagedOrDefault<Guid>() );
+		Type? type = Global.Get<SerializableService>().GetFromIdentity( data.ToUnmanaged<Guid>() );
 		if ( type is null )
 			return Log.WarningThenReturnDefault<Type?>( "Couldn't find type for data" );
 		return type;

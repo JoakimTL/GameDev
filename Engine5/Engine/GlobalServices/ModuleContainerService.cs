@@ -139,7 +139,7 @@ public class ModuleContainerService : Identifiable, IGlobalService
             {
                 _timedSystem = timedSystem;
                 _interval = _timedSystem.SystemTickInterval;
-                _timer = new TickingTimer(moduleBase.IdentifiableName, _interval, !essential);
+                _timer = new TickingTimer(moduleBase.FullName, _interval, !essential);
                 _timer.Elapsed += Tick;
                 _timer.Start();
                 this.LogLine($"Started!", Log.Level.NORMAL, ConsoleColor.Magenta);
