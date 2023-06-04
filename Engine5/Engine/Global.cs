@@ -12,6 +12,7 @@ public static class Global
 
     internal static void Shutdown()
     {
+        Log.Line( "Shutting down...", Log.Level.CRITICAL );
         _serviceProviderDisposal.Dispose();
         Log.Stop();
     }

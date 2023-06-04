@@ -1,14 +1,14 @@
-﻿using Engine.Networking.Module.TransferLayer;
-using Engine.Networking.Module.TransferLayer.Tunnels;
+﻿using Engine.Networking.Modules.TransferLayer;
+using Engine.Networking.Modules.TransferLayer.Tunnels;
 
-namespace Engine.Networking.Module.Services;
+namespace Engine.Networking.Modules.Services;
 
 public sealed class TcpTunnelListenerService : Identifiable, INetworkServerService {
 	private readonly TcpConnectionTunnelService _connectionTunnelService;
 
 	public TcpTunnelListenerService( TcpConnectionTunnelService connectionTunnelService ) {
-		this._connectionTunnelService = connectionTunnelService;
-		this._connectionTunnelService.NewTcpTunnel += NewTunnel;
+		_connectionTunnelService = connectionTunnelService;
+		_connectionTunnelService.NewTcpTunnel += NewTunnel;
 	}
 
 	private void NewTunnel( NetworkTunnelBase obj ) {

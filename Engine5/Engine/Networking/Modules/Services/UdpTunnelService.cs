@@ -1,16 +1,14 @@
-﻿using Engine.Networking.Module.TransferLayer.Tunnels;
-using Engine.Networking.Modules.Services;
+﻿using Engine.Networking.Modules.TransferLayer.Tunnels;
 
-namespace Engine.Networking.Module.Services;
+namespace Engine.Networking.Modules.Services;
 
 public sealed class UdpTunnelService : Identifiable, INetworkClientService, INetworkServerService {
 
 	private readonly UdpNetworkTunnel _udpTunnel;
 
-    public UdpTunnelService( SocketFactory socketFactory, PacketTypeRegistryService packetTypeRegistryService )
-    {
+	public UdpTunnelService( SocketFactory socketFactory, PacketTypeRegistryService packetTypeRegistryService ) {
 		_udpTunnel = new( socketFactory.CreateUdp(), packetTypeRegistryService );
-    }
+	}
 
 	public UdpNetworkTunnel Tunnel => _udpTunnel;
 

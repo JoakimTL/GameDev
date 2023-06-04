@@ -10,9 +10,9 @@ using StandardPackage.ECPS.Systems;
 using StandardPackage.Rendering.Scenes;
 using System.Numerics;
 
-namespace TestPlatform;
+namespace TestPlatformBase;
 
-internal class TestGameLogicModule : GameLogicModuleBase, ITimedSystem {
+public class TestGameLogicModule : GameLogicModuleBase, ITimedSystem {
 
 	private Entity? _e;
 	private float lastTime;
@@ -20,6 +20,7 @@ internal class TestGameLogicModule : GameLogicModuleBase, ITimedSystem {
 	public int SystemTickInterval => 50;
 
 	protected override void OnInitialize() {
+		//TODO: find other ways of creating entities!
 		this._e = Get<EntityContainerService>()._container.Create();
 		this._e.AddOrGet<LinearMovement3Component>().Impulse( new( 0, 0, 0 ) );
 		this._e.AddOrGet<Mass3Component>();
@@ -37,7 +38,7 @@ internal class TestGameLogicModule : GameLogicModuleBase, ITimedSystem {
 		if ( this._e is not null ) {
 			var transform = this._e.Get<Transform3Component>();
 			if ( transform is not null ) {
-				transform.Transform.Translation = new Vector3( MathF.Sin( time ) * 2, MathF.Cos( time * 5 ) * 2, MathF.Cos( time  ) * 2 );
+				transform.Transform.Translation = new Vector3( MathF.Sin( time ) * 2, MathF.Cos( time * 5 ) * 2, MathF.Cos( time ) * 2 );
 
 				if ( !Global.Get<InputService>()[ GlfwBinding.Enums.Keys.L ] )
 					this._e.Get<RenderInstance3DataComponent>()?.Set( transform.Transform.GlobalData, Vector4.One );
@@ -48,7 +49,7 @@ internal class TestGameLogicModule : GameLogicModuleBase, ITimedSystem {
 		if ( time - this.lastTime > 1 ) {
 			//Console.WriteLine(Get<EntityContainerService>());
 			//Console.WriteLine(Get<EntitySystemContainerService>());
-			Console.WriteLine( this._e );
+			//Console.WriteLine( this._e );
 			this.lastTime = time;
 		}
 	}

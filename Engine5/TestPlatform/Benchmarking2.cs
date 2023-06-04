@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-namespace TestPlatform;
+namespace TestPlatformClient;
 
 [MemoryDiagnoser]
 public unsafe class Benchmarking2 {

@@ -1,7 +1,7 @@
-﻿using Engine.Networking.Module.TransferLayer;
+﻿using Engine.Networking.Modules.TransferLayer;
 using System.Net.Sockets;
 
-namespace Engine.Networking.Module.Services;
+namespace Engine.Networking.Modules.Services;
 
 public sealed class ConnectedPlayerAddressService : Identifiable, INetworkServerService {
 

@@ -2,7 +2,7 @@
 using System.Net;
 using System.Diagnostics;
 
-namespace Engine.Networking.Module.TransferLayer;
+namespace Engine.Networking.Modules.TransferLayer;
 public abstract class NetworkTunnelBase : Identifiable, IDisposable {
 	public abstract event Action<NetworkTunnelBase, SocketError>? OnAbruptClosure;
 	public abstract ProtocolType Protocol { get; }
@@ -21,7 +21,7 @@ public abstract class NetworkTunnelBase : Identifiable, IDisposable {
 
 	public void Bind( EndPoint endPoint ) {
 		_socket.Bind( endPoint );
-		this.LogLine( $"Set local endpoint to {endPoint}!", Log.Level.NORMAL );
+		this.LogLine( $"Set local endpoint to {_socket.LocalEndPoint}!", Log.Level.NORMAL );
 	}
 
 	public EndPoint? LocalEndPoint => _socket.LocalEndPoint;

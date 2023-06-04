@@ -2,7 +2,7 @@
 using Engine.Rendering.Contexts.Services;
 using StandardPackage.Rendering.Pipelines;
 
-namespace TestPlatform;
+namespace TestPlatformClient;
 
 public class TestGameRenderModule : RenderModule {
 	protected override void OnInitialize( Window window ) {

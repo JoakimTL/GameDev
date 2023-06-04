@@ -8,7 +8,7 @@ public sealed class IdentityTypeService : IGlobalService {
 
 	private readonly Dictionary<string, Type> _typesFromIdentification;
 
-	public IdentityTypeService( TypeService typeService ) {
+	public IdentityTypeService( TypeRegistryService typeService ) {
 		_typesFromIdentification = new();
 
 		foreach ( var type in typeService.AllTypes.Where( p => p.GetCustomAttribute<IdentityAttribute>() is not null ) ) {

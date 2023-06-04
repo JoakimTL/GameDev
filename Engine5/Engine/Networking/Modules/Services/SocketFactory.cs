@@ -1,12 +1,12 @@
 ﻿using System.Net.Sockets;
 
-namespace Engine.Networking.Module.Services;
+namespace Engine.Networking.Modules.Services;
 
 public sealed class SocketFactory : Identifiable, INetworkServerService, INetworkClientService {
 	public bool IsIpv6Enabled { get; set; } = false;
 
 	public Socket CreateTcp() {
-		if ( this.IsIpv6Enabled ) {
+		if ( IsIpv6Enabled ) {
 			Socket s = new( AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp );
 			s.SetSocketOption( SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0 );
 			return s;
@@ -17,7 +17,7 @@ public sealed class SocketFactory : Identifiable, INetworkServerService, INetwor
 	}
 
 	public Socket CreateUdp() {
-		if ( this.IsIpv6Enabled ) {
+		if ( IsIpv6Enabled ) {
 			Socket s = new( AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp );
 			s.SetSocketOption( SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, 0 );
 			return s;

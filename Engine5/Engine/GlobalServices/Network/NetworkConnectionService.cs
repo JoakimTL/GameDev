@@ -1,7 +1,8 @@
-﻿using Engine.Structure.Interfaces;
+﻿using Engine.Networking;
+using Engine.Structure.Interfaces;
 using System.Net;
 
-namespace Engine.GlobalServices;
+namespace Engine.GlobalServices.Network;
 
 public sealed class NetworkConnectionService : Identifiable, IGlobalService {
 
@@ -9,13 +10,20 @@ public sealed class NetworkConnectionService : Identifiable, IGlobalService {
 
 	public event Action? RemoteTargetChanged;
 
+	public NetworkId? NetworkId { get; internal set; }
+
 	public NetworkConnectionService() {
 		RemoteTarget = null;
+		NetworkId = null;
 	}
 
 	public void Connect( IPEndPoint endPoint ) {
-		if (endPoint is null ) {
-			this.LogWarning( $"Use the {nameof(Disonnect)} method to disconnect." );
+		if ( endPoint is null ) {
+			this.LogWarning( $"Use the {nameof( Disonnect )} method to disconnect." );
+			return;
+		}
+		if ( endPoint == RemoteTarget ) {
+			this.LogWarning( $"Remote is already {endPoint}." );
 			return;
 		}
 		RemoteTarget = endPoint;
@@ -28,6 +36,7 @@ public sealed class NetworkConnectionService : Identifiable, IGlobalService {
 			return;
 		}
 		RemoteTarget = null;
+		NetworkId = null;
 		RemoteTargetChanged?.Invoke();
 	}
 

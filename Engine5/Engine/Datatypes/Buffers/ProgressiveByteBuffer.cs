@@ -29,7 +29,7 @@ public unsafe class ProgressiveByteBuffer {
             _ptr = (byte*) NativeMemory.Realloc( _ptr, _size );
         }
         fixed ( byte* srcPtr = bytes )
-            Buffer.MemoryCopy( srcPtr, _ptr + _caret, _size - _caret, bytes.Length );
+            Buffer.MemoryCopy( srcPtr, _ptr + _caret, _size - _caret, length );
         _caret += length;
     }
     /// <summary>

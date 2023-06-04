@@ -1,28 +1,27 @@
-﻿using Engine.Networking.Module.TransferLayer.Tunnels;
-using Engine.Networking.Modules.Services;
+﻿using Engine.Networking.Modules.TransferLayer.Tunnels;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Engine.Networking.Module.Services;
+namespace Engine.Networking.Modules.Services;
 
 public sealed class TcpConnectionTunnelService : Identifiable, INetworkServerService {
 
 	private readonly ConcurrentDictionary<IPEndPoint, TcpNetworkTunnel> _tcpTunnels;
 	private readonly ConnectionAccepterService _connectionAccepterService;
-    private readonly PacketTypeRegistryService _packetTypeRegistryService;
+	private readonly PacketTypeRegistryService _packetTypeRegistryService;
 
-    public event Action<TcpNetworkTunnel>? NewTcpTunnel;
+	public event Action<TcpNetworkTunnel>? NewTcpTunnel;
 
 	public TcpConnectionTunnelService( ConnectionAccepterService connectionAccepterService, PacketTypeRegistryService packetTypeRegistryService ) {
-		this._tcpTunnels = new();
-		this._connectionAccepterService = connectionAccepterService;
-        this._packetTypeRegistryService = packetTypeRegistryService;
-        this._connectionAccepterService.NewTcpSocket += NewTcpSocket;
+		_tcpTunnels = new();
+		_connectionAccepterService = connectionAccepterService;
+		_packetTypeRegistryService = packetTypeRegistryService;
+		_connectionAccepterService.NewTcpSocket += NewTcpSocket;
 	}
 
 	private void NewTcpSocket( Socket socket ) {
-		if ( socket.RemoteEndPoint is not IPEndPoint endpoint || this._tcpTunnels.ContainsKey( endpoint ) ) {
+		if ( socket.RemoteEndPoint is not IPEndPoint endpoint || _tcpTunnels.ContainsKey( endpoint ) ) {
 			socket.Close();
 			return;
 		}

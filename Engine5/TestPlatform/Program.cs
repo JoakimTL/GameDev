@@ -1,11 +1,9 @@
-﻿//new TestPlatform.TestGameRenderModule();
-//new TestPlatform.TestGameLogicModule();
+﻿using Engine.GlobalServices.Network;
 
-using Engine.Networking.Module.Services;
-
-var socketFactory = new SocketFactory();
-var socket = socketFactory.CreateTcp();
-Console.WriteLine();
+new TestPlatformClient.TestGameRenderModule();
+new TestPlatformBase.TestGameLogicModule();
+new Engine.Networking.Modules.ClientModule();
+Engine.Global.Get<NetworkConnectionService>().Connect( new System.Net.IPEndPoint( System.Net.IPAddress.Loopback, 50043 ) );
 
 //using StandardPackage.Rendering.VertexArrayLayouts;
 //using System.Numerics;

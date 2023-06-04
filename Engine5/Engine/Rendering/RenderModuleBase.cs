@@ -54,5 +54,6 @@ public abstract class RenderModule : ModuleBase<IRenderService>, ISystem, IIniti
     {
         _serviceProviderDisposer.Dispose();
         GlfwUtilities.Terminate();
-    }
+		Stop();
+	}
 }

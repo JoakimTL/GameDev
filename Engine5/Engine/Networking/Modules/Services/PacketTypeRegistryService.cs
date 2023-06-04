@@ -1,5 +1,4 @@
 ﻿using Engine.GlobalServices;
-using Engine.Networking.Module;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -14,13 +13,16 @@ public class PacketTypeRegistryService : Identifiable, INetworkClientService, IN
     public string PacketCollectionString { get; }
     public string PacketCollectionHash { get; }
 
-    public PacketTypeRegistryService( TypeService typeService ) {
-        foreach ( var missingConstructablePacket in typeService.DerivedTypes.Where( p => p.IsAssignableTo( typeof( PacketBase ) ) && !p.IsAssignableTo( typeof( IConstructablePacket ) ) ) )
+    public PacketTypeRegistryService( TypeRegistryService typeService ) {
+        foreach ( var missingConstructablePacket in typeService.ImplementationTypes.Where( p => p.IsAssignableTo( typeof( PacketBase ) ) && !p.IsAssignableTo( typeof( IConstructablePacket ) ) ) )
             this.LogWarning( $"Packet type {missingConstructablePacket} does not implement {nameof( IConstructablePacket )}" );
         var packetTypeList = typeService.ImplementationTypes.Where( p => p.GetInterfaces().Contains( typeof( IConstructablePacket ) ) ).OrderBy( p => p.AssemblyQualifiedName ).ToList();
         _packetTypes = new();
-        foreach ( var packetType in packetTypeList )
-            _packetTypes.Add( new( _packetTypes.Count, packetType ) );
+        foreach ( var packetType in packetTypeList ) {
+            var packetTypeData = new PacketTypeData( _packetTypes.Count, packetType );
+			_packetTypes.Add( packetTypeData );
+            this.LogLine( $"Packet type {packetTypeData.PacketType.Namespace}.{packetTypeData.PacketType.Name} identifying as {packetTypeData.Id}", Log.Level.VERBOSE );
+        }
         _packetTypeIds = _packetTypes.ToDictionary( p => p.PacketType, p => p.Id );
 
         PacketCollectionString = string.Join( '|', _packetTypes.Select( p => $"{p.Id}-{p.PacketType.AssemblyQualifiedName}" ) );
@@ -50,7 +52,9 @@ public class PacketTypeRegistryService : Identifiable, INetworkClientService, IN
         public PacketTypeData( int id, Type packetType ) {
             Id = id;
             PacketType = packetType;
-            Constructor = packetType.GetMethod( nameof( IConstructablePacket.Construct ), BindingFlags.Public | BindingFlags.Static ).NotNull().CompileMethod<Func<byte[], IPEndPoint?, PacketBase?>>( null, typeof( byte[] ) ).NotNull();
+            Constructor = packetType
+                .GetMethod( nameof( IConstructablePacket.Construct ), BindingFlags.Public | BindingFlags.Static ).NotNull()
+                .CompileStaticMethod<Func<byte[], IPEndPoint?, PacketBase?>>( typeof( byte[] ), typeof( IPEndPoint ) ).NotNull();
         }
     }
 }

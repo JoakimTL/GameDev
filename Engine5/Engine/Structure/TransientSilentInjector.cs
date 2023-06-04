@@ -3,9 +3,9 @@
 /// <summary>
 /// Creates a new object whenever <see cref="Get(Type, bool)"/> is called. Does not cause exceptions.
 /// </summary>
-public sealed class TransientInjector : DependencyInjectorBase, IDependencyInjector {
+public sealed class TransientSilentInjector : DependencyInjectorBase, IDependencyInjector {
 
-	public static readonly TransientInjector Singleton = new();
+	public static readonly TransientSilentInjector Singleton = new();
 
 	public object? Get( Type type ) {
 		return GetInternal( type );
@@ -16,11 +16,12 @@ public sealed class TransientInjector : DependencyInjectorBase, IDependencyInjec
 			return Create( t, false );
 		} catch ( Exception e ) {
 			this.LogWarning( e.Message );
-			try {
-				return t.IsValueType ? Activator.CreateInstance( t ) : default;
-			} catch {
-				return default;
-			}
 		}
+		try {
+			return t.IsValueType ? Activator.CreateInstance( t ) : default;
+		} catch ( Exception e ) {
+			this.LogWarning( e.Message );
+		}
+		return default;
 	}
 }

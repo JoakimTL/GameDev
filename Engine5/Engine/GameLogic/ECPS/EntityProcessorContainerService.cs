@@ -17,7 +17,7 @@ public sealed class EntityProcessorContainerService : Identifiable, IGameLogicSe
 	}
 
 	private void SetupProcessors() {
-		var processorTypes = Global.Get<TypeService>().ImplementationTypes.Where( p => p.IsAssignableTo( typeof( ProcessorBase ) ) );
+		var processorTypes = Global.Get<TypeRegistryService>().ImplementationTypes.Where( p => p.IsAssignableTo( typeof( ProcessorBase ) ) );
 		foreach ( var processorType in processorTypes )
 			if ( processorType.GetInjectedInstance() is ProcessorBase processor )
 				foreach ( var componentType in processor.RequiredComponents.ComponentTypes ) {

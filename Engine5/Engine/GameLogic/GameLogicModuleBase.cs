@@ -12,7 +12,7 @@ public abstract class GameLogicModuleBase : ModuleBase<IGameLogicService>, IInit
     private readonly ServiceProviderInitializationExtension _serviceProviderInitializer;
     private readonly ServiceProviderDisposalExtension _serviceProviderDisposer;
 
-    public bool SystemEssential => false;
+    public bool SystemEssential => true;
 
     public GameLogicModuleBase() : base(true)
     {
@@ -45,6 +45,7 @@ public abstract class GameLogicModuleBase : ModuleBase<IGameLogicService>, IInit
     {
         this.LogLine("Disposing", Log.Level.NORMAL);
         _serviceProviderDisposer.Dispose();
-        GC.SuppressFinalize(this);
+		Stop();
+		GC.SuppressFinalize(this);
     }
 }

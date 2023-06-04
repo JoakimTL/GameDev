@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System.Numerics;
 
-namespace TestPlatform;
+namespace TestPlatformClient;
 
 public struct Vector4d {
 	public double X, Y, Z, W;
@@ -28,7 +28,7 @@ public struct Vector4dSIMD {
 	}
 
 	public Vector4dSIMD Add( Vector4dSIMD other )
-		=> new( System.Numerics.Vector.Add( this._underlying, other._underlying ) );
+		=> new( Vector.Add( this._underlying, other._underlying ) );
 }
 
 public class Benchmark2 {
@@ -66,9 +66,8 @@ public class Benchmark2 {
 	[Benchmark]
 	public void NaiveArray() {
 		this._naive3 = new( 0, 0, 0, 0 );
-		for ( int i = 0; i < this._naives.Length; i++ ) {
+		for ( int i = 0; i < this._naives.Length; i++ )
 			this._naive3 = this._naive3.Add( this._naives[ i ] );
-		}
 	}
 
 	[Benchmark]
@@ -79,8 +78,7 @@ public class Benchmark2 {
 	[Benchmark]
 	public void SIMDArray() {
 		this._simd3 = new( 0, 0, 0, 0 );
-		for ( int i = 0; i < this._simds.Length; i++ ) {
+		for ( int i = 0; i < this._simds.Length; i++ )
 			this._simd3 = this._simd3.Add( this._simds[ i ] );
-		}
 	}
 }

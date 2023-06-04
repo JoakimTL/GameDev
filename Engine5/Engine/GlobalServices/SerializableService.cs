@@ -8,7 +8,7 @@ public sealed class SerializableService : IGlobalService {
 	private readonly Dictionary<Type, Guid> _guidFromTypes;
 	private readonly Dictionary<Guid, Type> _typeFromGuids;
 
-	public SerializableService( TypeService typeService ) {
+	public SerializableService( TypeRegistryService typeService ) {
 		_guidFromTypes = new();
 		_typeFromGuids = new();
 

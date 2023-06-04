@@ -2,7 +2,7 @@
 using System.Net;
 using Engine.Networking.Modules.Services;
 
-namespace Engine.Networking.Module.TransferLayer.Tunnels;
+namespace Engine.Networking.Modules.TransferLayer.Tunnels;
 
 public class UdpNetworkTunnel : NetworkTunnelBase {
 	private readonly PacketTypeRegistryService _packetTypeRegistryService;
@@ -12,7 +12,7 @@ public class UdpNetworkTunnel : NetworkTunnelBase {
 	public override ProtocolType Protocol => ProtocolType.Udp;
 
 	public UdpNetworkTunnel( Socket udpSocket, PacketTypeRegistryService packetTypeRegistryService ) : base( udpSocket ) {
-		this._packetTypeRegistryService = packetTypeRegistryService;
+		_packetTypeRegistryService = packetTypeRegistryService;
 	}
 
 	public override bool TryReceive( byte[] buffer, out uint length, out IPEndPoint? sender ) {

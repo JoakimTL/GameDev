@@ -12,7 +12,10 @@ public class ModuleContainerService : Identifiable, IGlobalService
     private HashSet<ModuleBase> _modules;
     private Dictionary<ModuleBase, ModuleSystemTickerBase> _moduleTickers;
 
-    public ModuleContainerService()
+	public event Action<Type>? ModuleAdded;
+	public event Action<Type>? ModuleRemoved;
+
+	public ModuleContainerService()
     {
         _modules = new();
         _moduleTickers = new();
@@ -21,7 +24,9 @@ public class ModuleContainerService : Identifiable, IGlobalService
         _moduleTickTimer.Start();
     }
 
-    private void CheckModules(double time, double deltaTime)
+	public bool HasModule<T>() where T : ModuleBase => _modules.Any( p => p is T );
+
+	private void CheckModules(double time, double deltaTime)
     {
         lock (_modules)
         {
@@ -32,7 +37,8 @@ public class ModuleContainerService : Identifiable, IGlobalService
                 if (module is ISystem && module is IDisposable disposable)
                     disposable.Dispose();
                 this.LogLine($"Removed module {module}", Log.Level.NORMAL, ConsoleColor.Blue);
-            }
+				ModuleRemoved?.Invoke( module.GetType() );
+			}
 
             if (!_modules.Any(p => p.Essential))
                 foreach (var m in _modules)
@@ -70,7 +76,9 @@ public class ModuleContainerService : Identifiable, IGlobalService
                         : new ModuleSystemTickerBase.ModuleSystemTickerContinous(moduleBase, system.SystemEssential);
                     _moduleTickers.Add(moduleBase, ticker);
                 }
-            }
+                ModuleAdded?.Invoke( moduleBase.GetType() );
+
+			}
     }
 
     private abstract class ModuleSystemTickerBase : Identifiable, IUpdateable, IDisposable

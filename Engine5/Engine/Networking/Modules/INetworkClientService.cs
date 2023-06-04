@@ -1,4 +1,4 @@
 ﻿using Engine.Structure.Interfaces;
 
-namespace Engine.Networking.Module;
+namespace Engine.Networking.Modules;
 public interface INetworkClientService : IModuleService { }

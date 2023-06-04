@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Engine.GlobalServices;
 
-public sealed class TypeService : IGlobalService
+public sealed class TypeRegistryService : IGlobalService
 {
 
     public readonly IReadOnlyList<Type> AllTypes;
@@ -16,7 +16,7 @@ public sealed class TypeService : IGlobalService
     /// </summary>
     public readonly IReadOnlyList<Type> ImplementationTypes;
 
-    public TypeService()
+    public TypeRegistryService()
     {
         LoadAllAssemblies();
         List<Type> allTypes = new();

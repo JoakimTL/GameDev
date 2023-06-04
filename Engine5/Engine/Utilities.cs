@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 namespace Engine;
 
 public static unsafe class Extensions {
+
 	public static T NotNull<T>( this T? val ) => val ?? throw new NullReferenceException( $"{typeof( T ).Name} was null!" );
 	public static float ToFloat( this Int128 value, float fraction ) {
 		long longValue = (long) value;
@@ -41,11 +42,16 @@ public static unsafe class Extensions {
 	/// Gets an instance of the type. This may or may not construct a new instance, this all depends on the injector used.
 	/// </summary>
 	/// <param name="type">The types to get an instance of</param>
-	/// <param name="injector">The injector to use. <see cref="TransientInjector.Singleton"/> will be used if this is null.</param>
+	/// <param name="injector">The injector to use. <see cref="TransientSilentInjector.Singleton"/> will be used if this is null.</param>
 	/// <returns></returns>
 	public static object? GetInjectedInstance( this Type type, IDependencyInjector? injector = null )
-		=> ( injector ?? TransientInjector.Singleton ).Get( type );
+		=> ( injector ?? TransientSilentInjector.Singleton ).Get( type );
 
-	public static T? CompileMethod<T>( this MethodInfo method, Type? callerType, params Type[] parameters )
-		=> Expression.Lambda<T>( Expression.Invoke( Expression.Call( callerType is not null ? Expression.Parameter( callerType ) : null, method ), parameters.Select( Expression.Parameter ) ) ).Compile();
+	public static T? CompileStaticMethod<T>( this MethodInfo method, params Type[] parameterTypes ) where T : Delegate {
+		//var callerExpression = callerType is not null ? Expression.Parameter( callerType ) : null;
+		var parameterExpressions = parameterTypes.Select( Expression.Parameter ).ToArray();
+		var callExpression = Expression.Call( method, parameterExpressions );
+		var lambaExpression = Expression.Lambda<T>( callExpression, parameterExpressions );
+		return lambaExpression.Compile();
+	}
 }

@@ -2,13 +2,14 @@
 using Engine.Structure.ServiceProvider;
 using Engine.Structure;
 
-namespace Engine.Networking.Module;
+namespace Engine.Networking.Modules;
 public abstract class NetworkModuleBase<TBase> : ModuleBase<TBase>, IInitializable, IUpdateable, IDisposable, ISystem where TBase : IModuleService {
 
 	private readonly ServiceProviderUpdateExtension _serviceProviderUpdater;
 	private readonly ServiceProviderInitializationExtension _serviceProviderInitializer;
 	private readonly ServiceProviderDisposalExtension _serviceProviderDisposer;
-	public bool SystemEssential => false;
+
+	public abstract bool SystemEssential { get; }
 
 	public abstract bool IsServer { get; }
 
@@ -30,6 +31,7 @@ public abstract class NetworkModuleBase<TBase> : ModuleBase<TBase>, IInitializab
 	public void Dispose() {
 		this.LogLine( "Disposing", Log.Level.NORMAL );
 		_serviceProviderDisposer.Dispose();
+		Stop();
 		GC.SuppressFinalize( this );
 	}
 }

@@ -4,7 +4,6 @@ using Engine.Structure.Interfaces;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Engine;
 public static unsafe class DataExtensions {
@@ -123,54 +122,54 @@ public static unsafe class DataExtensions {
 		return returnData;
 	}
 
-	public static void CopyInto<T, M>( this T source, M[] destination, uint offsetBytes = 0 ) where T : unmanaged where M : unmanaged {
-		if ( sizeof( T ) + offsetBytes > destination.Length * sizeof( M ) ) {
+	public static void CopyInto<T, M>( this T source, M[] destination, uint dstOffsetBytes = 0 ) where T : unmanaged where M : unmanaged {
+		if ( sizeof( T ) + dstOffsetBytes > destination.Length * sizeof( M ) ) {
 			Log.Warning( "Cannot copy outside the array." );
 			return;
 		}
 		fixed ( M* dstPtr = destination )
-			*(T*) ( (byte*) dstPtr + offsetBytes ) = source;
+			*(T*) ( (byte*) dstPtr + dstOffsetBytes ) = source;
     }
 
-    public static void CopyInto<T, M>( this T[] source, M[] destination, uint offsetBytes = 0 ) where T : unmanaged where M : unmanaged {
-        if ( source.Length * sizeof( T ) + offsetBytes > destination.Length * sizeof( M ) ) {
+    public static void CopyInto<T, M>( this T[] source, M[] destination, uint dstOffsetBytes = 0 ) where T : unmanaged where M : unmanaged {
+        if ( source.Length * sizeof( T ) + dstOffsetBytes > destination.Length * sizeof( M ) ) {
             Log.Warning( "Cannot copy outside the array." );
             return;
         }
         fixed ( void* dstPtr = destination )
         fixed ( void* srcPtr = source )
-            Buffer.MemoryCopy( (byte*) srcPtr + offsetBytes, dstPtr, destination.Length * sizeof( M ), source.Length * sizeof( T ) - offsetBytes );
+            Buffer.MemoryCopy( srcPtr, (byte*) dstPtr + dstOffsetBytes, destination.Length * sizeof( M ) - dstOffsetBytes, source.Length * sizeof( T ) );
     }
 
-    public static void CopyInto<T, M>( this Span<T> source, M[] destination, uint offsetBytes = 0 ) where T : unmanaged where M : unmanaged {
-		if ( source.Length * sizeof( T ) + offsetBytes > destination.Length * sizeof( M ) ) {
+    public static void CopyInto<T, M>( this Span<T> source, M[] destination, uint dstOffsetBytes = 0 ) where T : unmanaged where M : unmanaged {
+		if ( source.Length * sizeof( T ) + dstOffsetBytes > destination.Length * sizeof( M ) ) {
 			Log.Warning( "Cannot copy outside the array." );
 			return;
 		}
 		fixed ( void* dstPtr = destination )
 		fixed ( void* srcPtr = source )
-			Buffer.MemoryCopy( (byte*) srcPtr + offsetBytes, dstPtr, destination.Length * sizeof( M ), source.Length * sizeof( T ) - offsetBytes );
+			Buffer.MemoryCopy( srcPtr, (byte*) dstPtr + dstOffsetBytes, destination.Length * sizeof( M ) - dstOffsetBytes, source.Length * sizeof( T ) );
 	}
 
-	public static void CopyInto<T, M>(this ReadOnlySpan<T> source, M[] destination, uint offsetBytes = 0) where T : unmanaged where M : unmanaged
+	public static void CopyInto<T, M>(this ReadOnlySpan<T> source, M[] destination, uint dstOffsetBytes = 0) where T : unmanaged where M : unmanaged
 	{
-		if (source.Length * sizeof(T) + offsetBytes > destination.Length * sizeof(M))
+		if (source.Length * sizeof(T) + dstOffsetBytes > destination.Length * sizeof(M))
 		{
 			Log.Warning("Cannot copy outside the array.");
 			return;
 		}
 		fixed (void* dstPtr = destination)
-		fixed (void* srcPtr = source)
-			Buffer.MemoryCopy((byte*)srcPtr + offsetBytes, dstPtr, destination.Length * sizeof(M), source.Length * sizeof(T) - offsetBytes);
+		fixed (void* srcPtr = source )
+			Buffer.MemoryCopy( srcPtr, (byte*) dstPtr + dstOffsetBytes, destination.Length * sizeof( M ) - dstOffsetBytes, source.Length * sizeof( T ) );
 	}
 
-	public static void CopyInto<T, M>( this T source, Span<M> destination, uint offsetBytes = 0 ) where T : unmanaged where M : unmanaged {
-		if ( sizeof( T ) + offsetBytes > destination.Length * sizeof( M ) ) {
+	public static void CopyInto<T, M>( this T source, Span<M> destination, uint dstOffsetBytes = 0 ) where T : unmanaged where M : unmanaged {
+		if ( sizeof( T ) + dstOffsetBytes > destination.Length * sizeof( M ) ) {
 			Log.Warning( "Cannot copy outside the array." );
 			return;
 		}
 		fixed ( M* dstPtr = destination )
-			*(T*) ( (byte*) dstPtr + offsetBytes ) = source;
+			*(T*) ( (byte*) dstPtr + dstOffsetBytes ) = source;
 	}
 
 	/// <summary>

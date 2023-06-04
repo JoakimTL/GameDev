@@ -1,6 +1,6 @@
 ﻿using Engine.GameLogic.ECPS;
 
-namespace TestPlatform.ECPS.Components;
+namespace TestPlatformClient.ECPS.Components;
 public class CharacterAttributesComponent : ComponentBase {
 
 	private readonly float[] _attributeValues;

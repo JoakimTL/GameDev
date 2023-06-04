@@ -10,7 +10,7 @@ public sealed class ShaderBundleService : Identifiable, IContextService {
 	private readonly Dictionary<string, Type> _bundleTypeFromIdentity;
 	private readonly IReadOnlyList<string> _allIndices;
 
-	public ShaderBundleService( TypeService typeService, ShaderPipelineService pipelineService ) {
+	public ShaderBundleService( TypeRegistryService typeService, ShaderPipelineService pipelineService ) {
 		_bundles = LoadBundles( typeService );
 		_bundleTypeFromIdentity = LoadBundleIdentities();
 		foreach ( var bundle in _bundles.Values )
@@ -18,7 +18,7 @@ public sealed class ShaderBundleService : Identifiable, IContextService {
 		_allIndices = _bundles.Values.SelectMany( p => p.AllIndices ).Distinct().ToList().AsReadOnly();
 	}
 
-	private static Dictionary<Type, ShaderBundleBase> LoadBundles( TypeService typeService )
+	private static Dictionary<Type, ShaderBundleBase> LoadBundles( TypeRegistryService typeService )
 		=> typeService.ImplementationTypes
 			.Where( p => p.IsAssignableTo( typeof( ShaderBundleBase ) ) )
 			.Select( p => p.GetInjectedInstance() )
@@ -28,7 +28,7 @@ public sealed class ShaderBundleService : Identifiable, IContextService {
 
 	private Dictionary<string, Type> LoadBundleIdentities() {
 		Dictionary<string, Type> bundleTypes = new();
-		foreach ( var type in Global.Get<TypeService>().DerivedTypes.Where( q => !q.IsAbstract && q.IsAssignableTo( typeof( ShaderBundleBase ) ) ) ) {
+		foreach ( var type in Global.Get<TypeRegistryService>().DerivedTypes.Where( q => !q.IsAbstract && q.IsAssignableTo( typeof( ShaderBundleBase ) ) ) ) {
 			IdentityAttribute? identity = type.GetCustomAttribute<IdentityAttribute>();
 			if ( identity is null ) {
 				this.LogWarning( $"{type} is missing an Identity!" );

@@ -1,4 +1,4 @@
-﻿namespace Engine.Networking.Module.Services;
+﻿namespace Engine.Networking.Modules.Services;
 
 public class ServerPortService : Identifiable, INetworkServerService {
 
@@ -6,6 +6,7 @@ public class ServerPortService : Identifiable, INetworkServerService {
 
 	public ServerPortService() {
 		Port = 50043;
+		//TODO use settings files
 	}
 
 }

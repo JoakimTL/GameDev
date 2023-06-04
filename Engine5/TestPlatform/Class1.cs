@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace TestPlatform;
+namespace TestPlatformClient;
 [Test]
 [Test<TestAttribute>]
 [Test<Class12>]

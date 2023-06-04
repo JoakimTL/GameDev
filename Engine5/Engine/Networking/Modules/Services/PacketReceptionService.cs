@@ -1,8 +1,8 @@
-﻿using Engine.GlobalServices;
+﻿using Engine.GlobalServices.Network;
 using Engine.Structure.Interfaces;
 using System.Collections.Concurrent;
 
-namespace Engine.Networking.Module.Services;
+namespace Engine.Networking.Modules.Services;
 
 public sealed class PacketReceptionService : Identifiable, INetworkClientService, INetworkServerService, IUpdateable {
 
@@ -11,7 +11,7 @@ public sealed class PacketReceptionService : Identifiable, INetworkClientService
 
 	public PacketReceptionService( NetworkMessagingService networkMessagingService ) {
 		_incomingPackets = new();
-		this._networkMessagingService = networkMessagingService;
+		_networkMessagingService = networkMessagingService;
 	}
 
 	public void Update( float time, float deltaTime ) {

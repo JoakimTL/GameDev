@@ -25,7 +25,7 @@ public abstract class PacketBase : Identifiable {
 		_data = data;
 	}
 
-	internal byte[]? GetPacketTransferData(int id) {
+	public byte[]? GetPacketTransferData(int id) {
 		var data = GetData();
 		if ( data is null )
 			return null;
