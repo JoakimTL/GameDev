@@ -22,7 +22,7 @@ public class Identifiable {
     /// Personalized name.
     /// </summary>
     public string IdentifiableName { get; private set; }
-    public string FullName => $"{TypeName}/{IdentifiableName}:{Uid}{(!string.IsNullOrEmpty(UniqueNameTag) ? $"[{UniqueNameTag}]" : string.Empty)}";
+    public string FullName => $"{TypeName}/{IdentifiableName}:uid{Uid}{(!string.IsNullOrEmpty(UniqueNameTag) ? $"({UniqueNameTag})" : string.Empty)}";
     protected virtual string UniqueNameTag => string.Empty;
 
     public Identifiable()

@@ -85,7 +85,7 @@ public class ServerConnectionService : Identifiable, INetworkServerService {
 			_clientConnectionsByUdpRemote.Remove( connection.UdpRemoteTarget );
 		if ( connection.Username is not null )
 			_clientConnectionsByUsername.Remove( connection.Username );
-		_networkMessagingService.SendPacket( new ClientDisconnected( connection.NetworkId, "Connection closed" ) ); //TODO: MAKE MORE SPECIFIC
+		_networkMessagingService.SendPacket( new ClientDisconnected( connection.NetworkId, connection.Error.ToString() ?? "Disconnected" ) ); //TODO: MAKE MORE SPECIFIC
 
 	}
 

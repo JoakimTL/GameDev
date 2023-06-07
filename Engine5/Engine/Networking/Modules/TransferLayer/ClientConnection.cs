@@ -16,6 +16,8 @@ public sealed class ClientConnection : Identifiable, IDisposable {
 	public NetworkId NetworkId { get; }
 	public bool Disposed { get; private set; }
 
+	public SocketError? Error { get; private set; }
+
 	public event Action<ClientConnection>? ConnectionClosed;
 
 	public ClientConnection( NetworkId networkId, TcpNetworkTunnel tcpTunnel, UdpNetworkTunnel udpTunnel, PacketReceptionService packetReceptionService, PacketTypeRegistryService packetTypeRegistryService ) {
@@ -29,7 +31,10 @@ public sealed class ClientConnection : Identifiable, IDisposable {
 		_tcpTunnelPacketReceiver.Start();
 	}
 
-	private void AbruptClosure( NetworkTunnelBase @base, SocketError error ) => Dispose();
+	private void AbruptClosure( NetworkTunnelBase @base, SocketError error ) {
+		Error = error;
+		Dispose();
+	}
 
 	internal void SetUsername( string username ) => Username = username;
 

@@ -21,7 +21,7 @@ public sealed class UdpTunnelPacketReceiver : Identifiable {
 
 	public void Start( IPEndPoint bind ) {
 		_udpNetworkTunnel.Bind( bind );
-		Global.Get<ThreadService>().Start( Receive, FullName );
+		Global.Get<ThreadService>().Start( Receive, TypeName );
 	}
 
 	private void Receive() {

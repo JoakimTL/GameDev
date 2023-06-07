@@ -13,7 +13,7 @@ public class Orthographic : MatrixProviderBase
 		if (size.X <= 0 || size.Y <= 0)
 			throw new ArgumentOutOfRangeException(nameof(size));
 		if (zFar <= zNear)
-			throw new ArgumentException($"{nameof(zNear)} cannot be greater than or equal to {nameof(zFar)}!");
+			throw new ArgumentOutOfRangeException( $"{nameof(zNear)} cannot be greater than or equal to {nameof(zFar)}!");
 		_size = size;
 		_zNear = zNear;
 		_zFar = zFar;

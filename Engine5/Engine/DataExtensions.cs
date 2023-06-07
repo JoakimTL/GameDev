@@ -8,6 +8,11 @@ using System.Runtime.InteropServices;
 namespace Engine;
 public static unsafe class DataExtensions {
 
+	public static IEnumerable<T> RangeTo<T>( this T start, T end ) where T : IBinaryInteger<T> {
+		for ( T i = start; i < end; i += T.One )
+			yield return i;
+	}
+
 	/// <summary>
 	/// Returns the number of unmanaged values are needed to represent the bit count.
 	/// </summary>
@@ -87,7 +92,7 @@ public static unsafe class DataExtensions {
 
 	public static string CreateStringOrThrow( this byte[] data ) {
 		if ( data.Length % sizeof( char ) != 0 )
-			throw new ArgumentException($"Length must be divisible by {sizeof( char )}!", nameof(data) );
+			throw new ArgumentException( $"Length must be divisible by {sizeof( char )}!", nameof( data ) );
 		Span<char> chars;
 		fixed ( byte* srcPtr = data )
 			chars = new( srcPtr, data.Length / sizeof( char ) );
@@ -129,19 +134,9 @@ public static unsafe class DataExtensions {
 		}
 		fixed ( M* dstPtr = destination )
 			*(T*) ( (byte*) dstPtr + dstOffsetBytes ) = source;
-    }
+	}
 
-    public static void CopyInto<T, M>( this T[] source, M[] destination, uint dstOffsetBytes = 0 ) where T : unmanaged where M : unmanaged {
-        if ( source.Length * sizeof( T ) + dstOffsetBytes > destination.Length * sizeof( M ) ) {
-            Log.Warning( "Cannot copy outside the array." );
-            return;
-        }
-        fixed ( void* dstPtr = destination )
-        fixed ( void* srcPtr = source )
-            Buffer.MemoryCopy( srcPtr, (byte*) dstPtr + dstOffsetBytes, destination.Length * sizeof( M ) - dstOffsetBytes, source.Length * sizeof( T ) );
-    }
-
-    public static void CopyInto<T, M>( this Span<T> source, M[] destination, uint dstOffsetBytes = 0 ) where T : unmanaged where M : unmanaged {
+	public static void CopyInto<T, M>( this T[] source, M[] destination, uint dstOffsetBytes = 0 ) where T : unmanaged where M : unmanaged {
 		if ( source.Length * sizeof( T ) + dstOffsetBytes > destination.Length * sizeof( M ) ) {
 			Log.Warning( "Cannot copy outside the array." );
 			return;
@@ -151,15 +146,23 @@ public static unsafe class DataExtensions {
 			Buffer.MemoryCopy( srcPtr, (byte*) dstPtr + dstOffsetBytes, destination.Length * sizeof( M ) - dstOffsetBytes, source.Length * sizeof( T ) );
 	}
 
-	public static void CopyInto<T, M>(this ReadOnlySpan<T> source, M[] destination, uint dstOffsetBytes = 0) where T : unmanaged where M : unmanaged
-	{
-		if (source.Length * sizeof(T) + dstOffsetBytes > destination.Length * sizeof(M))
-		{
-			Log.Warning("Cannot copy outside the array.");
+	public static void CopyInto<T, M>( this Span<T> source, M[] destination, uint dstOffsetBytes = 0 ) where T : unmanaged where M : unmanaged {
+		if ( source.Length * sizeof( T ) + dstOffsetBytes > destination.Length * sizeof( M ) ) {
+			Log.Warning( "Cannot copy outside the array." );
 			return;
 		}
-		fixed (void* dstPtr = destination)
-		fixed (void* srcPtr = source )
+		fixed ( void* dstPtr = destination )
+		fixed ( void* srcPtr = source )
+			Buffer.MemoryCopy( srcPtr, (byte*) dstPtr + dstOffsetBytes, destination.Length * sizeof( M ) - dstOffsetBytes, source.Length * sizeof( T ) );
+	}
+
+	public static void CopyInto<T, M>( this ReadOnlySpan<T> source, M[] destination, uint dstOffsetBytes = 0 ) where T : unmanaged where M : unmanaged {
+		if ( source.Length * sizeof( T ) + dstOffsetBytes > destination.Length * sizeof( M ) ) {
+			Log.Warning( "Cannot copy outside the array." );
+			return;
+		}
+		fixed ( void* dstPtr = destination )
+		fixed ( void* srcPtr = source )
 			Buffer.MemoryCopy( srcPtr, (byte*) dstPtr + dstOffsetBytes, destination.Length * sizeof( M ) - dstOffsetBytes, source.Length * sizeof( T ) );
 	}
 
@@ -213,21 +216,21 @@ public static unsafe class DataExtensions {
 		if ( !serializable.DeserializeData( serializedData[ sizeof( Guid ).. ] ) )
 			return Log.WarningThenReturnDefault<object?>( "Deserializing the serializable's data failed" );
 		return serializable;
-    }
+	}
 
-    public static Vector3 Forward(this Quaternion q) => Vector3.Transform(-Vector3.UnitZ, q);
+	public static Vector3 Forward( this Quaternion q ) => Vector3.Transform( -Vector3.UnitZ, q );
 
-    public static Vector3 Backward(this Quaternion q) => Vector3.Transform(Vector3.UnitZ, q);
+	public static Vector3 Backward( this Quaternion q ) => Vector3.Transform( Vector3.UnitZ, q );
 
-    public static Vector3 Left(this Quaternion q) => Vector3.Transform(-Vector3.UnitX, q);
+	public static Vector3 Left( this Quaternion q ) => Vector3.Transform( -Vector3.UnitX, q );
 
-    public static Vector3 Right(this Quaternion q) => Vector3.Transform(Vector3.UnitX, q);
+	public static Vector3 Right( this Quaternion q ) => Vector3.Transform( Vector3.UnitX, q );
 
-    public static Vector3 Down(this Quaternion q) => Vector3.Transform(-Vector3.UnitY, q);
+	public static Vector3 Down( this Quaternion q ) => Vector3.Transform( -Vector3.UnitY, q );
 
-    public static Vector3 Up(this Quaternion q) => Vector3.Transform(Vector3.UnitY, q);
+	public static Vector3 Up( this Quaternion q ) => Vector3.Transform( Vector3.UnitY, q );
 
-    public static Vector3 Cubify(this Vector3 v) => v * Math.Abs(Math.Min(Math.Min(1f / v.X, 1f / v.Y), 1f / v.Z));
+	public static Vector3 Cubify( this Vector3 v ) => v * Math.Abs( Math.Min( Math.Min( 1f / v.X, 1f / v.Y ), 1f / v.Z ) );
 
-    public static Quaternion DirectionVectorToQuaternion(this Vector3 v) => Quaternion.CreateFromYawPitchRoll(MathF.Atan2(-v.X, -v.Z), MathF.Asin(v.Y), 0);
+	public static Quaternion DirectionVectorToQuaternion( this Vector3 v ) => Quaternion.CreateFromYawPitchRoll( MathF.Atan2( -v.X, -v.Z ), MathF.Asin( v.Y ), 0 );
 }

@@ -4,18 +4,23 @@ using System.IO.Pipes;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Engine.GlobalServices;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Engine;
 public static class Log {
 
 	public static Level LoggingLevel { get; set; } = Level.VERBOSE;
-	public static string Prefix => $"[{DateTime.Now:yyyy/MM/dd/HH:mm:ss.fff}][{Thread.CurrentThread.Name}:{Environment.CurrentManagedThreadId}/{Thread.CurrentThread.CurrentCulture.Name}]";
+	public static string Prefix => $"{Thread.CurrentThread.Name}:{Environment.CurrentManagedThreadId}/{Thread.CurrentThread.CurrentCulture.Name}|{DateTime.Now:yyMMdd/HH:mm:ss.fff}";
+
+	private static ulong[] _logCounts = new ulong[ (int) InternalLevel.ERROR + 1 ];
 
 	private static bool _initialized;
 	private static bool _stopped;
 	private static NamedPipeServerStream? _pipeServer;
 	private static readonly BlockingCollection<string> _logData = new();
+
+	public static ulong GetLogCount( Level level ) => _logCounts[ (int) level ];
+	public static ulong GetWarningLogCount() => _logCounts[ (int) InternalLevel.WARNING ];
+	public static ulong GetErrorLogCount() => _logCounts[ (int) InternalLevel.ERROR ];
 
 	public static void Error( Exception e, bool logToConsole = true ) => LogInternal( $"{e}{Environment.NewLine}", InternalLevel.ERROR, -1, logToConsole, ConsoleColor.Red );
 	public static void Error( string text, bool logToConsole = true ) => LogInternal( $"{text}{Environment.NewLine}", InternalLevel.ERROR, 1, logToConsole, ConsoleColor.Red );
@@ -59,7 +64,8 @@ public static class Log {
 	}
 
 	private static void LogInternal( string text, InternalLevel internalLogLevel, int stackLevel, bool logToConsole, ConsoleColor color ) {
-		string logString = $"{Prefix}[{internalLogLevel}]: {text}";
+		_logCounts[ (int) internalLogLevel ]++;
+		string logString = $"{internalLogLevel.ToString()[ ..3 ]}|{Prefix}: {text}";
 		if ( stackLevel >= 0 )
 			logString += $"{Environment.NewLine}{GenerateStackTrace( stackLevel )}";
 		if ( !_initialized ) {

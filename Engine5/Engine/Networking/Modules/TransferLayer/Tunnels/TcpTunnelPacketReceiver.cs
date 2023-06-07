@@ -23,7 +23,7 @@ public sealed class TcpTunnelPacketReceiver : Identifiable {
 		_dataReceiver = new();
 		_dataReceiver.MessageComplete += MessageComplete;
 		_entry = new( false );
-		Global.Get<ThreadService>().Start( Receive, FullName );
+		Global.Get<ThreadService>().Start( Receive, TypeName );
 	}
 
 	public void Start() {

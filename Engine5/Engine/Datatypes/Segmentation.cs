@@ -73,7 +73,7 @@ public static class Segmentation {
 	}
 	public static byte[][] ParseOrThrow( byte[] data, uint offsetBytes = 0 ) {
 		if ( data.Length == 0 )
-			return Log.WarningThenReturn("No data to parse.", Array.Empty<byte[]>());
+			return Log.WarningThenReturn( "No data to parse.", Array.Empty<byte[]>() );
 
 		unsafe {
 			fixed ( byte* srcPtr = data )
@@ -90,11 +90,14 @@ public static class Segmentation {
 
 	private static unsafe byte[][] ParseOrThrow( byte* srcPtr, uint maxLength, uint offsetBytes ) {
 		if ( offsetBytes > maxLength )
-			throw new ArgumentException( "Offset can't be greater than size of data!" );
-		return ParseInternal( srcPtr, maxLength, offsetBytes );
+			throw new ArgumentOutOfRangeException( "Offset can't be greater than size of data!" );
+		return ParseInternal( srcPtr, maxLength, offsetBytes ) ?? throw new InvalidOperationException( $"Parsing caused an exception. Check warning logs! Data being read: {string.Join( " ", 
+			offsetBytes
+			.RangeTo( maxLength )
+			.Select( p => srcPtr[ p ].ToString( "x2" ) ) )}" );
 	}
 
-	private static unsafe byte[][] ParseInternal( byte* srcPtr, uint maxLength, uint offsetBytes ) {
+	private static unsafe byte[][]? ParseInternal( byte* srcPtr, uint maxLength, uint offsetBytes ) {
 		//Set preliminary data
 		byte headerByte = srcPtr[ offsetBytes++ ];
 		uint headerCountSize = ( headerByte & (uint) 0b11 ) + 1;
@@ -104,14 +107,22 @@ public static class Segmentation {
 		for ( int i = 0; i < headerCountSize; i++ )
 			( (byte*) &headerCount )[ i ] = srcPtr[ offsetBytes++ ];
 
+		uint totalLength = offsetBytes + headerCount * headerSizeBytes;
+		if ( totalLength > maxLength )
+			return Log.WarningThenReturnDefault<byte[][]?>( $"Accessing data outside of scope of data! ({totalLength}/{maxLength})" );
+
 		//Copy header lengths
 		var blocks = new byte[ headerCount ][];
 		for ( int i = 0; i < headerCount; i++ ) {
 			uint headerLen = 0;
 			for ( int j = 0; j < headerSizeBytes; j++ )
 				( (byte*) &headerLen )[ j ] = srcPtr[ offsetBytes++ ];
+			totalLength += headerLen;
+			if ( totalLength > maxLength )
+				return Log.WarningThenReturnDefault<byte[][]?>( $"Accessing data outside of scope of data! ({totalLength}/{maxLength})" );
 			blocks[ i ] = new byte[ headerLen ];
 		}
+
 		//Copy data
 		for ( int i = 0; i < headerCount; i++ ) {
 			uint blockLength = (uint) blocks[ i ].Length;
