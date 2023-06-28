@@ -22,10 +22,7 @@ public class RenderBufferObject : SegmentedBuffer
         Resized += OnBufferResized;
     }
 
-    private void OnBufferResized(ulong newSizeBytes)
-    {
-        _hasResized = true;
-    }
+    private void OnBufferResized( ulong newSizeBytes ) => _hasResized = true;
 
     internal unsafe void SyncChanges(VertexBufferObject vbo)
     {

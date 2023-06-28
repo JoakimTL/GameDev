@@ -15,6 +15,11 @@
     <None Remove="assets\shaders\geometry3.vert" />
     <None Remove="assets\shaders\pfx.frag" />
     <None Remove="assets\shaders\pfx.vert" />
+    <None Remove="ECPS\Components\ClientInputComponent.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="ECPS\Components\ClientInputComponent.txt" />
   </ItemGroup>
 
   <ItemGroup>

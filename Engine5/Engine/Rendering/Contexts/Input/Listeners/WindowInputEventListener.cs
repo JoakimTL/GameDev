@@ -2,9 +2,9 @@
 using Engine.Rendering.OGL;
 using GlfwBinding;
 
-namespace Engine.Rendering.Contexts.Input;
+namespace Engine.Rendering.Contexts.Input.Listeners;
 
-public class WindowInputEventManager
+public class WindowInputEventListener
 {
 
     private readonly Window _window;
@@ -63,7 +63,7 @@ public class WindowInputEventManager
     /// </summary>
     public event WindowEventHandler? Closing;
 
-    internal WindowInputEventManager(Window window)
+    internal WindowInputEventListener(Window window)
     {
         _window = window;
         _fileDropCallback = OnFileDrop;

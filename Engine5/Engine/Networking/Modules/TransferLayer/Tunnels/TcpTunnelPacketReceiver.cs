@@ -31,11 +31,9 @@ public sealed class TcpTunnelPacketReceiver : Identifiable {
 		_entry.Set();
 	}
 
-	public void Stop() {
-		_active = false;
-	}
+    public void Stop() => _active = false;
 
-	private void MessageComplete( byte[] data ) {
+    private void MessageComplete( byte[] data ) {
 		var ipEndPoint = _tcpNetworkTunnel.RemoteEndPoint as IPEndPoint;
 		if ( ipEndPoint is null )
 			this.LogWarning( "Remote endpoint missing." );

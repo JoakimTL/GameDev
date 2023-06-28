@@ -28,8 +28,5 @@ public readonly struct Edge<V> where V : struct
         return !(left == right);
     }
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(A.GetHashCode(), B.GetHashCode());
-    }
+    public override int GetHashCode() => HashCode.Combine( A.GetHashCode(), B.GetHashCode() );
 }

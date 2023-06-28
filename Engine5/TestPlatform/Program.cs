@@ -1,9 +1,11 @@
-﻿using Engine.GlobalServices.Network;
+﻿using Engine;
+using Engine.GlobalServices;
 
 new TestPlatformClient.TestGameRenderModule();
 new TestPlatformBase.TestGameLogicModule();
-new Engine.Networking.Modules.ClientModule();
-Engine.Global.Get<NetworkConnectionService>().Connect( new System.Net.IPEndPoint( System.Net.IPAddress.Loopback, 50043 ) );
+Global.Get<LoggedInputServiceTesterService>();
+//new Engine.Networking.Modules.ClientModule();
+//Engine.Global.Get<NetworkConnectionService>().Connect( new System.Net.IPEndPoint( System.Net.IPAddress.Loopback, 50043 ) );
 
 //using StandardPackage.Rendering.VertexArrayLayouts;
 //using System.Numerics;

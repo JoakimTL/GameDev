@@ -1,6 +1,6 @@
 ﻿namespace Engine.GameLogic.ECPS;
 
-public abstract class SystemBase : Identifiable {
+public abstract class SystemBase : Identifiable, IDisposable {
 
 	/// <summary>
 	/// Determines how the system updater handles feeding entities to <see cref="Update(IEnumerable{Entity}, float, float)"/><br/>
@@ -15,4 +15,11 @@ public abstract class SystemBase : Identifiable {
 	}
 
 	public abstract void Update( IEnumerable<Entity> entities, float time, float deltaTime );
+	public void Dispose() {
+		this.LogLine( "System disposed!", Log.Level.NORMAL );
+		OnDispose();
+		GC.SuppressFinalize( this );
+	}
+
+	protected virtual void OnDispose() { }
 }

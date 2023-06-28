@@ -2,6 +2,7 @@
 public abstract class ComponentBase : Identifiable {
 	public Entity? Owner { get; private set; }
 	public event EntityComponentEvent? ComponentChanged;
+	public bool Deterministic { get; protected set; } = true;
 
 	internal void SetOwner( Entity? e )
 	{

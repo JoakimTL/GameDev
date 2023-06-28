@@ -35,16 +35,17 @@ public class TestGameLogicModule : GameLogicModuleBase, ITimedSystem {
 	//TODO: interpolation between these ticks.
 
 	protected override void OnUpdate( float time, float deltaTime ) {
-		if ( this._e is not null ) {
+        Global.Get<LoggedInputServiceTesterService>().LogEverything();
+        if ( this._e is not null ) {
 			var transform = this._e.Get<Transform3Component>();
 			if ( transform is not null ) {
 				transform.Transform.Translation = new Vector3( MathF.Sin( time ) * 2, MathF.Cos( time * 5 ) * 2, MathF.Cos( time ) * 2 );
 
-				if ( !Global.Get<InputService>()[ GlfwBinding.Enums.Keys.L ] )
-					this._e.Get<RenderInstance3DataComponent>()?.Set( transform.Transform.GlobalData, Vector4.One );
+				/*if ( !Global.Get<LoggedInputService>()[ GlfwBinding.Enums.Keys.L ] )
+					this._e.Get<RenderInstance3DataComponent>()?.Set( transform.Transform.GlobalData, Vector4.One );*/
 			}
-			if ( Global.Get<InputService>()[ GlfwBinding.Enums.Keys.K ] )
-				this._e.Get<RotationalMovement3Component>()?.Twirl( new( 1, 0, 0 ) );
+			/*if ( Global.Get<LoggedInputService>()[ GlfwBinding.Enums.Keys.K ] )
+				this._e.Get<RotationalMovement3Component>()?.Twirl( new( 1, 0, 0 ) );*/
 		}
 		if ( time - this.lastTime > 1 ) {
 			//Console.WriteLine(Get<EntityContainerService>());

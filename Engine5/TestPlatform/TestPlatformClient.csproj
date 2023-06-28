@@ -18,9 +18,4 @@
     <ProjectReference Include="..\TestPlatformBase\TestPlatformBase.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ECPS\Processors\" />
-    <Folder Include="ECPS\Systems\" />
-  </ItemGroup>
-
 </Project>

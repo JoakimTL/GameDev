@@ -16,7 +16,7 @@ layout(location = 0) in PerVertex {
 
 layout (std430) buffer TextureAddresses
 { 
-	uint64_t[65536] Textures;
+	uvec2 Textures[65536];
 } ta;
 
 layout(location = 0) out vec4 outColor;
@@ -25,14 +25,18 @@ layout(location = 2) out vec2 outLightInfo;
 layout(location = 3) out vec4 outGlow;
 
 void main(void) {
-	sampler2D diffuseTex = sampler2D(ta.Textures[IN.DiffuseTexture]);
+	uvec2 diffuseTextureHandle = ta.Textures[IN.DiffuseTexture];
+	sampler2D diffuseTex = sampler2D(diffuseTextureHandle);
 	outColor = texture(diffuseTex, IN.UV) * IN.Color;
 	//if (outColor.a < 0.5)
 	//	discard;
-
-	sampler2D normalTex = sampler2D(ta.Textures[IN.NormalTexture]);
-	sampler2D lightingTex = sampler2D(ta.Textures[IN.LightingTexture]);
-	sampler2D glowTex = sampler2D(ta.Textures[IN.GlowTexture]);
+	
+	uvec2 normalTextureHandle = ta.Textures[IN.NormalTexture];
+	sampler2D normalTex = sampler2D(normalTextureHandle);
+	uvec2 lightingTextureHandle = ta.Textures[IN.LightingTexture];
+	sampler2D lightingTex = sampler2D(lightingTextureHandle);
+	uvec2 glowTextureHandle = ta.Textures[IN.GlowTexture];
+	sampler2D glowTex = sampler2D(glowTextureHandle);
 
 	outNormal = normalize(IN.Normal + (texture(normalTex, IN.UV).rgb * 2.0 - 1.0) * IN.NormalMapped) * 0.5 + 0.5;
 	outLightInfo = texture(lightingTex, IN.UV).rg;

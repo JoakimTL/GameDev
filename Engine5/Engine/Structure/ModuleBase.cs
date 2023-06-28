@@ -19,10 +19,7 @@ public abstract class ModuleBase : Identifiable
     /// <summary>
     /// Stops the module, and initiates disposal and memory release.
     /// </summary>
-    protected void Stop()
-    {
-        Active = false;
-    }
+    protected void Stop() => Active = false;
 
     internal void ForceStop() => Stop();
 }

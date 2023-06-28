@@ -133,11 +133,7 @@ internal unsafe class BufferSegment : Identifiable, ISegmentedBufferSegment {
 		return _writeFunction.Invoke( offsetBytes, (nuint) data, sizeBytes );
 	}
 
-	public void Dispose() {
-		_underlyingBuffer.DisposeSegment( this );
-	}
+    public void Dispose() => _underlyingBuffer.DisposeSegment( this );
 
-	internal void SetDisposed() {
-		_disposed = true;
-	}
+    internal void SetDisposed() => _disposed = true;
 }

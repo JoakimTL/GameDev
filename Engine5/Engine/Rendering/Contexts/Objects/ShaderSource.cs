@@ -11,6 +11,8 @@ public sealed class ShaderSource : Identifiable, IFileSource, IDisposable
 
     public event Action? FileChanged;
 
+    protected override string UniqueNameTag => Filepath;
+
     public ShaderSource(string path, ShaderType shaderType)
     {
         Filepath = path;

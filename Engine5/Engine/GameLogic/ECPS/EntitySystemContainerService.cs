@@ -60,18 +60,15 @@ public class EntitySystemContainerService : DependencyInjectorBase, IGameLogicSe
 				_presentSystems.Remove( systemType );
 				_systemsSorted.Remove( system );
 				_systemSortTree.Remove( systemType );
+				system.Dispose();
 			}
 	}
 
-	private void OnComponentAdded( ComponentBase component ) {
-		_entitiesByComponents.ComponentAdded( component );
-	}
+    private void OnComponentAdded( ComponentBase component ) => _entitiesByComponents.ComponentAdded( component );
 
-	private void OnComponentRemoved( ComponentBase component ) {
-		_entitiesByComponents.ComponentRemoved( component );
-	}
+    private void OnComponentRemoved( ComponentBase component ) => _entitiesByComponents.ComponentRemoved( component );
 
-	public void Update( float time, float deltaTime ) {
+    public void Update( float time, float deltaTime ) {
 		++_currentTick;
 
 		for ( int i = 0; i < _systemsSorted.Count; i++ ) {

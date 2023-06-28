@@ -6,7 +6,5 @@ public sealed class ServerModule : NetworkModuleBase<INetworkServerService> {
 
 	public override bool SystemEssential => true;
 
-	public override void Initialize() {
-		Get<ServerPacketDispatchingService>();
-	}
+    public override void Initialize() => Get<ServerPacketDispatchingService>();
 }

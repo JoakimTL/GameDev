@@ -72,11 +72,9 @@ public class ClientConnectionService : Identifiable, INetworkClientService, IUpd
 		//TODO create connection code
 	}
 
-	private void RemoteTargetChanged() {
-		_hasUpdated = true;
-	}
+    private void RemoteTargetChanged() => _hasUpdated = true;
 
-	private void Disconnect( PacketBase? packet ) {
+    private void Disconnect( PacketBase? packet ) {
 		if ( _tcpTunnelService.Tunnel.RemoteEndPoint is null )
 			return;
 		_tcpTunnelPacketReceiverService.Stop();

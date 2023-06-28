@@ -5,6 +5,14 @@ using System.Runtime.CompilerServices;
 
 namespace Engine;
 
+public static class EnumUtilities {
+	public static int GetMaxEnumValue<T>() where T : struct, Enum
+		=> Enum.GetValues<T>().Cast<int>().Max();
+
+	public static T[] MapEnum<T>() where T : struct, Enum
+		=> Enum.GetValues<T>();
+}
+
 public static unsafe class Extensions {
 
 	public static T NotNull<T>( this T? val ) => val ?? throw new NullReferenceException( $"{typeof( T ).Name} was null!" );
@@ -42,16 +50,22 @@ public static unsafe class Extensions {
 	/// Gets an instance of the type. This may or may not construct a new instance, this all depends on the injector used.
 	/// </summary>
 	/// <param name="type">The types to get an instance of</param>
-	/// <param name="injector">The injector to use. <see cref="TransientSilentInjector.Singleton"/> will be used if this is null.</param>
+	/// <param name="injector">The injector to use. <see cref="SilentTransientInjector.Singleton"/> will be used if this is null.</param>
 	/// <returns></returns>
 	public static object? GetInjectedInstance( this Type type, IDependencyInjector? injector = null )
-		=> ( injector ?? TransientSilentInjector.Singleton ).Get( type );
+		=> ( injector ?? SilentTransientInjector.Singleton ).Get( type );
 
 	public static T? CompileStaticMethod<T>( this MethodInfo method, params Type[] parameterTypes ) where T : Delegate {
 		//var callerExpression = callerType is not null ? Expression.Parameter( callerType ) : null;
 		var parameterExpressions = parameterTypes.Select( Expression.Parameter ).ToArray();
 		var callExpression = Expression.Call( method, parameterExpressions );
 		var lambaExpression = Expression.Lambda<T>( callExpression, parameterExpressions );
+		return lambaExpression.Compile();
+	}
+	public static Action<T> CopileStaticPropertyAccess<T>( this PropertyInfo property ) {
+		var propertyGetter = property.GetMethod ?? throw new InvalidOperationException( $"Property {property} has no getter!" );
+		var callExpression = Expression.Property( null, propertyGetter );
+		var lambaExpression = Expression.Lambda<Action<T>>( callExpression );
 		return lambaExpression.Compile();
 	}
 }

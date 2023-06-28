@@ -21,12 +21,6 @@ public class Edge
         return e.A == A && e.B == B || e.B == A && e.A == B;
     }
 
-    public override int GetHashCode()
-    {
-        return A.GetHashCode() + B.GetHashCode();
-    }
-    public override string ToString()
-    {
-        return $"[{A.Uid},{B.Uid}] {A.Value}, {B.Value}";
-    }
+    public override int GetHashCode() => A.GetHashCode() + B.GetHashCode();
+    public override string ToString() => $"[{A.Uid},{B.Uid}] {A.Value}, {B.Value}";
 }

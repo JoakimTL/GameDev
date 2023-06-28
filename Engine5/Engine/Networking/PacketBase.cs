@@ -21,11 +21,9 @@ public abstract class PacketBase : Identifiable {
 		_data = null;
 	}
 
-	protected void SetBytes( byte[] data ) {
-		_data = data;
-	}
+    protected void SetBytes( byte[] data ) => _data = data;
 
-	public byte[]? GetPacketTransferData(int id) {
+    public byte[]? GetPacketTransferData(int id) {
 		var data = GetData();
 		if ( data is null )
 			return null;

@@ -112,9 +112,7 @@ public class BufferWriteTracker : Identifiable {
 		outputContainer.Add( new ChangedSection( offset, size ) );
 	}
 
-	public void Clear() {
-		_incoming.Clear();
-	}
+    public void Clear() => _incoming.Clear();
 }
 
 public readonly struct ChangedSection : IComparable<ChangedSection> {

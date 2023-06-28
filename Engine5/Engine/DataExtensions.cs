@@ -8,9 +8,32 @@ using System.Runtime.InteropServices;
 namespace Engine;
 public static unsafe class DataExtensions {
 
-	public static IEnumerable<T> RangeTo<T>( this T start, T end ) where T : IBinaryInteger<T> {
-		for ( T i = start; i < end; i += T.One )
+	public static IEnumerable<T> RangeTo<T>( this T inclusiveStart, T exclusiveEnd ) where T : IBinaryInteger<T> {
+		for ( T i = inclusiveStart; i < exclusiveEnd; i += T.One )
 			yield return i;
+	}
+
+	public static IEnumerable<TOut> IndexedSelect<TIn, TOut>(this IEnumerable<TIn> enumerable, Func<int, TIn, TOut> function) {
+		int index = 0;
+		foreach ( TIn inItem in enumerable )
+			yield return function( index++, inItem );
+	}
+
+	public static void ClearThenAddRange<T>(this List<T> list, IEnumerable<T> range ) {
+		list.Clear();
+		list.AddRange( range );
+	}
+
+	public static string ToBinaryString<T>( this T value ) where T : unmanaged {
+		int valueSizeBytes = sizeof( T );
+		byte* ptr = (byte*) &value;
+		return string.Join( " ", 0.RangeTo( valueSizeBytes ).Select( p => string.Join( "", 0.RangeTo( 8 ).Select( q => ptr[ p ] >> q & 1 ) ) ) );
+	}
+
+	public static string ToHexString<T>( this T value, bool upperCase = false ) where T : unmanaged {
+		int valueSizeBytes = sizeof( T );
+		byte* ptr = (byte*) &value;
+		return string.Join( " ", 0.RangeTo( valueSizeBytes ).Select( p => ptr[ p ].ToString( upperCase ? "X2" : "x2" ) ) );
 	}
 
 	/// <summary>

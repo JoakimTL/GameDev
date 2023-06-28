@@ -10,9 +10,6 @@ public sealed class NetworkPlayer : Identifiable {
 		this.Username = username;
 	}
 
-	internal void SetUsername( string username ) {
-		this.Username = username;
-		//TODO: Raise event?
-	}
+    internal void SetUsername( string username ) => this.Username = username;//TODO: Raise event?
 
 }

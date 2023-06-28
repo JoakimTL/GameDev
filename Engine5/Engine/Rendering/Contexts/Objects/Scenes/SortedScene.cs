@@ -53,11 +53,9 @@ public unsafe class SortedScene : Identifiable, IDisposable {
 		_updated |= so.Valid;
 	}
 
-	private void SceneObjectChanged( ISceneObject so ) {
-		_updated = true;
-	}
+    private void SceneObjectChanged( ISceneObject so ) => _updated = true;
 
-	private void Expand() {
+    private void Expand() {
 		uint numCommands = _byteCount / (uint) sizeof( IndirectCommand );
 		numCommands += _initialSize;
 		_byteCount = numCommands * (uint) sizeof( IndirectCommand );

@@ -256,10 +256,7 @@ public abstract class FrameBuffer : Identifiable, IDisposable
             _proportions.Resized += Resized;
         }
 
-        public override void Dispose()
-        {
-            _proportions.Resized -= Resized;
-        }
+        public override void Dispose() => _proportions.Resized -= Resized;
     }
 
     public sealed class WindowProportions : Proportions
@@ -280,10 +277,7 @@ public abstract class FrameBuffer : Identifiable, IDisposable
 
         private void WindowResized(Window window) => Resized?.Invoke();
 
-        public override void Dispose()
-        {
-            _window.Resized -= WindowResized;
-        }
+        public override void Dispose() => _window.Resized -= WindowResized;
     }
 
     public sealed class StaticProportions : Proportions

@@ -114,11 +114,9 @@ public static class Log {
 		_initialized = false;
 	}
 
-	internal static void Stop() {
-		_stopped = true;
-	}
+    internal static void Stop() => _stopped = true;
 
-	private static string GenerateStackTrace( int level ) {
+    private static string GenerateStackTrace( int level ) {
 		StackTrace stack = new( true );
 		int startLevel = level + 1;
 		int maxPaddingLength = 0;

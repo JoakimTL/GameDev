@@ -11,11 +11,9 @@ public sealed class EntityContainerService : Identifiable, IGameLogicService, IU
 		_container = new();
 	}
 
-	public void Update( float time, float deltaTime ) {
-		_container.Update( time, deltaTime );
-	}
+    public void Update( float time, float deltaTime ) => _container.Update( time, deltaTime );
 
-	public IEnumerable<T> GetComponents<T>() where T : ComponentBase
+    public IEnumerable<T> GetComponents<T>() where T : ComponentBase
 		=> _container.GetComponents<T>();
 
 	//Update manipulator list

@@ -28,8 +28,5 @@ public abstract class AssetReferenceService<PathT> : Identifiable, IContextServi
         return true;
     }
 
-    protected void Clear()
-    {
-        _numberOfReferencesByAsset.Clear();
-    }
+    protected void Clear() => _numberOfReferencesByAsset.Clear();
 }

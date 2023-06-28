@@ -38,10 +38,7 @@ public class Box<T> : Identifiable, IBox<T>
         set => SetValue(value);
     }
 
-    public override string ToString()
-    {
-        return _value.ToString();
-    }
+    public override string ToString() => _value.ToString();
 }
 
 public interface IBox<T> : IReadOnlyBox<T>

@@ -65,8 +65,5 @@ public class SceneInstanceData : Identifiable, ISceneInstanceData
     public void SetInstances(uint offsetBytes, ReadOnlySpan<byte> data) => this._dataSegment.Write(offsetBytes, data);
     public void Remove<T>(uint startIndex, uint elementCount) where T : unmanaged => this._dataSegment.Write(startIndex * (uint)Marshal.SizeOf<T>(), this._dataSegment.Snapshot<T>((startIndex + elementCount) * (uint)Marshal.SizeOf<T>(), this.MaxInstances - (startIndex + elementCount)));
 
-    public void Dispose()
-    {
-        this._dataSegment.Dispose();
-    }
+    public void Dispose() => this._dataSegment.Dispose();
 }

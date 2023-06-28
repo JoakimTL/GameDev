@@ -10,9 +10,9 @@ layout(location = 0) out vec4 OUT;
 
 layout (std140) uniform PFXBlock
 { 
-	uint64_t diffuse;
-	uint64_t accum;
-	uint64_t reveal;
+	uvec2 diffuse;
+	uvec2 accum;
+	uvec2 reveal;
 } pfx;
 
 // epsilon number
