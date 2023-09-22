@@ -3,7 +3,8 @@
 namespace Engine;
 
 public abstract class DependencyInjectorBase : Identifiable {
-	private readonly IServiceRegistry _serviceRegistry;
+
+	protected readonly IServiceRegistry _serviceRegistry;
 
 	public DependencyInjectorBase( IServiceRegistry serviceRegistry ) {
 		this._serviceRegistry = serviceRegistry ?? throw new ArgumentNullException( nameof( serviceRegistry ) );
