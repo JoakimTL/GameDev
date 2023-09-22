@@ -1,4 +1,5 @@
 ﻿using Engine.GameLogic.ECPS;
+using Engine.GlobalServices;
 using Engine.Structure.Attributes;
 using StandardPackage.ECPS.Components;
 using StandardPackage.ECPS.Systems;
@@ -10,9 +11,15 @@ namespace TestPlatformClient.ECPS.Systems;
 [Require<InputComponent>]
 [ProcessAfter<UnmappedInputSystem, SystemBase>]
 public class InputSystem : SystemBase {
-    public InputSystem() { }
+    public InputSystem(SettingsService settingsService) {
+        settingsService.Get<InputSettings>();
+    }
 
     public override void Update( IEnumerable<Entity> entities, float time, float deltaTime ) {
-        throw new NotImplementedException();
+        foreach ( Entity entity in entities ) {
+            var unmapped = entity.GetOrThrow<UnmappedInputStateComponent>();
+            var input = entity.GetOrThrow<InputComponent>();
+
+        }
     }
 }

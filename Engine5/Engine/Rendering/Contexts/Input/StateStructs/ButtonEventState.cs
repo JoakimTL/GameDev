@@ -1,7 +1,7 @@
 ﻿using GlfwBinding.Enums;
 
 namespace Engine.Rendering.Contexts.Input.StateStructs;
-public readonly struct MouseButtonEventState {
+public readonly struct ButtonEventState {
 
     private const int ButtonBit = 0;
     private const int StateBit = 3;
@@ -9,7 +9,7 @@ public readonly struct MouseButtonEventState {
 
     private readonly ushort _value;
 
-    public MouseButtonEventState( MouseButton button, bool state, ModifierKeys modifierKeys ) {
+    public ButtonEventState( MouseButton button, bool state, ModifierKeys modifierKeys ) {
         unsafe {
             _value =
                 (ushort) (
@@ -25,7 +25,7 @@ public readonly struct MouseButtonEventState {
     /// <summary>
     /// True if the button is pressed
     /// </summary>
-    public bool Depressed => ( ( _value >> StateBit ) & 0b1 ) != 0;
+    public bool Pressed => ( ( _value >> StateBit ) & 0b1 ) != 0;
 
     public ModifierKeys ModifierKeys => (ModifierKeys) ( ( _value >> ModifierBit ) & 0b111111 );
 

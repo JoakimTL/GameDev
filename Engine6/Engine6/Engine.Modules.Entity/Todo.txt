@@ -1,0 +1,13 @@
+﻿
+
+
+Entities contain components
+These components contains data
+
+Systems operate on entities with specific components
+
+Some components are serializable, some are not
+Some components are network serializable, some are not
+
+EntityManager is responsible for creating and destroying entities
+EntityContainers are customizable containers that hold entity references based on components. This is where i.e. 2d grids, 3d grids, quadmapping and octomapping would be implemented.

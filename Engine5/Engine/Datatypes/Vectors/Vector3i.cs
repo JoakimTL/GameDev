@@ -86,3 +86,33 @@ public struct Vector3i
     #endregion
 
 }
+
+
+[System.Runtime.InteropServices.StructLayout( System.Runtime.InteropServices.LayoutKind.Explicit )]
+public struct Vector3i128 {
+
+	[System.Runtime.InteropServices.FieldOffset( 0 )]
+	public Int128 X;
+	[System.Runtime.InteropServices.FieldOffset( 16 )]
+	public Int128 Y;
+	[System.Runtime.InteropServices.FieldOffset( 32 )]
+	public Int128 Z;
+
+    public Vector3i128(Int128 x, Int128 y, Int128 z) {
+		X = x;
+		Y = y;
+		Z = z;
+        Int128.
+	}
+
+}
+
+public static class Vector3i128Extensions {
+	public const long YearInSeconds = 31_556_926;
+	public const long SpeedOfLight = 299_792_458;
+	public const long LightYear = 9_460_730_472_580_800;
+
+    
+	public static Vector3i128 LightYearsToMeters( this Vector3 lightYears ) => new Vector3i128(new Int128();
+
+}

@@ -3,7 +3,6 @@ using Engine.Rendering.OGL;
 using Engine.Structure;
 using Engine.Structure.Interfaces;
 using Engine.Structure.ServiceProvider;
-using OpenGL;
 
 namespace Engine.Rendering;
 
@@ -40,11 +39,9 @@ public sealed class Context : Identifiable, IUpdateable, IInitializable {
     private object? Service( Type t ) => _serviceProvider.Get( t );
     public T Service<T>() where T : IContextService => _serviceProvider.Get<T>();
 
-    public void Initialize() {
-        _serviceProvider.Get<AssetSceneObjectManagerService>();
-    }
+	public void Initialize() => _serviceProvider.Get<AssetSceneObjectManagerService>();
 
-    public void Update( float time, float deltaTime ) {
+	public void Update( float time, float deltaTime ) {
         _serviceProviderInitializer.Update( time, deltaTime );
         _serviceProviderUpdater.Update( time, deltaTime );
     }

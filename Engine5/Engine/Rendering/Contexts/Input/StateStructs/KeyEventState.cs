@@ -17,7 +17,7 @@ public readonly struct KeyEventState {
     /// <summary>
     /// True if the button is pressed
     /// </summary>
-    public bool Depressed => ( _value >> 15 & 0b1 ) == 1;
+    public bool Pressed => ( _value >> 15 & 0b1 ) == 1;
 
     public ModifierKeys ModifierKeys => (ModifierKeys) ( _value >> 9 & 0b11_1111 );
 

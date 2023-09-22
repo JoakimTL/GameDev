@@ -69,7 +69,5 @@ public class Gravity3ValueProvider : SystemBase, IGravity3ValueProvider {
 		return v / l;
 	}
 
-	public override void Update( IEnumerable<Entity> entities, float time, float deltaTime ) {
-		this._centerOfUniverse = new Vector3( MathF.Cos( time ) * 100, 0, MathF.Sin( time ) * 100 );
-	}
+	public override void Update( IEnumerable<Entity> entities, float time, float deltaTime ) => this._centerOfUniverse = new Vector3( MathF.Cos( time ) * 100, 0, MathF.Sin( time ) * 100 );
 }

@@ -1,0 +1,3 @@
+﻿
+
+The rendering framework starts a rendering thread. Using OpenGL it displays everything that is in the scene graph. The scene graph is a tree of nodes. Each node has a transformation and a list of children. The root node is the scene node. The scene node has a list of children that are rend

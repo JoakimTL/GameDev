@@ -1,0 +1,7 @@
+﻿
+All modules should be completely independent from eachother. They can use the Engine assembly, but not eachother.
+
+
+
+
+

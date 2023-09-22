@@ -16,6 +16,7 @@
     <ProjectReference Include="..\Engine\Engine.csproj" />
     <ProjectReference Include="..\StandardPackage\StandardPackage.csproj" />
     <ProjectReference Include="..\TestPlatformBase\TestPlatformBase.csproj" />
+    <ProjectReference Include="..\EngineSourceGenerators\EngineSourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
   </ItemGroup>
 
 </Project>

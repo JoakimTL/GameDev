@@ -1,0 +1,3 @@
+RTS / City builder + ARPG
+
+A city builder with ARPG multiplayer. Players can choose to either play as city builders or as heroes. The city builders build towns to allow the heroes to defeat enemies. The heroes can take on quests from the towns, or simply wander around and kill monsters (or humans and become evil). The city builders must defend their town using militaries, or hire heroes to work for them. The heroes will have to level up and get better gear to not be outpaced by the monsters of the world.

@@ -1,0 +1,34 @@
+
+An InputCue can be used to determine if the inputs being given are a command set by the player. This can then be set by the player.
+
+We must find a way to generalize mouse inputs, key inputs and joystick inputs such that they can added to the InputCues.
+Maybe we must have conditionals for each type of input?
+
+Different situations for input handling:
+
+Mouse movement:
+We have a FPS camera system, where mouse movement controls the rotation of a character.
+We have a RTS camera system, where mouse movement don't control anything, but determines where the user clicks whenever another event requires the mouse position.
+We have Third Person camera system, where the camera moves and might affect the player camera in other situations.
+
+Mouse button:
+We have a FPS camera system, where mouse button controls the shooting of a character.
+We have a RTS camera system, where mouse button controls the selection of units.
+
+Key presses:
+We have a FPS camera system, where key presses controls the movement of a character and their animation state. It might control their equipment and other things.
+We have a RTS camera system, where key presses controls the movement of the camera.
+We have a RTS camera system, where key presses can trigger shortcuts and key binds to other actions.
+
+Mouse wheel:
+We have a FPS camera system, where mouse wheel controls the switching of weapons.
+We have a RTS camera system, where mouse wheel controls the zooming of the camera.
+
+So to create a general system for handling input, we must have a way to handle all of these situations.
+
+Currently we have a timed input system, where as soon as input is polled it is stored with a timestamp. This doesn't really change anything, just meaning the input must be processed with the timestamp in mind.
+
+The timestamped inputs are then sent to the ECS, which has a system for handling input. This system will then check if the input is a command, and if it is, it will send it to the command system. The command system will then check if the command is valid, and if it is, it will send it to the command queue. The command queue will then execute the command.
+
+But what about mouse movement and stuff that is not strictly a sequence of inputs?
+We must have a way to handle this as well. 

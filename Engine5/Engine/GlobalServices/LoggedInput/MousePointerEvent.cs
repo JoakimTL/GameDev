@@ -2,13 +2,11 @@
 
 namespace Engine.GlobalServices.LoggedInput;
 
-public readonly struct TimedMousePointerState {
-    public readonly double Time;
+public sealed class MousePointerEvent : EventBase {
     public readonly MousePointerState State;
     public readonly bool LockState;
 
-    public TimedMousePointerState( double time, MousePointerState state, bool lockState ) {
-        Time = time;
+    public MousePointerEvent( MousePointerState state, bool lockState ) {
         State = state;
         LockState = lockState;
     }

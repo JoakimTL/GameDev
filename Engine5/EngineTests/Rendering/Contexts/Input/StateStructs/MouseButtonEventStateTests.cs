@@ -14,11 +14,11 @@ public class MouseButtonEventStateTests {
         ModifierKeys modifierKeys = 0;
 
         // Act
-        var mouseButtonEventState = new MouseButtonEventState( button, state, modifierKeys );
+        var mouseButtonEventState = new ButtonEventState( button, state, modifierKeys );
 
         // Assert
         Assert.That( mouseButtonEventState.Button, Is.EqualTo( button ) );
-        Assert.That( mouseButtonEventState.Depressed, Is.EqualTo( state ) );
+        Assert.That( mouseButtonEventState.Pressed, Is.EqualTo( state ) );
         Assert.That( mouseButtonEventState.ModifierKeys, Is.EqualTo( modifierKeys ) );
     }
 
@@ -30,11 +30,11 @@ public class MouseButtonEventStateTests {
         ModifierKeys modifierKeys = 0;
 
         // Act
-        var mouseButtonEventState = new MouseButtonEventState( button, state, modifierKeys );
+        var mouseButtonEventState = new ButtonEventState( button, state, modifierKeys );
 
         // Assert
         Assert.That( mouseButtonEventState.Button, Is.EqualTo( button ) );
-        Assert.That( mouseButtonEventState.Depressed, Is.EqualTo( state ) );
+        Assert.That( mouseButtonEventState.Pressed, Is.EqualTo( state ) );
         Assert.That( mouseButtonEventState.ModifierKeys, Is.EqualTo( modifierKeys ) );
     }
 
@@ -46,11 +46,11 @@ public class MouseButtonEventStateTests {
         ModifierKeys modifierKeys = ModifierKeys.Alt | ModifierKeys.Control;
 
         // Act
-        var mouseButtonEventState = new MouseButtonEventState( button, state, modifierKeys );
+        var mouseButtonEventState = new ButtonEventState( button, state, modifierKeys );
 
         // Assert
         Assert.That( mouseButtonEventState.Button, Is.EqualTo( button ) );
-        Assert.That( mouseButtonEventState.Depressed, Is.EqualTo( state ) );
+        Assert.That( mouseButtonEventState.Pressed, Is.EqualTo( state ) );
         Assert.That( mouseButtonEventState.ModifierKeys, Is.EqualTo( modifierKeys ) );
     }
 
@@ -74,7 +74,7 @@ public class KeyEventStateTests {
 
         // Assert
         Assert.That( keyEventState.Key, Is.EqualTo( key ) );
-        Assert.That( keyEventState.Depressed, Is.EqualTo( state ) );
+        Assert.That( keyEventState.Pressed, Is.EqualTo( state ) );
         Assert.That( keyEventState.ModifierKeys, Is.EqualTo( modifierKeys ) );
     }
 
@@ -90,7 +90,7 @@ public class KeyEventStateTests {
 
         // Assert
         Assert.That( keyEventState.Key, Is.EqualTo( key ) );
-        Assert.That( keyEventState.Depressed, Is.EqualTo( state ) );
+        Assert.That( keyEventState.Pressed, Is.EqualTo( state ) );
         Assert.That( keyEventState.ModifierKeys, Is.EqualTo( modifierKeys ) );
     }
 
@@ -106,7 +106,7 @@ public class KeyEventStateTests {
 
         // Assert
         Assert.That( keyEventState.Key, Is.EqualTo( key ) );
-        Assert.That( keyEventState.Depressed, Is.EqualTo( state ) );
+        Assert.That( keyEventState.Pressed, Is.EqualTo( state ) );
         Assert.That( keyEventState.ModifierKeys, Is.EqualTo( modifierKeys ) );
     }
 

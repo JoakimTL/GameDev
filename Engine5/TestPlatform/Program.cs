@@ -1,9 +1,28 @@
 ﻿using Engine;
 using Engine.GlobalServices;
 
+//var _serializeOptions = new JsonSerializerOptions( JsonSerializerDefaults.General ) {
+//	WriteIndented = true,
+//};
+//var dict = new Dictionary<string, object>();
+//dict.Add( "Test", 1 );
+//dict.Add( "Test2", "2" );
+//dict.Add( "Test3", 3 );
+//dict.Add( "Test4", 4.7 );
+//var ser =JsonSerializer.Serialize( dict, _serializeOptions );
+
 new TestPlatformClient.TestGameRenderModule();
 new TestPlatformBase.TestGameLogicModule();
 Global.Get<LoggedInputServiceTesterService>();
+//var ims = Global.Get<InputMappingService>();
+//foreach ( var k in Enum.GetValues<GlfwBinding.Enums.Keys>() )
+//	Console.WriteLine( ims.GetKeyName( k ) );
+//foreach ( var m in Enum.GetValues<GlfwBinding.Enums.MouseButton>() )
+//	Console.WriteLine( ims.GetButtonName( m ) );
+//var s = Global.Get<SettingsService>().Get<InputSettings>();
+//var fs = s.Forward;
+////var ss = Global.Get<SettingsService>().GetSettingValues( s ).ToList();
+//Console.WriteLine();
 //new Engine.Networking.Modules.ClientModule();
 //Engine.Global.Get<NetworkConnectionService>().Connect( new System.Net.IPEndPoint( System.Net.IPAddress.Loopback, 50043 ) );
 

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
@@ -16,6 +16,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\EngineLogging\EngineLogging.csproj" />
 	  <ProjectReference Include="..\GlfwBinding\GlfwBinding.csproj" />
+    <ProjectReference Include="..\EngineSourceGenerators\EngineSourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
 	</ItemGroup>
 
 </Project>

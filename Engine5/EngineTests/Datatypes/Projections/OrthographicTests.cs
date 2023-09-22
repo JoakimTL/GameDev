@@ -58,28 +58,18 @@ public class OrthographicTests {
 	}
 
 	[Test]
-	public void Orthographic_SizeIsZero_ThrowsException() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( 0, 0 ), -1, 1 ) );
-	}
+	public void Orthographic_SizeIsZero_ThrowsException() => Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( 0, 0 ), -1, 1 ) );
 
 	[Test]
-	public void Orthographic_SizeIsNegative_ThrowsException() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( -1, -1 ), -1, 1 ) );
-	}
+	public void Orthographic_SizeIsNegative_ThrowsException() => Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( -1, -1 ), -1, 1 ) );
 
 	[Test]
-	public void Orthographic_ZFarIsNegative_ThrowsException() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( 1, 1 ), -1, -1 ) );
-	}
+	public void Orthographic_ZFarIsNegative_ThrowsException() => Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( 1, 1 ), -1, -1 ) );
 
 	[Test]
-	public void Orthographic_ZFarIsLessThanZNear_ThrowsException() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( 1, 1 ), 1, -1 ) );
-	}
+	public void Orthographic_ZFarIsLessThanZNear_ThrowsException() => Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( 1, 1 ), 1, -1 ) );
 
 	[Test]
-	public void Orthographic_ZFarIsEqualToZNear_ThrowsException() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( 1, 1 ), 1, 1 ) );
-	}
+	public void Orthographic_ZFarIsEqualToZNear_ThrowsException() => Assert.Throws<ArgumentOutOfRangeException>( () => new Orthographic( new Vector2( 1, 1 ), 1, 1 ) );
 
 }

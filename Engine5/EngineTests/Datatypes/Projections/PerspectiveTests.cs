@@ -124,42 +124,26 @@ public class PerspectiveTests {
 	}
 
 	[Test]
-	public void Perspective_Constructor_FOVLessThanZero_Exception() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( -1, 1 ) );
-	}
+	public void Perspective_Constructor_FOVLessThanZero_Exception() => Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( -1, 1 ) );
 
 	[Test]
-	public void Perspective_Constructor_FOVEqual180_Exception() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 180, 1 ) );
-	}
+	public void Perspective_Constructor_FOVEqual180_Exception() => Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 180, 1 ) );
 
 	[Test]
-	public void Perspective_Constructor_FOVOver180_Exception() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 181, 1 ) );
-	}
+	public void Perspective_Constructor_FOVOver180_Exception() => Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 181, 1 ) );
 
 	[Test]
-	public void Perspective_Constructor_AspectRatioLessThanZero_Exception() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 90, -1 ) );
-	}
+	public void Perspective_Constructor_AspectRatioLessThanZero_Exception() => Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 90, -1 ) );
 
 	[Test]
-	public void Perspective_Constructor_AspectRatioEqualToZero_Exception() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 90, 0 ) );
-	}
+	public void Perspective_Constructor_AspectRatioEqualToZero_Exception() => Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 90, 0 ) );
 
 	[Test]
-	public void Perspective_Constructor_ZNearGreaterThanZFar_Exception() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 90, 1, 1, 0 ) );
-	}
+	public void Perspective_Constructor_ZNearGreaterThanZFar_Exception() => Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 90, 1, 1, 0 ) );
 
 	[Test]
-	public void Perspective_Constructor_ZFarEqualToZNear_Exception() {
-		Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 90, 1, 1, 1 ) );
-	}
+	public void Perspective_Constructor_ZFarEqualToZNear_Exception() => Assert.Throws<ArgumentOutOfRangeException>( () => new Perspective( 90, 1, 1, 1 ) );
 
 	[Test]
-	public void Perspective_Constructor_AspectRatioGreaterThanZero_NoException() {
-		Assert.DoesNotThrow( () => new Perspective( 90, 1 ) );
-	}
+	public void Perspective_Constructor_AspectRatioGreaterThanZero_NoException() => Assert.DoesNotThrow( () => new Perspective( 90, 1 ) );
 }

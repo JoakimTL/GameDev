@@ -5,58 +5,61 @@ using Engine.Structure.Interfaces;
 namespace Engine.GlobalServices;
 public class LoggedInputService : Identifiable, IGlobalService {
 
-    public event Action<double, KeyEventState>? KeyEvent;
-    public event Action<double, MouseButtonEventState>? ButtonEvent;
-    public event Action<double, bool>? MouseLockEvent;
-    public event Action<double, MousePointerState, bool>? MouseMoveEvent;
-    public event Action<double, Point2d>? MouseWheelEvent;
-    public event Action<double, bool>? MouseEnterEvent;
+	public event Action<TimedEvent>? TimedEvent;
 
-    public bool LockState { get; private set; }
+	public bool LockState { get; private set; }
 
-    public LoggedInputQueue CreateInputQueue() => new( this );
+	public LoggedInputQueue CreateInputQueue() => new( this );
 
-    internal void RegisterKeyEvent( double time, KeyEventState state ) => KeyEvent?.Invoke( time, state );
+	internal void RegisterKeyEvent( float time, KeyEventState state ) => TimedEvent?.Invoke( new( time, new KeyEvent( state ) ) );
 
-    internal void RegisterButtonEvent( double time, MouseButtonEventState state ) => ButtonEvent?.Invoke( time, state );
+	internal void RegisterButtonEvent( float time, ButtonEventState state ) => TimedEvent?.Invoke( new( time, new ButtonEvent( state ) ) );
 
-    internal void RegisterMouseLockEvent( double time, bool state ) => MouseLockEvent?.Invoke( time, state );
+	internal void RegisterMouseLockEvent( float time, bool state ) => TimedEvent?.Invoke( new( time, new MouseLockEvent( state ) ) );
 
-    internal void RegisterMouseMoveEvent( double time, MousePointerState state, bool lockState ) => MouseMoveEvent?.Invoke( time, state, lockState );
+	internal void RegisterMouseMoveEvent( float time, MousePointerState state, bool lockState ) => TimedEvent?.Invoke( new( time, new MousePointerEvent( state, lockState ) ) );
 
-    internal void RegisterMouseWheelEvent( double time, Point2d scroll ) => MouseWheelEvent?.Invoke( time, scroll );
+	internal void RegisterMouseWheelEvent( float time, Point2d scroll ) => TimedEvent?.Invoke( new( time, new MouseWheelEvent( scroll ) ) );
 
-    internal void RegisterMouseEnterEvent( double time, bool state ) => MouseEnterEvent?.Invoke( time, state );
+	internal void RegisterMouseEnterEvent( float time, bool state ) => TimedEvent?.Invoke( new( time, new MouseEnterEvent( state ) ) );
 
-    public void SetLockState( bool lockState ) => LockState = lockState;
+	public void SetLockState( bool lockState ) => LockState = lockState;
 }
 
-
 public class LoggedInputServiceTesterService : Identifiable, IGlobalService {
-    private readonly LoggedInputService _loggedInputService;
-    private readonly LoggedInputQueue _logger;
+	private readonly LoggedInputService _loggedInputService;
+	private readonly LoggedInputQueue _logger;
 
-    public LoggedInputServiceTesterService( LoggedInputService loggedInputService ) {
-        this._loggedInputService = loggedInputService;
-        _logger = _loggedInputService.CreateInputQueue();
-    }
+	public LoggedInputServiceTesterService( LoggedInputService loggedInputService ) {
+		this._loggedInputService = loggedInputService;
+		_logger = _loggedInputService.CreateInputQueue();
+	}
 
-    public void LogEverything() {
-        while ( _logger.TryDequeueMouseEnterEvent( out var timedState ) )
-            this.LogLine( $"Mouse Enter: {timedState.Time} {timedState.EnterState}", Log.Level.VERBOSE );
-        while ( _logger.TryDequeueMouseLockEvent( out var timedState ) )
-            this.LogLine( $"Mouse Lock: {timedState.Time} {timedState.LockState}", Log.Level.VERBOSE );
-        while ( _logger.TryDequeueMousePointerEvent( out var timedState ) )
-            this.LogLine( $"Mouse Move: {timedState.Time} {timedState.State.PixelPosition} {timedState.State.NdcaPosition} {timedState.LockState}", Log.Level.VERBOSE );
-        while ( _logger.TryDequeueMouseWheelEvent( out var timedState ) )
-            this.LogLine( $"Mouse Wheel: {timedState.Time} {timedState.ScrollState}", Log.Level.VERBOSE );
-        while ( _logger.TryDequeueButtonEvent( out var timedState ) )
-            this.LogLine( $"Button: {timedState.Time} {timedState.State.Button} {timedState.State.Depressed} {timedState.State.ModifierKeys}", Log.Level.VERBOSE );
-        while ( _logger.TryDequeueKeyEvent( out var timedState ) ) {
-            this.LogLine( $"Key: {timedState.Time} {timedState.State.Key} {timedState.State.Depressed} {timedState.State.ModifierKeys}", Log.Level.VERBOSE );
-            if ( timedState.State.Depressed == true && timedState.State.Key == GlfwBinding.Enums.Keys.LeftShift )
-                _loggedInputService.SetLockState( !_loggedInputService.LockState );
-        }
-    }
+	public void LogEverything() {
+		while ( _logger.TryDequeueTimedEvent( out var timedEvent ) ) {
+			switch ( timedEvent.Event ) {
+				case KeyEvent timedKeyEvent:
+					this.LogLine( $"Key: {timedEvent.Time} {timedKeyEvent.State.Key} {timedKeyEvent.State.Pressed} {timedKeyEvent.State.ModifierKeys}", Log.Level.VERBOSE );
+					if ( timedKeyEvent.State.Pressed == true && timedKeyEvent.State.Key == GlfwBinding.Enums.Keys.LeftShift )
+						_loggedInputService.SetLockState( !_loggedInputService.LockState );
+					break;
+				case ButtonEvent timedButtonEvent:
+					this.LogLine( $"Button: {timedEvent.Time} {timedButtonEvent.State.Button} {timedButtonEvent.State.Pressed}", Log.Level.VERBOSE );
+					break;
+				case MousePointerEvent timedMousePointerEvent:
+					this.LogLine( $"Mouse Pointer: {timedEvent.Time} {timedMousePointerEvent.State.PixelPosition} {timedMousePointerEvent.State.NdcaPosition} {timedMousePointerEvent.LockState}", Log.Level.VERBOSE );
+					break;
+				case MouseWheelEvent timedMouseWheelEvent:
+					this.LogLine( $"Mouse Wheel: {timedEvent.Time} {timedMouseWheelEvent.ScrollState}", Log.Level.VERBOSE );
+					break;
+				case MouseLockEvent timedMouseLockEvent:
+					this.LogLine( $"Mouse Lock: {timedEvent.Time} {timedMouseLockEvent.LockState}", Log.Level.VERBOSE );
+					break;
+				case MouseEnterEvent timedMouseEnterEvent:
+					this.LogLine( $"Mouse Enter: {timedEvent.Time} {timedMouseEnterEvent.EnterState}", Log.Level.VERBOSE );
+					break;
+			}
+		}
+	}
 
 }

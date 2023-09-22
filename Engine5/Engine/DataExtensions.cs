@@ -19,7 +19,7 @@ public static unsafe class DataExtensions {
 			yield return function( index++, inItem );
 	}
 
-	public static void ClearThenAddRange<T>(this List<T> list, IEnumerable<T> range ) {
+	public static void ClearThenAddRange<T>( this List<T> list, IEnumerable<T> range ) {
 		list.Clear();
 		list.AddRange( range );
 	}

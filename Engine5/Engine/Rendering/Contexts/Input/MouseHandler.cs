@@ -27,31 +27,31 @@ public class MouseHandler : Identifiable {
     }
 
     private void OnButtonPressed( MouseButton button, ModifierKeys modifiers ) {
-        var time = Clock64.StartupTime;
+        var time = Clock32.StartupTime;
         State[ button ] = true;
         ButtonEvent?.Invoke( time, new( button, true, modifiers ) );
     }
 
     private void OnButtonReleased( MouseButton button, ModifierKeys modifiers ) {
-        var time = Clock64.StartupTime;
+        var time = Clock32.StartupTime;
         State[ button ] = false;
         ButtonEvent?.Invoke( time, new( button, false, modifiers ) );
     }
 
     private void OnWheelScrolled( double xAxis, double yAxis ) {
-        var time = Clock64.StartupTime;
+        var time = Clock32.StartupTime;
         State.ScrolledWheel( new( xAxis, yAxis ) );
         WheelScrolled?.Invoke( time, new( xAxis, yAxis ) );
     }
 
     private void OnMouseEnter( bool entered ) {
-        var time = Clock64.StartupTime;
+        var time = Clock32.StartupTime;
         State.IsInside = entered;
         MouseEnter?.Invoke( time, entered );
     }
 
     private void OnMouseMoved( double xAxis, double yAxis ) {
-        var time = Clock64.StartupTime;
+        var time = Clock32.StartupTime;
         Point2d pixelPosition = new( xAxis, yAxis );
         Point2d ndcaPosition = new( ( 2 * xAxis / _window.Size.X - 1 ) * _window.AspectRatioVector.X, ( 1 - 2 * yAxis / _window.Size.Y ) * _window.AspectRatioVector.Y );
         State.MouseMoved( pixelPosition, ndcaPosition );
@@ -60,6 +60,6 @@ public class MouseHandler : Identifiable {
 
     public void SetLock( bool lockState ) {
         if ( State.SetLock( _window, lockState ) )
-            LockChanged?.Invoke( Clock64.StartupTime, lockState );
+            LockChanged?.Invoke( Clock32.StartupTime, lockState );
     }
 }

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Engine": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\Engine\\Engine.csproj"
+    },
+    "TestPlatform": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\TestPlatform\\TestPlatformClient.csproj"
+    }
+  }
+}

@@ -59,9 +59,7 @@ public class Benchmark2 {
 	}
 
 	[Benchmark]
-	public void NaiveSimple() {
-		this._naive3 = this._naive1.Add( this._naive2 );
-	}
+	public void NaiveSimple() => this._naive3 = this._naive1.Add( this._naive2 );
 
 	[Benchmark]
 	public void NaiveArray() {
@@ -71,9 +69,7 @@ public class Benchmark2 {
 	}
 
 	[Benchmark]
-	public void SIMDSimple() {
-		this._simd3 = this._simd1.Add( this._simd2 );
-	}
+	public void SIMDSimple() => this._simd3 = this._simd1.Add( this._simd2 );
 
 	[Benchmark]
 	public void SIMDArray() {

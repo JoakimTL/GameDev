@@ -49,24 +49,24 @@ public sealed class InputEventService : Identifiable, IContextService, IUpdateab
     }
 
     private void OnKeyReleased( Keys key, ModifierKeys mods, int scanCode ) 
-        => _inputService.RegisterKeyEvent( Clock64.StartupTime, new( key, false, mods ) );
+        => _inputService.RegisterKeyEvent( Clock32.StartupTime, new( key, false, mods ) );
 
     private void OnKeyPressed( Keys key, ModifierKeys mods, int scanCode ) 
-        => _inputService.RegisterKeyEvent( Clock64.StartupTime, new( key, true, mods ) );
+        => _inputService.RegisterKeyEvent( Clock32.StartupTime, new( key, true, mods ) );
 
-    private void OnMouseButtonEvent( double time, MouseButtonEventState state )
+    private void OnMouseButtonEvent( float time, ButtonEventState state )
         => _inputService.RegisterButtonEvent( time, state );
 
-    private void OnMouseLockChanged( double time, bool state )
+    private void OnMouseLockChanged( float time, bool state )
         => _inputService.RegisterMouseLockEvent( time, state );
 
-    private void OnMouseMoved( double time, MousePointerState state, bool lockState )
+    private void OnMouseMoved( float time, MousePointerState state, bool lockState )
         => _inputService.RegisterMouseMoveEvent( time, state, lockState );
 
-    private void OnMouseWheelScrolled( double time, Point2d scroll )
+    private void OnMouseWheelScrolled( float time, Point2d scroll )
         => _inputService.RegisterMouseWheelEvent( time, scroll );
 
-    private void OnMouseEnter( double time, bool state )
+    private void OnMouseEnter( float time, bool state )
         => _inputService.RegisterMouseEnterEvent( time, state );
 
     public void Update( float time, float deltaTime ) {
