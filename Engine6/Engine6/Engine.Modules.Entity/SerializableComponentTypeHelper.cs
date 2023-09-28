@@ -3,13 +3,13 @@ using System.Reflection;
 
 namespace Engine.Modules.Entity;
 
-internal static class ComponentTypeHelper {
+internal static class SerializableComponentTypeHelper {
 
 	private static readonly ImmutableDictionary<Type, Guid> _componentTypeIdsByType;
 	private static readonly ImmutableDictionary<Guid, Type> _componentTypeById;
 
-	static ComponentTypeHelper() {
-		(Type Type, IdentifierAttribute? Identifier)[] componentBaseTypes = TypeHelper.AllTypes.Where( x => x.IsSubclassOf( typeof( SerializableComponentBase ) ) ).OrderBy( p => p.FullName ).Select( p => (Type: p, Identifier: p.GetCustomAttribute<IdentifierAttribute>()) ).ToArray();
+	static SerializableComponentTypeHelper() {
+		(Type Type, IdentifierAttribute? Identifier)[] componentBaseTypes = TypeHelper.AllTypes.Where( x => x.IsSubclassOf( typeof( SerializableComponentBase ) ) && !x.IsAbstract ).OrderBy( p => p.FullName ).Select( p => (Type: p, Identifier: p.GetCustomAttribute<IdentifierAttribute>()) ).ToArray();
 		(Type Type, IdentifierAttribute? Identifier)[] validComponentBaseTypes = componentBaseTypes.Where( p => p.Identifier is not null ).ToArray();
 		_componentTypeIdsByType = validComponentBaseTypes.ToImmutableDictionary( p => p.Type, p => p.Identifier!.Identifier );
 		_componentTypeById = validComponentBaseTypes.ToImmutableDictionary( p => p.Identifier!.Identifier, p => p.Type );

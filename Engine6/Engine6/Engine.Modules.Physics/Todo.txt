@@ -1,1 +1,9 @@
 ﻿
+
+The way collision works:
+
+We have a template collision model
+
+This template can be instantiated. This instance needs a matrixprovider to be able to transform the template to the correct position and orientation.
+
+The instances are used to check for collisions.

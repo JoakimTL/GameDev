@@ -7,14 +7,14 @@ public class EntitySerializer {
 
 	public const int MaxComponentSerializationSizeBytes = ushort.MaxValue + 1;
 
-	public EntityContainer EntityContainer { get; }
+	public EntityManager EntityManager { get; }
 
-	public EntitySerializer( EntityContainer entityContainer ) {
-		this.EntityContainer = entityContainer;
+	public EntitySerializer( EntityManager entityManager ) {
+		this.EntityManager = entityManager;
 	}
 
 	public bool Serialize( SerializableComponentBase component, UnmanagedList data ) {
-		Guid? guid = ComponentTypeHelper.GetComponentTypeId( component.GetType() );
+		Guid? guid = SerializableComponentTypeHelper.GetComponentTypeId( component.GetType() );
 		if ( !guid.HasValue ) {
 			this.LogWarning( $"Failed to get guid for component of type {component.GetType().Name}." );
 			return false;
@@ -51,7 +51,7 @@ public class EntitySerializer {
 		ushort size = *(ushort*) ( dataPtr + index );
 		index += sizeof( ushort );
 
-		Entity? entity = EntityContainer.Get( entityId.Value );
+		Entity? entity = this.EntityManager.Get( entityId.Value );
 		if ( entity is null ) {
 			this.LogWarning( $"Failed to find entity with id {entityId}." );
 			return false;
@@ -111,13 +111,13 @@ public class EntitySerializer {
 					entities.Add( *(EntityData*) ( ptr + index ) );
 					index += (uint) sizeof( EntityData );
 				}
-				EntityContainer.CreateEntities( entities );
+				this.EntityManager.CreateEntities( entities );
 				uint componentCount = *(uint*) ptr;
 				index += sizeof( uint );
 
 				for ( int i = 0; i < componentCount; i++ )
 					TryDeserializeComponentInternal( ptr, (uint) data.Length, ref index, out _, out _ );
-				return entities.Select( p => EntityContainer.Get( p.EntityId )! ).ToArray();
+				return entities.Select( p => this.EntityManager.Get( p.EntityId )! ).ToArray();
 			}
 		}
 	}

@@ -8,11 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Components\" />
-    <Folder Include="Systems\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Engine.Shared\Engine.Shared.csproj" />
     <ProjectReference Include="..\Engine\Engine.csproj" />
   </ItemGroup>

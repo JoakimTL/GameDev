@@ -4,7 +4,7 @@ public class InstantiableUid32Tracker {
 
 	private int _count = 0;
 
-	public uint Peek => unchecked((uint) _count);
+	public uint Peek => unchecked((uint) this._count);
 
 	/// <summary>
 	/// Returns a unique uint.
@@ -12,12 +12,12 @@ public class InstantiableUid32Tracker {
 	/// </summary>
 	public uint Next {
 		get {
-			int newCount = Interlocked.Increment( ref _count );
+			int newCount = Interlocked.Increment( ref this._count );
 			return unchecked((uint) newCount);
 		}
 	}
 
 	public InstantiableUid32Tracker( uint start = 0 ) {
-		_count = unchecked((int) start);
+		this._count = unchecked((int) start);
 	}
 }

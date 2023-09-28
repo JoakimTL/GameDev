@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine.Modules.Entity\Engine.Modules.Entity.csproj" />
+    <ProjectReference Include="..\Engine.Modules.Networking\Engine.Modules.Networking.csproj" />
+    <ProjectReference Include="..\Engine.Modules.Physics\Engine.Modules.Physics.csproj" />
+    <ProjectReference Include="..\Engine.Modules.Rendering\Engine.Modules.Rendering.csproj" />
+    <ProjectReference Include="..\Engine\Engine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Entity\Systems\" />
+  </ItemGroup>
+
+</Project>

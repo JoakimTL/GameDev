@@ -1,10 +1,12 @@
 ﻿using Engine.Data;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Modules.Entity;
 public sealed class Entity : Identifiable {
 
 	public delegate void EntityEventHandler( Entity entity );
 	public delegate void ParentEventHandler( Entity? oldParent, Entity? newParent );
+	public delegate void ChildEventHandler( Entity parent, Entity child );
 	public delegate void ComponentEventHandler( Entity entity, ComponentBase component );
 
 	/// <summary>
@@ -19,12 +21,14 @@ public sealed class Entity : Identifiable {
 	private readonly Dictionary<Type, ComponentBase> _components;
 	private readonly HashSet<Entity> _children;
 
-	public IReadOnlyCollection<ComponentBase> Components => _components.Values;
-	public IReadOnlyCollection<Entity> Children => _children;
+	public IReadOnlyCollection<ComponentBase> Components => this._components.Values;
+	public IReadOnlyCollection<Entity> Children => this._children;
 
 	public event EntityEventHandler? EntityKilled;
 	public event ParentEventHandler? BeforeParentChange;
 	public event ParentEventHandler? AfterParentChange;
+	public event ChildEventHandler? ChildAdded;
+	public event ChildEventHandler? ChildRemoved;
 	public event ComponentEventHandler? ComponentAdded;
 	public event ComponentEventHandler? ComponentRemoved;
 
@@ -35,7 +39,7 @@ public sealed class Entity : Identifiable {
 		this.OwnerId = ownerId;
 		this._components = new();
 		this._children = new();
-		Alive = true;
+		this.Alive = true;
 	}
 
 	internal Entity( Guid ownerId ) : this( ownerId, GuidGenerator.GenerateGuid() ) { }
@@ -49,12 +53,22 @@ public sealed class Entity : Identifiable {
 			return;
 
 		BeforeParentChange?.Invoke( this.Parent, entity );
-		if ( Parent is not null )
-			Parent._children.Remove( this );
+		if ( this.Parent is not null )
+			this.Parent.RemoveChild( this );
 		this.Parent = entity;
-		if ( Parent is not null )
-			Parent._children.Add( this );
+		if ( this.Parent is not null )
+			this.Parent.AddChild( this );
 		AfterParentChange?.Invoke( this.Parent, entity );
+	}
+
+	private void AddChild( Entity e ) {
+		if ( this._children.Add( e ) )
+			ChildAdded?.Invoke( this, e );
+	}
+
+	private void RemoveChild( Entity e ) {
+		if ( this._children.Remove( e ) )
+			ChildRemoved?.Invoke( this, e );
 	}
 
 	private bool IsRecursiveParenting( Entity child, Entity? parent ) {
@@ -79,6 +93,11 @@ public sealed class Entity : Identifiable {
 		return component;
 	}
 
+	public bool TryGetComponent<T>( [NotNullWhen( true )] out T? component ) where T : ComponentBase {
+		component = GetComponent<T>();
+		return component is not null;
+	}
+
 	public T? GetComponent<T>() where T : ComponentBase => this._components[ typeof( T ) ] as T;
 
 	private ComponentBase AddComponentInternal( ComponentBase component ) {
@@ -87,8 +106,7 @@ public sealed class Entity : Identifiable {
 			this.LogLine( $"Entity already has a component of type {type.Name}.", Log.Level.NORMAL );
 			return this._components[ type ];
 		}
-		//Might crash! Certainly in need of optimization.
-		typeof( ComponentBase ).GetProperty( nameof( ComponentBase.Entity ) )!.SetValue( component, this );
+		component.SetParent( this );
 		this._components.Add( type, component );
 		ComponentAdded?.Invoke( this, component );
 		return component;
@@ -102,7 +120,7 @@ public sealed class Entity : Identifiable {
 	public T AddComponent<T>() where T : ComponentBase, new() => AddComponent( new T() );
 
 	public SerializableComponentBase? GetOrCreateComponent( Guid guid ) {
-		Type? t = ComponentTypeHelper.GetComponentType( guid );
+		Type? t = SerializableComponentTypeHelper.GetComponentType( guid );
 		if ( t is null )
 			return null;
 		if ( this._components.ContainsKey( t ) )
@@ -113,77 +131,15 @@ public sealed class Entity : Identifiable {
 	}
 
 	public void Kill() {
-		Alive = false;
+		this.Alive = false;
 		EntityKilled?.Invoke( this );
 	}
 
 	internal void Dispose() {
-		foreach ( Entity child in Children )
+		foreach ( Entity child in this.Children )
 			child.SetParent( null );
-		foreach ( ComponentBase component in _components.Values )
+		foreach ( ComponentBase component in this._components.Values )
 			if ( component is IDisposable disposable )
 				disposable.Dispose();
-	}
-}
-
-public abstract class ComponentBase : Identifiable {
-
-	public Entity Entity { get; } = null!;
-
-	//USing SpinWait to control timing on modules?
-
-}
-
-public class EntityContainer : IUpdateable {
-
-	private readonly Dictionary<Guid, Entity> _entities;
-	private readonly Queue<Guid> _removedEntities;
-
-	public EntityContainer() {
-		this._entities = new();
-		_removedEntities = new();
-	}
-
-	public Entity? Get( Guid entityId ) {
-		if ( !_entities.ContainsKey( entityId ) )
-			return null;
-		return _entities[ entityId ];
-	}
-
-	public Entity Create( Guid owner ) {
-		Entity newEntity = new( owner );
-		_entities.Add( newEntity.EntityId, newEntity );
-		newEntity.EntityKilled += OnEntityKilled;
-		return newEntity;
-	}
-
-	internal void CreateEntities( IReadOnlyList<EntityData> data ) {
-		foreach ( EntityData entityData in data ) {
-			Entity newEntity = new( entityData );
-			_entities.Add( entityData.EntityId, newEntity );
-			newEntity.EntityKilled += OnEntityKilled;
-		}
-		foreach ( EntityData entityData in data ) {
-			if ( entityData.EntityId == entityData.ParentId )
-				continue;
-			if ( !_entities.TryGetValue( entityData.ParentId, out Entity? parent ) ) {
-				this.LogWarning( $"Failed to find parent entity with id {entityData.ParentId} for {entityData.EntityId}." );
-				continue;
-			}
-			_entities[ entityData.EntityId ].SetParent( parent );
-		}
-	}
-
-	private void OnEntityKilled( Entity entity ) {
-		_removedEntities.Enqueue( entity.EntityId );
-	}
-
-	public void Update( in double time, in double deltaTime ) {
-		while ( _removedEntities.TryDequeue( out Guid entityId ) )
-			if ( _entities.Remove( entityId, out Entity? entity ) ) {
-				entity.Dispose();
-			} else
-				this.LogWarning( $"Failed to remove entity with id {entityId}." );
-
 	}
 }

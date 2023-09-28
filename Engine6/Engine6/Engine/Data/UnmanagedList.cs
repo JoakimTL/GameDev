@@ -2,88 +2,230 @@
 using System.Runtime.InteropServices;
 
 namespace Engine.Data;
-public unsafe struct UnmanagedList : IDisposable {
+public unsafe class UnmanagedList : IDisposable {
 
 	private void* _pointer;
 	private uint _sizeBytes;
 	private uint _bytesUsed;
 
-	public uint BytePosition => _bytesUsed;
+	public uint BytePosition => this._bytesUsed;
 
 	public UnmanagedList( uint initialSizeBytes = 512 ) {
-		_bytesUsed = 0;
-		_sizeBytes = initialSizeBytes;
-		_pointer = NativeMemory.Alloc( _sizeBytes );
+		this._bytesUsed = 0;
+		this._sizeBytes = initialSizeBytes;
+		this._pointer = NativeMemory.Alloc( this._sizeBytes );
+	}
+
+	~UnmanagedList() {
+		if ( this._sizeBytes == 0 ) {
+			Log.Error( "UnmanagedList not disposed!" );
+			this.Dispose();
+		}
 	}
 
 	public void Add<T>( T item ) where T : unmanaged {
-		if ( _sizeBytes == 0 ) {
+		if ( this._sizeBytes == 0 ) {
 			this.LogWarning( "UnmanagedList has no size. The list may have been disposed or constructed wrongly." );
 			return;
 		}
 		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
-		if ( _bytesUsed + typeSizeBytes > _sizeBytes ) {
-			_sizeBytes *= 2;
-			_pointer = NativeMemory.Realloc( _pointer, _sizeBytes );
+		if ( this._bytesUsed + typeSizeBytes > this._sizeBytes ) {
+			this._sizeBytes *= 2;
+			this._pointer = NativeMemory.Realloc( this._pointer, this._sizeBytes );
 		}
-		*(T*) ( (byte*) _pointer + _bytesUsed ) = item;
-		_bytesUsed += typeSizeBytes;
+		*(T*) ( (byte*) this._pointer + this._bytesUsed ) = item;
+		this._bytesUsed += typeSizeBytes;
 	}
 
 	public void AddRange<T>( Span<T> items ) where T : unmanaged {
-		if ( _sizeBytes == 0 ) {
+		if ( this._sizeBytes == 0 ) {
 			this.LogWarning( "UnmanagedList has no size. The list may have been disposed or constructed wrongly." );
 			return;
 		}
 		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
-		uint currentSizeBytes = _sizeBytes;
-		while ( _bytesUsed + (uint) items.Length * typeSizeBytes > _sizeBytes )
-			_sizeBytes *= 2;
-		if ( _sizeBytes > currentSizeBytes ) 
-			_pointer = NativeMemory.Realloc( _pointer, _sizeBytes );
-		fixed( void* ptr = items )
-			Unsafe.CopyBlock( (byte*) _pointer + _bytesUsed, ptr, (uint) items.Length * typeSizeBytes );
-		_bytesUsed += (uint) items.Length * typeSizeBytes;
+		uint currentSizeBytes = this._sizeBytes;
+		while ( this._bytesUsed + (uint) items.Length * typeSizeBytes > this._sizeBytes )
+			this._sizeBytes *= 2;
+		if ( this._sizeBytes > currentSizeBytes )
+			this._pointer = NativeMemory.Realloc( this._pointer, this._sizeBytes );
+		fixed ( void* ptr = items )
+			Unsafe.CopyBlock( (byte*) this._pointer + this._bytesUsed, ptr, (uint) items.Length * typeSizeBytes );
+		this._bytesUsed += (uint) items.Length * typeSizeBytes;
 	}
 
 	public void Set<T>( T item, uint offsetBytes ) where T : unmanaged {
-		if ( _sizeBytes == 0 ) {
+		if ( this._sizeBytes == 0 ) {
 			this.LogWarning( "UnmanagedList has no size. The list may have been disposed or constructed wrongly." );
 			return;
 		}
 		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
-		if ( offsetBytes + typeSizeBytes > _bytesUsed ) {
+		if ( offsetBytes + typeSizeBytes > this._bytesUsed ) {
 			this.LogWarning( $"Tried to set an item at offset {offsetBytes} which is outside the size of the list." );
 			return;
 		}
-		*(T*) ( (byte*) _pointer + offsetBytes ) = item;
+		*(T*) ( (byte*) this._pointer + offsetBytes ) = item;
 	}
 
 	public void Set<T>( Span<T> items, uint offsetBytes ) where T : unmanaged {
-		if ( _sizeBytes == 0 ) {
+		if ( this._sizeBytes == 0 ) {
 			this.LogWarning( "UnmanagedList has no size. The list may have been disposed or constructed wrongly." );
 			return;
 		}
 		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
-		if ( offsetBytes + (uint) items.Length * typeSizeBytes > _bytesUsed ) {
+		if ( offsetBytes + (uint) items.Length * typeSizeBytes > this._bytesUsed ) {
 			this.LogWarning( $"Tried to set {items.Length} items at offset {offsetBytes} which is outside the size of the list." );
 			return;
 		}
-		fixed( void* ptr = items )
-			Unsafe.CopyBlock( (byte*) _pointer + offsetBytes, ptr, (uint) items.Length * typeSizeBytes );
+		fixed ( void* ptr = items )
+			Unsafe.CopyBlock( (byte*) this._pointer + offsetBytes, ptr, (uint) items.Length * typeSizeBytes );
 	}
 
+	public bool TryGet<T>( out T output, uint offsetBytes ) where T : unmanaged {
+		output = default;
+		if ( this._sizeBytes == 0 ) {
+			this.LogWarning( "UnmanagedList has no size. The list may have been disposed or constructed wrongly." );
+			return false;
+		}
+
+		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
+		if ( offsetBytes + typeSizeBytes > this._bytesUsed ) {
+			this.LogWarning( $"Tried to get an item at offset {offsetBytes} which is outside the size of the list." );
+			return false;
+		}
+		output = *(T*) ( (byte*) this._pointer + offsetBytes );
+		return true;
+	}
+
+	public bool TryPopulate<T>( Span<T> output, uint offsetBytes ) where T : unmanaged {
+		if ( this._sizeBytes == 0 ) {
+			this.LogWarning( "UnmanagedList has no size. The list may have been disposed or constructed wrongly." );
+			return false;
+		}
+
+		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
+		if ( offsetBytes + (uint) output.Length * typeSizeBytes > this._bytesUsed ) {
+			this.LogWarning( $"Tried to get {output.Length} items at offset {offsetBytes} which is outside the size of the list." );
+			return false;
+		}
+		fixed ( void* ptr = output )
+			Unsafe.CopyBlock( ptr, (byte*) this._pointer + offsetBytes, (uint) output.Length * typeSizeBytes );
+		return true;
+	}
+
+	public uint GetElementCount<T>() where T : unmanaged 
+		=> this._bytesUsed / (uint) Unsafe.SizeOf<T>();
+
+	public void Flush() 
+		=> this._bytesUsed = 0;
+
 	public byte[] ToArray() {
-		byte[] @returnArray = new byte[ _bytesUsed ];
+		if ( this._sizeBytes == 0 ) {
+			this.LogWarning( "UnmanagedList has no size. The list may have been disposed or constructed wrongly." );
+			return Array.Empty<byte>();
+		}
+		if ( this._bytesUsed == 0 )
+			return Array.Empty<byte>();
+		byte[] @returnArray = new byte[ this._bytesUsed ];
 		fixed ( void* ptr = @returnArray )
-			Unsafe.CopyBlock( ptr, _pointer, _bytesUsed );
+			Unsafe.CopyBlock( ptr, this._pointer, this._bytesUsed );
+		return @returnArray;
+	}
+	public T[] ToArray<T>() where T : unmanaged {
+		if ( this._sizeBytes == 0 ) {
+			this.LogWarning( "UnmanagedList has no size. The list may have been disposed or constructed wrongly." );
+			return Array.Empty<T>();
+		}
+		if ( this._bytesUsed == 0 )
+			return Array.Empty<T>();
+		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
+		if ( this._bytesUsed % typeSizeBytes != 0 ) {
+			this.LogWarning( $"UnmanagedList has a size of {this._bytesUsed} bytes which is not a multiple of {typeSizeBytes} bytes for type {typeof( T )}." );
+			return Array.Empty<T>();
+		}
+		T[] @returnArray = new T[ this._bytesUsed / typeSizeBytes ];
+		fixed ( void* ptr = @returnArray )
+			Unsafe.CopyBlock( ptr, this._pointer, this._bytesUsed );
 		return @returnArray;
 	}
 
 	public void Dispose() {
-		_bytesUsed = 0;
-		_sizeBytes = 0;
-		NativeMemory.Free( _pointer );
-		_pointer = null;
+		this._bytesUsed = 0;
+		this._sizeBytes = 0;
+		NativeMemory.Free( this._pointer );
+		this._pointer = null;
 	}
 }
+
+public unsafe class ThreadLocalMemory : IDisposable {
+
+	public const nuint SizeBytes = 16777216;
+	private static readonly ThreadLocal<ThreadLocalMemory> _localMemories;
+
+	static ThreadLocalMemory() {
+		_localMemories = new( () => new() );
+
+	}
+
+	private readonly void* _pointer;
+	private uint _bytesUsed;
+
+	public ThreadLocalMemory() {
+		this._pointer = NativeMemory.Alloc( SizeBytes );
+	}
+
+	public void Add<T>( T item ) where T : unmanaged {
+		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
+		if ( this._bytesUsed + typeSizeBytes > SizeBytes ) {
+			this.LogWarning( $"Tried to add an item which would exceed the size of the allocated memory. Consider using an {nameof( UnmanagedList )} instead!" );
+			return;
+		}
+		*(T*) ( (byte*) this._pointer + this._bytesUsed ) = item;
+		this._bytesUsed += typeSizeBytes;
+	}
+
+	public void AddRange<T>( Span<T> items ) where T : unmanaged {
+		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
+		if ( this._bytesUsed + (uint) items.Length * typeSizeBytes > SizeBytes ) {
+			this.LogWarning( $"Tried to add {items.Length} items which would exceed the size of the allocated memory. Consider using an {nameof( UnmanagedList )} instead!" );
+			return;
+		}
+		fixed ( void* ptr = items )
+			Unsafe.CopyBlock( (byte*) this._pointer + this._bytesUsed, ptr, (uint) items.Length * typeSizeBytes );
+		this._bytesUsed += (uint) items.Length * typeSizeBytes;
+	}
+
+	public void Set<T>( T item, uint offsetBytes ) where T : unmanaged {
+		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
+		if ( offsetBytes + typeSizeBytes > this._bytesUsed ) {
+			this.LogWarning( $"Tried to set an item at offset {offsetBytes} which is outside the size of the allocated memory." );
+			return;
+		}
+		*(T*) ( (byte*) this._pointer + offsetBytes ) = item;
+	}
+
+	public void Set<T>( Span<T> items, uint offsetBytes ) where T : unmanaged {
+		uint typeSizeBytes = (uint) Unsafe.SizeOf<T>();
+		if ( offsetBytes + (uint) items.Length * typeSizeBytes > this._bytesUsed ) {
+			this.LogWarning( $"Tried to set {items.Length} items at offset {offsetBytes} which is outside the size of the allocated memory." );
+			return;
+		}
+		fixed ( void* ptr = items )
+			Unsafe.CopyBlock( (byte*) this._pointer + offsetBytes, ptr, (uint) items.Length * typeSizeBytes );
+	}
+
+	/// <summary>
+	/// Resets the caret to the beginning of the memory.
+	/// </summary>
+	public void Flush() {
+		this._bytesUsed = 0;
+	}
+
+	public void Dispose() {
+		NativeMemory.Free( this._pointer );
+	}
+
+	public static void DisposeLocal() {
+		_localMemories.Value.Dispose();
+	}
+}
+
