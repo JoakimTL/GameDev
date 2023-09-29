@@ -18,6 +18,8 @@ public class CollisionShape3 {
 
 	public void SetMatrixProvider( IMatrixProvider? matrixProvider ) => this._matrixProvider = matrixProvider;
 
+	public bool IsValid() => this._matrixProvider is not null;
+
 	public void CheckCollision() {
 		//TODO IMPLEMENT...
 	}

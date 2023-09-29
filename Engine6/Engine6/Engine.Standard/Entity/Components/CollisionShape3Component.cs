@@ -1,4 +1,5 @@
 ﻿using Engine.Data;
+using Engine.Data.Bounds;
 using Engine.Modules.Physics;
 
 namespace Engine.Modules.Entity.Components;
@@ -51,5 +52,9 @@ public sealed class CollisionShape3Component : ComponentBase {
 	private void SetMatrixProvider( IMatrixProvider? matrixProvider ) {
 		this._matrixProvider = matrixProvider;
 		TriggerChanged();
+	}
+
+	internal bool TryGetAABB( out AABB3 aabb ) {
+		throw new NotImplementedException();
 	}
 }

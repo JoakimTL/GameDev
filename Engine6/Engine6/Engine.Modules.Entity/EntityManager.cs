@@ -39,6 +39,7 @@ public class EntityManager : IUpdateable {
 		newEntity.EntityKilled += OnEntityKilled;
 		newEntity.ComponentAdded += OnComponentAdded;
 		newEntity.ComponentRemoved += OnComponentRemoved;
+		EntityAdded?.Invoke( newEntity );
 		return newEntity;
 	}
 
@@ -49,6 +50,7 @@ public class EntityManager : IUpdateable {
 			newEntity.EntityKilled += OnEntityKilled;
 			newEntity.ComponentAdded += OnComponentAdded;
 			newEntity.ComponentRemoved += OnComponentRemoved;
+			EntityAdded?.Invoke( newEntity );
 		}
 		foreach ( EntityData entityData in data ) {
 			if ( entityData.EntityId == entityData.ParentId )
@@ -75,6 +77,7 @@ public class EntityManager : IUpdateable {
 		while ( this._removedEntities.TryDequeue( out Guid entityId ) )
 			if ( this._entities.Remove( entityId, out Entity? entity ) ) {
 				entity.Dispose();
+				EntityRemoved?.Invoke( entity );
 			} else
 				this.LogWarning( $"Failed to remove entity with id {entityId}." );
 

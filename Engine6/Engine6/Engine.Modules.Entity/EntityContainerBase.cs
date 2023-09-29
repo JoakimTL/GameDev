@@ -1,18 +1,20 @@
 ﻿namespace Engine.Modules.Entity;
 
-public abstract class EntityContainerBase {
+public abstract class EntityContainerBase : IDisposable {
 
 	private readonly EntityManager _entityManager;
 
 	protected EntityContainerBase( EntityManager entityManager ) {
 		this._entityManager = entityManager;
-		this._entityManager.EntityAdded += AddEntity;
-		this._entityManager.EntityRemoved += RemoveEntity;
+		_entityManager.ComponentAdded += ComponentAdded;
+		_entityManager.ComponentRemoved += ComponentRemoved;
 	}
 
-	protected abstract void AddEntity( Entity entity );
-	protected abstract void RemoveEntity( Entity entity );
+	public abstract void Dispose();
+	protected abstract void ComponentAdded( Entity e, ComponentBase component );
+	protected abstract void ComponentRemoved( Entity e, ComponentBase component );
 	protected internal abstract void AddAll( IEnumerable<Entity> allEntities );
+
 
 }
 

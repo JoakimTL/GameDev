@@ -4,6 +4,8 @@ public sealed class DynamicLookup<TKey, TValue> where TKey : notnull {
 
 	private readonly Dictionary<TKey, HashSet<TValue>> _dictionary;
 
+	public IReadOnlyCollection<TKey> Keys => this._dictionary.Keys;
+
 	public DynamicLookup() {
 		this._dictionary = new();
 	}
@@ -16,6 +18,25 @@ public sealed class DynamicLookup<TKey, TValue> where TKey : notnull {
 		if ( !this._dictionary.TryGetValue( key, out HashSet<TValue>? values ) )
 			this._dictionary.Add( key, values = new() );
 		values.Add( value );
+	}
+
+	public void AddRange( TKey key, IEnumerable<TValue> values ) {
+		if ( key is null )
+			throw new ArgumentNullException( nameof( key ) );
+		if ( values is null )
+			throw new ArgumentNullException( nameof( values ) );
+		if ( !this._dictionary.TryGetValue( key, out HashSet<TValue>? valueSet ) )
+			this._dictionary.Add( key, valueSet = new() );
+		foreach ( TValue value in values )
+			valueSet.Add( value );
+	}
+	public void AddRange( TKey key, Span<TValue> values ) {
+		if ( key is null )
+			throw new ArgumentNullException( nameof( key ) );
+		if ( !this._dictionary.TryGetValue( key, out HashSet<TValue>? valueSet ) )
+			this._dictionary.Add( key, valueSet = new() );
+		foreach ( TValue value in values )
+			valueSet.Add( value );
 	}
 
 	public void Remove( TKey key, TValue value ) {
