@@ -13,11 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Modules.Networking",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Modules.Rendering", "Engine.Modules.Rendering\Engine.Modules.Rendering.csproj", "{1E0B3D02-89BD-493B-B655-18EFC6F0F13F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engines.Modules.Input", "Engines.Modules.Input\Engines.Modules.Input.csproj", "{9D0CAAF1-8311-439D-ABB4-9666E1A65293}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Modules.Input", "Engines.Modules.Input\Engine.Modules.Input.csproj", "{9D0CAAF1-8311-439D-ABB4-9666E1A65293}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Shared", "Engine.Shared\Engine.Shared.csproj", "{7850D52F-1F9A-4E03-A811-73E7BCC5DA16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine.Standard", "Engine.Standard\Engine.Standard.csproj", "{92812B67-B35C-445C-85D4-89AED98F4099}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Standard", "Engine.Standard\Engine.Standard.csproj", "{92812B67-B35C-445C-85D4-89AED98F4099}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

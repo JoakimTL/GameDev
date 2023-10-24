@@ -20,6 +20,8 @@ public abstract class SerializableComponentBase : ComponentBase {
 			ComponentDeserialized?.Invoke( this );
 	}
 
+	/// <param name="data">The data span length is at most <see cref="EntitySerializer.MaxComponentSerializationSizeBytes"/>!</param>
+	/// <param name="writtenBytes">NMumber of bytes written to</param>
 	/// <returns>True if serialization succeeded</returns>
 	protected abstract bool InternalSerialize( Span<byte> data, out uint writtenBytes );
 

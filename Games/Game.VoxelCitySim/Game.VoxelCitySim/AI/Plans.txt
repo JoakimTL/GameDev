@@ -1,0 +1,54 @@
+﻿The agent contains the state of an entity in the world as is.
+This data is then used to derive goals, and then actions to achieve those goals.
+This using an HTN planner.
+
+[TEXT]
+This then goes from traits (agent state) -> goals (derived from traits (such as hunger)) -> actions (to reach highly prioritized goal) -> world state changes.
+Traits can lead to multiple goals, which can then lead to multiple actions being performed in optimal order. The priority of the goal determined which actions happen, which means if multiple goals are equally prioritized it can cause the agent to perform actionsthat might contradict each other. This is counteracted by determining the "distance" to each of the goals. If one goal is closer than another, it might be performed first even though it has an equal or sometimes lower priority. Easier to think the distance to the goal also reduces the goals priority.
+
+User stories [US]:
+
+[US] 
+Agent name Bob:
+
+Bob is hungry and thirsty. His goals are set to "Eat:100" and "Drink:100", which means both are equally prioritized. This means that Bob will perform actions to reach both goals, which means he will try to get food and water at the same time. He might decide on walking to a well, which means he's now closer to water than food. In this case "Eat" will remain at 100, while "Drink" will get a lower priority number (higher priority). This means Bob will now try to drink water from the well first, and then eat food.
+
+Bob is hungry and thirsty. His goals are set to "Eat:100" and "Drink:100", which means both are equally prioritized. This means that Bob will perform actions to reach both goals, which means he will try to get food and water at the same time. He might decide on walking to an inn, which means he's now close to both a drink and food. He will then decide on an action that will lead to either a drink or food, and then perform that action (In this case taking a seat and ordering food). After taking a seat Bob is now equally close to food and a drink, which means he will now decide on an action that will lead to either a drink or food, and then perform that action (In this case ordering a drink). After ordering a drink Bob is now closer to food than a drink, which means he will now decide on an action that will lead to food, and then perform that action (In this case ordering food). After the order arrived he will either eat or drink first, depending on which action he decided on first.
+	In this example we see how the "distance" from the goal is used to determine which goal to prioritize. It can sometimes lead to contradicting actions, but usually an action will lead the agent closer to one goal over the other. This also means the agent need to reevaluate it's goals each time an action has been performed.
+
+[US] 
+Agent name Alice:
+
+Alice is being hunted by another NPC. Her priorities are now "SelfPreservation:0", which means self preservation is the most important goal she has. She then needs to map out actions to reach this goal. She might decide on running away, which means she will now be further away from the hunter. This means the goal "SelfPreservation" will now have a lower priority (higher priority number), which means she might now try to deal with other effects from being hunted. This is where emotions come in. Alice might be scared after being hunted, which might lead to seeking safety around other friendly NPCs.
+
+Alice is content, and seeks socialization. She might decide on walking to a tavern, which means she's now closer to other NPCs. This means the goal "Socialization" will now have a lower priority (higher priority number), which means she might now try to deal with other effects from being social. This is where emotions come in. Alice might be happy after being social.
+
+[TEXT]
+
+This needs more substance to work. There is a reason why we do things. These user stories make it clear people are very much driven by things other than basic needs. There are more factors here than just "hunger", "thirst", "danger", etc... Being social is an emotional need, same with feeling safe. But being social and feeling safe is not the same at eating an apple. It can't be done by this agent alone, and must include multiple agents.
+
+Actions must have limitations for usage. For example stealing food: Agents will steal food if they are deviant or desperate, but will buy food if they need it.
+An action need to have a risk associated with it. Stealing would be risky IF there are anyone nearby to witness it, but if the risk is low the agent might try to steal rather than buy, if they meet to criteria for stealing.
+
+[US] 
+Agent name Rory:
+
+Rory is a psychoapthic, evil and deviant agent. He is hungry. He finds a house to break into, which allows him to steal some food. Unfortunately the owners saw him stealing, and thus Rory decides to kill them to silence the witnesses.
+
+
+[TEXT]
+
+How can we define risk? Is it risky to kill another agent? Why is it risky to steal? Of course it's risky to take from another agent if you're seen, but it that the only reason? Is it simply risky because it's against the law? Is it against the law? What if the agent being stolen from is an enemy?
+
+How about agents with certain likes and dislikes defined by their personalities?
+
+[US]
+Agent name Tarry and Lisa:
+
+Tarry is a social guy. He's at the inn, having eaten and been drinking. He has a mild status effect of drunk. He is gregarious, and also a little hot-headed.
+Lisa is an introverted asocial girl. She likes to keep to herself. She's hungry and decided to go to the inn. There is a certain type of food only found at the inn which she likes. She is also a little sociopathic, but she's not actively seeking to hurt anyone.
+Lisa enters the inn and orders her favorite dish. Tarry sees her enter and decides to go socialize. Lisa is not amused and ignores Tarry. Tarry is offended by her ignoring him. He becomes increasingly angry and starts a fight with Lisa. Lisa's self preservation kicks in and she fights back. Lisa doesn't know where the limits are with self defense and kills Tarry in the scuffle. This leaves Lisa both angry and sad. She gets her food and leaves to feel safe again.
+
+[TEXT]
+
+In some cases agents can have strong likes and dislikes, like Tarry in the story above. Some agents can misinterpret laws and limits, and not see the risk of certain actions the same way other agents do. This can lead to conflict, and in some cases death. This is where emotions come in. Emotions can be used to determine how an agent reacts to certain situations.
