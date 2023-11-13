@@ -33,7 +33,7 @@ An action need to have a risk associated with it. Stealing would be risky IF the
 [US] 
 Agent name Rory:
 
-Rory is a psychoapthic, evil and deviant agent. He is hungry. He finds a house to break into, which allows him to steal some food. Unfortunately the owners saw him stealing, and thus Rory decides to kill them to silence the witnesses.
+Rory is a psychopathic, evil and deviant agent. He is hungry. He finds a house to break into, which allows him to steal some food. Unfortunately the owners saw him stealing, and thus Rory decides to kill them to silence the witnesses.
 
 
 [TEXT]
@@ -52,3 +52,14 @@ Lisa enters the inn and orders her favorite dish. Tarry sees her enter and decid
 [TEXT]
 
 In some cases agents can have strong likes and dislikes, like Tarry in the story above. Some agents can misinterpret laws and limits, and not see the risk of certain actions the same way other agents do. This can lead to conflict, and in some cases death. This is where emotions come in. Emotions can be used to determine how an agent reacts to certain situations.
+
+Agents must have memory. They should be able to remember how they performed previous actions. This might be useful for adding certain traits that makes the Agents follow their "safe" routes.
+It's very critical they know where they can perform certain actions, such as look in the fridge for food.
+
+An agent can't know where actions can be performed before they sense it.
+Senses are sight, hearing, smell, temperature, touch and taste. 
+
+In the case of sight, this means interractable objects must be within line of sight and close enough to discern between objects.
+In the case of hearing, this means the object must have a recognizable sound, and be close enough to hear it. This is rarely used to identify static objects, but to alert of dangers.
+In the case of smell, this means the object must have a recognizable smell, and be close enough to smell it. This can be used to identify dangers or food nearby.
+In the case of taste, this means the object must be edible and the agent must eat it. The object can contain positive or negative tastes, which can be used to determine if the object is good or bad.

@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Engine">
+      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.dll</HintPath>
+    </Reference>
+    <Reference Include="Engine.Modules.Entity">
+      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Entity.dll</HintPath>
+    </Reference>
+    <Reference Include="Engine.Modules.Input">
+      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Input.dll</HintPath>
+    </Reference>
+    <Reference Include="Engine.Modules.Networking">
+      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Networking.dll</HintPath>
+    </Reference>
+    <Reference Include="Engine.Modules.Physics">
+      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Physics.dll</HintPath>
+    </Reference>
+    <Reference Include="Engine.Modules.Rendering">
+      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Rendering.dll</HintPath>
+    </Reference>
+    <Reference Include="Engine.Shared">
+      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="Engine.Standard">
+      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Standard.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
