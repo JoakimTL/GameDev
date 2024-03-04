@@ -1,4 +1,4 @@
-﻿namespace Engine.Modules.Entity;
+﻿namespace Engine.Modules.ECS;
 
 public enum NetworkAllowance {
 	SERVER,

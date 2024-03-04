@@ -1,4 +1,6 @@
-﻿namespace Engine;
+﻿using System.Diagnostics;
+
+namespace Engine;
 
 public class Identifiable {
 
@@ -20,7 +22,8 @@ public class Identifiable {
 	/// Personalized name.
 	/// </summary>
 	public string IdentifiableName { get; private set; }
-	public string FullName => $"{this.TypeName}/{this.IdentifiableName}:uid{this.Uid}";
+	protected virtual string ExtraInformation => string.Empty;
+	public string FullName => $"{this.TypeName}/{this.IdentifiableName}:{ExtraInformation}:uid{this.Uid}";
 
 	public Identifiable() {
 		this.Uid = Uid64.Next;
@@ -59,4 +62,32 @@ public class Identifiable {
 
 	public static bool operator !=( Identifiable? l, Identifiable? r ) => !( l == r );
 
+}
+
+public abstract class DisposableIdentifiable : Identifiable, IDisposable {
+
+	public bool Disposed { get; private set; } = false;
+
+	/// <summary>
+	/// Invoked after diposal is complete.
+	/// </summary>
+	public event Action? OnDisposed;
+
+	~DisposableIdentifiable() {
+		if (!Disposed)
+			Debug.Fail( $"Object \"{this.FullName}\" was not disposed before destruction!" );
+	}
+
+	public void Dispose() {
+		if (Disposed)
+			return;
+		if (InternalDispose()) {
+			Disposed = true;
+			OnDisposed?.Invoke();
+		}
+		GC.SuppressFinalize( this );
+	}
+
+	/// <returns>True if the object was fully disposed. False if there are still undisposed parts.</returns>
+	protected abstract bool InternalDispose();
 }

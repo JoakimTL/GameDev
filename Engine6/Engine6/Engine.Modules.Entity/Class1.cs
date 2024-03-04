@@ -1,10 +1,10 @@
-﻿namespace Engine.Modules.Entity;
+﻿namespace Engine.Modules.ECS;
 
 public class Class1 {
 
 }
 
-public abstract class SystemBase  {
+public abstract class SystemBase {
 
 	/// <summary>
 	/// Types this system requires to function, or even exists.

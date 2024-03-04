@@ -1,4 +1,4 @@
-﻿namespace Engines.Modules.Input;
+﻿namespace Engine.Modules.Input;
 
 public class Class1 {
 

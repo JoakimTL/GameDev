@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 
 namespace Engine;
 
@@ -15,5 +16,3 @@ internal sealed class ServiceRegistry : IServiceRegistry {
 
 	public void Register<Interface, Class>() where Class : Interface => this._registry = this._registry.Add( typeof( Interface ), typeof( Class ) );
 }
-
-

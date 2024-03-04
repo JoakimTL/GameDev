@@ -72,7 +72,7 @@ public struct AABB3i {
 		for ( int y = this._min.Y; y <= this._max.Y; y++ )
 			for ( int z = this._min.Z; z <= this._max.Z; z++ )
 				for ( int x = this._min.X; x <= this._max.X; x++ ) {
-					var v = new Vector3i( x, y, z );
+					Vector3i v = new( x, y, z );
 					if ( !Inside( ref volume, ref v ) )
 						yield return v;
 					else
@@ -84,7 +84,7 @@ public struct AABB3i {
 		for ( int y = this._min.Y; y < this._max.Y; y++ )
 			for ( int z = this._min.Z; z < this._max.Z; z++ )
 				for ( int x = this._min.X; x < this._max.X; x++ ) {
-					var v = new Vector3i( x, y, z );
+					Vector3i v = new( x, y, z );
 					if ( !Inside( ref volume, ref v ) )
 						yield return v;
 					else

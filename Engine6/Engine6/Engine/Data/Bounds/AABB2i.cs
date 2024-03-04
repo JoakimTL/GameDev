@@ -67,7 +67,7 @@ public struct AABB2i {
 	public IEnumerable<Vector2i> ExceptInclusive( AABB2i area ) {
 		for ( int y = this._min.Y; y <= this._max.Y; y++ )
 			for ( int x = this._min.X; x <= this._max.X; x++ ) {
-				var v = new Vector2i( x, y );
+				Vector2i v = new( x, y );
 				if ( !Inside( ref area, ref v ) )
 					yield return v;
 				else
@@ -78,7 +78,7 @@ public struct AABB2i {
 	public IEnumerable<Vector2i> ExceptExclusive( AABB2i area ) {
 		for ( int y = this._min.Y; y < this._max.Y; y++ )
 			for ( int x = this._min.X; x < this._max.X; x++ ) {
-				var v = new Vector2i( x, y );
+				Vector2i v = new( x, y );
 				if ( !Inside( ref area, ref v ) )
 					yield return v;
 				else

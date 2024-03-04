@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Engine.Modules.Entity;
+namespace Engine.Modules.ECS;
 
 [StructLayout( LayoutKind.Explicit )]
 internal readonly struct EntityData {

@@ -1,4 +1,4 @@
-﻿namespace Engine.Modules.Entity;
+﻿namespace Engine.Modules.ECS;
 
 public abstract class EntityContainerBase : IDisposable {
 
@@ -19,7 +19,7 @@ public abstract class EntityContainerBase : IDisposable {
 }
 
 public abstract class EntityContainerBase<T> : EntityContainerBase {
-	protected EntityContainerBase( EntityManager entityManager ) : base( entityManager ) {	}
+	protected EntityContainerBase( EntityManager entityManager ) : base( entityManager ) { }
 
 	public abstract IEnumerable<Entity> GetEntities( T t );
 }

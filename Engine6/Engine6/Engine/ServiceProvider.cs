@@ -2,12 +2,17 @@
 
 namespace Engine;
 
-internal sealed class ServiceProvider : DependencyInjectorBase, IServiceProvider {
+internal sealed class ServiceProvider( IServiceRegistry serviceRegistry ) : DependencyInjectorBase( serviceRegistry ), IServiceProvider {
 
 	private readonly ConcurrentDictionary<Type, object> _instances = new();
+	private readonly ConcurrentDictionary<Type, object> _constants = new();
 
-	public ServiceProvider( IServiceRegistry serviceRegistry ) : base( serviceRegistry ) {
-		this._instances = new();
+	public event IServiceProvider.ServiceEventHandler? ServiceAdded;
+
+	public void AddConstant<T>( T instance ) where T : class {
+		ArgumentNullException.ThrowIfNull( instance );
+		if (!this._constants.TryAdd( typeof( T ), instance ))
+			throw new ServiceProviderException( typeof( T ), "Constant already added" );
 	}
 
 	public object GetService( Type t ) => GetInternal( t );
@@ -16,10 +21,13 @@ internal sealed class ServiceProvider : DependencyInjectorBase, IServiceProvider
 
 	protected override object GetInternal( Type t ) {
 		Type implementingType = GetImplementingType( t );
-		if ( this._instances.TryGetValue( implementingType, out object? instance ) )
+		if (_constants.TryGetValue( implementingType, out object? constant ))
+			return constant;
+		if (this._instances.TryGetValue( implementingType, out object? instance ))
 			return instance;
 		instance = Create( implementingType, false );
 		this._instances.TryAdd( t, instance );
+		ServiceAdded?.Invoke( instance );
 		return instance;
 	}
 }

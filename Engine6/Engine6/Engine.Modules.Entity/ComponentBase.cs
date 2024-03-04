@@ -1,4 +1,4 @@
-﻿namespace Engine.Modules.Entity;
+﻿namespace Engine.Modules.ECS;
 
 public abstract class ComponentBase : Identifiable {
 

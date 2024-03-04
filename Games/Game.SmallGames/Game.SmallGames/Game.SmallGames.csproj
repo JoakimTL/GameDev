@@ -1,36 +1,41 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.10" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Engine">
-      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.dll</HintPath>
+      <HintPath>..\..\..\Engine6\Build\Release\net8.0\Engine.dll</HintPath>
     </Reference>
     <Reference Include="Engine.Modules.Entity">
-      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Entity.dll</HintPath>
+      <HintPath>..\..\..\Engine6\Build\Release\net8.0\Engine.Modules.Entity.dll</HintPath>
     </Reference>
     <Reference Include="Engine.Modules.Input">
-      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Input.dll</HintPath>
+      <HintPath>..\..\..\Engine6\Build\Release\net8.0\Engine.Modules.Input.dll</HintPath>
     </Reference>
     <Reference Include="Engine.Modules.Networking">
-      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Networking.dll</HintPath>
+      <HintPath>..\..\..\Engine6\Build\Release\net8.0\Engine.Modules.Networking.dll</HintPath>
     </Reference>
     <Reference Include="Engine.Modules.Physics">
-      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Physics.dll</HintPath>
-    </Reference>
-    <Reference Include="Engine.Modules.Rendering">
-      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Modules.Rendering.dll</HintPath>
+      <HintPath>..\..\..\Engine6\Build\Release\net8.0\Engine.Modules.Physics.dll</HintPath>
     </Reference>
     <Reference Include="Engine.Shared">
-      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Shared.dll</HintPath>
+      <HintPath>..\..\..\Engine6\Build\Release\net8.0\Engine.Shared.dll</HintPath>
     </Reference>
-    <Reference Include="Engine.Standard">
-      <HintPath>..\..\..\Engine6\Build\Debug\net7.0\Engine.Standard.dll</HintPath>
+    <Reference Include="GLFW">
+      <HintPath>..\..\..\Engine6\Build\Release\net8.0\GLFW.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenGL">
+      <HintPath>..\..\..\Engine6\Build\Release\net8.0\OpenGL.dll</HintPath>
     </Reference>
   </ItemGroup>
 

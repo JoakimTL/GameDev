@@ -1,4 +1,4 @@
-﻿namespace Engine.Modules.Entity;
+﻿namespace Engine.Modules.ECS;
 
 public abstract class SerializableComponentBase : ComponentBase {
 
@@ -9,14 +9,14 @@ public abstract class SerializableComponentBase : ComponentBase {
 	/// Happens when an existing component has been changed from deserialization.
 	/// </summary>
 	event ComponentSerializationEventHandler? ComponentDeserialized;
-	
+
 	public uint Serialize( Span<byte> data ) {
-		if ( InternalSerialize( data, out uint writtenBytes ) )
+		if (InternalSerialize( data, out uint writtenBytes ))
 			ComponentSerialized?.Invoke( this );
 		return writtenBytes;
 	}
 	public void Deserialize( ReadOnlySpan<byte> data ) {
-		if ( InternalDeserialize( data ) )
+		if (InternalDeserialize( data ))
 			ComponentDeserialized?.Invoke( this );
 	}
 

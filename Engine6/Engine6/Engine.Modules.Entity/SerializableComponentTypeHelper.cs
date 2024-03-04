@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Reflection;
 
-namespace Engine.Modules.Entity;
+namespace Engine.Modules.ECS;
 
 internal static class SerializableComponentTypeHelper {
 
@@ -14,7 +14,7 @@ internal static class SerializableComponentTypeHelper {
 		_componentTypeIdsByType = validComponentBaseTypes.ToImmutableDictionary( p => p.Type, p => p.Identifier!.Identifier );
 		_componentTypeById = validComponentBaseTypes.ToImmutableDictionary( p => p.Identifier!.Identifier, p => p.Type );
 
-		foreach ( (Type Type, IdentifierAttribute? Identifier) componentMissingGuid in componentBaseTypes.Where( p => p.Identifier is null ) )
+		foreach ((Type Type, IdentifierAttribute? Identifier) componentMissingGuid in componentBaseTypes.Where( p => p.Identifier is null ))
 			Log.Warning( $"Component {componentMissingGuid.Type.Name} in {componentMissingGuid.Type.Namespace} is missing an IdentifierAttribute. This will cause issues with serialization." );
 	}
 

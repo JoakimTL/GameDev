@@ -1,4 +1,4 @@
-﻿namespace Engine.Modules.Entity;
+﻿namespace Engine.Modules.ECS;
 
 public class EntityManager : IUpdateable {
 
@@ -27,7 +27,7 @@ public class EntityManager : IUpdateable {
 		=> this._entities.TryGetValue( entityId, out Entity? e ) ? e : null;
 
 	public void AddContainer<T>( EntityContainerBase<T> container ) {
-		if ( this._entityContainers.ContainsKey( typeof( T ) ) )
+		if (this._entityContainers.ContainsKey( typeof( T ) ))
 			throw new ArgumentException( $"Container for type {typeof( T )} already exists." );
 		this._entityContainers.Add( typeof( T ), container );
 		container.AddAll( this.AllEntities );
@@ -44,7 +44,7 @@ public class EntityManager : IUpdateable {
 	}
 
 	internal void CreateEntities( IReadOnlyList<EntityData> data ) {
-		foreach ( EntityData entityData in data ) {
+		foreach (EntityData entityData in data) {
 			Entity newEntity = new( entityData );
 			this._entities.Add( entityData.EntityId, newEntity );
 			newEntity.EntityKilled += OnEntityKilled;
@@ -52,10 +52,10 @@ public class EntityManager : IUpdateable {
 			newEntity.ComponentRemoved += OnComponentRemoved;
 			EntityAdded?.Invoke( newEntity );
 		}
-		foreach ( EntityData entityData in data ) {
-			if ( entityData.EntityId == entityData.ParentId )
+		foreach (EntityData entityData in data) {
+			if (entityData.EntityId == entityData.ParentId)
 				continue;
-			if ( !this._entities.TryGetValue( entityData.ParentId, out Entity? parent ) ) {
+			if (!this._entities.TryGetValue( entityData.ParentId, out Entity? parent )) {
 				this.LogWarning( $"Failed to find parent entity with id {entityData.ParentId} for {entityData.EntityId}." );
 				continue;
 			}
@@ -74,8 +74,8 @@ public class EntityManager : IUpdateable {
 		=> ComponentRemoved?.Invoke( entity, component );
 
 	public void Update( in double time, in double deltaTime ) {
-		while ( this._removedEntities.TryDequeue( out Guid entityId ) )
-			if ( this._entities.Remove( entityId, out Entity? entity ) ) {
+		while (this._removedEntities.TryDequeue( out Guid entityId ))
+			if (this._entities.Remove( entityId, out Entity? entity )) {
 				entity.Dispose();
 				EntityRemoved?.Invoke( entity );
 			} else

@@ -1,10 +1,5 @@
 ﻿using Engine.Data;
 using Engine.Data.Bounds;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Modules.Physics;
 public class CollisionShape3 {

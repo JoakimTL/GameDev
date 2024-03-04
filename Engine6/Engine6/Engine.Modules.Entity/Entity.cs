@@ -1,7 +1,7 @@
 ﻿using Engine.Data;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Engine.Modules.Entity;
+namespace Engine.Modules.ECS;
 public sealed class Entity : Identifiable {
 
 	public delegate void EntityEventHandler( Entity entity );
@@ -113,7 +113,7 @@ public sealed class Entity : Identifiable {
 	}
 
 	public T AddComponent<T>( T component ) where T : ComponentBase {
-		var componentBase = AddComponentInternal( component );
+		ComponentBase componentBase = AddComponentInternal( component );
 		return componentBase as T ?? throw new EntityException( this, $"Component assigned to type {typeof( T ).Name} was instead of type {componentBase.GetType()}." );
 	}
 

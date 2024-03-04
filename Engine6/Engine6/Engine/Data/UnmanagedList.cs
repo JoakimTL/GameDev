@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace Engine.Data;
-public unsafe class UnmanagedList : IDisposable {
+public unsafe sealed class UnmanagedList : IDisposable {
 
 	private void* _pointer;
 	private uint _sizeBytes;
