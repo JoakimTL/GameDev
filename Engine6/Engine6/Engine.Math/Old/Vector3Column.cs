@@ -1,6 +1,6 @@
 ﻿namespace Engine.Math.Old;
 
-public readonly struct Vector3Column<T> where T : System.Numerics.INumberBase<T>
+public readonly struct Vector3Column<T> where T : System.Numerics.INumber<T>
 {
     public readonly T X;
     public readonly T Y;

@@ -1,17 +1,19 @@
-﻿using Engine.Math.Old;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using Engine.Math.Interfaces;
+using Engine.Math.Operations;
 
 namespace Engine.Math;
 
+[System.Runtime.InteropServices.StructLayout( System.Runtime.InteropServices.LayoutKind.Sequential )]
 public readonly struct Bivector2<T>( T xy ) :
 		ILinearOperators<Bivector2<T>, T>,
 		IVectorEntrywiseOperators<Bivector2<T>, T>,
-		IGeometricProductOperator<Bivector2<T>, Vector2<T>, Vector2<T>>,
+		IProductOperator<Bivector2<T>, Vector2<T>, Vector2<T>>,
 		IAdditiveIdentity<Bivector2<T>, Bivector2<T>>,
 		IMultiplicativeIdentity<Bivector2<T>, Bivector2<T>>
 	where T :
-		unmanaged,
-		INumberBase<T> {
+		unmanaged, INumber<T> {
 
 	public readonly T XY = xy;
 
@@ -35,5 +37,9 @@ public readonly struct Bivector2<T>( T xy ) :
 
 	public static implicit operator Bivector2<T>( T xy ) => new( xy );
 
+	public static bool operator ==( in Bivector2<T> l, in Bivector2<T> r ) => l.XY == r.XY;
+	public static bool operator !=( in Bivector2<T> l, in Bivector2<T> r ) => !(l == r);
+	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Bivector2<T> v && this == v;
+	public override int GetHashCode() => HashCode.Combine( XY );
 	public override string ToString() => $"[{XY:N3}XY]";
 }

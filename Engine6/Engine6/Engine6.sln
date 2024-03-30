@@ -31,7 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Math", "Engine.Math\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Math.Benchmarks", "Engine.Math.Benchmarks\Engine.Math.Benchmarks.csproj", "{413199E6-AB0A-422C-BF69-D19AA20B5C28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine.Math.Tests", "Engine.Math.Tests\Engine.Math.Tests.csproj", "{04355924-B7B9-4B7C-A4F0-187844989C3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Math.Tests", "Engine.Math.Tests\Engine.Math.Tests.csproj", "{04355924-B7B9-4B7C-A4F0-187844989C3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine.Tests", "Engine.Tests\Engine.Tests.csproj", "{90B6A4E8-EB94-4C26-9910-F64E2D9D1C9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +101,10 @@ Global
 		{04355924-B7B9-4B7C-A4F0-187844989C3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04355924-B7B9-4B7C-A4F0-187844989C3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04355924-B7B9-4B7C-A4F0-187844989C3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90B6A4E8-EB94-4C26-9910-F64E2D9D1C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90B6A4E8-EB94-4C26-9910-F64E2D9D1C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90B6A4E8-EB94-4C26-9910-F64E2D9D1C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90B6A4E8-EB94-4C26-9910-F64E2D9D1C9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

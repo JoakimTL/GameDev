@@ -1,6 +1,6 @@
 ﻿namespace Engine.Math.Old;
 
-public readonly struct Matrix2x2<T>(T m00, T m01, T m10, T m11) where T : System.Numerics.INumberBase<T>
+public readonly struct Matrix2x2<T>(T m00, T m01, T m10, T m11) where T : System.Numerics.INumber<T>
 {
     public readonly T M00 = m00;
     public readonly T M01 = m01;

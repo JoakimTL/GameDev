@@ -64,7 +64,7 @@ public unsafe static class GLFW {
 		nint ptr = GLFWInternal.GetMonitors( out int count );
 		nint[] monitors = new nint[ count ];
 		for (int i = 0; i < count; i++)
-			monitors[ i ] = *(nint*) (ptr + i * nint.Size);
+			monitors[ i ] = *(nint*) (ptr + (i * nint.Size));
 		return monitors;
 	}
 	public static void GetMonitorPosition( nint monitorPtr, out int mx, out int my )

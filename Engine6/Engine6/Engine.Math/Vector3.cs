@@ -1,18 +1,21 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
+using Engine.Math.Interfaces;
+using Engine.Math.Operations;
 
 namespace Engine.Math;
 
-public readonly struct Vector3<T>( T x, T y, T z ) : 
+public readonly struct Vector3<T>( T x, T y, T z ) :
 		ILinearOperators<Vector3<T>, T>,
 		IVectorEntrywiseOperators<Vector3<T>, T>,
-		IGeometricProductOperator<Vector3<T>, Bivector3<T>, Multivector3<T>>,
-		IGeometricProductOperator<Vector3<T>, Trivector3<T>, Bivector3<T>>,
-		IGeometricProductOperator<Vector3<T>, Multivector3<T>, Multivector3<T>>,
+		IProductOperator<Vector3<T>, Bivector3<T>, Multivector3<T>>,
+		IProductOperator<Vector3<T>, Trivector3<T>, Bivector3<T>>,
+		IProductOperator<Vector3<T>, Rotor3<T>, Multivector3<T>>,
+		IProductOperator<Vector3<T>, Multivector3<T>, Multivector3<T>>,
 		IAdditiveIdentity<Vector3<T>, Vector3<T>>,
 		IMultiplicativeIdentity<Vector3<T>, Vector3<T>>
-	where T : 
-		unmanaged, 
-		INumberBase<T> {
+	where T :
+		unmanaged, INumber<T> {
 
 	public readonly T X = x;
 	public readonly T Y = y;
@@ -36,9 +39,15 @@ public readonly struct Vector3<T>( T x, T y, T z ) :
 	public static Vector3<T> operator /( in Vector3<T> l, in Vector3<T> r ) => l.DivideEntrywise( r );
 	public static Multivector3<T> operator *( in Vector3<T> l, in Bivector3<T> r ) => l.Multiply( r );
 	public static Bivector3<T> operator *( in Vector3<T> l, in Trivector3<T> r ) => l.Multiply( r );
+	public static Multivector3<T> operator *( in Vector3<T> l, in Rotor3<T> r ) => l.Multiply( r );
 	public static Multivector3<T> operator *( in Vector3<T> l, in Multivector3<T> r ) => l.Multiply( r );
 
+	public static implicit operator Vector3<T>( T v ) => new( v, v, v );
 	public static implicit operator Vector3<T>( (T x, T y, T z) tuple ) => new( tuple.x, tuple.y, tuple.z );
 
+	public static bool operator ==( in Vector3<T> l, in Vector3<T> r ) => l.X == r.X && l.Y == r.Y && l.Z == r.Z;
+	public static bool operator !=( in Vector3<T> l, in Vector3<T> r ) => !(l == r);
+	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Vector3<T> v && this == v;
+	public override int GetHashCode() => HashCode.Combine( X, Y, Z );
 	public override string ToString() => $"[{X:N3}X, {Y:N3}Y, {Z:N3}Z]";
 }

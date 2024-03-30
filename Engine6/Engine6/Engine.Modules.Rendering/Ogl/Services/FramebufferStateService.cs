@@ -1,4 +1,4 @@
-﻿using Engine.Data;
+﻿using Engine.Math;
 using Engine.Modules.Rendering.Ogl.OOP;
 using Engine.Modules.Rendering.Ogl.Utilities;
 using OpenGL;
@@ -10,7 +10,7 @@ public sealed class FramebufferStateService( ViewportStateService viewport ) : I
 	private readonly ViewportStateService _viewport = viewport;
 	private uint _boundDrawBuffer = 0, _boundReadBuffer = 0;
 
-	public OglFramebuffer CreateFramebuffer( Vector2i size ) {
+	public OglFramebuffer CreateFramebuffer( Vector2<int> size ) {
 		uint framebufferId = Gl.CreateFramebuffer();
 		return new( framebufferId, size );
 	}
@@ -73,7 +73,7 @@ public sealed class FramebufferStateService( ViewportStateService viewport ) : I
 		}
 	}
 
-	public void BlitFramebuffer( Vector2i srcPoint1, Vector2i srcPoint2, Vector2i dstPoint1, Vector2i dstPoint2, ClearBufferMask mask, BlitFramebufferFilter filter ) {
+	public void BlitFramebuffer( Vector2<int> srcPoint1, Vector2<int> srcPoint2, Vector2<int> dstPoint1, Vector2<int> dstPoint2, ClearBufferMask mask, BlitFramebufferFilter filter ) {
 		if (srcPoint1.X < 0 || srcPoint1.Y < 0)
 			throw new OpenGlArgumentException( "Point cannot be negative", nameof( srcPoint1 ) );
 		if (dstPoint1.X < 0 || dstPoint1.Y < 0)

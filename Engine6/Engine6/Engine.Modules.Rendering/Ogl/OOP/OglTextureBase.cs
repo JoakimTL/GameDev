@@ -1,4 +1,4 @@
-﻿using Engine.Data;
+﻿using Engine.Math;
 using OpenGL;
 
 namespace Engine.Modules.Rendering.Ogl.OOP;
@@ -8,18 +8,18 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 	public readonly TextureTarget Target;
 	public readonly T Metadata;
 	protected readonly ulong _handle;
-	protected readonly IReadOnlyList<Vector2i> _levels;
+	protected readonly IReadOnlyList<Vector2<int>> _levels;
 	private uint _referenceCount;
 
 	/// <summary>
 	/// Level 0 is guaranteed to exist, with a size of 1x1 or greater.
 	/// </summary>
-	public Vector2i Level0 => _levels[ 0 ];
+	public Vector2<int> Level0 => _levels[ 0 ];
 	public bool Resident { get; private set; }
 
 	protected override string ExtraInformation => $"TEX{TextureID}";
 
-	public OglTextureBase( string name, TextureTarget target, Vector2i level0, T metadata, params (TextureParameterName, int)[] parameters ) {
+	public OglTextureBase( string name, TextureTarget target, Vector2<int> level0, T metadata, params (TextureParameterName, int)[] parameters ) {
 		if (level0.X <= 0 || level0.Y <= 0)
 			throw new OpenGlArgumentException( "Texture size must be greater than zero on both axis", nameof( level0 ) );
 		SetIdentifiableName( name );
@@ -36,11 +36,11 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 
 	protected abstract void GenerateTexture( T metadata );
 
-	protected abstract IReadOnlyList<Vector2i> GetLevels( Vector2i level0, T metadata );
+	protected abstract IReadOnlyList<Vector2<int>> GetLevels( Vector2<int> level0, T metadata );
 
 	internal ulong Handle => _handle;
 
-	public Vector2i GetLevel( uint level ) {
+	public Vector2<int> GetLevel( uint level ) {
 		if (level > _levels.Count) {
 			this.LogWarning( $"Has no level {level}" );
 			return (0, 0);
@@ -87,7 +87,7 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 			this.LogWarning( "Attempted to set pixels at a deeper mipmap level than present." );
 			return;
 		}
-		Vector2i mm = _levels[ (int) level ];
+		Vector2<int> mm = _levels[ (int) level ];
 		Gl.TextureSubImage2D( TextureID, (int) level, 0, 0, mm.X, mm.Y, format, pixelType, ptr );
 	}
 
@@ -96,7 +96,7 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 			this.LogWarning( "Attempted to set pixels at a deeper mipmap level than present." );
 			return;
 		}
-		Vector2i mm = _levels[ (int) level ];
+		Vector2<int> mm = _levels[ (int) level ];
 		Gl.CompressedTextureSubImage2D( TextureID, (int) level, 0, 0, mm.X, mm.Y, format, size, ptr );
 	}
 

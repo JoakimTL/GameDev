@@ -1,5 +1,5 @@
 ﻿using Engine.Data;
-using Engine.Data.Bounds;
+using Engine.Math;
 
 namespace Engine.Modules.Physics;
 public class CollisionShape3 {
@@ -25,7 +25,7 @@ public class CollisionShape3 {
 
 	public bool IsValid() => this._matrixProvider is not null;
 
-	public bool TryGetAAb( out AABB3 aabb ) {
+	public bool TryGetAAb( out AABB3<double> aabb ) {
 		throw new NotImplementedException();
 	}
 

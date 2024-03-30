@@ -1,17 +1,17 @@
-﻿using Engine.Math.Math;
-using Engine.Math.Old;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using Engine.Math.Interfaces;
+using Engine.Math.Operations;
 
 namespace Engine.Math;
 
 public readonly struct Trivector3<T>( T xyz ) :
 		ILinearOperators<Trivector3<T>, T>,
-		IGeometricProductOperator<Trivector3<T>, Vector3<T>, Bivector3<T>>,
+		IProductOperator<Trivector3<T>, Vector3<T>, Bivector3<T>>,
 		IAdditiveIdentity<Trivector3<T>, Trivector3<T>>,
 		IMultiplicativeIdentity<Trivector3<T>, Trivector3<T>>
 	where T :
-		unmanaged,
-		INumberBase<T> {
+		unmanaged, INumber<T> {
 
 	public readonly T XYZ = xyz;
 
@@ -32,10 +32,11 @@ public readonly struct Trivector3<T>( T xyz ) :
 	public static Trivector3<T> operator *( in Trivector3<T> l, in Trivector3<T> r ) => l.ScalarMultiply( r.XYZ );
 	public static Trivector3<T> operator /( in Trivector3<T> l, in Trivector3<T> r ) => l.ScalarDivide( r.XYZ );
 	public static Bivector3<T> operator *( in Trivector3<T> l, in Vector3<T> r ) => l.Multiply( r );
-
-
 	public static implicit operator Trivector3<T>( T xyz ) => new( xyz );
 
-
+	public static bool operator ==( in Trivector3<T> l, in Trivector3<T> r ) => l.XYZ == r.XYZ;
+	public static bool operator !=( in Trivector3<T> l, in Trivector3<T> r ) => !(l == r);
+	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Trivector3<T> v && this == v;
+	public override int GetHashCode() => HashCode.Combine( XYZ );
 	public override string ToString() => $"[{XYZ:N3}XYZ]";
 }

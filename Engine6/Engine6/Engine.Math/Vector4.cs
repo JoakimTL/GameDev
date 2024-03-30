@@ -1,4 +1,7 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
+using Engine.Math.Interfaces;
+using Engine.Math.Operations;
 
 namespace Engine.Math;
 
@@ -8,8 +11,7 @@ public readonly struct Vector4<T>( T x, T y, T z, T w ) :
 		IAdditiveIdentity<Vector4<T>, Vector4<T>>,
 		IMultiplicativeIdentity<Vector4<T>, Vector4<T>>
 	where T :
-		unmanaged,
-		INumberBase<T> {
+		unmanaged, INumber<T> {
 
 	public readonly T X = x;
 	public readonly T Y = y;
@@ -33,7 +35,12 @@ public readonly struct Vector4<T>( T x, T y, T z, T w ) :
 	public static Vector4<T> operator *( in Vector4<T> l, in Vector4<T> r ) => l.MultiplyEntrywise( r );
 	public static Vector4<T> operator /( in Vector4<T> l, in Vector4<T> r ) => l.DivideEntrywise( r );
 
+	public static implicit operator Vector4<T>( T v ) => new( v, v, v, v );
 	public static implicit operator Vector4<T>( (T x, T y, T z, T w) tuple ) => new( tuple.x, tuple.y, tuple.z, tuple.w );
 
+	public static bool operator ==( in Vector4<T> l, in Vector4<T> r ) => l.X == r.X && l.Y == r.Y && l.Z == r.Z && l.W == r.W;
+	public static bool operator !=( in Vector4<T> l, in Vector4<T> r ) => !(l == r);
+	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Vector4<T> v && this == v;
+	public override int GetHashCode() => HashCode.Combine( X, Y, Z, W );
 	public override string ToString() => $"[{X:N3}X, {Y:N3}Y, {Z:N3}Z, {W:N3}W]";
 }

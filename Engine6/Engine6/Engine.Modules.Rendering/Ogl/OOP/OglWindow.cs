@@ -1,4 +1,4 @@
-﻿using Engine.Data;
+﻿using Engine.Math;
 using Engine.Modules.Rendering.Ogl.Services;
 using Engine.Modules.Rendering.Ogl.Utilities;
 using OpenGL;
@@ -22,7 +22,7 @@ public sealed class OglWindow : DisposableIdentifiable {
     }
 
     internal nint Handle { get; }
-    public Vector2i Size { get; private set; }
+    public Vector2<int> Size { get; private set; }
     public Vector2 AspectRatioVector { get; private set; }
     public float AspectRatio { get; private set; }
     public string Title { get => _title; set => SetTitle( value ); }

@@ -1,4 +1,5 @@
-﻿using Engine.Data;
+﻿using Engine.Math;
+using Engine.Math.Operations;
 using OpenGL;
 using System.Runtime.CompilerServices;
 
@@ -6,10 +7,10 @@ namespace Engine.Modules.Rendering.Ogl.Services;
 
 public sealed class ViewportStateService : Identifiable {
 
-	private Vector2i _location;
-	private Vector2i _size;
+	private Vector2<int> _location;
+	private Vector2<int> _size;
 
-	public Vector2i Location {
+	public Vector2<int> Location {
 		get => _location;
 		set {
 			if (value == _location) {
@@ -21,10 +22,10 @@ public sealed class ViewportStateService : Identifiable {
 		}
 	}
 
-	public Vector2i Size {
+	public Vector2<int> Size {
 		get => _size;
 		set {
-			if (Vector2i.NegativeOrZero( value ))
+			if (value.IsNegativeOrZero())
 				throw new ArgumentOutOfRangeException( nameof( value ), value, "Viewport size must be positive" );
 			if (value == _size) {
 				this.LogWarning( "Viewport size is already set to the given value" );
@@ -38,8 +39,8 @@ public sealed class ViewportStateService : Identifiable {
 	/// <summary>
 	/// Sets both the location and size at the same time, reducing the number of viewport calls
 	/// </summary>
-	public void Set( Vector2i location, Vector2i size ) {
-		if (Vector2i.NegativeOrZero( size ))
+	public void Set( Vector2<int> location, Vector2<int> size ) {
+		if (size.IsNegativeOrZero())
 			throw new ArgumentOutOfRangeException( nameof( size ), size, "Viewport size must be positive" );
 		if (location == _location && size == _size) {
 			this.LogWarning( "Viewport location and size are already set to the given values" );

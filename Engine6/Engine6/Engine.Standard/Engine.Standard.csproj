@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Engine.Math\Engine.Math.csproj" />
     <ProjectReference Include="..\Engine.Modules.Entity\Engine.Modules.ECS.csproj" />
     <ProjectReference Include="..\Engine.Modules.Networking\Engine.Modules.Networking.csproj" />
     <ProjectReference Include="..\Engine.Modules.Physics\Engine.Modules.Physics.csproj" />

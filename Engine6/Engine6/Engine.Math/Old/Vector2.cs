@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using Engine.Math.Old;
 
 namespace Engine.Math.Old;
 
@@ -7,7 +6,7 @@ namespace Engine.Math.Old;
 /// All vectors start as rows, but can be converted to columns.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct Vector2<T>(T x, T y) where T : System.Numerics.INumberBase<T>
+public readonly struct Vector2<T>(T x, T y) where T : System.Numerics.INumber<T>
 {
     public readonly T X = x;
     public readonly T Y = y;

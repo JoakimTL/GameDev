@@ -1,17 +1,20 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
+using Engine.Math.Interfaces;
+using Engine.Math.Operations;
 
 namespace Engine.Math;
 
 public readonly struct Multivector2<T>( T scalar, in Vector2<T> vector, in Bivector2<T> bivector ) :
 		ILinearOperators<Multivector2<T>, T>,
-		IGeometricProductOperator<Multivector2<T>, Vector2<T>, Multivector2<T>>,
-		IGeometricProductOperator<Multivector2<T>, Bivector2<T>, Multivector2<T>>,
-		IGeometricProductOperator<Multivector2<T>, Multivector2<T>, Multivector2<T>>,
+		IProductOperator<Multivector2<T>, Vector2<T>, Multivector2<T>>,
+		IProductOperator<Multivector2<T>, Bivector2<T>, Multivector2<T>>,
+		IProductOperator<Multivector2<T>, Rotor2<T>, Multivector2<T>>,
+		IProductOperator<Multivector2<T>, Multivector2<T>, Multivector2<T>>,
 		IAdditiveIdentity<Multivector2<T>, Multivector2<T>>,
 		IMultiplicativeIdentity<Multivector2<T>, Multivector2<T>>
 	where T :
-		unmanaged,
-		INumberBase<T> {
+		unmanaged, INumber<T> {
 
 	public readonly T Scalar = scalar;
 	public readonly Vector2<T> Vector = vector;
@@ -33,6 +36,12 @@ public readonly struct Multivector2<T>( T scalar, in Vector2<T> vector, in Bivec
 	public static Multivector2<T> operator /( in Multivector2<T> l, T r ) => l.Divide( r );
 	public static Multivector2<T> operator *( in Multivector2<T> l, in Vector2<T> r ) => l.Multiply( r );
 	public static Multivector2<T> operator *( in Multivector2<T> l, in Bivector2<T> r ) => l.Multiply( r );
+	public static Multivector2<T> operator *( in Multivector2<T> l, in Rotor2<T> r ) => l.Multiply( r );
 	public static Multivector2<T> operator *( in Multivector2<T> l, in Multivector2<T> r ) => l.Multiply( r );
 
+	public static bool operator ==( in Multivector2<T> l, in Multivector2<T> r ) => l.Scalar == r.Scalar && l.Vector == r.Vector && l.Bivector == r.Bivector;
+	public static bool operator !=( in Multivector2<T> l, in Multivector2<T> r ) => !(l == r);
+	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Multivector2<T> v && this == v;
+	public override int GetHashCode() => HashCode.Combine( Scalar, Vector, Bivector );
+	public override string ToString() => $"[{Scalar:N3}+{Vector}+{Bivector}]";
 }

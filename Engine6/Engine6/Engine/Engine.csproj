@@ -14,4 +14,8 @@
     <Folder Include="Serialization\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Engine.Math\Engine.Math.csproj" />
+  </ItemGroup>
+
 </Project>

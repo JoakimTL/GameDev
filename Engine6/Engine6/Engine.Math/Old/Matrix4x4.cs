@@ -1,11 +1,10 @@
 ﻿using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Engine.Math.Old;
 
 [StructLayout(LayoutKind.Sequential)]
-public readonly struct Matrix4x4<T>(T m00, T m01, T m02, T m03, T m10, T m11, T m12, T m13, T m20, T m21, T m22, T m23, T m30, T m31, T m32, T m33) where T : INumberBase<T>
+public readonly struct Matrix4x4<T>(T m00, T m01, T m02, T m03, T m10, T m11, T m12, T m13, T m20, T m21, T m22, T m23, T m30, T m31, T m32, T m33) where T : INumber<T>
 {
     public readonly T M00 = m00;
     public readonly T M01 = m01;

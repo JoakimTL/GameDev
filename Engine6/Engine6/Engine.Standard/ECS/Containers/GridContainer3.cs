@@ -1,15 +1,15 @@
-﻿using Engine.Data.Bounds;
-using Engine.Data;
-using System.Numerics;
+﻿using Engine.Data;
 using Engine.Modules.ECS;
 using Engine.Standard.ECS.Components;
+using Engine.Math;
+using Engine.Math.Operations;
 
 namespace Engine.Standard.ECS.Containers;
 
-public sealed class GridContainer3 : EntityContainerBase<Vector3> {
+public sealed class GridContainer3 : EntityContainerBase<Vector3<double>> {
 
-	private readonly DynamicLookup<CollisionShape3Component, Vector3i> _currentComponentGrids;
-	private readonly DynamicLookup<Vector3i, CollisionShape3Component> _componentsByGrid;
+	private readonly DynamicLookup<CollisionShape3Component, Vector3<int>> _currentComponentGrids;
+	private readonly DynamicLookup<Vector3<int>, CollisionShape3Component> _componentsByGrid;
 
 	private readonly UnmanagedList _gridList;
 
@@ -22,7 +22,7 @@ public sealed class GridContainer3 : EntityContainerBase<Vector3> {
 		this.GridSize = gridSize;
 	}
 
-	public override IEnumerable<Entity> GetEntities( Vector3 t )
+	public override IEnumerable<Entity> GetEntities( Vector3<double> t )
 		=> this._componentsByGrid[ GetGrid( t ) ].Select( p => p.Entity );
 
 
@@ -68,9 +68,9 @@ public sealed class GridContainer3 : EntityContainerBase<Vector3> {
 			return;
 
 		if (!csc.Shape?.IsValid() ?? false) { //Might be funky
-			IReadOnlyCollection<Vector3i> oldGrids = this._currentComponentGrids[ csc ];
+			IReadOnlyCollection<Vector3<int>> oldGrids = this._currentComponentGrids[ csc ];
 			if (oldGrids.Count > 0) {
-				foreach (Vector3i oldGrid in this._currentComponentGrids[ csc ])
+				foreach (Vector3<int> oldGrid in this._currentComponentGrids[ csc ])
 					this._componentsByGrid.Remove( oldGrid, csc );
 				this._currentComponentGrids.Remove( csc );
 			}
@@ -80,31 +80,31 @@ public sealed class GridContainer3 : EntityContainerBase<Vector3> {
 		SetGrids( csc );
 	}
 
-	private void GetGrids( AABB3 aabb, UnmanagedList gridList ) {
-		Vector3i minGrid = GetGrid( aabb.Min );
-		Vector3i maxGrid = GetGrid( aabb.Max );
+	private void GetGrids( AABB3<double> aabb, UnmanagedList gridList ) {
+		Vector3<int> minGrid = GetGrid( aabb.Minima );
+		Vector3<int> maxGrid = GetGrid( aabb.Maxima );
 
 		for (int x = minGrid.X; x <= maxGrid.X; x++)
 			for (int y = minGrid.Y; y <= maxGrid.Y; y++)
 				for (int z = minGrid.Z; z <= maxGrid.Z; z++)
-					gridList.Add( new Vector3i( x, y, z ) );
+					gridList.Add( new Vector3<int>( x, y, z ) );
 	}
 
-	private Vector3i GetGrid( Vector3 position )
-		=> Vector3i.Floor( position / GridSize );
+	private Vector3<int> GetGrid( Vector3<double> position )
+		=> (position / GridSize).Floor().CastSaturating<double, int>();
 
 	private void SetGrids( CollisionShape3Component csc ) {
-		if (csc.TryGetAABB( out AABB3 aabb )) {
+		if (csc.TryGetAABB( out AABB3<double> aabb )) {
 			_gridList.Flush();
 			GetGrids( aabb, _gridList );
-			Span<Vector3i> grids = stackalloc Vector3i[ (int) _gridList.GetElementCount<Vector3i>() ];
-			if (grids.Length == 0 && !_gridList.TryPopulate( grids, 0 )) {
+			Span<Vector3<int>> grids = stackalloc Vector3<int>[ (int) _gridList.GetElementCount<Vector3<int>>() ];
+			if (grids.Length == 0 && !_gridList.TryRead( 0, grids )) {
 				this.LogWarning( $"Found no grids for {csc.Entity}!" );
 				return;
 			}
-			foreach (Vector3i oldGrid in this._currentComponentGrids[ csc ])
+			foreach (Vector3<int> oldGrid in this._currentComponentGrids[ csc ])
 				this._componentsByGrid.Remove( oldGrid, csc );
-			foreach (Vector3i grid in grids)
+			foreach (Vector3<int> grid in grids)
 				this._componentsByGrid.Add( grid, csc );
 			this._currentComponentGrids.Remove( csc );
 			this._currentComponentGrids.AddRange( csc, grids );
@@ -112,7 +112,7 @@ public sealed class GridContainer3 : EntityContainerBase<Vector3> {
 	}
 
 	private void RemoveGrids( CollisionShape3Component csc ) {
-		foreach (Vector3i oldGrid in this._currentComponentGrids[ csc ])
+		foreach (Vector3<int> oldGrid in this._currentComponentGrids[ csc ])
 			this._componentsByGrid.Remove( oldGrid, csc );
 		this._currentComponentGrids.Remove( csc );
 	}

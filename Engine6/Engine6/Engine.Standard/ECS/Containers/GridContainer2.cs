@@ -1,15 +1,15 @@
 ﻿using Engine.Data;
-using Engine.Data.Bounds;
+using Engine.Math;
+using Engine.Math.Operations;
 using Engine.Modules.ECS;
 using Engine.Standard.ECS.Components;
-using System.Numerics;
 
 namespace Engine.Standard.ECS.Containers;
 
-public sealed class GridContainer2 : EntityContainerBase<Vector2> {
+public sealed class GridContainer2 : EntityContainerBase<Vector2<double>> {
 
-	private readonly DynamicLookup<CollisionShape2Component, Vector2i> _currentComponentGrids;
-	private readonly DynamicLookup<Vector2i, CollisionShape2Component> _componentsByGrid;
+	private readonly DynamicLookup<CollisionShape2Component, Vector2<int>> _currentComponentGrids;
+	private readonly DynamicLookup<Vector2<int>, CollisionShape2Component> _componentsByGrid;
 
 	private readonly UnmanagedList _gridList;
 
@@ -22,7 +22,7 @@ public sealed class GridContainer2 : EntityContainerBase<Vector2> {
 		this.GridSize = gridSize;
 	}
 
-	public override IEnumerable<Entity> GetEntities( Vector2 t )
+	public override IEnumerable<Entity> GetEntities( Vector2<double> t )
 		=> this._componentsByGrid[ GetGrid( t ) ].Select( p => p.Entity );
 
 
@@ -68,9 +68,9 @@ public sealed class GridContainer2 : EntityContainerBase<Vector2> {
 			return;
 
 		if (!csc.Shape?.IsValid() ?? false) { //Might be funky
-			IReadOnlyCollection<Vector2i> oldGrids = this._currentComponentGrids[ csc ];
+			IReadOnlyCollection<Vector2<int>> oldGrids = this._currentComponentGrids[ csc ];
 			if (oldGrids.Count > 0) {
-				foreach (Vector2i oldGrid in this._currentComponentGrids[ csc ])
+				foreach (Vector2<int> oldGrid in this._currentComponentGrids[ csc ])
 					this._componentsByGrid.Remove( oldGrid, csc );
 				this._currentComponentGrids.Remove( csc );
 			}
@@ -80,30 +80,30 @@ public sealed class GridContainer2 : EntityContainerBase<Vector2> {
 		SetGrids( csc );
 	}
 
-	private void GetGrids( AABB2 aabb, UnmanagedList gridList ) {
-		Vector2i minGrid = GetGrid( aabb.Min );
-		Vector2i maxGrid = GetGrid( aabb.Max );
+	private void GetGrids( in AABB2<double> aabb, UnmanagedList gridList ) {
+		Vector2<int> minGrid = GetGrid( aabb.Minima );
+		Vector2<int> maxGrid = GetGrid( aabb.Maxima );
 
 		for (int x = minGrid.X; x <= maxGrid.X; x++)
 			for (int y = minGrid.Y; y <= maxGrid.Y; y++)
-				gridList.Add( new Vector2i( x, y ) );
+				gridList.Add( new Vector2<int>( x, y ) );
 	}
 
-	private Vector2i GetGrid( Vector2 position )
-		=> Vector2i.Floor( position / GridSize );
+	private Vector2<int> GetGrid( Vector2<double> position )
+		=> ( position / GridSize ).Floor().CastSaturating<double, int>();
 
 	private void SetGrids( CollisionShape2Component csc ) {
-		if (csc.TryGetAABB( out AABB2 aabb )) {
+		if (csc.TryGetAABB( out AABB2<double> aabb )) {
 			_gridList.Flush();
 			GetGrids( aabb, _gridList );
-			Span<Vector2i> grids = stackalloc Vector2i[ (int) _gridList.GetElementCount<Vector2i>() ];
-			if (grids.Length == 0 && !_gridList.TryPopulate( grids, 0 )) {
+			Span<Vector2<int>> grids = stackalloc Vector2<int>[ (int) _gridList.GetElementCount<Vector2<int>>() ];
+			if (grids.Length == 0 && !_gridList.TryRead( 0, grids )) {
 				this.LogWarning( $"Found no grids for {csc.Entity}!" );
 				return;
 			}
-			foreach (Vector2i oldGrid in this._currentComponentGrids[ csc ])
+			foreach (Vector2<int> oldGrid in this._currentComponentGrids[ csc ])
 				this._componentsByGrid.Remove( oldGrid, csc );
-			foreach (Vector2i grid in grids)
+			foreach (Vector2<int> grid in grids)
 				this._componentsByGrid.Add( grid, csc );
 			this._currentComponentGrids.Remove( csc );
 			this._currentComponentGrids.AddRange( csc, grids );
@@ -111,7 +111,7 @@ public sealed class GridContainer2 : EntityContainerBase<Vector2> {
 	}
 
 	private void RemoveGrids( CollisionShape2Component csc ) {
-		foreach (Vector2i oldGrid in this._currentComponentGrids[ csc ])
+		foreach (Vector2<int> oldGrid in this._currentComponentGrids[ csc ])
 			this._componentsByGrid.Remove( oldGrid, csc );
 		this._currentComponentGrids.Remove( csc );
 	}

@@ -1,4 +1,4 @@
-﻿using Engine.Data;
+﻿using Engine.Math;
 using OpenGL;
 
 namespace Engine.Modules.Rendering.Ogl.OOP;
@@ -6,7 +6,7 @@ namespace Engine.Modules.Rendering.Ogl.OOP;
 public sealed class OglFramebuffer : DisposableIdentifiable {
 
 	public readonly uint FramebufferId;
-	public Vector2i Size { get; private set; }
+	public Vector2<int> Size { get; private set; }
 	private int[]? _currentActiveAttachments;
 
 	protected override string ExtraInformation => $"FBO{FramebufferId}";
@@ -21,7 +21,7 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 	private readonly List<uint> _currentRenderbuffers;
 	private readonly List<OglTexture> _currentTextures;
 
-	public OglFramebuffer( uint framebufferId, Vector2i size ) {
+	public OglFramebuffer( uint framebufferId, Vector2<int> size ) {
 		if (size.X <= 0 || size.Y <= 0)
 			throw new OpenGlArgumentException( $"{FullName} must have positive non-zero size on both axis", nameof( size ) );
 
@@ -46,7 +46,7 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 		Validate();
 	}
 
-	public void Resize( Vector2i newSize ) {
+	public void Resize( Vector2<int> newSize ) {
 		if (newSize.X <= 0 || newSize.Y <= 0)
 			throw new OpenGlArgumentException( $"{FullName} must have positive non-zero size on both axis", nameof( newSize ) );
 		if (newSize == Size)

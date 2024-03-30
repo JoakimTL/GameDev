@@ -1,6 +1,4 @@
-﻿using Engine.Math.Math;
-
-namespace Engine.Math.Tests;
+﻿namespace Engine.Math.Tests;
 
 [TestFixture]
 public class Matrix4x4Tests {

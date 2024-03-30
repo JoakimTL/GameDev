@@ -27,7 +27,7 @@ public class Transform2 : TransformBase<Vector2, float, Vector2> {
 
 	protected override TransformData<Vector2, float, Vector2> GetInterpolated( TransformBase<Vector2, float, Vector2> other, float interpolation ) =>
 		new( Vector2.Lerp( this.GlobalTranslation, other.GlobalTranslation, interpolation ),
-			 this.GlobalRotation * ( 1 - interpolation ) + other.GlobalRotation * interpolation,
+			 (this.GlobalRotation * ( 1 - interpolation )) + (other.GlobalRotation * interpolation),
 			Vector2.Lerp( this.GlobalScale, other.GlobalScale, interpolation ) );
 
 	protected override Matrix4x4 GetLocalMatrix() {

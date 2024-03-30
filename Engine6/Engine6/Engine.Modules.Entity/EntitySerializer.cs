@@ -90,13 +90,13 @@ public class EntitySerializer {
 			data.Add( (uint) entityArray.Length );
 			for (int i = 0; i < entityArray.Length; i++)
 				SerializeEntityWithoutComponents( entityArray[ i ], data );
-			uint position = data.BytePosition;
+			uint position = (uint) data.BytesUsed;
 			data.Add( (uint) 0 );
 			for (int i = 0; i < components.Length; i++)
 				if (Serialize( components[ i ], data ))
 					componentsSerialized++;
 			data.Set( componentsSerialized, position );
-			return data.ToArray();
+			return data.ToArray<byte>(0, data.BytesUsed);
 		}
 	}
 

@@ -1,61 +1,60 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
-using Engine.Math.Old;
 
 namespace Engine.Math.Old.InternalMath;
 
 public static class MathMatrix2x2
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static T GetDeterminant<T>(in Matrix2x2<T> l) where T : INumberBase<T>
-        => l.M00 * l.M11 - l.M01 * l.M10;
+    internal static T GetDeterminant<T>(in Matrix2x2<T> l) where T : INumber<T>
+        => (l.M00 * l.M11) - (l.M01 * l.M10);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix2x2<T> Multiply<T>(in Vector2Column<T> l, in Vector2<T> r) where T : INumberBase<T>
+    internal static Matrix2x2<T> Multiply<T>(in Vector2Column<T> l, in Vector2<T> r) where T : INumber<T>
         => new(
             l.X * r.X, l.X * r.Y,
             l.Y * r.X, l.Y * r.Y
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Vector2<T> Multiply<T>(in Vector2<T> l, in Matrix2x2<T> r) where T : INumberBase<T>
+    internal static Vector2<T> Multiply<T>(in Vector2<T> l, in Matrix2x2<T> r) where T : INumber<T>
         => new(
-            l.X * r.M00 + l.Y * r.M10,
-            l.X * r.M01 + l.Y * r.M11
+            (l.X * r.M00) + (l.Y * r.M10),
+            (l.X * r.M01) + (l.Y * r.M11)
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix2x2<T> Multiply<T>(in Matrix2x2<T> l, in Matrix2x2<T> r) where T : INumberBase<T>
+    internal static Matrix2x2<T> Multiply<T>(in Matrix2x2<T> l, in Matrix2x2<T> r) where T : INumber<T>
         => new(
-            l.M00 * r.M00 + l.M01 * r.M10,
-            l.M00 * r.M01 + l.M01 * r.M11,
-            l.M10 * r.M00 + l.M11 * r.M10,
-            l.M10 * r.M01 + l.M11 * r.M11
+            (l.M00 * r.M00) + (l.M01 * r.M10),
+            (l.M00 * r.M01) + (l.M01 * r.M11),
+            (l.M10 * r.M00) + (l.M11 * r.M10),
+            (l.M10 * r.M01) + (l.M11 * r.M11)
         );
 }
 
 public static class MathMatrix3x3
 {
     //[MethodImpl( MethodImplOptions.AggressiveInlining )]
-    //internal static T GetDeterminant<T>( in Matrix3x3<T> l ) where T : INumberBase<T>
+    //internal static T GetDeterminant<T>( in Matrix3x3<T> l ) where T : INumber<T>
     //	=> (l.M11 * l.M22 - l.M12 * l.M21) * l.M00
     //	 - (l.M01 * l.M22 - l.M02 * l.M21) * l.M10
     //	 + (l.M01 * l.M12 - l.M02 * l.M11) * l.M20;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static T GetDeterminantByExpansionOfMinors<T>(in Matrix3x3<T> l) where T : INumberBase<T>
-        => l.Excluding00.Determinant * l.M00 - l.Excluding10.Determinant * l.M10 + l.Excluding20.Determinant * l.M20;
+    internal static T GetDeterminantByExpansionOfMinors<T>(in Matrix3x3<T> l) where T : INumber<T>
+        => (l.Excluding00.Determinant * l.M00) - (l.Excluding10.Determinant * l.M10) + (l.Excluding20.Determinant * l.M20);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Vector3<T> Multiply<T>(in Vector3<T> l, in Matrix3x3<T> r) where T : INumberBase<T>
+    internal static Vector3<T> Multiply<T>(in Vector3<T> l, in Matrix3x3<T> r) where T : INumber<T>
         => new(
-            l.X * r.M00 + l.Y * r.M10 + l.Z * r.M20,
-            l.X * r.M01 + l.Y * r.M11 + l.Z * r.M21,
-            l.X * r.M02 + l.Y * r.M12 + l.Z * r.M22
+            (l.X * r.M00) + (l.Y * r.M10) + (l.Z * r.M20),
+            (l.X * r.M01) + (l.Y * r.M11) + (l.Z * r.M21),
+            (l.X * r.M02) + (l.Y * r.M12) + (l.Z * r.M22)
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix3x3<T> Multiply<T>(in Vector3Column<T> l, in Vector3<T> r) where T : INumberBase<T>
+    internal static Matrix3x3<T> Multiply<T>(in Vector3Column<T> l, in Vector3<T> r) where T : INumber<T>
         => new(
             l.X * r.X, l.X * r.Y, l.X * r.Z,
             l.Y * r.X, l.Y * r.Y, l.Y * r.Z,
@@ -63,17 +62,17 @@ public static class MathMatrix3x3
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix3x3<T> Multiply<T>(in Matrix3x3<T> l, in Matrix3x3<T> r) where T : INumberBase<T>
+    internal static Matrix3x3<T> Multiply<T>(in Matrix3x3<T> l, in Matrix3x3<T> r) where T : INumber<T>
         => new(
-            l.M00 * r.M00 + l.M01 * r.M10 + l.M02 * r.M20,
-            l.M00 * r.M01 + l.M01 * r.M11 + l.M02 * r.M21,
-            l.M00 * r.M02 + l.M01 * r.M12 + l.M02 * r.M22,
-            l.M10 * r.M00 + l.M11 * r.M10 + l.M12 * r.M20,
-            l.M10 * r.M01 + l.M11 * r.M11 + l.M12 * r.M21,
-            l.M10 * r.M02 + l.M11 * r.M12 + l.M12 * r.M22,
-            l.M20 * r.M00 + l.M21 * r.M10 + l.M22 * r.M20,
-            l.M20 * r.M01 + l.M21 * r.M11 + l.M22 * r.M21,
-            l.M20 * r.M02 + l.M21 * r.M12 + l.M22 * r.M22
+            (l.M00 * r.M00) + (l.M01 * r.M10) + (l.M02 * r.M20),
+            (l.M00 * r.M01) + (l.M01 * r.M11) + (l.M02 * r.M21),
+            (l.M00 * r.M02) + (l.M01 * r.M12) + (l.M02 * r.M22),
+            (l.M10 * r.M00) + (l.M11 * r.M10) + (l.M12 * r.M20),
+            (l.M10 * r.M01) + (l.M11 * r.M11) + (l.M12 * r.M21),
+            (l.M10 * r.M02) + (l.M11 * r.M12) + (l.M12 * r.M22),
+            (l.M20 * r.M00) + (l.M21 * r.M10) + (l.M22 * r.M20),
+            (l.M20 * r.M01) + (l.M21 * r.M11) + (l.M22 * r.M21),
+            (l.M20 * r.M02) + (l.M21 * r.M12) + (l.M22 * r.M22)
         );
 }
 
@@ -81,7 +80,7 @@ public static class MathMatrix4x4
 {
 
     //[MethodImpl( MethodImplOptions.AggressiveInlining )]
-    //internal static T GetDeterminant<T>( Matrix4x4<T> l ) where T : INumberBase<T> {
+    //internal static T GetDeterminant<T>( Matrix4x4<T> l ) where T : INumber<T> {
     //	var l22l33 = l.M22 * l.M33;
     //	var l23l32 = l.M23 * l.M32;
     //	var l12l33 = l.M12 * l.M33;
@@ -130,14 +129,14 @@ public static class MathMatrix4x4
     //}
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static T GetDeterminantByExpansionOfMinors<T>(Matrix4x4<T> l) where T : INumberBase<T>
-        => l.Excluding00.GetDeterminantByExpansionOfMinors() * l.M00
-         - l.Excluding10.GetDeterminantByExpansionOfMinors() * l.M10
-         + l.Excluding20.GetDeterminantByExpansionOfMinors() * l.M20
-         - l.Excluding30.GetDeterminantByExpansionOfMinors() * l.M30;
+    internal static T GetDeterminantByExpansionOfMinors<T>(Matrix4x4<T> l) where T : INumber<T>
+        => (l.Excluding00.GetDeterminantByExpansionOfMinors() * l.M00)
+         - (l.Excluding10.GetDeterminantByExpansionOfMinors() * l.M10)
+         + (l.Excluding20.GetDeterminantByExpansionOfMinors() * l.M20)
+         - (l.Excluding30.GetDeterminantByExpansionOfMinors() * l.M30);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool TryGetDeterminantByGaussianElimination<T>(Matrix4x4<T> l, out T determinant) where T : INumberBase<T>
+    internal static bool TryGetDeterminantByGaussianElimination<T>(Matrix4x4<T> l, out T determinant) where T : INumber<T>
     {
         determinant = T.AdditiveIdentity;
         if (TryGetUpperTriangular(l, out Matrix4x4<T> result, out bool negative))
@@ -149,7 +148,7 @@ public static class MathMatrix4x4
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static bool TryGetUpperTriangular<T>(Matrix4x4<T> l, out Matrix4x4<T> result, out bool negative) where T : INumberBase<T>
+    internal static bool TryGetUpperTriangular<T>(Matrix4x4<T> l, out Matrix4x4<T> result, out bool negative) where T : INumber<T>
     {
         //https://www.youtube.com/watch?v=htYh-Tq7ZBI Add bivectors! Actually watch it again and add a lot of what is mentioned. Like 2d cross product, and change names of operations to correct ignorance.
         result = l;
@@ -235,7 +234,7 @@ public static class MathMatrix4x4
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix4x4<T> Multiply<T>(in Vector4Column<T> l, in Vector4<T> r) where T : INumberBase<T>
+    internal static Matrix4x4<T> Multiply<T>(in Vector4Column<T> l, in Vector4<T> r) where T : INumber<T>
         => new(
             l.X * r.X, l.X * r.Y, l.X * r.Z, l.X * r.W,
             l.Y * r.X, l.Y * r.Y, l.Y * r.Z, l.Y * r.W,
@@ -244,7 +243,7 @@ public static class MathMatrix4x4
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix4x4<T> Add<T>(Matrix4x4<T> l, Matrix4x4<T> r) where T : INumberBase<T>
+    internal static Matrix4x4<T> Add<T>(Matrix4x4<T> l, Matrix4x4<T> r) where T : INumber<T>
         => new(
             l.M00 + r.M00, l.M01 + r.M01, l.M02 + r.M02, l.M03 + r.M03,
             l.M10 + r.M10, l.M11 + r.M11, l.M12 + r.M12, l.M13 + r.M13,
@@ -253,7 +252,7 @@ public static class MathMatrix4x4
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix4x4<T> Subtract<T>(Matrix4x4<T> l, Matrix4x4<T> r) where T : INumberBase<T>
+    internal static Matrix4x4<T> Subtract<T>(Matrix4x4<T> l, Matrix4x4<T> r) where T : INumber<T>
         => new(
             l.M00 - r.M00, l.M01 - r.M01, l.M02 - r.M02, l.M03 - r.M03,
             l.M10 - r.M10, l.M11 - r.M11, l.M12 - r.M12, l.M13 - r.M13,
@@ -262,16 +261,16 @@ public static class MathMatrix4x4
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Vector4<T> Multiply<T>(in Vector4<T> l, in Matrix4x4<T> r) where T : INumberBase<T>
+    internal static Vector4<T> Multiply<T>(in Vector4<T> l, in Matrix4x4<T> r) where T : INumber<T>
         => new(
-            l.X * r.M00 + l.Y * r.M10 + l.Z * r.M20 + l.W * r.M30,
-            l.X * r.M01 + l.Y * r.M11 + l.Z * r.M21 + l.W * r.M31,
-            l.X * r.M02 + l.Y * r.M12 + l.Z * r.M22 + l.W * r.M32,
-            l.X * r.M03 + l.Y * r.M13 + l.Z * r.M23 + l.W * r.M33
+            (l.X * r.M00) + (l.Y * r.M10) + (l.Z * r.M20) + (l.W * r.M30),
+            (l.X * r.M01) + (l.Y * r.M11) + (l.Z * r.M21) + (l.W * r.M31),
+            (l.X * r.M02) + (l.Y * r.M12) + (l.Z * r.M22) + (l.W * r.M32),
+            (l.X * r.M03) + (l.Y * r.M13) + (l.Z * r.M23) + (l.W * r.M33)
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix4x4<T> Multiply<T>(Matrix4x4<T> l, T r) where T : INumberBase<T>
+    internal static Matrix4x4<T> Multiply<T>(Matrix4x4<T> l, T r) where T : INumber<T>
         => new(
             l.M00 * r, l.M01 * r, l.M02 * r, l.M03 * r,
             l.M10 * r, l.M11 * r, l.M12 * r, l.M13 * r,
@@ -280,28 +279,28 @@ public static class MathMatrix4x4
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix4x4<T> Multiply<T>(in Matrix4x4<T> l, in Matrix4x4<T> r) where T : INumberBase<T>
+    internal static Matrix4x4<T> Multiply<T>(in Matrix4x4<T> l, in Matrix4x4<T> r) where T : INumber<T>
         => new(
-            l.M00 * r.M00 + l.M01 * r.M10 + l.M02 * r.M20 + l.M03 * r.M30,
-            l.M00 * r.M01 + l.M01 * r.M11 + l.M02 * r.M21 + l.M03 * r.M31,
-            l.M00 * r.M02 + l.M01 * r.M12 + l.M02 * r.M22 + l.M03 * r.M32,
-            l.M00 * r.M03 + l.M01 * r.M13 + l.M02 * r.M23 + l.M03 * r.M33,
-            l.M10 * r.M00 + l.M11 * r.M10 + l.M12 * r.M20 + l.M13 * r.M30,
-            l.M10 * r.M01 + l.M11 * r.M11 + l.M12 * r.M21 + l.M13 * r.M31,
-            l.M10 * r.M02 + l.M11 * r.M12 + l.M12 * r.M22 + l.M13 * r.M32,
-            l.M10 * r.M03 + l.M11 * r.M13 + l.M12 * r.M23 + l.M13 * r.M33,
-            l.M20 * r.M00 + l.M21 * r.M10 + l.M22 * r.M20 + l.M23 * r.M30,
-            l.M20 * r.M01 + l.M21 * r.M11 + l.M22 * r.M21 + l.M23 * r.M31,
-            l.M20 * r.M02 + l.M21 * r.M12 + l.M22 * r.M22 + l.M23 * r.M32,
-            l.M20 * r.M03 + l.M21 * r.M13 + l.M22 * r.M23 + l.M23 * r.M33,
-            l.M30 * r.M00 + l.M31 * r.M10 + l.M32 * r.M20 + l.M33 * r.M30,
-            l.M30 * r.M01 + l.M31 * r.M11 + l.M32 * r.M21 + l.M33 * r.M31,
-            l.M30 * r.M02 + l.M31 * r.M12 + l.M32 * r.M22 + l.M33 * r.M32,
-            l.M30 * r.M03 + l.M31 * r.M13 + l.M32 * r.M23 + l.M33 * r.M33
+            (l.M00 * r.M00) + (l.M01 * r.M10) + (l.M02 * r.M20) + (l.M03 * r.M30),
+            (l.M00 * r.M01) + (l.M01 * r.M11) + (l.M02 * r.M21) + (l.M03 * r.M31),
+            (l.M00 * r.M02) + (l.M01 * r.M12) + (l.M02 * r.M22) + (l.M03 * r.M32),
+            (l.M00 * r.M03) + (l.M01 * r.M13) + (l.M02 * r.M23) + (l.M03 * r.M33),
+            (l.M10 * r.M00) + (l.M11 * r.M10) + (l.M12 * r.M20) + (l.M13 * r.M30),
+            (l.M10 * r.M01) + (l.M11 * r.M11) + (l.M12 * r.M21) + (l.M13 * r.M31),
+            (l.M10 * r.M02) + (l.M11 * r.M12) + (l.M12 * r.M22) + (l.M13 * r.M32),
+            (l.M10 * r.M03) + (l.M11 * r.M13) + (l.M12 * r.M23) + (l.M13 * r.M33),
+            (l.M20 * r.M00) + (l.M21 * r.M10) + (l.M22 * r.M20) + (l.M23 * r.M30),
+            (l.M20 * r.M01) + (l.M21 * r.M11) + (l.M22 * r.M21) + (l.M23 * r.M31),
+            (l.M20 * r.M02) + (l.M21 * r.M12) + (l.M22 * r.M22) + (l.M23 * r.M32),
+            (l.M20 * r.M03) + (l.M21 * r.M13) + (l.M22 * r.M23) + (l.M23 * r.M33),
+            (l.M30 * r.M00) + (l.M31 * r.M10) + (l.M32 * r.M20) + (l.M33 * r.M30),
+            (l.M30 * r.M01) + (l.M31 * r.M11) + (l.M32 * r.M21) + (l.M33 * r.M31),
+            (l.M30 * r.M02) + (l.M31 * r.M12) + (l.M32 * r.M22) + (l.M33 * r.M32),
+            (l.M30 * r.M03) + (l.M31 * r.M13) + (l.M32 * r.M23) + (l.M33 * r.M33)
         );
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static Matrix4x4<T> Divide<T>(Matrix4x4<T> l, T r) where T : INumberBase<T>
+    internal static Matrix4x4<T> Divide<T>(Matrix4x4<T> l, T r) where T : INumber<T>
         => new(
             l.M00 / r, l.M01 / r, l.M02 / r, l.M03 / r,
             l.M10 / r, l.M11 / r, l.M12 / r, l.M13 / r,

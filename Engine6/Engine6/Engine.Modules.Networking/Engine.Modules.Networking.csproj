@@ -6,6 +6,15 @@
     <Nullable>enable</Nullable>
     <UseCommonOutputDirectory>true</UseCommonOutputDirectory>
     <BaseOutputPath>..\..\Build\</BaseOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Messaging\Packets\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine\Engine.csproj" />
+  </ItemGroup>
 
 </Project>

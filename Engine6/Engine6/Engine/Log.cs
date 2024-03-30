@@ -11,7 +11,7 @@ public static class Log {
 	public static Level LoggingLevel { get; set; } = Level.VERBOSE;
 	public static string Prefix => $"{Thread.CurrentThread.Name}:{Environment.CurrentManagedThreadId}/{Thread.CurrentThread.CurrentCulture.Name}|{DateTime.Now:yyMMdd/HH:mm:ss.fff}";
 
-	private static ulong[] _logCounts = new ulong[ (int) InternalLevel.ERROR + 1 ];
+	private static readonly ulong[] _logCounts = new ulong[ (int) InternalLevel.ERROR + 1 ];
 
 	private static bool _initialized;
 	private static bool _stopped;
@@ -91,7 +91,7 @@ public static class Log {
 			while ( !_stopped ) {
 				while ( _logData.TryTake( out string? logString, 50 ) ) {
 					unsafe {
-						uint len = (uint) Math.Min( logString.Length * sizeof( char ), buffer.Length );
+						uint len = (uint) System.Math.Min( logString.Length * sizeof( char ), buffer.Length );
 						fixed ( byte* dstPtr = buffer ) {
 							fixed ( char* srcPtr = logString ) {
 								Unsafe.CopyBlock( dstPtr, srcPtr, len );

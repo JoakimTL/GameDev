@@ -1,5 +1,5 @@
 ﻿using Engine.Data;
-using Engine.Data.Bounds;
+using Engine.Math;
 using Engine.Modules.ECS;
 using Engine.Modules.Physics;
 
@@ -55,7 +55,7 @@ public sealed class CollisionShape3Component : ComponentBase {
 		TriggerChanged();
 	}
 
-	internal bool TryGetAABB( out AABB3 aabb ) {
+	internal bool TryGetAABB( out AABB3<double> aabb ) {
 		throw new NotImplementedException();
 	}
 }

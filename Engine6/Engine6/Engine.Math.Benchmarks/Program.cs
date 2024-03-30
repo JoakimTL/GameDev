@@ -1,7 +1,7 @@
 ﻿
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
-using System.Numerics;
+using Microsoft.Diagnostics.Tracing.Parsers.ApplicationServer;
 //using Engine.Math.Benchmarks;
 
 //T negate<T>(T v) where T : INumberBase<T> => -v;
@@ -10,6 +10,8 @@ using System.Numerics;
 //uint b = negate( a );
 
 //Console.WriteLine(b);
+
+//Console.WriteLine( System.Numerics.Matrix4x4.CreatePerspectiveFieldOfView( 90F / 180 * MathF.PI, 1, 0.1F, 100F ) );
 
 BenchmarkRunner.Run( typeof( Program ).Assembly, // all benchmarks from given assembly are going to be executed
     ManualConfig.Create( DefaultConfig.Instance ).WithOptions( ConfigOptions.JoinSummary | ConfigOptions.DisableLogFile ) );
