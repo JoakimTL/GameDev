@@ -7,6 +7,6 @@ public interface IVectorPartsOperations<TVector, TScalar>
 		unmanaged, IVectorPartsOperations<TVector, TScalar>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
-	static abstract TScalar SumOfParts( in TVector l );
-	static abstract TScalar ProductOfParts( in TVector l );
+	TScalar SumOfParts();
+	TScalar ProductOfParts();
 }

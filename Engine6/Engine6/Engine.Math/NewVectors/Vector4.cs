@@ -7,7 +7,7 @@ namespace Engine.Math.NewVectors;
 [System.Runtime.InteropServices.StructLayout( System.Runtime.InteropServices.LayoutKind.Sequential )]
 public readonly struct Vector4<TScalar>( TScalar x, TScalar y, TScalar z, TScalar w ) :
 		IVector<Vector4<TScalar>, TScalar>,
-		IMultivectorPart<Multivector4<TScalar>, Vector4<TScalar>>,
+		IPartOfMultivector<Multivector4<TScalar>, Vector4<TScalar>>,
 		IEntrywiseProductOperations<Vector4<TScalar>>,
 		IEntrywiseOperations<Vector4<TScalar>, TScalar>,
 		ILinearAlgebraOperators<Vector4<TScalar>, TScalar>,
@@ -26,32 +26,32 @@ public readonly struct Vector4<TScalar>( TScalar x, TScalar y, TScalar z, TScala
 	public static Vector4<TScalar> Zero { get; } = new( TScalar.Zero, TScalar.Zero, TScalar.Zero, TScalar.Zero );
 	public static Vector4<TScalar> One { get; } = new( TScalar.One, TScalar.One, TScalar.One, TScalar.One );
 
-	public static Multivector4<TScalar> GetMultivector( in Vector4<TScalar> part ) => new( TScalar.Zero, part, Bivector4<TScalar>.Zero, Trivector4<TScalar>.Zero, Quadvector4<TScalar>.Zero );
+	public Multivector4<TScalar> GetMultivector() => new( TScalar.Zero, this, Bivector4<TScalar>.Zero, Trivector4<TScalar>.Zero, Quadvector4<TScalar>.Zero );
 
-	public static Vector4<TScalar> Negate( in Vector4<TScalar> l ) => new( -l.X, -l.Y, -l.Z, -l.W );
-	public static Vector4<TScalar> Add( in Vector4<TScalar> l, in Vector4<TScalar> r ) => new( l.X + r.X, l.Y + r.Y, l.Z + r.Z, l.W + r.W );
-	public static Vector4<TScalar> Subtract( in Vector4<TScalar> l, in Vector4<TScalar> r ) => new( l.X - r.X, l.Y - r.Y, l.Z - r.Z, l.W - r.W );
-	public static Vector4<TScalar> ScalarMultiply( in Vector4<TScalar> l, TScalar r ) => new( l.X * r, l.Y * r, l.Z * r, l.W * r );
-	public static Vector4<TScalar> ScalarDivide( in Vector4<TScalar> l, TScalar r ) => new( l.X / r, l.Y / r, l.Z / r, l.W / r );
+	public Vector4<TScalar> Negate() => new( -X, -Y, -Z, -W );
+	public Vector4<TScalar> Add( in Vector4<TScalar> r ) => new( X + r.X, Y + r.Y, Z + r.Z, W + r.W );
+	public Vector4<TScalar> Subtract( in Vector4<TScalar> r ) => new( X - r.X, Y - r.Y, Z - r.Z, W - r.W );
+	public Vector4<TScalar> ScalarMultiply( TScalar r ) => new( X * r, Y * r, Z * r, W * r );
+	public Vector4<TScalar> ScalarDivide( TScalar r ) => new( X / r, Y / r, Z / r, W / r );
 	public static Vector4<TScalar> DivideScalar( TScalar l, in Vector4<TScalar> r ) => new( l / r.X, l / r.Y, l / r.Z, l / r.W );
-	public static Vector4<TScalar> MultiplyEntrywise( in Vector4<TScalar> l, in Vector4<TScalar> r ) => new( l.X * r.X, l.Y * r.Y, l.Z * r.Z, l.W * r.W );
-	public static Vector4<TScalar> DivideEntrywise( in Vector4<TScalar> l, in Vector4<TScalar> r ) => new( l.X / r.X, l.Y / r.Y, l.Z / r.Z, l.W / r.W );
-	public static Vector4<TScalar> EntrywiseOperation( in Vector4<TScalar> v, Func<TScalar, TScalar> operation ) => new( operation( v.X ), operation( v.Y ), operation( v.Z ), operation( v.W ) );
-	public static TScalar Dot( in Vector4<TScalar> l, in Vector4<TScalar> r ) => (l.X * r.X) + (l.Y * r.Y) + (l.Z * r.Z) + (l.W * r.W);
-	public static Vector4<TScalar> Min( in Vector4<TScalar> l, in Vector4<TScalar> r ) => new( TScalar.Min( l.X, r.X ), TScalar.Min( l.Y, r.Y ), TScalar.Min( l.Z, r.Z ), TScalar.Min( l.W, r.W ) );
-	public static Vector4<TScalar> Max( in Vector4<TScalar> l, in Vector4<TScalar> r ) => new( TScalar.Max( l.X, r.X ), TScalar.Max( l.Y, r.Y ), TScalar.Max( l.Z, r.Z ), TScalar.Max( l.W, r.W ) );
-	public static TScalar SumOfParts( in Vector4<TScalar> v ) => v.X + v.Y + v.Z + v.W;
-	public static TScalar ProductOfParts( in Vector4<TScalar> v ) => v.X * v.Y * v.Z * v.W;
+	public Vector4<TScalar> MultiplyEntrywise( in Vector4<TScalar> r ) => new( X * r.X, Y * r.Y, Z * r.Z, W * r.W );
+	public Vector4<TScalar> DivideEntrywise( in Vector4<TScalar> r ) => new( X / r.X, Y / r.Y, Z / r.Z, W / r.W );
+	public Vector4<TScalar> EntrywiseOperation( Func<TScalar, TScalar> operation ) => new( operation( X ), operation( Y ), operation( Z ), operation( W ) );
+	public TScalar Dot( in Vector4<TScalar> r ) => (X * r.X) + (Y * r.Y) + (Z * r.Z) + (W * r.W);
+	public Vector4<TScalar> Min( in Vector4<TScalar> r ) => new( TScalar.Min( X, r.X ), TScalar.Min( Y, r.Y ), TScalar.Min( Z, r.Z ), TScalar.Min( W, r.W ) );
+	public Vector4<TScalar> Max( in Vector4<TScalar> r ) => new( TScalar.Max( X, r.X ), TScalar.Max( Y, r.Y ), TScalar.Max( Z, r.Z ), TScalar.Max( W, r.W ) );
+	public TScalar SumOfParts() => X + Y + Z + W;
+	public TScalar ProductOfParts() => X * Y * Z * W;
 
-	public static Vector4<TScalar> operator -( in Vector4<TScalar> l ) => Negate( l );
-	public static Vector4<TScalar> operator +( in Vector4<TScalar> l, in Vector4<TScalar> r ) => Add( l, r );
-	public static Vector4<TScalar> operator -( in Vector4<TScalar> l, in Vector4<TScalar> r ) => Subtract( l, r );
-	public static Vector4<TScalar> operator *( in Vector4<TScalar> l, TScalar r ) => ScalarMultiply( l, r );
-	public static Vector4<TScalar> operator *( TScalar l, in Vector4<TScalar> r ) => ScalarMultiply( r, l );
-	public static Vector4<TScalar> operator /( in Vector4<TScalar> l, TScalar r ) => ScalarDivide( l, r );
+	public static Vector4<TScalar> operator -( in Vector4<TScalar> l ) => l.Negate();
+	public static Vector4<TScalar> operator +( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.Add( r );
+	public static Vector4<TScalar> operator -( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.Subtract( r );
+	public static Vector4<TScalar> operator *( in Vector4<TScalar> l, TScalar r ) => l.ScalarMultiply( r );
+	public static Vector4<TScalar> operator *( TScalar l, in Vector4<TScalar> r ) => r.ScalarMultiply( l );
+	public static Vector4<TScalar> operator /( in Vector4<TScalar> l, TScalar r ) => l.ScalarDivide( r );
 	public static Vector4<TScalar> operator /( TScalar l, in Vector4<TScalar> r ) => DivideScalar( l, r );
-	public static Vector4<TScalar> operator *( in Vector4<TScalar> l, in Vector4<TScalar> r ) => MultiplyEntrywise( l, r );
-	public static Vector4<TScalar> operator /( in Vector4<TScalar> l, in Vector4<TScalar> r ) => DivideEntrywise( l, r );
+	public static Vector4<TScalar> operator *( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.MultiplyEntrywise( r );
+	public static Vector4<TScalar> operator /( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.DivideEntrywise( r );
 
 	public static bool operator ==( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.X == r.X && l.Y == r.Y && l.Z == r.Z && l.W == r.W;
 	public static bool operator !=( in Vector4<TScalar> l, in Vector4<TScalar> r ) => !(l == r);

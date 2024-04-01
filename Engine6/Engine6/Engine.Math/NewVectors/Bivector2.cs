@@ -1,4 +1,5 @@
-﻿using Engine.Math.NewVectors.Interfaces;
+﻿using Engine.Math.NewVectors.Calculations;
+using Engine.Math.NewVectors.Interfaces;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
@@ -7,8 +8,12 @@ namespace Engine.Math.NewVectors;
 [System.Runtime.InteropServices.StructLayout( System.Runtime.InteropServices.LayoutKind.Sequential )]
 public readonly struct Bivector2<TScalar>( TScalar xy ) :
 		IVector<Bivector2<TScalar>, TScalar>,
-		IMultivectorPart<Multivector2<TScalar>, Bivector2<TScalar>>,
-		ILinearAlgebraOperators<Bivector2<TScalar>, TScalar>
+		IPartOfMultivector<Multivector2<TScalar>, Bivector2<TScalar>>,
+		ILinearAlgebraOperators<Bivector2<TScalar>, TScalar>,
+		IGeometricProduct<Bivector2<TScalar>, Vector2<TScalar>, Vector2<TScalar>>,
+		IGeometricProduct<Bivector2<TScalar>, Bivector2<TScalar>, TScalar>,
+		IGeometricProduct<Bivector2<TScalar>, Rotor2<TScalar>, Rotor2<TScalar>>,
+		IGeometricProduct<Bivector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar XY = xy;
@@ -18,22 +23,27 @@ public readonly struct Bivector2<TScalar>( TScalar xy ) :
 	public static Bivector2<TScalar> Zero { get; } = new( TScalar.Zero );
 	public static Bivector2<TScalar> One { get; } = new( TScalar.One );
 
-	public static Multivector2<TScalar> GetMultivector( in Bivector2<TScalar> part ) => new( TScalar.Zero, Vector2<TScalar>.Zero, part );
+	public Multivector2<TScalar> GetMultivector() => new( TScalar.Zero, Vector2<TScalar>.Zero, this );
 
-	public static Bivector2<TScalar> Negate( in Bivector2<TScalar> l ) => new( -l.XY );
-	public static Bivector2<TScalar> Add( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => new( l.XY + r.XY );
-	public static Bivector2<TScalar> Subtract( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => new( l.XY - r.XY );
-	public static Bivector2<TScalar> ScalarMultiply( in Bivector2<TScalar> l, TScalar r ) => new( l.XY * r );
-	public static Bivector2<TScalar> ScalarDivide( in Bivector2<TScalar> l, TScalar r ) => new( l.XY / r );
+	public Bivector2<TScalar> Negate() => new( -XY );
+	public Bivector2<TScalar> Add( in Bivector2<TScalar> r ) => new( XY + r.XY );
+	public Bivector2<TScalar> Subtract( in Bivector2<TScalar> r ) => new( XY - r.XY );
+	public Bivector2<TScalar> ScalarMultiply( TScalar r ) => new( XY * r );
+	public Bivector2<TScalar> ScalarDivide( TScalar r ) => new( XY / r );
 	public static Bivector2<TScalar> DivideScalar( TScalar l, in Bivector2<TScalar> r ) => new( l / r.XY );
-	public static TScalar Dot( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => -l.XY * r.XY;
+	public TScalar Dot( in Bivector2<TScalar> r ) => -XY * r.XY;
 
-	public static Bivector2<TScalar> operator -( in Bivector2<TScalar> l ) => Negate( l );
-	public static Bivector2<TScalar> operator +( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => Add( l, r );
-	public static Bivector2<TScalar> operator -( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => Subtract( l, r );
-	public static Bivector2<TScalar> operator *( in Bivector2<TScalar> l, TScalar r ) => ScalarMultiply( l, r );
-	public static Bivector2<TScalar> operator *( TScalar l, in Bivector2<TScalar> r ) => ScalarMultiply( r, l );
-	public static Bivector2<TScalar> operator /( in Bivector2<TScalar> l, TScalar r ) => ScalarDivide( l, r );
+	public Vector2<TScalar> Multiply( in Vector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public TScalar Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public Rotor2<TScalar> Multiply( in Rotor2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public Multivector2<TScalar> Multiply( in Multivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+
+	public static Bivector2<TScalar> operator -( in Bivector2<TScalar> l ) => l.Negate();
+	public static Bivector2<TScalar> operator +( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => l.Add( r );
+	public static Bivector2<TScalar> operator -( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => l.Subtract( r );
+	public static Bivector2<TScalar> operator *( in Bivector2<TScalar> l, TScalar r ) => l.ScalarMultiply( r );
+	public static Bivector2<TScalar> operator *( TScalar l, in Bivector2<TScalar> r ) => r.ScalarMultiply( l );
+	public static Bivector2<TScalar> operator /( in Bivector2<TScalar> l, TScalar r ) => l.ScalarDivide( r );
 	public static Bivector2<TScalar> operator /( TScalar l, in Bivector2<TScalar> r ) => DivideScalar( l, r );
 
 	public static bool operator ==( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => l.XY == r.XY;

@@ -57,7 +57,7 @@ public static class VectorExtensions {
 	public static TScalar MagnitudeSquared<TVector, TScalar>( this TVector vector )
 		where TVector : unmanaged, IVector<TVector, TScalar>
 		where TScalar : unmanaged, INumber<TScalar>
-		=> TVector.Dot( vector, vector );
+		=> vector.Dot( vector );
 
 	[MethodImpl( MethodImplOptions.AggressiveInlining )]
 	public static TScalar Magnitude<TVector, TScalar>( this TVector vector )
@@ -69,7 +69,7 @@ public static class VectorExtensions {
 	public static TVector Normalize<TVector, TScalar>( this TVector vector )
 		where TVector : unmanaged, IVector<TVector, TScalar>
 		where TScalar : unmanaged, IFloatingPointIeee754<TScalar>
-		=> TVector.ScalarDivide( vector, vector.Magnitude<TVector, TScalar>() );
+		=> vector.ScalarDivide( vector.Magnitude<TVector, TScalar>() );
 
 	public static bool TryNormalize<TVector, TScalar>( this TVector vector, out TVector normalizedVector, out TScalar originalMagnitude )
 		where TVector : unmanaged, IVector<TVector, TScalar>
@@ -79,28 +79,35 @@ public static class VectorExtensions {
 			normalizedVector = default;
 			return false;
 		}
-		normalizedVector = TVector.ScalarDivide( vector, originalMagnitude );
+		normalizedVector = vector.ScalarDivide( originalMagnitude );
 		return true;
 	}
+
+	public static TVector ReflectMirror<TVector, TScalar>( this TVector v, in TVector mirrorNormal )
+		where TVector :
+			unmanaged, IVector<TVector, TScalar>, IReflectable<TVector, TScalar>
+		where TScalar :
+			unmanaged, INumber<TScalar>
+		=> v.ReflectNormal( mirrorNormal ).Negate();
 
 	public static TVector Floor<TVector, TScalar>( this TVector l )
 		where TVector :
 			unmanaged, IEntrywiseOperations<TVector, TScalar>
 		where TScalar :
 			unmanaged, IFloatingPointIeee754<TScalar>
-		=> TVector.EntrywiseOperation( l, TScalar.Floor );
+		=> l.EntrywiseOperation( TScalar.Floor );
 
 	public static TVector Ceiling<TVector, TScalar>( this TVector l )
 		where TVector :
 			unmanaged, IEntrywiseOperations<TVector, TScalar>
 		where TScalar :
 			unmanaged, IFloatingPointIeee754<TScalar>
-		=> TVector.EntrywiseOperation( l, TScalar.Ceiling );
+		=> l.EntrywiseOperation( TScalar.Ceiling );
 
 	public static TVector Round<TVector, TScalar>( this TVector l, int digits, MidpointRounding roundingMode )
 		where TVector :
 			unmanaged, IEntrywiseOperations<TVector, TScalar>
 		where TScalar :
 			unmanaged, IFloatingPointIeee754<TScalar>
-		=> TVector.EntrywiseOperation( l, ( TScalar s ) => TScalar.Round( s, digits, roundingMode ) );
+		=> l.EntrywiseOperation( ( TScalar s ) => TScalar.Round( s, digits, roundingMode ) );
 }

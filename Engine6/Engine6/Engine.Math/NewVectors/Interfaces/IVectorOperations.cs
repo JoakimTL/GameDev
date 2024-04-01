@@ -2,12 +2,18 @@
 
 namespace Engine.Math.NewVectors.Interfaces;
 
-public interface IVectorOperations<TVector, TScalar> :
-        ILinearAlgebraOperations<TVector, TScalar>
-    where TVector :
-        unmanaged, IVectorOperations<TVector, TScalar>
-    where TScalar :
-        unmanaged, INumber<TScalar>
-{
-    static abstract TScalar Dot(in TVector l, in TVector r);
+public interface IInnerProduct<TVector, TScalar>
+	where TVector :
+		unmanaged, IInnerProduct<TVector, TScalar>
+	where TScalar :
+		unmanaged, INumber<TScalar> {
+	TScalar Dot( in TVector r );
+}
+
+public interface IOuterProduct<TVector, TResult>
+	where TVector :
+		unmanaged, IOuterProduct<TVector, TResult>
+	where TResult :
+		unmanaged {
+	TResult Wedge( in TVector r );
 }

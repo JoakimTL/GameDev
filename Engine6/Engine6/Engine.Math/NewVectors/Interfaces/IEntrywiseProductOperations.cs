@@ -3,6 +3,6 @@
 public interface IEntrywiseProductOperations<TVector>
 	where TVector :
 		unmanaged, IEntrywiseProductOperations<TVector> {
-	static abstract TVector MultiplyEntrywise( in TVector l, in TVector r );
-	static abstract TVector DivideEntrywise( in TVector l, in TVector r );
+	TVector MultiplyEntrywise( in TVector r );
+	TVector DivideEntrywise( in TVector r );
 }

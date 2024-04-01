@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using Engine.Math.NewVectors.Calculations;
 using Engine.Math.NewVectors.Interfaces;
 
 namespace Engine.Math.NewVectors;
@@ -7,8 +8,16 @@ namespace Engine.Math.NewVectors;
 [System.Runtime.InteropServices.StructLayout( System.Runtime.InteropServices.LayoutKind.Sequential )]
 public readonly struct Multivector2<TScalar>( TScalar scalar, Vector2<TScalar> vector, Bivector2<TScalar> bivector ) :
 		IVector<Multivector2<TScalar>, TScalar>,
-		IMultivectorPart<Multivector2<TScalar>, Multivector2<TScalar>>,
-		ILinearAlgebraOperators<Multivector2<TScalar>, TScalar>
+		IPartOfMultivector<Multivector2<TScalar>, Multivector2<TScalar>>,
+		ILinearAlgebraOperators<Multivector2<TScalar>, TScalar>,
+		IGeometricProduct<Multivector2<TScalar>, Vector2<TScalar>, Multivector2<TScalar>>,
+		IGeometricProduct<Multivector2<TScalar>, Bivector2<TScalar>, Multivector2<TScalar>>,
+		IGeometricProduct<Multivector2<TScalar>, Rotor2<TScalar>, Multivector2<TScalar>>,
+		IGeometricProduct<Multivector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>,
+		IContainsMultivectorPart<Multivector2<TScalar>, TScalar>,
+		IContainsMultivectorPart<Multivector2<TScalar>, Vector2<TScalar>>,
+		IContainsMultivectorPart<Multivector2<TScalar>, Bivector2<TScalar>>,
+		IContainsMultivectorPart<Multivector2<TScalar>, Rotor2<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar Scalar = scalar;
@@ -23,22 +32,27 @@ public readonly struct Multivector2<TScalar>( TScalar scalar, Vector2<TScalar> v
 	public static Multivector2<TScalar> Zero { get; } = new( TScalar.Zero, Vector2<TScalar>.Zero, Bivector2<TScalar>.Zero );
 	public static Multivector2<TScalar> One { get; } = new( TScalar.One, Vector2<TScalar>.One, Bivector2<TScalar>.One );
 
-	public static Multivector2<TScalar> GetMultivector( in Multivector2<TScalar> part ) => part;
+	public Multivector2<TScalar> GetMultivector() => this;
 
-	public static Multivector2<TScalar> Negate( in Multivector2<TScalar> l ) => new( -l.Scalar, -l.Vector, -l.Bivector );
-	public static Multivector2<TScalar> Add( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => new( l.Scalar + r.Scalar, l.Vector + r.Vector, l.Bivector + r.Bivector );
-	public static Multivector2<TScalar> Subtract( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => new( l.Scalar - r.Scalar, l.Vector - r.Vector, l.Bivector - r.Bivector );
-	public static Multivector2<TScalar> ScalarMultiply( in Multivector2<TScalar> l, TScalar r ) => new( l.Scalar * r, l.Vector * r, l.Bivector * r );
-	public static Multivector2<TScalar> ScalarDivide( in Multivector2<TScalar> l, TScalar r ) => new( l.Scalar / r, l.Vector / r, l.Bivector / r );
+	public Multivector2<TScalar> Negate() => new( -Scalar, -Vector, -Bivector );
+	public Multivector2<TScalar> Add( in Multivector2<TScalar> r ) => new( Scalar + r.Scalar, Vector + r.Vector, Bivector + r.Bivector );
+	public Multivector2<TScalar> Subtract( in Multivector2<TScalar> r ) => new( Scalar - r.Scalar, Vector - r.Vector, Bivector - r.Bivector );
+	public Multivector2<TScalar> ScalarMultiply( TScalar r ) => new( Scalar * r, Vector * r, Bivector * r );
+	public Multivector2<TScalar> ScalarDivide( TScalar r ) => new( Scalar / r, Vector / r, Bivector / r );
 	public static Multivector2<TScalar> DivideScalar( TScalar l, in Multivector2<TScalar> r ) => new( l / r.Scalar, l / r.Vector, l / r.Bivector );
-	public static TScalar Dot( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => (l.Scalar * r.Scalar) + Vector2<TScalar>.Dot( l.Vector, r.Vector ) + Bivector2<TScalar>.Dot( l.Bivector, r.Bivector );
+	public TScalar Dot( in Multivector2<TScalar> r ) => (Scalar * r.Scalar) + Vector.Dot( r.Vector ) + Bivector.Dot( r.Bivector );
 
-	public static Multivector2<TScalar> operator -( in Multivector2<TScalar> l ) => Negate( l );
-	public static Multivector2<TScalar> operator +( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => Add( l, r );
-	public static Multivector2<TScalar> operator -( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => Subtract( l, r );
-	public static Multivector2<TScalar> operator *( in Multivector2<TScalar> l, TScalar r ) => ScalarMultiply( l, r );
-	public static Multivector2<TScalar> operator *( TScalar l, in Multivector2<TScalar> r ) => ScalarMultiply( r, l );
-	public static Multivector2<TScalar> operator /( in Multivector2<TScalar> l, TScalar r ) => ScalarDivide( l, r );
+	public Multivector2<TScalar> Multiply( in Vector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public Multivector2<TScalar> Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public Multivector2<TScalar> Multiply( in Rotor2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public Multivector2<TScalar> Multiply( in Multivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+
+	public static Multivector2<TScalar> operator -( in Multivector2<TScalar> l ) => l.Negate();
+	public static Multivector2<TScalar> operator +( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => l.Add( r );
+	public static Multivector2<TScalar> operator -( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => l.Subtract( r );
+	public static Multivector2<TScalar> operator *( in Multivector2<TScalar> l, TScalar r ) => l.ScalarMultiply( r );
+	public static Multivector2<TScalar> operator *( TScalar l, in Multivector2<TScalar> r ) => r.ScalarMultiply( l );
+	public static Multivector2<TScalar> operator /( in Multivector2<TScalar> l, TScalar r ) => l.ScalarDivide( r );
 	public static Multivector2<TScalar> operator /( TScalar l, in Multivector2<TScalar> r ) => DivideScalar( l, r );
 
 	public static bool operator ==( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => l.Scalar == r.Scalar && l.Vector == r.Vector && l.Bivector == r.Bivector;
@@ -46,5 +60,10 @@ public readonly struct Multivector2<TScalar>( TScalar scalar, Vector2<TScalar> v
 	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Multivector2<TScalar> v && this == v;
 	public override int GetHashCode() => HashCode.Combine( Scalar, Vector, Bivector );
 	public override string ToString() => $"[{Scalar:N3}+{Vector}+{Bivector}]";
+
+	public static explicit operator TScalar( in Multivector2<TScalar> part ) => part.Scalar;
+	public static explicit operator Vector2<TScalar>( in Multivector2<TScalar> part ) => part.Vector;
+	public static explicit operator Bivector2<TScalar>( in Multivector2<TScalar> part ) => part.Bivector;
+	public static explicit operator Rotor2<TScalar>( in Multivector2<TScalar> part ) => new( part.Scalar, part.Bivector );
 
 }
