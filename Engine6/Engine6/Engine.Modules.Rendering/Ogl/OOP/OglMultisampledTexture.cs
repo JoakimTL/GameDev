@@ -1,4 +1,4 @@
-﻿using Engine.Math;
+﻿using Engine.Math.NewFolder;
 using OpenGL;
 
 namespace Engine.Modules.Rendering.Ogl.OOP;

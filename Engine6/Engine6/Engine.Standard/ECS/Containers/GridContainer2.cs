@@ -1,6 +1,6 @@
 ﻿using Engine.Data;
-using Engine.Math;
-using Engine.Math.Operations;
+using Engine.Math.NewFolder;
+using Engine.Math.NewFolder.Operations;
 using Engine.Modules.ECS;
 using Engine.Standard.ECS.Components;
 

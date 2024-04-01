@@ -1,8 +1,8 @@
 ﻿using Engine.Data;
 using Engine.Modules.ECS;
 using Engine.Standard.ECS.Components;
-using Engine.Math;
-using Engine.Math.Operations;
+using Engine.Math.NewFolder;
+using Engine.Math.NewFolder.Operations;
 
 namespace Engine.Standard.ECS.Containers;
 

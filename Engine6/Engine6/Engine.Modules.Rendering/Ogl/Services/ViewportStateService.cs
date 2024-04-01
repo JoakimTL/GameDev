@@ -1,5 +1,5 @@
-﻿using Engine.Math;
-using Engine.Math.Operations;
+﻿using Engine.Math.NewFolder;
+using Engine.Math.NewFolder.Operations;
 using OpenGL;
 using System.Runtime.CompilerServices;
 

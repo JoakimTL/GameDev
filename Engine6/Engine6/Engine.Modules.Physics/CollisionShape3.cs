@@ -1,5 +1,5 @@
 ﻿using Engine.Data;
-using Engine.Math;
+using Engine.Math.NewFolder;
 
 namespace Engine.Modules.Physics;
 public class CollisionShape3 {

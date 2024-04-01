@@ -1,7 +1,6 @@
 ﻿
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
-using Microsoft.Diagnostics.Tracing.Parsers.ApplicationServer;
 //using Engine.Math.Benchmarks;
 
 //T negate<T>(T v) where T : INumberBase<T> => -v;
