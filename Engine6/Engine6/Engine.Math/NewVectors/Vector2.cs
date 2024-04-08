@@ -32,6 +32,9 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 	public static Vector2<TScalar> Zero { get; } = new( TScalar.Zero, TScalar.Zero );
 	public static Vector2<TScalar> One { get; } = new( TScalar.One, TScalar.One );
 
+	public static Vector2<TScalar> UnitX { get; } = new( TScalar.One, TScalar.Zero );
+	public static Vector2<TScalar> UnitY { get; } = new( TScalar.Zero, TScalar.One );
+
 	public Multivector2<TScalar> GetMultivector() => new( TScalar.Zero, this, Bivector2<TScalar>.Zero );
 
 	public Vector2<TScalar> Negate() => new( -X, -Y );

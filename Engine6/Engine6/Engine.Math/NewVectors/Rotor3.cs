@@ -24,8 +24,6 @@ public readonly struct Rotor3<TScalar>( TScalar scalar, Bivector3<TScalar> bivec
 	public readonly TScalar Scalar = scalar;
 	public readonly Bivector3<TScalar> Bivector = bivector;
 
-	//Generic rotor and multivector?
-
 	public Rotor3( TScalar scalar, TScalar yz, TScalar zx, TScalar xy ) : this( scalar, new( yz, zx, xy ) ) { }
 
 	public static Rotor3<TScalar> AdditiveIdentity => Zero;

@@ -26,6 +26,11 @@ public readonly struct Vector4<TScalar>( TScalar x, TScalar y, TScalar z, TScala
 	public static Vector4<TScalar> Zero { get; } = new( TScalar.Zero, TScalar.Zero, TScalar.Zero, TScalar.Zero );
 	public static Vector4<TScalar> One { get; } = new( TScalar.One, TScalar.One, TScalar.One, TScalar.One );
 
+	public static Vector4<TScalar> UnitX { get; } = new( TScalar.One, TScalar.Zero, TScalar.Zero, TScalar.Zero );
+	public static Vector4<TScalar> UnitY { get; } = new( TScalar.Zero, TScalar.One, TScalar.Zero, TScalar.Zero );
+	public static Vector4<TScalar> UnitZ { get; } = new( TScalar.Zero, TScalar.Zero, TScalar.One, TScalar.Zero );
+	public static Vector4<TScalar> UnitW { get; } = new( TScalar.Zero, TScalar.Zero, TScalar.Zero, TScalar.One );
+
 	public Multivector4<TScalar> GetMultivector() => new( TScalar.Zero, this, Bivector4<TScalar>.Zero, Trivector4<TScalar>.Zero, Quadvector4<TScalar>.Zero );
 
 	public Vector4<TScalar> Negate() => new( -X, -Y, -Z, -W );

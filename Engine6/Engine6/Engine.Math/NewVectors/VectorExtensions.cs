@@ -53,19 +53,16 @@ public static class VectorExtensions {
 	//	where TScalar : unmanaged, INumber<TScalar>
 	//	=> TVector.DivideEntrywise( l, r );
 
-	[MethodImpl( MethodImplOptions.AggressiveInlining )]
 	public static TScalar MagnitudeSquared<TVector, TScalar>( this TVector vector )
 		where TVector : unmanaged, IVector<TVector, TScalar>
 		where TScalar : unmanaged, INumber<TScalar>
 		=> vector.Dot( vector );
 
-	[MethodImpl( MethodImplOptions.AggressiveInlining )]
 	public static TScalar Magnitude<TVector, TScalar>( this TVector vector )
 		where TVector : unmanaged, IVector<TVector, TScalar>
 		where TScalar : unmanaged, IFloatingPointIeee754<TScalar>
 		=> TScalar.Sqrt( vector.MagnitudeSquared<TVector, TScalar>() );
 
-	[MethodImpl( MethodImplOptions.AggressiveInlining )]
 	public static TVector Normalize<TVector, TScalar>( this TVector vector )
 		where TVector : unmanaged, IVector<TVector, TScalar>
 		where TScalar : unmanaged, IFloatingPointIeee754<TScalar>

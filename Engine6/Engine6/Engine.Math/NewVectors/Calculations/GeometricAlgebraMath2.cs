@@ -8,8 +8,8 @@ public static class GeometricAlgebraMath2 {
 	 * 0 - s - scalar
 	 * 1 - v - vector2
 	 * 2 - b - bivector2
-	 * 4 - r - rotor2
-	 * 5 - m - multivector2
+	 * 3 - r - rotor2
+	 * 4 - m - multivector2
 	 * _____________________________
 	 * | * |   | s | v | b | r | m |
 	 * _____________________________
@@ -21,12 +21,12 @@ public static class GeometricAlgebraMath2 {
 	 * _____________________________
 	 * 
 	 * _____________________________
-	 * | * |   | 0 | 1 | 2 | 3 | 4 |
-	 * _____________________________
-	 * | 0 |   | 0 |   |   |   |   |
-	 * | 1 |   | 1 | 3 |   |   |   |
-	 * | 2 |   | 2 | 1 | 0 |   |   |
-	 * | 3 |   | 3 | 1 | 3 | 3 |   |
+	 * | *     | 0 | 1 | 2 | 3 | 4 |
+	 * |       |___________________|
+	 * | 0 |   | 0 | 1 | 2 | 3 | 4 |
+	 * | 1 |   | 1 | 3 | 1 | 1 | 4 |
+	 * | 2 |   | 2 | 1 | 0 | 3 | 4 |
+	 * | 3 |   | 3 | 1 | 3 | 3 | 4 |
 	 * | 4 |   | 4 | 4 | 4 | 4 | 4 |
 	 * _____________________________
 	 */
@@ -140,8 +140,8 @@ public static class GeometricAlgebraMath2 {
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
 			(l.Scalar * r.Scalar) - (l.Bivector.XY * r.Bivector.XY),
-			l.Vector.X * r.Scalar,
-			l.Vector.Y * r.Scalar,
+			(l.Vector.X * r.Scalar) - (l.Vector.Y * r.Bivector.XY),
+			(l.Vector.Y * r.Scalar) + (l.Vector.X * r.Bivector.XY),
 			(l.Scalar * r.Bivector.XY) + (l.Bivector.XY * r.Scalar)
 		);
 

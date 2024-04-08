@@ -33,6 +33,10 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 	public static Vector3<TScalar> Zero { get; } = new( TScalar.Zero, TScalar.Zero, TScalar.Zero );
 	public static Vector3<TScalar> One { get; } = new( TScalar.One, TScalar.One, TScalar.One );
 
+	public static Vector3<TScalar> UnitX { get; } = new( TScalar.One, TScalar.Zero, TScalar.Zero );
+	public static Vector3<TScalar> UnitY { get; } = new( TScalar.Zero, TScalar.One, TScalar.Zero );
+	public static Vector3<TScalar> UnitZ { get; } = new( TScalar.Zero, TScalar.Zero, TScalar.One );
+
 	public Multivector3<TScalar> GetMultivector() => new( TScalar.Zero, this, Bivector3<TScalar>.Zero, Trivector3<TScalar>.Zero );
 
 	public Vector3<TScalar> Negate() => new( -X, -Y, -Z );

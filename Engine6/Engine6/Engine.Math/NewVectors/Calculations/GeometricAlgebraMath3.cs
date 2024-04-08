@@ -12,7 +12,7 @@ public static class GeometricAlgebraMath3 {
 	 * 5 - m - multivector3
 	 * _________________________________
 	 * | * |   | s | v | b | t | r | m |
-	 * _________________________________
+	 * |_______________________________|
 	 * | s |   | s | v | b | t | r | m |
 	 * | v |   |   | r | m | b | m | m |
 	 * | b |   |   |   | r | v | r | m |
@@ -22,13 +22,13 @@ public static class GeometricAlgebraMath3 {
 	 * _________________________________
 	 * 
 	 * _________________________________
-	 * | * |   | 0 | 1 | 2 | 3 | 4 | 5 |
-	 * _________________________________
-	 * | 0 |   | 0 |   |   |   |   |   |
-	 * | 1 |   | 1 | 4 |   |   |   |   |
-	 * | 2 |   | 2 | 5 | 4 |   |   |   |
-	 * | 3 |   | 3 | 2 | 1 | 0 |   |   |
-	 * | 4 |   | 4 | 5 | 4 | 5 | 4 |   |
+	 * | *     | 0 | 1 | 2 | 3 | 4 | 5 |
+	 * |       ________________________|
+	 * | 0 |   | 0 | 1 | 2 | 3 | 4 | 5 |
+	 * | 1 |   | 1 | 4 | 5 | 2 | 5 | 5 |
+	 * | 2 |   | 2 | 5 | 4 | 1 | 4 | 5 |
+	 * | 3 |   | 3 | 2 | 1 | 0 | 5 | 5 |
+	 * | 4 |   | 4 | 5 | 4 | 5 | 4 | 5 |
 	 * | 5 |   | 5 | 5 | 5 | 5 | 5 | 5 |
 	 * _________________________________
 	 */
@@ -273,7 +273,7 @@ public static class GeometricAlgebraMath3 {
 	public static Multivector3<TScalar> Multiply<TScalar>( in Multivector3<TScalar> l, in Trivector3<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			(l.Trivector.XYZ * r.XYZ),
+			-(l.Trivector.XYZ * r.XYZ),
 			-(l.Bivector.YZ * r.XYZ),
 			-(l.Bivector.ZX * r.XYZ),
 			-(l.Bivector.XY * r.XYZ),

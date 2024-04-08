@@ -4,6 +4,7 @@ namespace Engine.Math.Tests.NewVectors;
 
 [TestFixture]
 public sealed class Multivector4Tests {
+	#region Initializations
 	[Test]
 	public void Constructors() {
 		Multivector4<int> vectorA = new( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
@@ -43,4 +44,212 @@ public sealed class Multivector4Tests {
 		Assert.That( vectorB.Trivector.XYZ, Is.EqualTo( 15.0 ) );
 		Assert.That( vectorB.Quadvector.XYZW, Is.EqualTo( 16.0 ) );
 	}
+
+	[Test]
+	public void Identities() {
+		Multivector4<int> addtitiveIdentityA = Multivector4<int>.AdditiveIdentity;
+		Multivector4<int> multiplicativeIdentityA = Multivector4<int>.MultiplicativeIdentity;
+		Multivector4<int> zeroA = Multivector4<int>.Zero;
+		Multivector4<int> oneA = Multivector4<int>.One;
+		Multivector4<double> addtitiveIdentityB = Multivector4<double>.AdditiveIdentity;
+		Multivector4<double> multiplicativeIdentityB = Multivector4<double>.MultiplicativeIdentity;
+		Multivector4<double> zeroB = Multivector4<double>.Zero;
+		Multivector4<double> oneB = Multivector4<double>.One;
+
+		Assert.That( addtitiveIdentityA, Is.EqualTo( zeroA ) );
+		Assert.That( multiplicativeIdentityA, Is.EqualTo( oneA ) );
+
+		Assert.That( zeroA.Scalar, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Vector.X, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Vector.Y, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Vector.Z, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Vector.W, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Bivector.YZ, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Bivector.ZX, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Bivector.XY, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Bivector.YW, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Bivector.ZW, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Bivector.XW, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Trivector.YZW, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Trivector.XZW, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Trivector.XYW, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Trivector.XYZ, Is.EqualTo( 0 ) );
+		Assert.That( zeroA.Quadvector.XYZW, Is.EqualTo( 0 ) );
+
+		Assert.That( oneA.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Vector.X, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Vector.Y, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Vector.Z, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Vector.W, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Bivector.YZ, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Bivector.ZX, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Bivector.XY, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Bivector.YW, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Bivector.ZW, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Bivector.XW, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Trivector.YZW, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Trivector.XZW, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Trivector.XYW, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Trivector.XYZ, Is.EqualTo( 1 ) );
+		Assert.That( oneA.Quadvector.XYZW, Is.EqualTo( 1 ) );
+
+		Assert.That( addtitiveIdentityB, Is.EqualTo( zeroB ) );
+		Assert.That( multiplicativeIdentityB, Is.EqualTo( oneB ) );
+
+		Assert.That( zeroB.Scalar, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Vector.X, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Vector.Y, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Vector.Z, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Vector.W, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Bivector.YZ, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Bivector.ZX, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Bivector.XY, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Bivector.YW, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Bivector.ZW, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Bivector.XW, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Trivector.YZW, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Trivector.XZW, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Trivector.XYW, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Trivector.XYZ, Is.EqualTo( 0.0 ) );
+		Assert.That( zeroB.Quadvector.XYZW, Is.EqualTo( 0.0 ) );
+
+		Assert.That( oneB.Scalar, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Vector.X, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Vector.Y, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Vector.Z, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Vector.W, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Bivector.YZ, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Bivector.ZX, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Bivector.XY, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Bivector.YW, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Bivector.ZW, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Bivector.XW, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Trivector.YZW, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Trivector.XZW, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Trivector.XYW, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Trivector.XYZ, Is.EqualTo( 1.0 ) );
+		Assert.That( oneB.Quadvector.XYZW, Is.EqualTo( 1.0 ) );
+	}
+	#endregion
+
+	#region Operators
+	[Test]
+	public void EqualOpertator_Int() {
+		bool equal = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) == new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		bool equal_scalar_isfalse = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) == new Multivector4<int>( 0, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		bool equal_vector_isfalse = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) == new Multivector4<int>( 1, new( 0, 0, 0, 0 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		bool equal_bivector_isfalse = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) == new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 0, 0, 0, 0, 0, 0 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		bool equal_trivector_isfalse = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) == new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 0, 0, 0, 0 ), new( 16 ) );
+		bool equal_quadvector_isfalse = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) == new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 0 ) );
+
+		Assert.That( equal, Is.True );
+		Assert.That( equal_scalar_isfalse, Is.False );
+		Assert.That( equal_vector_isfalse, Is.False );
+		Assert.That( equal_bivector_isfalse, Is.False );
+		Assert.That( equal_trivector_isfalse, Is.False );
+		Assert.That( equal_quadvector_isfalse, Is.False );
+	}
+
+	[Test]
+	public void NotEqualOperator_Int() {
+		bool equal_isfalse = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) != new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		bool notequal_scalar = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) != new Multivector4<int>( 0, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		bool notequal_vector = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) != new Multivector4<int>( 1, new( 0, 0, 0, 0 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		bool notequal_bivector = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) != new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 0, 0, 0, 0, 0, 0 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		bool notequal_trivector = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) != new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 0, 0, 0, 0 ), new( 16 ) );
+		bool notequal_quadvector = new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) ) != new Multivector4<int>( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 0 ) );
+
+		Assert.That( equal_isfalse, Is.False );
+		Assert.That( notequal_scalar, Is.True );
+		Assert.That( notequal_vector, Is.True );
+		Assert.That( notequal_bivector, Is.True );
+		Assert.That( notequal_trivector, Is.True );
+		Assert.That( notequal_quadvector, Is.True );
+	}
+
+	[Test]
+	public void EqualOperator_Double() {
+		bool equal = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) == new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) );
+		bool equal_scalar_isfalse = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) == new Multivector4<double>( 0.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) );
+		bool equal_vector_isfalse = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) == new Multivector4<double>( 1.0, new( 0.0, 0.0, 0.0, 0.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) );
+		bool equal_bivector_isfalse = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) == new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) );
+		bool equal_trivector_isfalse = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) == new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 0.0, 0.0, 0.0, 0.0 ), new( 16.0 ) );
+		bool equal_quadvector_isfalse = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) == new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 0.0 ) );
+
+		Assert.That( equal, Is.True );
+		Assert.That( equal_scalar_isfalse, Is.False );
+		Assert.That( equal_vector_isfalse, Is.False );
+		Assert.That( equal_bivector_isfalse, Is.False );
+		Assert.That( equal_trivector_isfalse, Is.False );
+		Assert.That( equal_quadvector_isfalse, Is.False );
+	}
+
+	[Test]
+	public void NotEqualOperator_Double() {
+		bool equal_isfalse = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) != new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) );
+		bool notequal_scalar = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) != new Multivector4<double>( 0.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) );
+		bool notequal_vector = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) != new Multivector4<double>( 1.0, new( 0.0, 0.0, 0.0, 0.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) );
+		bool notequal_bivector = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) != new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) );
+		bool notequal_trivector = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) != new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 0.0, 0.0, 0.0, 0.0 ), new( 16.0 ) );
+		bool notequal_quadvector = new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) ) != new Multivector4<double>( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 0.0 ) );
+
+		Assert.That( equal_isfalse, Is.False );
+		Assert.That( notequal_scalar, Is.True );
+		Assert.That( notequal_vector, Is.True );
+		Assert.That( notequal_bivector, Is.True );
+		Assert.That( notequal_trivector, Is.True );
+		Assert.That( notequal_quadvector, Is.True );
+	}
+
+	[Test]
+	public void NegateOperator() {
+		Multivector4<int> vectorA = new( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+
+		Multivector4<int> expected = new( -1, new( -2, -3, -4, -5 ), new( -6, -7, -8, -9, -10, -11 ), new( -12, -13, -14, -15 ), new( -16 ) );
+		Assert.That( -vectorA, Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void AddOperator() {
+		Multivector4<int> vectorA = new( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		Multivector4<int> vectorB = new( 17, new( 18, 19, 20, 21 ), new( 22, 23, 24, 25, 26, 27 ), new( 28, 29, 30, 31 ), new( 32 ) );
+
+		Multivector4<int> expected = new( 18, new( 20, 22, 24, 26 ), new( 28, 30, 32, 34, 36, 38 ), new( 40, 42, 44, 46 ), new( 48 ) );
+		Assert.That( vectorA + vectorB, Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void SubtractOperator() {
+		Multivector4<int> vectorA = new( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		Multivector4<int> vectorB = new( 17, new( 18, 19, 20, 21 ), new( 22, 23, 24, 25, 26, 27 ), new( 28, 29, 30, 31 ), new( 32 ) );
+
+		Multivector4<int> expected = new( -16, new( -16, -16, -16, -16 ), new( -16, -16, -16, -16, -16, -16 ), new( -16, -16, -16, -16 ), new( -16 ) );
+		Assert.That( vectorA - vectorB, Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void ScalarMultiplyOperator() {
+		Multivector4<int> vectorA = new( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+
+		Multivector4<int> expected = new( 2, new( 4, 6, 8, 10 ), new( 12, 14, 16, 18, 20, 22 ), new( 24, 26, 28, 30 ), new( 32 ) );
+		Assert.That( vectorA * 2, Is.EqualTo( expected ) );
+		Assert.That( 2 * vectorA, Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void ScalarDivideOperator() {
+		Multivector4<int> vectorA = new( 2, new( 4, 6, 8, 10 ), new( 12, 14, 16, 18, 20, 22 ), new( 24, 26, 28, 30 ), new( 32 ) );
+
+		Multivector4<int> expected = new( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
+		Assert.That( vectorA / 2, Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void DivideScalarOperator() {
+		Multivector4<int> vectorA = new( 2, new( 4, 6, 8, 10 ), new( 12, 14, 16, 18, 20, 22 ), new( 24, 26, 28, 30 ), new( 32 ) );
+
+		Multivector4<int> expected = new ( 64, new( 32, 21, 16, 12 ), new( 10, 9, 8, 7, 6, 5 ), new( 5, 4, 4, 4 ), new( 4 ) );
+		Assert.That( 128 / vectorA, Is.EqualTo( expected ) );
+	}
+	#endregion
 }

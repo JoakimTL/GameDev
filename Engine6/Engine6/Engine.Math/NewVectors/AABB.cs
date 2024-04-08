@@ -29,9 +29,9 @@ public readonly struct AABB<TVector, TScalar>
 		Maxima = v.Max( aabb.Maxima );
 	}
 
-	public static AABB<TVector, TScalar> Extend( in AABB<TVector, TScalar> aabb, in TVector v ) => new( aabb, v );
-	public static AABB<TVector, TScalar> GetLargestBounds( in AABB<TVector, TScalar> r, in AABB<TVector, TScalar> l ) => new( r.Minima.Min( l.Minima ), r.Maxima.Max( l.Maxima ) );
-	public static AABB<TVector, TScalar> GetSmallestBounds( in AABB<TVector, TScalar> r, in AABB<TVector, TScalar> l ) => new( r.Minima.Max( l.Minima ), r.Maxima.Min( l.Maxima ) );
+	public AABB<TVector, TScalar> Extend( in TVector v ) => new( this, v );
+	public AABB<TVector, TScalar> GetLargestBounds( in AABB<TVector, TScalar> l ) => new( Minima.Min( l.Minima ), Maxima.Max( l.Maxima ) );
+	public AABB<TVector, TScalar> GetSmallestBounds( in AABB<TVector, TScalar> l ) => new( Minima.Max( l.Minima ), Maxima.Min( l.Maxima ) );
 
 	public static bool operator ==( AABB<TVector, TScalar> left, AABB<TVector, TScalar> right ) => left.Equals( right );
 	public static bool operator !=( AABB<TVector, TScalar> left, AABB<TVector, TScalar> right ) => !(left == right);
