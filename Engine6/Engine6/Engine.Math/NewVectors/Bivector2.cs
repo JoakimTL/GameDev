@@ -10,10 +10,10 @@ public readonly struct Bivector2<TScalar>( TScalar xy ) :
 		IVector<Bivector2<TScalar>, TScalar>,
 		IPartOfMultivector<Multivector2<TScalar>, Bivector2<TScalar>>,
 		ILinearAlgebraOperators<Bivector2<TScalar>, TScalar>,
-		IGeometricProduct<Bivector2<TScalar>, Vector2<TScalar>, Vector2<TScalar>>,
-		IGeometricProduct<Bivector2<TScalar>, Bivector2<TScalar>, TScalar>,
-		IGeometricProduct<Bivector2<TScalar>, Rotor2<TScalar>, Rotor2<TScalar>>,
-		IGeometricProduct<Bivector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>
+		IProduct<Bivector2<TScalar>, Vector2<TScalar>, Vector2<TScalar>>,
+		IProduct<Bivector2<TScalar>, Bivector2<TScalar>, TScalar>,
+		IProduct<Bivector2<TScalar>, Rotor2<TScalar>, Rotor2<TScalar>>,
+		IProduct<Bivector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar XY = xy;
@@ -37,6 +37,10 @@ public readonly struct Bivector2<TScalar>( TScalar xy ) :
 	public TScalar Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Rotor2<TScalar> Multiply( in Rotor2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Multivector2<TScalar> Multiply( in Multivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public static Vector2<TScalar> operator *( in Bivector2<TScalar> l, in Vector2<TScalar> r ) => r.Multiply( l );
+	public static TScalar operator *( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => r.Multiply( l );
+	public static Rotor2<TScalar> operator *( in Bivector2<TScalar> l, in Rotor2<TScalar> r ) => r.Multiply( l );
+	public static Multivector2<TScalar> operator *( in Bivector2<TScalar> l, in Multivector2<TScalar> r ) => r.Multiply( l );
 
 	public static Bivector2<TScalar> operator -( in Bivector2<TScalar> l ) => l.Negate();
 	public static Bivector2<TScalar> operator +( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => l.Add( r );

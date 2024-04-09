@@ -11,12 +11,12 @@ public readonly struct Rotor2<TScalar>( TScalar scalar, Bivector2<TScalar> bivec
 		IRotor<Rotor2<TScalar>, Vector2<TScalar>, TScalar>,
 		IPartOfMultivector<Multivector2<TScalar>, Rotor2<TScalar>>,
 		ILinearAlgebraOperators<Rotor2<TScalar>, TScalar>,
-		IGeometricProduct<Rotor2<TScalar>, Vector2<TScalar>, Vector2<TScalar>>,
-		IGeometricProduct<Rotor2<TScalar>, Bivector2<TScalar>, Rotor2<TScalar>>,
-		IGeometricProduct<Rotor2<TScalar>, Rotor2<TScalar>, Rotor2<TScalar>>,
-		IGeometricProduct<Rotor2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>,
-		IContainsMultivectorPart<Rotor2<TScalar>, TScalar>,
-		IContainsMultivectorPart<Rotor2<TScalar>, Bivector2<TScalar>>
+		IProduct<Rotor2<TScalar>, Vector2<TScalar>, Vector2<TScalar>>,
+		IProduct<Rotor2<TScalar>, Bivector2<TScalar>, Rotor2<TScalar>>,
+		IProduct<Rotor2<TScalar>, Rotor2<TScalar>, Rotor2<TScalar>>,
+		IProduct<Rotor2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>,
+		IExplicitCast<Rotor2<TScalar>, TScalar>,
+		IExplicitCast<Rotor2<TScalar>, Bivector2<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar Scalar = scalar;
@@ -44,6 +44,10 @@ public readonly struct Rotor2<TScalar>( TScalar scalar, Bivector2<TScalar> bivec
 	public Rotor2<TScalar> Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Rotor2<TScalar> Multiply( in Rotor2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Multivector2<TScalar> Multiply( in Multivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public static Vector2<TScalar> operator *( in Rotor2<TScalar> l, in Vector2<TScalar> r ) => r.Multiply( l );
+	public static Rotor2<TScalar> operator *( in Rotor2<TScalar> l, in Bivector2<TScalar> r ) => r.Multiply( l );
+	public static Rotor2<TScalar> operator *( in Rotor2<TScalar> l, in Rotor2<TScalar> r ) => r.Multiply( l );
+	public static Multivector2<TScalar> operator *( in Rotor2<TScalar> l, in Multivector2<TScalar> r ) => r.Multiply( l );
 
 	public static Rotor2<TScalar> operator -( in Rotor2<TScalar> l ) => l.Negate();
 	public static Rotor2<TScalar> operator +( in Rotor2<TScalar> l, in Rotor2<TScalar> r ) => l.Add( r );

@@ -10,14 +10,14 @@ public readonly struct Multivector2<TScalar>( TScalar scalar, Vector2<TScalar> v
 		IVector<Multivector2<TScalar>, TScalar>,
 		IPartOfMultivector<Multivector2<TScalar>, Multivector2<TScalar>>,
 		ILinearAlgebraOperators<Multivector2<TScalar>, TScalar>,
-		IGeometricProduct<Multivector2<TScalar>, Vector2<TScalar>, Multivector2<TScalar>>,
-		IGeometricProduct<Multivector2<TScalar>, Bivector2<TScalar>, Multivector2<TScalar>>,
-		IGeometricProduct<Multivector2<TScalar>, Rotor2<TScalar>, Multivector2<TScalar>>,
-		IGeometricProduct<Multivector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>,
-		IContainsMultivectorPart<Multivector2<TScalar>, TScalar>,
-		IContainsMultivectorPart<Multivector2<TScalar>, Vector2<TScalar>>,
-		IContainsMultivectorPart<Multivector2<TScalar>, Bivector2<TScalar>>,
-		IContainsMultivectorPart<Multivector2<TScalar>, Rotor2<TScalar>>
+		IProduct<Multivector2<TScalar>, Vector2<TScalar>, Multivector2<TScalar>>,
+		IProduct<Multivector2<TScalar>, Bivector2<TScalar>, Multivector2<TScalar>>,
+		IProduct<Multivector2<TScalar>, Rotor2<TScalar>, Multivector2<TScalar>>,
+		IProduct<Multivector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>,
+		IExplicitCast<Multivector2<TScalar>, TScalar>,
+		IExplicitCast<Multivector2<TScalar>, Vector2<TScalar>>,
+		IExplicitCast<Multivector2<TScalar>, Bivector2<TScalar>>,
+		IExplicitCast<Multivector2<TScalar>, Rotor2<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar Scalar = scalar;
@@ -46,6 +46,10 @@ public readonly struct Multivector2<TScalar>( TScalar scalar, Vector2<TScalar> v
 	public Multivector2<TScalar> Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Multivector2<TScalar> Multiply( in Rotor2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Multivector2<TScalar> Multiply( in Multivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public static Multivector2<TScalar> operator *( in Multivector2<TScalar> l, in Vector2<TScalar> r ) => r.Multiply( l );
+	public static Multivector2<TScalar> operator *( in Multivector2<TScalar> l, in Bivector2<TScalar> r ) => r.Multiply( l );
+	public static Multivector2<TScalar> operator *( in Multivector2<TScalar> l, in Rotor2<TScalar> r ) => r.Multiply( l );
+	public static Multivector2<TScalar> operator *( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => r.Multiply( l );
 
 	public static Multivector2<TScalar> operator -( in Multivector2<TScalar> l ) => l.Negate();
 	public static Multivector2<TScalar> operator +( in Multivector2<TScalar> l, in Multivector2<TScalar> r ) => l.Add( r );

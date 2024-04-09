@@ -12,13 +12,13 @@ public readonly struct Rotor3<TScalar>( TScalar scalar, Bivector3<TScalar> bivec
 		IRotor<Rotor3<TScalar>, Vector3<TScalar>, TScalar>,
 		IPartOfMultivector<Multivector3<TScalar>, Rotor3<TScalar>>,
 		ILinearAlgebraOperators<Rotor3<TScalar>, TScalar>,
-		IGeometricProduct<Rotor3<TScalar>, Vector3<TScalar>, Multivector3<TScalar>>,
-		IGeometricProduct<Rotor3<TScalar>, Bivector3<TScalar>, Rotor3<TScalar>>,
-		IGeometricProduct<Rotor3<TScalar>, Trivector3<TScalar>, Multivector3<TScalar>>,
-		IGeometricProduct<Rotor3<TScalar>, Rotor3<TScalar>, Rotor3<TScalar>>,
-		IGeometricProduct<Rotor3<TScalar>, Multivector3<TScalar>, Multivector3<TScalar>>,
-		IContainsMultivectorPart<Rotor3<TScalar>, TScalar>,
-		IContainsMultivectorPart<Rotor3<TScalar>, Bivector3<TScalar>>
+		IProduct<Rotor3<TScalar>, Vector3<TScalar>, Multivector3<TScalar>>,
+		IProduct<Rotor3<TScalar>, Bivector3<TScalar>, Rotor3<TScalar>>,
+		IProduct<Rotor3<TScalar>, Trivector3<TScalar>, Multivector3<TScalar>>,
+		IProduct<Rotor3<TScalar>, Rotor3<TScalar>, Rotor3<TScalar>>,
+		IProduct<Rotor3<TScalar>, Multivector3<TScalar>, Multivector3<TScalar>>,
+		IExplicitCast<Rotor3<TScalar>, TScalar>,
+		IExplicitCast<Rotor3<TScalar>, Bivector3<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar Scalar = scalar;
@@ -49,6 +49,11 @@ public readonly struct Rotor3<TScalar>( TScalar scalar, Bivector3<TScalar> bivec
 	public Multivector3<TScalar> Multiply( in Trivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Rotor3<TScalar> Multiply( in Rotor3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Multivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
+	public static Multivector3<TScalar> operator *( in Rotor3<TScalar> l, in Vector3<TScalar> r ) => r.Multiply( l );
+	public static Rotor3<TScalar> operator *( in Rotor3<TScalar> l, in Bivector3<TScalar> r ) => r.Multiply( l );
+	public static Multivector3<TScalar> operator *( in Rotor3<TScalar> l, in Trivector3<TScalar> r ) => r.Multiply( l );
+	public static Rotor3<TScalar> operator *( in Rotor3<TScalar> l, in Rotor3<TScalar> r ) => r.Multiply( l );
+	public static Multivector3<TScalar> operator *( in Rotor3<TScalar> l, in Multivector3<TScalar> r ) => r.Multiply( l );
 
 	public static Rotor3<TScalar> operator -( in Rotor3<TScalar> l ) => l.Negate();
 	public static Rotor3<TScalar> operator +( in Rotor3<TScalar> l, in Rotor3<TScalar> r ) => l.Add( r );

@@ -13,15 +13,15 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 		IEntrywiseProductOperations<Vector3<TScalar>>,
 		IEntrywiseOperations<Vector3<TScalar>, TScalar>,
 		ILinearAlgebraOperators<Vector3<TScalar>, TScalar>,
-		IEntrywiseProductOperators<Vector3<TScalar>>,
 		IEntrywiseMinMaxOperations<Vector3<TScalar>>,
 		IVectorPartsOperations<Vector3<TScalar>, TScalar>,
-		IGeometricProduct<Vector3<TScalar>, Vector3<TScalar>, Rotor3<TScalar>>,
-		IGeometricProduct<Vector3<TScalar>, Bivector3<TScalar>, Multivector3<TScalar>>,
-		IGeometricProduct<Vector3<TScalar>, Trivector3<TScalar>, Bivector3<TScalar>>,
-		IGeometricProduct<Vector3<TScalar>, Rotor3<TScalar>, Multivector3<TScalar>>,
-		IGeometricProduct<Vector3<TScalar>, Multivector3<TScalar>, Multivector3<TScalar>>,
-		IReflectable<Vector3<TScalar>, TScalar>
+		IReflectable<Vector3<TScalar>, TScalar>,
+		IProduct<Vector3<TScalar>, Vector3<TScalar>, Rotor3<TScalar>>,
+		IProduct<Vector3<TScalar>, Bivector3<TScalar>, Multivector3<TScalar>>,
+		IProduct<Vector3<TScalar>, Trivector3<TScalar>, Bivector3<TScalar>>,
+		IProduct<Vector3<TScalar>, Rotor3<TScalar>, Multivector3<TScalar>>,
+		IProduct<Vector3<TScalar>, Multivector3<TScalar>, Multivector3<TScalar>>,
+		IProduct<Vector3<TScalar>, Matrix3x3<TScalar>, Vector3<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar X = x;
@@ -54,14 +54,21 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 	public Vector3<TScalar> Max( in Vector3<TScalar> r ) => new( TScalar.Max( X, r.X ), TScalar.Max( Y, r.Y ), TScalar.Max( Z, r.Z ) );
 	public TScalar SumOfParts() => X + Y + Z;
 	public TScalar ProductOfParts() => X * Y * Z;
+	public Vector3<TScalar> ReflectNormal( in Vector3<TScalar> normal ) => normal.Multiply( this ).Multiply( normal ).Vector;
 
 	public Rotor3<TScalar> Multiply( in Vector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Bivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Bivector3<TScalar> Multiply( in Trivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Rotor3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Multivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
+	public static Rotor3<TScalar> operator *( in Vector3<TScalar> l, in Vector3<TScalar> r ) => r.Multiply( l );
+	public static Multivector3<TScalar> operator *( in Vector3<TScalar> l, in Bivector3<TScalar> r ) => r.Multiply( l );
+	public static Bivector3<TScalar> operator *( in Vector3<TScalar> l, in Trivector3<TScalar> r ) => r.Multiply( l );
+	public static Multivector3<TScalar> operator *( in Vector3<TScalar> l, in Rotor3<TScalar> r ) => r.Multiply( l );
+	public static Multivector3<TScalar> operator *( in Vector3<TScalar> l, in Multivector3<TScalar> r ) => r.Multiply( l );
 
-	public Vector3<TScalar> ReflectNormal( in Vector3<TScalar> normal ) => normal.Multiply( this ).Multiply( normal ).Vector;
+	public Vector3<TScalar> Multiply( in Matrix3x3<TScalar> m ) => new( Dot( m.Col0 ), Dot( m.Col1 ), Dot( m.Col2 ) );
+	public static Vector3<TScalar> operator *( in Vector3<TScalar> l, in Matrix3x3<TScalar> r ) => l.Multiply( r );
 
 	public static Vector3<TScalar> operator -( in Vector3<TScalar> l ) => l.Negate();
 	public static Vector3<TScalar> operator +( in Vector3<TScalar> l, in Vector3<TScalar> r ) => l.Add( r );
@@ -70,8 +77,6 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 	public static Vector3<TScalar> operator *( TScalar l, in Vector3<TScalar> r ) => r.ScalarMultiply( l );
 	public static Vector3<TScalar> operator /( in Vector3<TScalar> l, TScalar r ) => l.ScalarDivide( r );
 	public static Vector3<TScalar> operator /( TScalar l, in Vector3<TScalar> r ) => DivideScalar( l, r );
-	public static Vector3<TScalar> operator *( in Vector3<TScalar> l, in Vector3<TScalar> r ) => l.MultiplyEntrywise( r );
-	public static Vector3<TScalar> operator /( in Vector3<TScalar> l, in Vector3<TScalar> r ) => l.DivideEntrywise( r );
 
 	public static bool operator ==( in Vector3<TScalar> l, in Vector3<TScalar> r ) => l.X == r.X && l.Y == r.Y && l.Z == r.Z;
 	public static bool operator !=( in Vector3<TScalar> l, in Vector3<TScalar> r ) => !(l == r);

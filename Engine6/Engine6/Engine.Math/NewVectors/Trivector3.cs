@@ -10,11 +10,11 @@ public readonly struct Trivector3<TScalar>( TScalar xyz ) :
 		IVector<Trivector3<TScalar>, TScalar>,
 		IPartOfMultivector<Multivector3<TScalar>, Trivector3<TScalar>>,
 		ILinearAlgebraOperators<Trivector3<TScalar>, TScalar>,
-		IGeometricProduct<Trivector3<TScalar>, Vector3<TScalar>, Bivector3<TScalar>>,
-		IGeometricProduct<Trivector3<TScalar>, Bivector3<TScalar>, Vector3<TScalar>>,
-		IGeometricProduct<Trivector3<TScalar>, Trivector3<TScalar>, TScalar>,
-		IGeometricProduct<Trivector3<TScalar>, Rotor3<TScalar>, Multivector3<TScalar>>,
-		IGeometricProduct<Trivector3<TScalar>, Multivector3<TScalar>, Multivector3<TScalar>>
+		IProduct<Trivector3<TScalar>, Vector3<TScalar>, Bivector3<TScalar>>,
+		IProduct<Trivector3<TScalar>, Bivector3<TScalar>, Vector3<TScalar>>,
+		IProduct<Trivector3<TScalar>, Trivector3<TScalar>, TScalar>,
+		IProduct<Trivector3<TScalar>, Rotor3<TScalar>, Multivector3<TScalar>>,
+		IProduct<Trivector3<TScalar>, Multivector3<TScalar>, Multivector3<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar XYZ = xyz;
@@ -39,6 +39,11 @@ public readonly struct Trivector3<TScalar>( TScalar xyz ) :
 	public TScalar Multiply( in Trivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Rotor3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Multivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
+	public static Bivector3<TScalar> operator *( in Trivector3<TScalar> l, in Vector3<TScalar> r ) => r.Multiply( l );
+	public static Vector3<TScalar> operator *( in Trivector3<TScalar> l, in Bivector3<TScalar> r ) => r.Multiply( l );
+	public static TScalar operator *( in Trivector3<TScalar> l, in Trivector3<TScalar> r ) => r.Multiply( l );
+	public static Multivector3<TScalar> operator *( in Trivector3<TScalar> l, in Rotor3<TScalar> r ) => r.Multiply( l );
+	public static Multivector3<TScalar> operator *( in Trivector3<TScalar> l, in Multivector3<TScalar> r ) => r.Multiply( l );
 
 	public static Trivector3<TScalar> operator -( in Trivector3<TScalar> l ) => l.Negate();
 	public static Trivector3<TScalar> operator +( in Trivector3<TScalar> l, in Trivector3<TScalar> r ) => l.Add( r );

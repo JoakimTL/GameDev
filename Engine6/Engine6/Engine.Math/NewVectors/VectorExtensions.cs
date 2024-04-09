@@ -107,4 +107,8 @@ public static class VectorExtensions {
 		where TScalar :
 			unmanaged, IFloatingPointIeee754<TScalar>
 		=> l.EntrywiseOperation( ( TScalar s ) => TScalar.Round( s, digits, roundingMode ) );
+
+	public static Vector3<TScalar> Cross<TScalar>( this Vector3<TScalar> l, in Vector3<TScalar> r )
+		where TScalar : unmanaged, INumber<TScalar>
+		=> l.Wedge(r) * -Trivector3<TScalar>.One;
 }

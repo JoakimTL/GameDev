@@ -1,5 +1,4 @@
-﻿using Engine.Math.NewFolder;
-using Engine.Math.NewVectors.Interfaces;
+﻿using Engine.Math.NewVectors.Interfaces;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
@@ -41,13 +40,19 @@ public readonly struct AABB<TVector, TScalar>
 }
 
 public static class AABB {
-	public static AABB<Vector2<TScalar>, TScalar> Create<TScalar>( Vector2<TScalar> v1, Vector2<TScalar> v2 ) where TScalar : unmanaged, INumber<TScalar>
+	public static AABB<Vector2<TScalar>, TScalar> Create<TScalar>( Vector2<TScalar> v1, Vector2<TScalar> v2 ) 
+		where TScalar : 
+			unmanaged, INumber<TScalar>
 		=> new( v1, v2 );
 
-	public static AABB<Vector3<TScalar>, TScalar> Create<TScalar>( Vector3<TScalar> v1, Vector3<TScalar> v2 ) where TScalar : unmanaged, INumber<TScalar>
+	public static AABB<Vector3<TScalar>, TScalar> Create<TScalar>( Vector3<TScalar> v1, Vector3<TScalar> v2 ) 
+		where TScalar : 
+			unmanaged, INumber<TScalar>
 		=> new( v1, v2 );
 
-	public static AABB<Vector4<TScalar>, TScalar> Create<TScalar>( Vector4<TScalar> v1, Vector4<TScalar> v2 ) where TScalar : unmanaged, INumber<TScalar>
+	public static AABB<Vector4<TScalar>, TScalar> Create<TScalar>( Vector4<TScalar> v1, Vector4<TScalar> v2 ) 
+		where TScalar : 
+			unmanaged, INumber<TScalar>
 		=> new( v1, v2 );
 
 	public static AABB<TVector, TScalar> Create<TVector, TScalar>( TVector v1, TVector v2 )

@@ -14,14 +14,14 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 		IEntrywiseProductOperations<Vector2<TScalar>>,
 		IEntrywiseOperations<Vector2<TScalar>, TScalar>,
 		ILinearAlgebraOperators<Vector2<TScalar>, TScalar>,
-		IEntrywiseProductOperators<Vector2<TScalar>>,
-		IEntrywiseMinMaxOperations<Vector2<TScalar>>,
 		IVectorPartsOperations<Vector2<TScalar>, TScalar>,
-		IGeometricProduct<Vector2<TScalar>, Vector2<TScalar>, Rotor2<TScalar>>,
-		IGeometricProduct<Vector2<TScalar>, Bivector2<TScalar>, Vector2<TScalar>>,
-		IGeometricProduct<Vector2<TScalar>, Rotor2<TScalar>, Vector2<TScalar>>,
-		IGeometricProduct<Vector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>,
-		IReflectable<Vector2<TScalar>, TScalar>
+		IEntrywiseMinMaxOperations<Vector2<TScalar>>,
+		IReflectable<Vector2<TScalar>, TScalar>,
+		IProduct<Vector2<TScalar>, Vector2<TScalar>, Rotor2<TScalar>>,
+		IProduct<Vector2<TScalar>, Bivector2<TScalar>, Vector2<TScalar>>,
+		IProduct<Vector2<TScalar>, Rotor2<TScalar>, Vector2<TScalar>>,
+		IProduct<Vector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>,
+		IProduct<Vector2<TScalar>, Matrix2x2<TScalar>, Vector2<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar X = x;
@@ -52,23 +52,27 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 	public Vector2<TScalar> Max( in Vector2<TScalar> r ) => new( TScalar.Max( X, r.X ), TScalar.Max( Y, r.Y ) );
 	public TScalar SumOfParts() => X + Y;
 	public TScalar ProductOfParts() => X * Y;
+	public Vector2<TScalar> ReflectNormal( in Vector2<TScalar> normal ) => normal.Multiply( this ).Multiply( normal );
 
 	public Rotor2<TScalar> Multiply( in Vector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Vector2<TScalar> Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Vector2<TScalar> Multiply( in Rotor2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Multivector2<TScalar> Multiply( in Multivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
+	public static Rotor2<TScalar> operator *( in Vector2<TScalar> l, in Vector2<TScalar> r ) => r.Multiply( l );
+	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, in Bivector2<TScalar> r ) => r.Multiply( l );
+	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, in Rotor2<TScalar> r ) => r.Multiply( l );
+	public static Multivector2<TScalar> operator *( in Vector2<TScalar> l, in Multivector2<TScalar> r ) => r.Multiply( l );
 
-	public Vector2<TScalar> ReflectNormal( in Vector2<TScalar> normal ) => normal.Multiply(this).Multiply(normal);
+	public Vector2<TScalar> Multiply( in Matrix2x2<TScalar> m ) => new( Dot( m.Col0 ), Dot( m.Col1 ) );
+	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, in Matrix2x2<TScalar> r ) => l.Multiply( r );
 
-	public static Vector2<TScalar> operator -( in Vector2<TScalar> l ) => l.Negate( );
+	public static Vector2<TScalar> operator -( in Vector2<TScalar> l ) => l.Negate();
 	public static Vector2<TScalar> operator +( in Vector2<TScalar> l, in Vector2<TScalar> r ) => l.Add( r );
 	public static Vector2<TScalar> operator -( in Vector2<TScalar> l, in Vector2<TScalar> r ) => l.Subtract( r );
 	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, TScalar r ) => l.ScalarMultiply( r );
 	public static Vector2<TScalar> operator *( TScalar l, in Vector2<TScalar> r ) => r.ScalarMultiply( l );
 	public static Vector2<TScalar> operator /( in Vector2<TScalar> l, TScalar r ) => l.ScalarDivide( r );
 	public static Vector2<TScalar> operator /( TScalar l, in Vector2<TScalar> r ) => DivideScalar( l, r );
-	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, in Vector2<TScalar> r ) => l.MultiplyEntrywise( r );
-	public static Vector2<TScalar> operator /( in Vector2<TScalar> l, in Vector2<TScalar> r ) => l.DivideEntrywise( r );
 
 	public static bool operator ==( in Vector2<TScalar> l, in Vector2<TScalar> r ) => l.X == r.X && l.Y == r.Y;
 	public static bool operator !=( in Vector2<TScalar> l, in Vector2<TScalar> r ) => !(l == r);

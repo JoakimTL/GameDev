@@ -11,9 +11,9 @@ public readonly struct Vector4<TScalar>( TScalar x, TScalar y, TScalar z, TScala
 		IEntrywiseProductOperations<Vector4<TScalar>>,
 		IEntrywiseOperations<Vector4<TScalar>, TScalar>,
 		ILinearAlgebraOperators<Vector4<TScalar>, TScalar>,
-		IEntrywiseProductOperators<Vector4<TScalar>>,
 		IEntrywiseMinMaxOperations<Vector4<TScalar>>,
-		IVectorPartsOperations<Vector4<TScalar>, TScalar>
+		IVectorPartsOperations<Vector4<TScalar>, TScalar>,
+		IProduct<Vector4<TScalar>, Matrix4x4<TScalar>, Vector4<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar X = x;
@@ -48,6 +48,9 @@ public readonly struct Vector4<TScalar>( TScalar x, TScalar y, TScalar z, TScala
 	public TScalar SumOfParts() => X + Y + Z + W;
 	public TScalar ProductOfParts() => X * Y * Z * W;
 
+	public Vector4<TScalar> Multiply( in Matrix4x4<TScalar> m ) => new( Dot( m.Col0 ), Dot( m.Col1 ), Dot( m.Col2 ), Dot( m.Col3 ) );
+	public static Vector4<TScalar> operator *( in Vector4<TScalar> l, in Matrix4x4<TScalar> r ) => l.Multiply( r );
+
 	public static Vector4<TScalar> operator -( in Vector4<TScalar> l ) => l.Negate();
 	public static Vector4<TScalar> operator +( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.Add( r );
 	public static Vector4<TScalar> operator -( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.Subtract( r );
@@ -55,8 +58,6 @@ public readonly struct Vector4<TScalar>( TScalar x, TScalar y, TScalar z, TScala
 	public static Vector4<TScalar> operator *( TScalar l, in Vector4<TScalar> r ) => r.ScalarMultiply( l );
 	public static Vector4<TScalar> operator /( in Vector4<TScalar> l, TScalar r ) => l.ScalarDivide( r );
 	public static Vector4<TScalar> operator /( TScalar l, in Vector4<TScalar> r ) => DivideScalar( l, r );
-	public static Vector4<TScalar> operator *( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.MultiplyEntrywise( r );
-	public static Vector4<TScalar> operator /( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.DivideEntrywise( r );
 
 	public static bool operator ==( in Vector4<TScalar> l, in Vector4<TScalar> r ) => l.X == r.X && l.Y == r.Y && l.Z == r.Z && l.W == r.W;
 	public static bool operator !=( in Vector4<TScalar> l, in Vector4<TScalar> r ) => !(l == r);
