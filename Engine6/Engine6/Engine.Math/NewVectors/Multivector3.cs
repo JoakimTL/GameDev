@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
-using Engine.Math.NewFolder;
 using Engine.Math.NewVectors.Calculations;
 using Engine.Math.NewVectors.Interfaces;
 
@@ -10,7 +10,8 @@ namespace Engine.Math.NewVectors;
 public readonly struct Multivector3<TScalar>( TScalar scalar, Vector3<TScalar> vector, Bivector3<TScalar> bivector, Trivector3<TScalar> trivector ) :
 		IVector<Multivector3<TScalar>, TScalar>,
 		IPartOfMultivector<Multivector3<TScalar>, Multivector3<TScalar>>,
-		ILinearAlgebraOperators<Multivector3<TScalar>, TScalar>,
+		ILinearAlgebraVectorOperators<Multivector3<TScalar>>,
+		ILinearAlgebraScalarOperators<Multivector3<TScalar>, TScalar>,
 		IProduct<Multivector3<TScalar>, Vector3<TScalar>, Multivector3<TScalar>>,
 		IProduct<Multivector3<TScalar>, Bivector3<TScalar>, Multivector3<TScalar>>,
 		IProduct<Multivector3<TScalar>, Trivector3<TScalar>, Multivector3<TScalar>>,
@@ -35,6 +36,7 @@ public readonly struct Multivector3<TScalar>( TScalar scalar, Vector3<TScalar> v
 	public static Multivector3<TScalar> MultiplicativeIdentity => One;
 	public static Multivector3<TScalar> Zero { get; } = new( TScalar.Zero, Vector3<TScalar>.Zero, Bivector3<TScalar>.Zero, Trivector3<TScalar>.Zero );
 	public static Multivector3<TScalar> One { get; } = new( TScalar.One, Vector3<TScalar>.One, Bivector3<TScalar>.One, Trivector3<TScalar>.One );
+	public static Multivector3<TScalar> Two { get; } = One + One;
 
 	public Multivector3<TScalar> GetMultivector() => this;
 
@@ -51,11 +53,11 @@ public readonly struct Multivector3<TScalar>( TScalar scalar, Vector3<TScalar> v
 	public Multivector3<TScalar> Multiply( in Trivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Rotor3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Multivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
-	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Vector3<TScalar> r ) => r.Multiply( l );
-	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Bivector3<TScalar> r ) => r.Multiply( l );
-	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Trivector3<TScalar> r ) => r.Multiply( l );
-	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Rotor3<TScalar> r ) => r.Multiply( l );
-	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Multivector3<TScalar> r ) => r.Multiply( l );
+	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Vector3<TScalar> r ) => l.Multiply( r );
+	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Bivector3<TScalar> r ) => l.Multiply( r );
+	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Trivector3<TScalar> r ) => l.Multiply( r );
+	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Rotor3<TScalar> r ) => l.Multiply( r );
+	public static Multivector3<TScalar> operator *( in Multivector3<TScalar> l, in Multivector3<TScalar> r ) => l.Multiply( r );
 
 	public static Multivector3<TScalar> operator -( in Multivector3<TScalar> l ) => l.Negate();
 	public static Multivector3<TScalar> operator +( in Multivector3<TScalar> l, in Multivector3<TScalar> r ) => l.Add( r );
@@ -69,7 +71,7 @@ public readonly struct Multivector3<TScalar>( TScalar scalar, Vector3<TScalar> v
 	public static bool operator !=( in Multivector3<TScalar> l, in Multivector3<TScalar> r ) => !(l == r);
 	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Multivector3<TScalar> v && this == v;
 	public override int GetHashCode() => HashCode.Combine( Scalar, Vector, Bivector, Trivector );
-	public override string ToString() => $"[{Scalar:N3}+{Vector}+{Bivector}+{Trivector}]";
+	public override string ToString() => string.Create( CultureInfo.InvariantCulture, $"<{Scalar:#,##0.###} + {Vector} + {Bivector} + {Trivector}>" );
 
 	public static explicit operator TScalar( in Multivector3<TScalar> part ) => part.Scalar;
 	public static explicit operator Vector3<TScalar>( in Multivector3<TScalar> part ) => part.Vector;

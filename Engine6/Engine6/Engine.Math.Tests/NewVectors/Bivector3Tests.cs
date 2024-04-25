@@ -1,4 +1,5 @@
 ﻿using Engine.Math.NewVectors;
+using Engine.Math.NewVectors.Calculations;
 
 namespace Engine.Math.Tests.NewVectors;
 
@@ -156,6 +157,109 @@ public sealed class Bivector3Tests {
 
 		Bivector3<int> expected = new( 4, 3, 2 );
 		Assert.That( 24 / vectorA, Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void MultiplyVector3Operator() {
+		Bivector3<int> a = new( 1, 2, 3 );
+		Vector3<int> b = new( 2, 3, 4 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyBivector3Operator() {
+		Bivector3<int> a = new( 1, 2, 3 );
+		Bivector3<int> b = new( 4, 5, 6 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyTrivector3Operator() {
+		Bivector3<int> a = new( 1, 2, 3 );
+		Trivector3<int> b = new( 4 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyRotor3Operator() {
+		Bivector3<int> a = new( 1, 2, 3 );
+		Rotor3<int> b = new( 4, 5, 6, 7 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyMultivector3Operator() {
+		Bivector3<int> a = new( 1, 2, 3 );
+		Multivector3<int> b = new( 4, 5, 6, 7, 8, 9, 10, 11 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+	#endregion
+
+	#region Methods
+	[Test]
+	public void GetMultivector() {
+		Bivector3<int> bivector = new( 1, 2, 3 );
+
+		Multivector3<int> multivector = bivector.GetMultivector();
+
+		Assert.That( multivector.Scalar, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.X, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.Y, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.Z, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.XY, Is.EqualTo( 3 ) );
+		Assert.That( multivector.Bivector.YZ, Is.EqualTo( 1 ) );
+		Assert.That( multivector.Bivector.ZX, Is.EqualTo( 2 ) );
+		Assert.That( multivector.Trivector.XYZ, Is.EqualTo( 0 ) );
+	}
+
+	[Test]
+	public void Dot() {
+		Bivector3<int> bivectorA = new( 1, 2, 3 );
+		Bivector3<int> bivectorB = new( 4, 5, 6 );
+
+		int expected = -32;
+
+		Assert.That( bivectorA.Dot( bivectorB ), Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void Test_Equals() {
+		Bivector3<int> bivector = new( 1, 2, 3 );
+
+		Assert.That( bivector.Equals( bivector ), Is.True );
+		Assert.That( bivector.Equals( new Bivector3<int>( 1, 2, 3 ) ), Is.True );
+		Assert.That( bivector.Equals( new Bivector3<int>( 2, 5, 7 ) ), Is.False );
+		Assert.That( bivector.Equals( "Test" ), Is.False );
+	}
+
+	[Test]
+	public void Test_GetHashCode() {
+		Bivector3<int> bivector_1 = new( 1, 2, 3 );
+		Bivector3<int> bivector_2 = new( 1, 2, 3 );
+		Bivector3<int> bivector_3 = new( 2, 5, 7 );
+		Bivector3<int> bivector_4 = new( 2, 5, 7 );
+
+		Assert.That( bivector_1.GetHashCode(), Is.EqualTo( bivector_2.GetHashCode() ) );
+		Assert.That( bivector_1.GetHashCode(), Is.Not.EqualTo( bivector_3.GetHashCode() ) );
+		Assert.That( bivector_3.GetHashCode(), Is.EqualTo( bivector_4.GetHashCode() ) );
+	}
+
+	[Test]
+	public void Test_ToString() {
+		Bivector3<int> bivector_1 = new( 1, 2, 3 );
+		Bivector3<int> bivector_2 = new( -56, 67, 1200 );
+		Bivector3<double> bivector_3 = new( -69.4201, 70.8882, 23.233 );
+		Bivector3<int> allNegative = new( -1, -2, -3 );
+
+		Assert.That( bivector_1.ToString(), Is.EqualTo( "[1YZ + 2ZX + 3XY]" ) );
+		Assert.That( bivector_2.ToString(), Is.EqualTo( "[-56YZ + 67ZX + 1,200XY]" ) );
+		Assert.That( bivector_3.ToString(), Is.EqualTo( "[-69.42YZ + 70.888ZX + 23.233XY]" ) );
+		Assert.That( allNegative.ToString(), Is.EqualTo( "[-1YZ - 2ZX - 3XY]" ) );
 	}
 	#endregion
 }

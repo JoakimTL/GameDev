@@ -1,4 +1,5 @@
 ﻿using Engine.Math.NewVectors;
+using Engine.Math.NewVectors.Calculations;
 
 namespace Engine.Math.Tests.NewVectors;
 
@@ -9,6 +10,7 @@ public sealed class Multivector2Tests {
 	public void Constructors() {
 		Multivector2<int> vectorA = new( 1, new( 2, 3 ), new( 4 ) );
 		Multivector2<double> vectorB = new( 1.0, new( 2.0, 3.0 ), new( 4.0 ) );
+		Multivector2<int> vectorC = new( 1, 2, 3, 4 );
 
 		Assert.That( vectorA.Scalar, Is.EqualTo( 1 ) );
 		Assert.That( vectorA.Vector.X, Is.EqualTo( 2 ) );
@@ -19,7 +21,13 @@ public sealed class Multivector2Tests {
 		Assert.That( vectorB.Vector.X, Is.EqualTo( 2.0 ) );
 		Assert.That( vectorB.Vector.Y, Is.EqualTo( 3.0 ) );
 		Assert.That( vectorB.Bivector.XY, Is.EqualTo( 4.0 ) );
+
+		Assert.That( vectorC.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( vectorC.Vector.X, Is.EqualTo( 2 ) );
+		Assert.That( vectorC.Vector.Y, Is.EqualTo( 3 ) );
+		Assert.That( vectorC.Bivector.XY, Is.EqualTo( 4 ) );
 	}
+
 	[Test]
 	public void Identities() {
 		Multivector2<int> addtitiveIdentityA = Multivector2<int>.AdditiveIdentity;
@@ -161,6 +169,135 @@ public sealed class Multivector2Tests {
 
 		Multivector2<int> expected = new( 4, new( 3, 2 ), new( 2 ) );
 		Assert.That( 24 / vectorA, Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void MultiplyVector2Operator() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+		Vector2<int> b = new( 5, 6 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath2.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyBivector2Operator() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+		Bivector2<int> b = new( 5 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath2.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyRotor2Operator() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+		Rotor2<int> b = new( 5, 6 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath2.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyMultivector2Operator() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+		Multivector2<int> b = new( 5, 6, 7, 8 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath2.Multiply( a, b ) ) );
+	}
+	#endregion
+
+	#region Methods
+	[Test]
+	public void GetMultivector() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+
+		Multivector2<int> multivector = a.GetMultivector();
+
+		Assert.That( multivector.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( multivector.Vector.X, Is.EqualTo( 2 ) );
+		Assert.That( multivector.Vector.Y, Is.EqualTo( 3 ) );
+		Assert.That( multivector.Bivector.XY, Is.EqualTo( 4 ) );
+	}
+
+	[Test]
+	public void Dot() {
+		Multivector2<int> vectorA = new( 1, 2, 3, 4 );
+		Multivector2<int> vectorB = new( 5, 6, 7, 8 );
+
+		int dot = vectorA.Dot( vectorB );
+
+		Assert.That( dot, Is.EqualTo( 6 ) );
+	}
+
+	[Test]
+	public void Test_Equals() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+
+		Assert.That( a.Equals( a ), Is.True );
+		Assert.That( a.Equals( new Multivector2<int>( 1, 2, 3, 4 ) ), Is.True );
+		Assert.That( a.Equals( new Multivector2<int>( 2, 5, 6, 12 ) ), Is.False );
+		Assert.That( a.Equals( "Test" ), Is.False );
+	}
+
+	[Test]
+	public void Test_GetHashCode() {
+		Multivector2<int> multivector_1 = new( 1, 2, 3, 4 );
+		Multivector2<int> multivector_2 = new( 1, 2, 3, 4 );
+		Multivector2<int> multivector_3 = new( 2, 5, 6, 10 );
+		Multivector2<int> multivector_4 = new( 2, 5, 6, 10 );
+
+		Assert.That( multivector_1.GetHashCode(), Is.EqualTo( multivector_2.GetHashCode() ) );
+		Assert.That( multivector_1.GetHashCode(), Is.Not.EqualTo( multivector_3.GetHashCode() ) );
+		Assert.That( multivector_3.GetHashCode(), Is.EqualTo( multivector_4.GetHashCode() ) );
+	}
+
+	[Test]
+	public void Test_ToString() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+		Multivector2<int> b = new( -56, 60, 1230, -5 );
+		Multivector2<double> c = new( -69.4201, 70.5, 50.9999, 23.232 );
+
+		Assert.That( a.ToString(), Is.EqualTo( $"<1 + {a.Vector} + {a.Bivector}>" ) );
+		Assert.That( b.ToString(), Is.EqualTo( $"<-56 + {b.Vector} + {b.Bivector}>" ) );
+		Assert.That( c.ToString(), Is.EqualTo( $"<-69.42 + {c.Vector} + {c.Bivector}>" ) );
+	}
+	#endregion
+
+	#region Casts
+	[Test]
+	public void CastToScalar() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+
+		int result = (int) a;
+
+		Assert.That( result, Is.EqualTo( 1 ) );
+	}
+
+	[Test]
+	public void CastToVector() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+
+		Vector2<int> result = (Vector2<int>) a;
+
+		Assert.That( result.X, Is.EqualTo( 2 ) );
+		Assert.That( result.Y, Is.EqualTo( 3 ) );
+	}
+
+	[Test]
+	public void CastToBivector() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+
+		Bivector2<int> result = (Bivector2<int>) a;
+
+		Assert.That( result.XY, Is.EqualTo( 4 ) );
+	}
+
+	[Test]
+	public void CastToRotor() {
+		Multivector2<int> a = new( 1, 2, 3, 4 );
+
+		Rotor2<int> result = (Rotor2<int>) a;
+
+		Assert.That( result.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( result.Bivector.XY, Is.EqualTo( 4 ) );
 	}
 	#endregion
 }

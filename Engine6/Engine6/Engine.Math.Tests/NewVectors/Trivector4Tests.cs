@@ -172,4 +172,74 @@ public sealed class Trivector4Tests {
 		Assert.That( 32 / vectorA, Is.EqualTo( expected ) );
 	}
 	#endregion
+
+	#region Methods
+	[Test]
+	public void GetMultivector() {
+		Trivector4<int> a = new( 1, 2, 3, 4 );
+
+		Multivector4<int> multivector = a.GetMultivector();
+
+		Assert.That( multivector.Scalar, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.X, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.Y, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.Z, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.W, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.YZ, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.ZX, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.XY, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.YW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.ZW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.XW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Trivector.YZW, Is.EqualTo( 1 ) );
+		Assert.That( multivector.Trivector.XZW, Is.EqualTo( 2 ) );
+		Assert.That( multivector.Trivector.XYW, Is.EqualTo( 3 ) );
+		Assert.That( multivector.Trivector.XYZ, Is.EqualTo( 4 ) );
+		Assert.That( multivector.Quadvector.XYZW, Is.EqualTo( 0 ) );
+
+	}
+
+	[Test]
+	public void Dot() {
+		Trivector4<int> a = new( 1, 2, 3, 4 );
+		Trivector4<int> b = new( 5, 6, 7, 8 );
+
+		int expected = -70;
+
+		Assert.That( a.Dot( b ), Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void Test_Equals() {
+		Trivector4<int> a = new( 1, 2, 3, 4 );
+
+		Assert.That( a.Equals( a ), Is.True );
+		Assert.That( a.Equals( new Trivector4<int>( 1, 2, 3, 4 ) ), Is.True );
+		Assert.That( a.Equals( new Trivector4<int>( 2, 5, 6, 2 ) ), Is.False );
+		Assert.That( a.Equals( "Test" ), Is.False );
+	}
+
+	[Test]
+	public void Test_GetHashCode() {
+		Trivector4<int> a = new( 1, 2, 3, 4 );
+		Trivector4<int> b = new( 1, 2, 3, 4 );
+		Trivector4<int> c = new( 2, 5, 6, 7 );
+		Trivector4<int> d = new( 2, 5, 6, 7 );
+
+		Assert.That( a.GetHashCode(), Is.EqualTo( b.GetHashCode() ) );
+		Assert.That( a.GetHashCode(), Is.Not.EqualTo( c.GetHashCode() ) );
+		Assert.That( c.GetHashCode(), Is.EqualTo( d.GetHashCode() ) );
+	}
+
+	[Test]
+	public void Test_ToString() {
+		Trivector4<int> a = new( 1, 2, 3, 4005 );
+		Trivector4<double> c = new( -69.4201, 604023.51321, 2348, 12 );
+		Trivector4<int> allNegative = new( -1, -2, -3, -4 );
+
+		Assert.That( a.ToString(), Is.EqualTo( "[1YZW + 2XZW + 3XYW + 4,005XYZ]" ) );
+		Assert.That( c.ToString(), Is.EqualTo( "[-69.42YZW + 604,023.513XZW + 2,348XYW + 12XYZ]" ) );
+		Assert.That( allNegative.ToString(), Is.EqualTo( "[-1YZW - 2XZW - 3XYW - 4XYZ]" ) );
+	}
+	#endregion
 }

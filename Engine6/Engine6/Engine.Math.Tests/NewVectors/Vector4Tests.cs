@@ -171,5 +171,230 @@ public sealed class Vector4Tests {
 		Vector4<int> expected = new( 16, 8, 4, 2 );
 		Assert.That( 32 / vectorA, Is.EqualTo( expected ) );
 	}
+	[Test]
+	public void MultiplyMatrix4x4Operator() {
+		Vector4<int> a = new( 1, 2, 3, 4 );
+		Matrix4x4<int> b = new(
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1
+		);
+		Matrix4x4<int> c = new(
+			0, 0, 0, 0,
+			1, 1, 0, 0,
+			0, 0, 1, 1,
+			0, 0, 0, 0
+		);
+		Matrix4x4<int> d = new(
+			0, 0, 1, 1,
+			0, 0, 1, 0,
+			0, 1, 1, 0,
+			1, 0, 1, 0
+		);
+
+		Vector4<int> expected_ab = new( 1, 2, 3, 4 );
+		Vector4<int> expected_ac = new( 2, 2, 3, 3 );
+		Vector4<int> expected_ad = new( 4, 3, 10, 1 );
+
+		Assert.That( a * b, Is.EqualTo( expected_ab ) );
+		Assert.That( a * c, Is.EqualTo( expected_ac ) );
+		Assert.That( a * d, Is.EqualTo( expected_ad ) );
+	}
+
+	[Test]
+	public void ComparisonOperators() {
+		Vector4<int> a = new( 1, 2, 3, 4 );
+		Vector4<int> b = new( 2, 3, 4, 5 );
+		Vector4<int> c = new( 2, 2, 3, 4 );
+		Vector4<int> d = new( 1, 2, 3, 4 );
+
+		Assert.That( a < b, Is.True );
+		Assert.That( a > b, Is.False );
+		Assert.That( a <= b, Is.True );
+		Assert.That( a >= b, Is.False );
+		Assert.That( a < c, Is.False );
+		Assert.That( a > c, Is.False );
+		Assert.That( a <= c, Is.True );
+		Assert.That( a >= c, Is.False );
+		Assert.That( a > d, Is.False );
+		Assert.That( a < d, Is.False );
+		Assert.That( a >= d, Is.True );
+		Assert.That( a <= d, Is.True );
+		Assert.That( b < c, Is.False );
+		Assert.That( b > c, Is.False );
+		Assert.That( b <= c, Is.False );
+		Assert.That( b >= c, Is.True );
+	}
+	#endregion
+
+	#region Methods
+	[Test]
+	public void GetMultivector() {
+		Vector4<int> a = new( 1, 2, 3, 4 );
+
+		Multivector4<int> multivector = a.GetMultivector();
+
+		Assert.That( multivector.Scalar, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.X, Is.EqualTo( 1 ) );
+		Assert.That( multivector.Vector.Y, Is.EqualTo( 2 ) );
+		Assert.That( multivector.Vector.Z, Is.EqualTo( 3 ) );
+		Assert.That( multivector.Vector.W, Is.EqualTo( 4 ) );
+		Assert.That( multivector.Bivector.XY, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.ZX, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.XW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.YZ, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.YW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.ZW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Trivector.XYZ, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Trivector.XYW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Trivector.XZW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Trivector.YZW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Quadvector.XYZW, Is.EqualTo( 0 ) );
+	}
+
+	[Test]
+	public void MultiplyEntrywise() {
+		Vector4<int> a = new( 1, 2, 3, 4 );
+		Vector4<int> b = new( 2, 3, 4, 5 );
+
+		Vector4<int> expected = new( 2, 6, 12, 20 );
+
+		Assert.That( a.MultiplyEntrywise( b ), Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void DivideEntrywise() {
+		Vector4<int> a = new( 4, 6, 8, 10 );
+		Vector4<int> b = new( 2, 3, 4, 5 );
+
+		Vector4<int> expected = new( 2, 2, 2, 2 );
+
+		Assert.That( a.DivideEntrywise( b ), Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void EntrywiseOperation() {
+		Vector4<int> a = new( 1, 2, 1, 3 );
+
+		Vector4<int> expected = new( 2, 4, 2, 6 );
+
+		Assert.That( a.EntrywiseOperation( x => x * 2 ), Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void Dot() {
+		Vector4<int> a = new( 1, 2, 3, 4 );
+		Vector4<int> b = new( 2, 3, 4, 5 );
+
+		int dot = a.Dot( b );
+
+		Assert.That( dot, Is.EqualTo( 40 ) );
+	}
+
+	//[Test]
+	//public void Wedge() {
+	//	Vector4<int> a = new( 1, 2, 3, 4 );
+	//	Vector4<int> b = new( 2, 3, 3, 4 );
+
+	//	Bivector4<int> wedge = a.Wedge( b );
+
+	//	Assert.That( wedge.XY, Is.EqualTo( -1 ) );
+	//}
+
+	[Test]
+	public void Min() {
+		Vector4<int> a = new( 1, 2, 3, -1 );
+		Vector4<int> b = new( 2, 1, 4, 2 );
+
+		Vector4<int> expected = new( 1, 1, 3, -1 );
+
+		Assert.That( a.Min( b ), Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void Max() {
+		Vector4<int> a = new( 1, 2, 3, -1 );
+		Vector4<int> b = new( 2, 1, 4, 2 );
+
+		Vector4<int> expected = new( 2, 2, 4, 2 );
+
+		Assert.That( a.Max( b ), Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void SumOfParts() {
+		Vector4<int> a = new( 2, 3, 5, 7 );
+
+		Assert.That( a.SumOfParts(), Is.EqualTo( 17 ) );
+	}
+
+	[Test]
+	public void ProductOfParts() {
+		Vector4<int> a = new( 2, 3, 5, 7 );
+
+		Assert.That( a.ProductOfParts(), Is.EqualTo( 210 ) );
+	}
+
+	[Test]
+	public void SumOfUnitBasisAreas() {
+		Vector4<int> a = new( 2, 3, 5, 7 );
+		//2*3+2*5+2*7+3*5+3*7+5*7
+		//6+10+14+15+21+35
+		//101
+		Assert.That( a.SumOfUnitBasisAreas(), Is.EqualTo( 101 ) );
+	}
+
+	[Test]
+	public void SumOfUnitBasisVolumes() {
+		Vector4<int> a = new( 2, 3, 5, 7 );
+		//2*3*5+3*5*7+2*5*7+2*3*7
+		//30+105+70+42
+		//247
+		Assert.That( a.SumOfUnitBasisVolumes(), Is.EqualTo( 247 ) );
+	}
+
+	//[Test]
+	//public void ReflectNormal() {
+	//	Vector4<int> a = new( 1, 2, 1, -5 );
+	//	Vector4<int> normal = new( 0, 1, 0, 0 );
+
+	//	Vector2<int> expected = new( -1, 2 );
+
+	//	Assert.That( a.ReflectNormal( normal ), Is.EqualTo( expected ) );
+	//}
+
+	[Test]
+	public void Test_Equals() {
+		Vector4<int> a = new( 1, 2, 3, 4 );
+
+		Assert.That( a.Equals( a ), Is.True );
+		Assert.That( a.Equals( new Vector4<int>( 1, 2, 3, 4 ) ), Is.True );
+		Assert.That( a.Equals( new Vector4<int>( 2, -3, 66, 123 ) ), Is.False );
+		Assert.That( a.Equals( "Test" ), Is.False );
+	}
+
+	[Test]
+	public void Test_GetHashCode() {
+		Vector4<int> a = new( 1, 2, 3, 4 );
+		Vector4<int> b = new( 1, 2, 3, 4 );
+		Vector4<int> c = new( 2, 5, 5, 6 );
+		Vector4<int> d = new( 2, 5, 5, 6 );
+
+		Assert.That( a.GetHashCode(), Is.EqualTo( b.GetHashCode() ) );
+		Assert.That( a.GetHashCode(), Is.Not.EqualTo( c.GetHashCode() ) );
+		Assert.That( c.GetHashCode(), Is.EqualTo( d.GetHashCode() ) );
+	}
+
+	[Test]
+	public void Test_ToString() {
+		Vector4<int> a = new( 1, -56300, 2, 4 );
+		Vector4<double> b = new( -69.4201, 7031, 33, 41 );
+		Vector4<int> allNegative = new( -1, -2, -3, -4 );
+
+		Assert.That( a.ToString(), Is.EqualTo( "[1X - 56,300Y + 2Z + 4W]" ) );
+		Assert.That( b.ToString(), Is.EqualTo( "[-69.42X + 7,031Y + 33Z + 41W]" ) );
+		Assert.That( allNegative.ToString(), Is.EqualTo( "[-1X - 2Y - 3Z - 4W]" ) );
+	}
 	#endregion
 }

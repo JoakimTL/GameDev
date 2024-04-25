@@ -44,5 +44,5 @@ public readonly struct Vector4<T>(T x, T y, T z, T w) :
     public static bool operator !=(in Vector4<T> l, in Vector4<T> r) => !(l == r);
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Vector4<T> v && this == v;
     public override int GetHashCode() => HashCode.Combine(X, Y, Z, W);
-    public override string ToString() => $"[{X:N3}X, {Y:N3}Y, {Z:N3}Z, {W:N3}W]";
+    public override string ToString() => $"[{X:0.###}X, {Y:0.###}Y, {Z:0.###}Z, {W:0.###}W]";
 }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 using Engine.Math.NewVectors.Interfaces;
 
@@ -8,7 +9,8 @@ namespace Engine.Math.NewVectors;
 public readonly struct Trivector4<TScalar>( TScalar yzw, TScalar xzw, TScalar xyw, TScalar xyz ) :
 		IVector<Trivector4<TScalar>, TScalar>,
 		IPartOfMultivector<Multivector4<TScalar>, Trivector4<TScalar>>,
-		ILinearAlgebraOperators<Trivector4<TScalar>, TScalar>
+		ILinearAlgebraVectorOperators<Trivector4<TScalar>>,
+		ILinearAlgebraScalarOperators<Trivector4<TScalar>, TScalar>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar YZW = yzw;
@@ -20,6 +22,7 @@ public readonly struct Trivector4<TScalar>( TScalar yzw, TScalar xzw, TScalar xy
 	public static Trivector4<TScalar> MultiplicativeIdentity => One;
 	public static Trivector4<TScalar> Zero { get; } = new( TScalar.Zero, TScalar.Zero, TScalar.Zero, TScalar.Zero );
 	public static Trivector4<TScalar> One { get; } = new( TScalar.One, TScalar.One, TScalar.One, TScalar.One );
+	public static Trivector4<TScalar> Two { get; } = One + One;
 
 	public Multivector4<TScalar> GetMultivector() => new( TScalar.Zero, Vector4<TScalar>.Zero, Bivector4<TScalar>.Zero, this, Quadvector4<TScalar>.Zero );
 
@@ -43,5 +46,7 @@ public readonly struct Trivector4<TScalar>( TScalar yzw, TScalar xzw, TScalar xy
 	public static bool operator !=( in Trivector4<TScalar> l, in Trivector4<TScalar> r ) => !(l == r);
 	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Trivector4<TScalar> v && this == v;
 	public override int GetHashCode() => HashCode.Combine( YZW, XZW, XYW, XYZ );
-	public override string ToString() => $"[{YZW:N3}YZW, {XZW:N3}XZW, {XYW:N3}XYW, {XYZ:N3}XYZ]";
+	public override string ToString() 
+		=> string.Create( CultureInfo.InvariantCulture, 
+			$"[{YZW:#,##0.###}YZW {XZW.SignCharacter()} {TScalar.Abs( XZW ):#,##0.###}XZW {XYW.SignCharacter()} {TScalar.Abs( XYW ):#,##0.###}XYW {XYZ.SignCharacter()} {TScalar.Abs( XYZ ):#,##0.###}XYZ]");
 }

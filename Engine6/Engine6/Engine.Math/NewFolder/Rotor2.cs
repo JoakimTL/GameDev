@@ -41,5 +41,5 @@ public readonly struct Rotor2<T>(T scalar, in Bivector2<T> bivector) :
     public static bool operator !=(in Rotor2<T> l, in Rotor2<T> r) => !(l == r);
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Rotor2<T> v && this == v;
     public override int GetHashCode() => HashCode.Combine(Scalar, Bivector);
-    public override string ToString() => $"[{Scalar:N3} + {Bivector}]";
+    public override string ToString() => $"[{Scalar:0.###} + {Bivector}]";
 }

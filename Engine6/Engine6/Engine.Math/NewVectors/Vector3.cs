@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 using Engine.Math.NewVectors.Calculations;
 using Engine.Math.NewVectors.Interfaces;
@@ -12,7 +13,8 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 		IPartOfMultivector<Multivector3<TScalar>, Vector3<TScalar>>,
 		IEntrywiseProductOperations<Vector3<TScalar>>,
 		IEntrywiseOperations<Vector3<TScalar>, TScalar>,
-		ILinearAlgebraOperators<Vector3<TScalar>, TScalar>,
+		ILinearAlgebraVectorOperators<Vector3<TScalar>>,
+		ILinearAlgebraScalarOperators<Vector3<TScalar>, TScalar>,
 		IEntrywiseMinMaxOperations<Vector3<TScalar>>,
 		IVectorPartsOperations<Vector3<TScalar>, TScalar>,
 		IReflectable<Vector3<TScalar>, TScalar>,
@@ -21,7 +23,9 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 		IProduct<Vector3<TScalar>, Trivector3<TScalar>, Bivector3<TScalar>>,
 		IProduct<Vector3<TScalar>, Rotor3<TScalar>, Multivector3<TScalar>>,
 		IProduct<Vector3<TScalar>, Multivector3<TScalar>, Multivector3<TScalar>>,
-		IProduct<Vector3<TScalar>, Matrix3x3<TScalar>, Vector3<TScalar>>
+		IProduct<Vector3<TScalar>, Matrix3x3<TScalar>, Vector3<TScalar>>,
+		IEntrywiseComparisonOperations<Vector3<TScalar>>,
+		IEntrywiseComparisonOperators<Vector3<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar X = x;
@@ -32,6 +36,7 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 	public static Vector3<TScalar> MultiplicativeIdentity => One;
 	public static Vector3<TScalar> Zero { get; } = new( TScalar.Zero, TScalar.Zero, TScalar.Zero );
 	public static Vector3<TScalar> One { get; } = new( TScalar.One, TScalar.One, TScalar.One );
+	public static Vector3<TScalar> Two { get; } = One + One;
 
 	public static Vector3<TScalar> UnitX { get; } = new( TScalar.One, TScalar.Zero, TScalar.Zero );
 	public static Vector3<TScalar> UnitY { get; } = new( TScalar.Zero, TScalar.One, TScalar.Zero );
@@ -54,6 +59,8 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 	public Vector3<TScalar> Max( in Vector3<TScalar> r ) => new( TScalar.Max( X, r.X ), TScalar.Max( Y, r.Y ), TScalar.Max( Z, r.Z ) );
 	public TScalar SumOfParts() => X + Y + Z;
 	public TScalar ProductOfParts() => X * Y * Z;
+	public TScalar SumOfUnitBasisAreas() => X * Y + Y * Z + Z * X;
+	public TScalar SumOfUnitBasisVolumes() => X * Y * Z;
 	public Vector3<TScalar> ReflectNormal( in Vector3<TScalar> normal ) => normal.Multiply( this ).Multiply( normal ).Vector;
 
 	public Rotor3<TScalar> Multiply( in Vector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
@@ -61,11 +68,11 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 	public Bivector3<TScalar> Multiply( in Trivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Rotor3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Multivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
-	public static Rotor3<TScalar> operator *( in Vector3<TScalar> l, in Vector3<TScalar> r ) => r.Multiply( l );
-	public static Multivector3<TScalar> operator *( in Vector3<TScalar> l, in Bivector3<TScalar> r ) => r.Multiply( l );
-	public static Bivector3<TScalar> operator *( in Vector3<TScalar> l, in Trivector3<TScalar> r ) => r.Multiply( l );
-	public static Multivector3<TScalar> operator *( in Vector3<TScalar> l, in Rotor3<TScalar> r ) => r.Multiply( l );
-	public static Multivector3<TScalar> operator *( in Vector3<TScalar> l, in Multivector3<TScalar> r ) => r.Multiply( l );
+	public static Rotor3<TScalar> operator *( in Vector3<TScalar> l, in Vector3<TScalar> r ) => l.Multiply( r );
+	public static Multivector3<TScalar> operator *( in Vector3<TScalar> l, in Bivector3<TScalar> r ) => l.Multiply( r );
+	public static Bivector3<TScalar> operator *( in Vector3<TScalar> l, in Trivector3<TScalar> r ) => l.Multiply( r );
+	public static Multivector3<TScalar> operator *( in Vector3<TScalar> l, in Rotor3<TScalar> r ) => l.Multiply( r );
+	public static Multivector3<TScalar> operator *( in Vector3<TScalar> l, in Multivector3<TScalar> r ) => l.Multiply( r );
 
 	public Vector3<TScalar> Multiply( in Matrix3x3<TScalar> m ) => new( Dot( m.Col0 ), Dot( m.Col1 ), Dot( m.Col2 ) );
 	public static Vector3<TScalar> operator *( in Vector3<TScalar> l, in Matrix3x3<TScalar> r ) => l.Multiply( r );
@@ -80,8 +87,17 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 
 	public static bool operator ==( in Vector3<TScalar> l, in Vector3<TScalar> r ) => l.X == r.X && l.Y == r.Y && l.Z == r.Z;
 	public static bool operator !=( in Vector3<TScalar> l, in Vector3<TScalar> r ) => !(l == r);
+
+	public bool GreaterThanEntrywise( in Vector3<TScalar> other ) => this.X > other.X && Y > other.Y && Z > other.Z;
+	public bool GreaterThanOrEqualEntrywise( in Vector3<TScalar> other ) => this.X >= other.X && Y >= other.Y && Z >= other.Z;
+	public static bool operator <( in Vector3<TScalar> left, in Vector3<TScalar> right ) => right.GreaterThanEntrywise( left );
+	public static bool operator >( in Vector3<TScalar> left, in Vector3<TScalar> right ) => left.GreaterThanEntrywise( right );
+	public static bool operator <=( in Vector3<TScalar> left, in Vector3<TScalar> right ) => right.GreaterThanOrEqualEntrywise( left );
+	public static bool operator >=( in Vector3<TScalar> left, in Vector3<TScalar> right ) => left.GreaterThanOrEqualEntrywise( right );
+
 	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Vector3<TScalar> v && this == v;
 	public override int GetHashCode() => HashCode.Combine( X, Y );
-	public override string ToString() => $"[{X:N3}X, {Y:N3}Y, {Z:N3}Z]";
-
+	public override string ToString() 
+		=> string.Create( CultureInfo.InvariantCulture, 
+			$"[{X:#,##0.###}X {Y.SignCharacter()} {TScalar.Abs( Y ):#,##0.###}Y {Z.SignCharacter()} {TScalar.Abs( Z ):#,##0.###}Z]" );
 }

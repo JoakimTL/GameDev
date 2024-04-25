@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
-using System.Runtime.CompilerServices;
 using Engine.Math.NewVectors.Interfaces;
 
 namespace Engine.Math.NewVectors;
 
-public static class VectorExtensions {
+public static class Vector {
 	//[MethodImpl( MethodImplOptions.AggressiveInlining )]
 	//public static TVector Negate<TVector, TScalar>( this IVector<TVector, TScalar> vector )
 	//	where TVector : unmanaged, IVector<TVector, TScalar>
@@ -54,23 +53,31 @@ public static class VectorExtensions {
 	//	=> TVector.DivideEntrywise( l, r );
 
 	public static TScalar MagnitudeSquared<TVector, TScalar>( this TVector vector )
-		where TVector : unmanaged, IVector<TVector, TScalar>
-		where TScalar : unmanaged, INumber<TScalar>
+		where TVector :
+			unmanaged, IVector<TVector, TScalar>
+		where TScalar :
+			unmanaged, INumber<TScalar>
 		=> vector.Dot( vector );
 
 	public static TScalar Magnitude<TVector, TScalar>( this TVector vector )
-		where TVector : unmanaged, IVector<TVector, TScalar>
-		where TScalar : unmanaged, IFloatingPointIeee754<TScalar>
+		where TVector :
+			unmanaged, IVector<TVector, TScalar>
+		where TScalar :
+			unmanaged, IFloatingPointIeee754<TScalar>
 		=> TScalar.Sqrt( vector.MagnitudeSquared<TVector, TScalar>() );
 
 	public static TVector Normalize<TVector, TScalar>( this TVector vector )
-		where TVector : unmanaged, IVector<TVector, TScalar>
-		where TScalar : unmanaged, IFloatingPointIeee754<TScalar>
+		where TVector :
+			unmanaged, IVector<TVector, TScalar>
+		where TScalar :
+			unmanaged, IFloatingPointIeee754<TScalar>
 		=> vector.ScalarDivide( vector.Magnitude<TVector, TScalar>() );
 
 	public static bool TryNormalize<TVector, TScalar>( this TVector vector, out TVector normalizedVector, out TScalar originalMagnitude )
-		where TVector : unmanaged, IVector<TVector, TScalar>
-		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
+		where TVector :
+			unmanaged, IVector<TVector, TScalar>
+		where TScalar :
+			unmanaged, IFloatingPointIeee754<TScalar> {
 		originalMagnitude = vector.Magnitude<TVector, TScalar>();
 		if (originalMagnitude == TScalar.Zero) {
 			normalizedVector = default;
@@ -110,5 +117,5 @@ public static class VectorExtensions {
 
 	public static Vector3<TScalar> Cross<TScalar>( this Vector3<TScalar> l, in Vector3<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
-		=> l.Wedge(r) * -Trivector3<TScalar>.One;
+		=> l.Wedge( r ) * -Trivector3<TScalar>.One;
 }

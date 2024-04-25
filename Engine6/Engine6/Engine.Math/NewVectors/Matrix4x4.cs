@@ -1,17 +1,24 @@
 ﻿using Engine.Math.NewVectors.Interfaces;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 
 namespace Engine.Math.NewVectors;
 
+/// <summary>
+/// Matrices are stored in row-major order.
+/// </summary>
 [System.Runtime.InteropServices.StructLayout( System.Runtime.InteropServices.LayoutKind.Sequential )]
 public readonly struct Matrix4x4<TScalar>( TScalar m00, TScalar m01, TScalar m02, TScalar m03, TScalar m10, TScalar m11, TScalar m12, TScalar m13, TScalar m20, TScalar m21, TScalar m22, TScalar m23, TScalar m30, TScalar m31, TScalar m32, TScalar m33 ) :
 		IVector<Matrix4x4<TScalar>, TScalar>,
-		ILinearAlgebraOperators<Matrix4x4<TScalar>, TScalar>,
+		ILinearAlgebraVectorOperators<Matrix4x4<TScalar>>,
+		ILinearAlgebraScalarOperators<Matrix4x4<TScalar>, TScalar>,
 		IMatrix<TScalar>,
 		ISquareMatrix<Matrix4x4<TScalar>>,
 		IProduct<Matrix4x4<TScalar>, Matrix4x4<TScalar>, Matrix4x4<TScalar>>,
-		IProduct<Matrix4x4<TScalar>, Vector4<TScalar>, Vector4<TScalar>>
+		IProduct<Matrix4x4<TScalar>, Vector4<TScalar>, Vector4<TScalar>>,
+		IMatrixVectorTransformation<Matrix4x4<TScalar>, Vector2<TScalar>>,
+		IMatrixVectorTransformation<Matrix4x4<TScalar>, Vector3<TScalar>>
 	where TScalar
 		: unmanaged, INumber<TScalar> {
 
@@ -147,7 +154,7 @@ public readonly struct Matrix4x4<TScalar>( TScalar m00, TScalar m01, TScalar m02
 			TScalar.One, TScalar.Zero, TScalar.Zero, TScalar.Zero,
 			TScalar.Zero, TScalar.One, TScalar.Zero, TScalar.Zero,
 			TScalar.Zero, TScalar.Zero, TScalar.One, TScalar.Zero,
-			TScalar.Zero, TScalar.Zero, TScalar.One, TScalar.Zero
+			TScalar.Zero, TScalar.Zero, TScalar.Zero, TScalar.One
 		);
 	public static Matrix4x4<TScalar> Zero { get; } =
 		new(
@@ -163,6 +170,30 @@ public readonly struct Matrix4x4<TScalar>( TScalar m00, TScalar m01, TScalar m02
 			TScalar.One, TScalar.One, TScalar.One, TScalar.One,
 			TScalar.One, TScalar.One, TScalar.One, TScalar.One
 		);
+	/// <summary>
+	/// 2x Multiplicative Identity
+	/// </summary>
+	public static Matrix4x4<TScalar> Two { get; } = MultiplicativeIdentity + MultiplicativeIdentity;
+
+	/// <summary>
+	/// Creates a 4x4 multiplicative identity matrix overlaid by a 3x3 matrix.
+	/// </summary>
+	public Matrix4x4( TScalar m00, TScalar m01, TScalar m02, TScalar m10, TScalar m11, TScalar m12, TScalar m20, TScalar m21, TScalar m22 ) : this(
+		m00, m01, m02, TScalar.Zero,
+		m10, m11, m12, TScalar.Zero,
+		m20, m21, m22, TScalar.Zero,
+		TScalar.Zero, TScalar.Zero, TScalar.Zero, TScalar.One
+	) { }
+
+	/// <summary>
+	/// Creates a 4x4 multiplicative identity matrix overlaid by a 2x2 matrix.
+	/// </summary>
+	public Matrix4x4( TScalar m00, TScalar m01, TScalar m10, TScalar m11 ) : this(
+		m00, m01, TScalar.Zero, TScalar.Zero,
+		m10, m11, TScalar.Zero, TScalar.Zero,
+		TScalar.Zero, TScalar.Zero, TScalar.One, TScalar.Zero,
+		TScalar.Zero, TScalar.Zero, TScalar.Zero, TScalar.One
+	) { }
 
 	public Matrix4x4<TScalar> Negate()
 		=> new(
@@ -171,35 +202,35 @@ public readonly struct Matrix4x4<TScalar>( TScalar m00, TScalar m01, TScalar m02
 			-M20, -M21, -M22, -M23,
 			-M30, -M31, -M32, -M33
 		);
-	public Matrix4x4<TScalar> Add( in Matrix4x4<TScalar> r ) 
+	public Matrix4x4<TScalar> Add( in Matrix4x4<TScalar> r )
 		=> new(
 			M00 + r.M00, M01 + r.M01, M02 + r.M02, M03 + r.M03,
 			M10 + r.M10, M11 + r.M11, M12 + r.M12, M13 + r.M13,
 			M20 + r.M20, M21 + r.M21, M22 + r.M22, M23 + r.M23,
 			M30 + r.M30, M31 + r.M31, M32 + r.M32, M33 + r.M33
 		);
-	public Matrix4x4<TScalar> Subtract( in Matrix4x4<TScalar> r ) 
+	public Matrix4x4<TScalar> Subtract( in Matrix4x4<TScalar> r )
 		=> new(
 			M00 - r.M00, M01 - r.M01, M02 - r.M02, M03 - r.M03,
 			M10 - r.M10, M11 - r.M11, M12 - r.M12, M13 - r.M13,
 			M20 - r.M20, M21 - r.M21, M22 - r.M22, M23 - r.M23,
 			M30 - r.M30, M31 - r.M31, M32 - r.M32, M33 - r.M33
 		);
-	public Matrix4x4<TScalar> ScalarMultiply( TScalar r ) 
+	public Matrix4x4<TScalar> ScalarMultiply( TScalar r )
 		=> new(
 			M00 * r, M01 * r, M02 * r, M03 * r,
 			M10 * r, M11 * r, M12 * r, M13 * r,
 			M20 * r, M21 * r, M22 * r, M23 * r,
 			M30 * r, M31 * r, M32 * r, M33 * r
 		);
-	public Matrix4x4<TScalar> ScalarDivide( TScalar r ) 
+	public Matrix4x4<TScalar> ScalarDivide( TScalar r )
 		=> new(
 			M00 / r, M01 / r, M02 / r, M03 / r,
 			M10 / r, M11 / r, M12 / r, M13 / r,
 			M20 / r, M21 / r, M22 / r, M23 / r,
 			M30 / r, M31 / r, M32 / r, M33 / r
 		);
-	public static Matrix4x4<TScalar> DivideScalar( TScalar l, in Matrix4x4<TScalar> r ) 
+	public static Matrix4x4<TScalar> DivideScalar( TScalar l, in Matrix4x4<TScalar> r )
 		=> new(
 			l / r.M00, l / r.M01, l / r.M02, l / r.M03,
 			l / r.M10, l / r.M11, l / r.M12, l / r.M13,
@@ -235,18 +266,45 @@ public readonly struct Matrix4x4<TScalar>( TScalar m00, TScalar m01, TScalar m02
 		) / determinant;
 		return true;
 	}
-	public bool TryGetUpperTriangular( out Matrix4x4<TScalar> upperTriangular, out bool negative ) => throw new NotImplementedException();
-	public bool TryGetLowerTriangular( out Matrix4x4<TScalar> lowerTriangular, out bool negative ) => throw new NotImplementedException();
 
-	public Matrix4x4<TScalar> Multiply( in Matrix4x4<TScalar> l )
+	public Vector2<TScalar>? TransformWorld( in Vector2<TScalar> vector ) {
+		Vector4<TScalar> transformVector = new( vector.X, vector.Y, TScalar.Zero, TScalar.One );
+		Vector4<TScalar> result = this * transformVector;
+		if (TScalar.IsZero( result.W ))
+			return null;
+		return new Vector2<TScalar>( result.X, result.Y ) / result.W;
+	}
+	public Vector2<TScalar>? TransformNormal( in Vector2<TScalar> vector ) {
+		Vector4<TScalar> transformVector = new( vector.X, vector.Y, TScalar.Zero, TScalar.Zero );
+		Vector4<TScalar> result = this * transformVector;
+		if (TScalar.IsZero( result.W ))
+			return null;
+		return new Vector2<TScalar>( result.X, result.Y ) / result.W;
+	}
+	public Vector3<TScalar>? TransformWorld( in Vector3<TScalar> vector ) {
+		Vector4<TScalar> transformVector = new( vector.X, vector.Y, vector.Z, TScalar.One );
+		Vector4<TScalar> result = this * transformVector;
+		if (TScalar.IsZero( result.W ))
+			return null;
+		return new Vector3<TScalar>( result.X, result.Y, result.Z ) / result.W;
+	}
+	public Vector3<TScalar>? TransformNormal( in Vector3<TScalar> vector ) {
+		Vector4<TScalar> transformVector = new( vector.X, vector.Y, vector.Z, TScalar.Zero );
+		Vector4<TScalar> result = this * transformVector;
+		if (TScalar.IsZero( result.W ))
+			return null;
+		return new Vector3<TScalar>( result.X, result.Y, result.Z ) / result.W;
+	}
+
+	public Matrix4x4<TScalar> Multiply( in Matrix4x4<TScalar> r )
 		=> new(
-			Row0.Dot( l.Col0 ), Row0.Dot( l.Col1 ), Row0.Dot( l.Col2 ), Row0.Dot( l.Col3 ),
-			Row1.Dot( l.Col0 ), Row1.Dot( l.Col1 ), Row1.Dot( l.Col2 ), Row1.Dot( l.Col3 ),
-			Row2.Dot( l.Col0 ), Row2.Dot( l.Col1 ), Row2.Dot( l.Col2 ), Row2.Dot( l.Col3 ),
-			Row3.Dot( l.Col0 ), Row3.Dot( l.Col1 ), Row3.Dot( l.Col2 ), Row3.Dot( l.Col3 )
+			Row0.Dot( r.Col0 ), Row0.Dot( r.Col1 ), Row0.Dot( r.Col2 ), Row0.Dot( r.Col3 ),
+			Row1.Dot( r.Col0 ), Row1.Dot( r.Col1 ), Row1.Dot( r.Col2 ), Row1.Dot( r.Col3 ),
+			Row2.Dot( r.Col0 ), Row2.Dot( r.Col1 ), Row2.Dot( r.Col2 ), Row2.Dot( r.Col3 ),
+			Row3.Dot( r.Col0 ), Row3.Dot( r.Col1 ), Row3.Dot( r.Col2 ), Row3.Dot( r.Col3 )
 		);
-	public Vector4<TScalar> Multiply( in Vector4<TScalar> l )
-		=> new( Row0.Dot( l ), Row1.Dot( l ), Row2.Dot( l ), Row3.Dot( l ) );
+	public Vector4<TScalar> Multiply( in Vector4<TScalar> r )
+		=> new( Row0.Dot( r ), Row1.Dot( r ), Row2.Dot( r ), Row3.Dot( r ) );
 	public static Matrix4x4<TScalar> operator *( in Matrix4x4<TScalar> l, in Matrix4x4<TScalar> r ) => l.Multiply( r );
 	public static Vector4<TScalar> operator *( in Matrix4x4<TScalar> l, in Vector4<TScalar> r ) => l.Multiply( r );
 
@@ -258,10 +316,16 @@ public readonly struct Matrix4x4<TScalar>( TScalar m00, TScalar m01, TScalar m02
 	public static Matrix4x4<TScalar> operator /( in Matrix4x4<TScalar> l, TScalar r ) => l.ScalarDivide( r );
 	public static Matrix4x4<TScalar> operator /( TScalar l, in Matrix4x4<TScalar> r ) => DivideScalar( l, r );
 
+	public static Matrix4x4<TScalar> ConstructFromRows( Vector4<TScalar> row0, Vector4<TScalar> row1, Vector4<TScalar> row2, Vector4<TScalar> row3 )
+		=> new( row0.X, row0.Y, row0.Z, row0.W, row1.X, row1.Y, row1.Z, row1.W, row2.X, row2.Y, row2.Z, row2.W, row3.X, row3.Y, row3.Z, row3.W );
+	public static Matrix4x4<TScalar> ConstructFromColumns( Vector4<TScalar> col0, Vector4<TScalar> col1, Vector4<TScalar> col2, Vector4<TScalar> col3 )
+		=> new( col0.X, col1.X, col2.X, col3.X, col0.Y, col1.Y, col2.Y, col3.Y, col0.Z, col1.Z, col2.Z, col3.Z, col0.W, col1.W, col2.W, col3.W );
+
 	public static bool operator ==( in Matrix4x4<TScalar> l, in Matrix4x4<TScalar> r ) => l.Row0 == r.Row0 && l.Row1 == r.Row1 && l.Row2 == r.Row2 && l.Row3 == r.Row3;
 	public static bool operator !=( in Matrix4x4<TScalar> l, in Matrix4x4<TScalar> r ) => !(l == r);
-
 	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Matrix4x4<TScalar> v && this == v;
 	public override int GetHashCode() => HashCode.Combine( Row0, Row1, Row2, Row3 );
-	public override string ToString() => $"[{Row0}, {Row1}, {Row2}, {Row3}]";
+	public override string ToString()
+		=> string.Create( CultureInfo.InvariantCulture, 
+			$"[{M00:#,##0.###} {M01:#,##0.###} {M02:#,##0.###} {M03:#,##0.###}|{M10:#,##0.###} {M11:#,##0.###} {M12:#,##0.###} {M13:#,##0.###}|{M20:#,##0.###} {M21:#,##0.###} {M22:#,##0.###} {M23:#,##0.###}|{M30:#,##0.###} {M31:#,##0.###} {M32:#,##0.###} {M33:#,##0.###}]" );
 }

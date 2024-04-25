@@ -45,5 +45,5 @@ public readonly struct Vector2<T>(T x, T y) :
     public static bool operator !=(in Vector2<T> l, in Vector2<T> r) => !(l == r);
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Vector2<T> v && this == v;
     public override int GetHashCode() => HashCode.Combine(X, Y);
-    public override string ToString() => $"[{X:N3}X, {Y:N3}Y]";
+    public override string ToString() => $"[{X:0.###}X, {Y:0.###}Y]";
 }

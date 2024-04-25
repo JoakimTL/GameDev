@@ -51,5 +51,5 @@ public readonly struct Vector3<T>(T x, T y, T z) :
     public static bool operator !=(in Vector3<T> l, in Vector3<T> r) => !(l == r);
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Vector3<T> v && this == v;
     public override int GetHashCode() => HashCode.Combine(X, Y, Z);
-    public override string ToString() => $"[{X:N3}X, {Y:N3}Y, {Z:N3}Z]";
+    public override string ToString() => $"[{X:0.###}X, {Y:0.###}Y, {Z:0.###}Z]";
 }

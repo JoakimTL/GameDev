@@ -1,6 +1,6 @@
 ﻿using Engine.Math.NewVectors.Interfaces;
 using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
+using System.Globalization;
 
 namespace Engine.Math.NewVectors;
 
@@ -10,11 +10,9 @@ namespace Engine.Math.NewVectors;
 /// <typeparam name="TVector"></typeparam>
 /// <typeparam name="TScalar"></typeparam>
 [System.Runtime.InteropServices.StructLayout( System.Runtime.InteropServices.LayoutKind.Sequential )]
-public readonly struct AABB<TVector, TScalar>
+public readonly struct AABB<TVector>
 	where TVector :
-		unmanaged, IVector<TVector, TScalar>, IEntrywiseMinMaxOperations<TVector>
-	where TScalar :
-		unmanaged, INumber<TScalar> {
+		unmanaged, IInEqualityOperators<TVector, TVector, bool>, IEntrywiseMinMaxOperations<TVector> {
 	public readonly TVector Minima;
 	public readonly TVector Maxima;
 
@@ -23,42 +21,18 @@ public readonly struct AABB<TVector, TScalar>
 		Maxima = a.Max( b );
 	}
 
-	public AABB( AABB<TVector, TScalar> aabb, TVector v ) {
+	public AABB( AABB<TVector> aabb, TVector v ) {
 		Minima = v.Min( aabb.Minima );
 		Maxima = v.Max( aabb.Maxima );
 	}
 
-	public AABB<TVector, TScalar> Extend( in TVector v ) => new( this, v );
-	public AABB<TVector, TScalar> GetLargestBounds( in AABB<TVector, TScalar> l ) => new( Minima.Min( l.Minima ), Maxima.Max( l.Maxima ) );
-	public AABB<TVector, TScalar> GetSmallestBounds( in AABB<TVector, TScalar> l ) => new( Minima.Max( l.Minima ), Maxima.Min( l.Maxima ) );
+	public AABB<TVector> Extend( in TVector v ) => new( this, v );
+	public AABB<TVector> GetLargestBounds( in AABB<TVector> l ) => new( Minima.Min( l.Minima ), Maxima.Max( l.Maxima ) );
+	public AABB<TVector> GetSmallestBounds( in AABB<TVector> l ) => new( Minima.Max( l.Minima ), Maxima.Min( l.Maxima ) );
 
-	public static bool operator ==( AABB<TVector, TScalar> left, AABB<TVector, TScalar> right ) => left.Equals( right );
-	public static bool operator !=( AABB<TVector, TScalar> left, AABB<TVector, TScalar> right ) => !(left == right);
-	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is AABB<TVector, TScalar> aabb && aabb.Minima == Minima && aabb.Maxima == Maxima;
+	public static bool operator ==( AABB<TVector> left, AABB<TVector> right ) => left.Equals( right );
+	public static bool operator !=( AABB<TVector> left, AABB<TVector> right ) => !(left == right);
+	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is AABB<TVector> aabb && aabb.Minima == Minima && aabb.Maxima == Maxima;
 	public override int GetHashCode() => HashCode.Combine( Minima, Maxima );
-	public override string ToString() => $">{Minima} -> {Maxima}|";
-}
-
-public static class AABB {
-	public static AABB<Vector2<TScalar>, TScalar> Create<TScalar>( Vector2<TScalar> v1, Vector2<TScalar> v2 ) 
-		where TScalar : 
-			unmanaged, INumber<TScalar>
-		=> new( v1, v2 );
-
-	public static AABB<Vector3<TScalar>, TScalar> Create<TScalar>( Vector3<TScalar> v1, Vector3<TScalar> v2 ) 
-		where TScalar : 
-			unmanaged, INumber<TScalar>
-		=> new( v1, v2 );
-
-	public static AABB<Vector4<TScalar>, TScalar> Create<TScalar>( Vector4<TScalar> v1, Vector4<TScalar> v2 ) 
-		where TScalar : 
-			unmanaged, INumber<TScalar>
-		=> new( v1, v2 );
-
-	public static AABB<TVector, TScalar> Create<TVector, TScalar>( TVector v1, TVector v2 )
-		where TVector :
-			unmanaged, IVector<TVector, TScalar>, IEntrywiseMinMaxOperations<TVector>
-		where TScalar :
-			unmanaged, INumber<TScalar>
-		=> new( v1, v2 );
+	public override string ToString() => string.Create( CultureInfo.InvariantCulture, $"<{Minima} -> {Maxima}>" );
 }

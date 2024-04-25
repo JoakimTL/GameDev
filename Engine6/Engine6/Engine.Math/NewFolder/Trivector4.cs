@@ -25,5 +25,5 @@ public readonly struct Trivector4<T>(T xyz, T xyw, T xzw, T yzw) :
     public static bool operator !=(in Trivector4<T> l, in Trivector4<T> r) => !(l == r);
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Trivector4<T> v && this == v;
     public override int GetHashCode() => HashCode.Combine(XYZ, XYW, XZW, YZW);
-    public override string ToString() => $"[{XYZ:N3}XYZ, {XYW:N3}XYW, {XZW:N3}XZW, {YZW:N3}YZW]";
+    public override string ToString() => $"[{XYZ:#,##0.###}XYZ, {XYW:#,##0.###}XYW, {XZW:#,##0.###}XZW, {YZW:#,##0.###}YZW]";
 }

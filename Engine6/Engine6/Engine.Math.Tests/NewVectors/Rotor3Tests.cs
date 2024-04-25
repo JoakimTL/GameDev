@@ -1,4 +1,5 @@
 ﻿using Engine.Math.NewVectors;
+using Engine.Math.NewVectors.Calculations;
 
 namespace Engine.Math.Tests.NewVectors;
 
@@ -155,9 +156,75 @@ public sealed class Rotor3Tests {
 		Rotor3<int> expected = new( 16, new( 8, 4, 2 ) );
 		Assert.That( 32 / vectorA, Is.EqualTo( expected ) );
 	}
+
+	[Test]
+	public void MultiplyVector3Operator() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+		Vector3<int> b = new( 2, 3, 4 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyBivector3Operator() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+		Bivector3<int> b = new( 4, 5, 6 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyTrivector3Operator() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+		Trivector3<int> b = new( 4 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyRotor3Operator() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+		Rotor3<int> b = new( 4, 5, 6, 7 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyMultivector3Operator() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+		Multivector3<int> b = new( 4, 5, 6, 7, 8, 9, 10, 11 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
 	#endregion
 
 	#region Methods
+	[Test]
+	public void GetMultivector() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+
+		Multivector3<int> multivector = a.GetMultivector();
+
+		Assert.That( multivector.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( multivector.Vector.X, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.Y, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.Z, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.YZ, Is.EqualTo( 2 ) );
+		Assert.That( multivector.Bivector.ZX, Is.EqualTo( 3 ) );
+		Assert.That( multivector.Bivector.XY, Is.EqualTo( 4 ) );
+		Assert.That( multivector.Trivector.XYZ, Is.EqualTo( 0 ) );
+	}
+
+	[Test]
+	public void Dot() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+		Rotor3<int> b = new( 2, 3, 4, 5 );
+
+		int dot = a.Dot( b );
+
+		Assert.That( dot, Is.EqualTo( -36 ) );
+	}
+
 	[Test]
 	public void Conjugate() {
 		Rotor3<int> vectorA = new( 1, new( 2, 3, 4 ) );
@@ -168,7 +235,7 @@ public sealed class Rotor3Tests {
 
 	[Test]
 	public void Rotate() {
-		Rotor3<double> rotor = Rotor3Factory.FromAxisAngle( Vector3<double>.UnitZ, System.Math.PI / 2 );
+		Rotor3<double> rotor = Rotor3.FromAxisAngle( Vector3<double>.UnitZ, System.Math.PI / 2 );
 		Vector3<double> vector = new( 1, 0, 0 );
 
 		Vector3<double> result = rotor.Rotate( vector );
@@ -177,6 +244,57 @@ public sealed class Rotor3Tests {
 		Assert.That( result.X, Is.EqualTo( expected.X ).Within( 0.001 ) );
 		Assert.That( result.Y, Is.EqualTo( expected.Y ).Within( 0.001 ) );
 		Assert.That( result.Z, Is.EqualTo( expected.Z ).Within( 0.001 ) );
+	}
+
+	[Test]
+	public void Test_Equals() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+
+		Assert.That( a.Equals( a ), Is.True );
+		Assert.That( a.Equals( new Rotor3<int>( 1, 2, 3, 4 ) ), Is.True );
+		Assert.That( a.Equals( new Rotor3<int>( 2, -3, -5, 7 ) ), Is.False );
+		Assert.That( a.Equals( "Test" ), Is.False );
+	}
+
+	[Test]
+	public void Test_GetHashCode() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+		Rotor3<int> b = new( 1, 2, 3, 4 );
+		Rotor3<int> c = new( 2, 5, 7, 9 );
+		Rotor3<int> d = new( 2, 5, 7, 9 );
+
+		Assert.That( a.GetHashCode(), Is.EqualTo( b.GetHashCode() ) );
+		Assert.That( a.GetHashCode(), Is.Not.EqualTo( c.GetHashCode() ) );
+		Assert.That( c.GetHashCode(), Is.EqualTo( d.GetHashCode() ) );
+	}
+
+	[Test]
+	public void Test_ToString() {
+		Rotor3<int> a = new( 1, -56300, 17, 77 );
+		Rotor3<double> b = new( -69.4201, 7031, 75.4, 4 );
+
+		Assert.That( a.ToString(), Is.EqualTo( $"<1 + {a.Bivector}>" ) );
+		Assert.That( b.ToString(), Is.EqualTo( $"<-69.42 + {b.Bivector}>" ) );
+	}
+	#endregion
+
+	#region Casts
+	[Test]
+	public void CastToScalar() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+
+		Assert.That( (int)a, Is.EqualTo( 1 ) );
+	}
+
+	[Test]
+	public void CastToBivector2() {
+		Rotor3<int> a = new( 1, 2, 3, 4 );
+
+		Bivector3<int> b = (Bivector3<int>)a;
+
+		Assert.That( b.YZ, Is.EqualTo( 2 ) );
+		Assert.That( b.ZX, Is.EqualTo( 3 ) );
+		Assert.That( b.XY, Is.EqualTo( 4 ) );
 	}
 	#endregion
 }

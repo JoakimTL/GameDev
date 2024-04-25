@@ -1,6 +1,7 @@
 ﻿using Engine.Math.NewVectors.Calculations;
 using Engine.Math.NewVectors.Interfaces;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 
 namespace Engine.Math.NewVectors;
@@ -9,7 +10,8 @@ namespace Engine.Math.NewVectors;
 public readonly struct Bivector2<TScalar>( TScalar xy ) :
 		IVector<Bivector2<TScalar>, TScalar>,
 		IPartOfMultivector<Multivector2<TScalar>, Bivector2<TScalar>>,
-		ILinearAlgebraOperators<Bivector2<TScalar>, TScalar>,
+		ILinearAlgebraVectorOperators<Bivector2<TScalar>>,
+		ILinearAlgebraScalarOperators<Bivector2<TScalar>, TScalar>,
 		IProduct<Bivector2<TScalar>, Vector2<TScalar>, Vector2<TScalar>>,
 		IProduct<Bivector2<TScalar>, Bivector2<TScalar>, TScalar>,
 		IProduct<Bivector2<TScalar>, Rotor2<TScalar>, Rotor2<TScalar>>,
@@ -22,6 +24,7 @@ public readonly struct Bivector2<TScalar>( TScalar xy ) :
 	public static Bivector2<TScalar> MultiplicativeIdentity => One;
 	public static Bivector2<TScalar> Zero { get; } = new( TScalar.Zero );
 	public static Bivector2<TScalar> One { get; } = new( TScalar.One );
+	public static Bivector2<TScalar> Two { get; } = One + One;
 
 	public Multivector2<TScalar> GetMultivector() => new( TScalar.Zero, Vector2<TScalar>.Zero, this );
 
@@ -37,10 +40,10 @@ public readonly struct Bivector2<TScalar>( TScalar xy ) :
 	public TScalar Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Rotor2<TScalar> Multiply( in Rotor2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Multivector2<TScalar> Multiply( in Multivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
-	public static Vector2<TScalar> operator *( in Bivector2<TScalar> l, in Vector2<TScalar> r ) => r.Multiply( l );
-	public static TScalar operator *( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => r.Multiply( l );
-	public static Rotor2<TScalar> operator *( in Bivector2<TScalar> l, in Rotor2<TScalar> r ) => r.Multiply( l );
-	public static Multivector2<TScalar> operator *( in Bivector2<TScalar> l, in Multivector2<TScalar> r ) => r.Multiply( l );
+	public static Vector2<TScalar> operator *( in Bivector2<TScalar> l, in Vector2<TScalar> r ) => l.Multiply( r );
+	public static TScalar operator *( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => l.Multiply( r );
+	public static Rotor2<TScalar> operator *( in Bivector2<TScalar> l, in Rotor2<TScalar> r ) => l.Multiply( r );
+	public static Multivector2<TScalar> operator *( in Bivector2<TScalar> l, in Multivector2<TScalar> r ) => l.Multiply( r );
 
 	public static Bivector2<TScalar> operator -( in Bivector2<TScalar> l ) => l.Negate();
 	public static Bivector2<TScalar> operator +( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => l.Add( r );
@@ -54,7 +57,7 @@ public readonly struct Bivector2<TScalar>( TScalar xy ) :
 	public static bool operator !=( in Bivector2<TScalar> l, in Bivector2<TScalar> r ) => !(l == r);
 	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Bivector2<TScalar> v && this == v;
 	public override int GetHashCode() => HashCode.Combine( XY );
-	public override string ToString() => $"[{XY:N3}XY]";
+	public override string ToString() => string.Create( CultureInfo.InvariantCulture, $"[{XY:#,##0.###}XY]");
 
 	public static implicit operator Bivector2<TScalar>( TScalar value ) => new( value );
 }

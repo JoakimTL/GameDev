@@ -43,5 +43,5 @@ public readonly struct Bivector2<T>(T xy) :
     public static bool operator !=(in Bivector2<T> l, in Bivector2<T> r) => !(l == r);
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Bivector2<T> v && this == v;
     public override int GetHashCode() => HashCode.Combine(XY);
-    public override string ToString() => $"[{XY:N3}XY]";
+    public override string ToString() => $"[{XY:#,##0.###}XY]";
 }

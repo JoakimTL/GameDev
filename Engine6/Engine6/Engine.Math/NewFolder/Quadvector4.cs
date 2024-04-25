@@ -24,5 +24,5 @@ public readonly struct Quadvector4<T>(T xyzw) :
     public static bool operator !=(in Quadvector4<T> l, in Quadvector4<T> r) => !(l == r);
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Quadvector4<T> v && this == v;
     public override int GetHashCode() => HashCode.Combine(XYZW);
-    public override string ToString() => $"[{XYZW:N3}XYZW]";
+    public override string ToString() => $"[{XYZW:#,##0.###}XYZW]";
 }

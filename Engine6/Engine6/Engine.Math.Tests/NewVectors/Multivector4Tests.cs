@@ -9,6 +9,7 @@ public sealed class Multivector4Tests {
 	public void Constructors() {
 		Multivector4<int> vectorA = new( 1, new( 2, 3, 4, 5 ), new( 6, 7, 8, 9, 10, 11 ), new( 12, 13, 14, 15 ), new( 16 ) );
 		Multivector4<double> vectorB = new( 1.0, new( 2.0, 3.0, 4.0, 5.0 ), new( 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 ), new( 12.0, 13.0, 14.0, 15.0 ), new( 16.0 ) );
+		Multivector4<int> vectorC = new( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
 
 		Assert.That( vectorA.Scalar, Is.EqualTo( 1 ) );
 		Assert.That( vectorA.Vector.X, Is.EqualTo( 2 ) );
@@ -43,6 +44,23 @@ public sealed class Multivector4Tests {
 		Assert.That( vectorB.Trivector.XYW, Is.EqualTo( 14.0 ) );
 		Assert.That( vectorB.Trivector.XYZ, Is.EqualTo( 15.0 ) );
 		Assert.That( vectorB.Quadvector.XYZW, Is.EqualTo( 16.0 ) );
+
+		Assert.That( vectorC.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( vectorC.Vector.X, Is.EqualTo( 2 ) );
+		Assert.That( vectorC.Vector.Y, Is.EqualTo( 3 ) );
+		Assert.That( vectorC.Vector.Z, Is.EqualTo( 4 ) );
+		Assert.That( vectorC.Vector.W, Is.EqualTo( 5 ) );
+		Assert.That( vectorC.Bivector.YZ, Is.EqualTo( 6 ) );
+		Assert.That( vectorC.Bivector.ZX, Is.EqualTo( 7 ) );
+		Assert.That( vectorC.Bivector.XY, Is.EqualTo( 8 ) );
+		Assert.That( vectorC.Bivector.YW, Is.EqualTo( 9 ) );
+		Assert.That( vectorC.Bivector.ZW, Is.EqualTo( 10 ) );
+		Assert.That( vectorC.Bivector.XW, Is.EqualTo( 11 ) );
+		Assert.That( vectorC.Trivector.YZW, Is.EqualTo( 12 ) );
+		Assert.That( vectorC.Trivector.XZW, Is.EqualTo( 13 ) );
+		Assert.That( vectorC.Trivector.XYW, Is.EqualTo( 14 ) );
+		Assert.That( vectorC.Trivector.XYZ, Is.EqualTo( 15 ) );
+		Assert.That( vectorC.Quadvector.XYZW, Is.EqualTo( 16 ) );
 	}
 
 	[Test]
@@ -248,8 +266,75 @@ public sealed class Multivector4Tests {
 	public void DivideScalarOperator() {
 		Multivector4<int> vectorA = new( 2, new( 4, 6, 8, 10 ), new( 12, 14, 16, 18, 20, 22 ), new( 24, 26, 28, 30 ), new( 32 ) );
 
-		Multivector4<int> expected = new ( 64, new( 32, 21, 16, 12 ), new( 10, 9, 8, 7, 6, 5 ), new( 5, 4, 4, 4 ), new( 4 ) );
+		Multivector4<int> expected = new( 64, new( 32, 21, 16, 12 ), new( 10, 9, 8, 7, 6, 5 ), new( 5, 4, 4, 4 ), new( 4 ) );
 		Assert.That( 128 / vectorA, Is.EqualTo( expected ) );
+	}
+	#endregion
+
+	#region Methods
+	[Test]
+	public void GetMultivector() {
+		Multivector4<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+
+		Multivector4<int> multivector = a.GetMultivector();
+
+		Assert.That( multivector.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( multivector.Vector.X, Is.EqualTo( 2 ) );
+		Assert.That( multivector.Vector.Y, Is.EqualTo( 3 ) );
+		Assert.That( multivector.Vector.Z, Is.EqualTo( 4 ) );
+		Assert.That( multivector.Vector.W, Is.EqualTo( 5 ) );
+		Assert.That( multivector.Bivector.YZ, Is.EqualTo( 6 ) );
+		Assert.That( multivector.Bivector.ZX, Is.EqualTo( 7 ) );
+		Assert.That( multivector.Bivector.XY, Is.EqualTo( 8 ) );
+		Assert.That( multivector.Bivector.YW, Is.EqualTo( 9 ) );
+		Assert.That( multivector.Bivector.ZW, Is.EqualTo( 10 ) );
+		Assert.That( multivector.Bivector.XW, Is.EqualTo( 11 ) );
+		Assert.That( multivector.Trivector.YZW, Is.EqualTo( 12 ) );
+		Assert.That( multivector.Trivector.XZW, Is.EqualTo( 13 ) );
+		Assert.That( multivector.Trivector.XYW, Is.EqualTo( 14 ) );
+		Assert.That( multivector.Trivector.XYZ, Is.EqualTo( 15 ) );
+		Assert.That( multivector.Quadvector.XYZW, Is.EqualTo( 16 ) );
+	}
+
+	[Test]
+	public void Dot() {
+		Multivector4<int> vectorA = new( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+		Multivector4<int> vectorB = new( 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 );
+
+		int dot = vectorA.Dot( vectorB );
+
+		Assert.That( dot, Is.EqualTo( -2058 ) );
+	}
+
+	[Test]
+	public void Test_Equals() {
+		Multivector4<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+
+		Assert.That( a.Equals( a ), Is.True );
+		Assert.That( a.Equals( new Multivector4<int>( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 ) ), Is.True );
+		Assert.That( a.Equals( new Multivector4<int>( 2, 5, 6, 12, -6, 12, 15, 66, 5, 5, 5, 6, 6, 7, 8, 111 ) ), Is.False );
+		Assert.That( a.Equals( "Test" ), Is.False );
+	}
+
+	[Test]
+	public void Test_GetHashCode() {
+		Multivector4<int> multivector_1 = new( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+		Multivector4<int> multivector_2 = new( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+		Multivector4<int> multivector_3 = new( 2, 5, 6, 10, -5, 12, 14, 16, 2, 2, 3, 4, 5, 6, 7, 112 );
+		Multivector4<int> multivector_4 = new( 2, 5, 6, 10, -5, 12, 14, 16, 2, 2, 3, 4, 5, 6, 7, 112 );
+
+		Assert.That( multivector_1.GetHashCode(), Is.EqualTo( multivector_2.GetHashCode() ) );
+		Assert.That( multivector_1.GetHashCode(), Is.Not.EqualTo( multivector_3.GetHashCode() ) );
+		Assert.That( multivector_3.GetHashCode(), Is.EqualTo( multivector_4.GetHashCode() ) );
+	}
+
+	[Test]
+	public void Test_ToString() {
+		Multivector4<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 );
+		Multivector4<double> b = new( -69.4201, 70.5, 50.9999, 23.232, 10, 12, 13, 66.53412, 2, 342, 1.223, 534.123, 73, 192, 111, -2131 );
+
+		Assert.That( a.ToString(), Is.EqualTo( $"<1 + {a.Vector} + {a.Bivector} + {a.Trivector} + {a.Quadvector}>" ) );
+		Assert.That( b.ToString(), Is.EqualTo( $"<-69.42 + {b.Vector} + {b.Bivector} + {b.Trivector} + {b.Quadvector}>" ) );
 	}
 	#endregion
 }

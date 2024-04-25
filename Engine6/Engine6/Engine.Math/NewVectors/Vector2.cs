@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using Engine.Math.NewVectors.Calculations;
 using Engine.Math.NewVectors.Interfaces;
 
@@ -13,7 +13,8 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 		IPartOfMultivector<Multivector2<TScalar>, Vector2<TScalar>>,
 		IEntrywiseProductOperations<Vector2<TScalar>>,
 		IEntrywiseOperations<Vector2<TScalar>, TScalar>,
-		ILinearAlgebraOperators<Vector2<TScalar>, TScalar>,
+		ILinearAlgebraVectorOperators<Vector2<TScalar>>,
+		ILinearAlgebraScalarOperators<Vector2<TScalar>, TScalar>,
 		IVectorPartsOperations<Vector2<TScalar>, TScalar>,
 		IEntrywiseMinMaxOperations<Vector2<TScalar>>,
 		IReflectable<Vector2<TScalar>, TScalar>,
@@ -21,7 +22,9 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 		IProduct<Vector2<TScalar>, Bivector2<TScalar>, Vector2<TScalar>>,
 		IProduct<Vector2<TScalar>, Rotor2<TScalar>, Vector2<TScalar>>,
 		IProduct<Vector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>,
-		IProduct<Vector2<TScalar>, Matrix2x2<TScalar>, Vector2<TScalar>>
+		IProduct<Vector2<TScalar>, Matrix2x2<TScalar>, Vector2<TScalar>>,
+		IEntrywiseComparisonOperations<Vector2<TScalar>>,
+		IEntrywiseComparisonOperators<Vector2<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar X = x;
@@ -31,6 +34,7 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 	public static Vector2<TScalar> MultiplicativeIdentity => One;
 	public static Vector2<TScalar> Zero { get; } = new( TScalar.Zero, TScalar.Zero );
 	public static Vector2<TScalar> One { get; } = new( TScalar.One, TScalar.One );
+	public static Vector2<TScalar> Two { get; } = One + One;
 
 	public static Vector2<TScalar> UnitX { get; } = new( TScalar.One, TScalar.Zero );
 	public static Vector2<TScalar> UnitY { get; } = new( TScalar.Zero, TScalar.One );
@@ -52,16 +56,18 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 	public Vector2<TScalar> Max( in Vector2<TScalar> r ) => new( TScalar.Max( X, r.X ), TScalar.Max( Y, r.Y ) );
 	public TScalar SumOfParts() => X + Y;
 	public TScalar ProductOfParts() => X * Y;
+	public TScalar SumOfUnitBasisAreas() => X * Y;
+	public TScalar SumOfUnitBasisVolumes() => TScalar.Zero;
 	public Vector2<TScalar> ReflectNormal( in Vector2<TScalar> normal ) => normal.Multiply( this ).Multiply( normal );
 
 	public Rotor2<TScalar> Multiply( in Vector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Vector2<TScalar> Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Vector2<TScalar> Multiply( in Rotor2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Multivector2<TScalar> Multiply( in Multivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
-	public static Rotor2<TScalar> operator *( in Vector2<TScalar> l, in Vector2<TScalar> r ) => r.Multiply( l );
-	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, in Bivector2<TScalar> r ) => r.Multiply( l );
-	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, in Rotor2<TScalar> r ) => r.Multiply( l );
-	public static Multivector2<TScalar> operator *( in Vector2<TScalar> l, in Multivector2<TScalar> r ) => r.Multiply( l );
+	public static Rotor2<TScalar> operator *( in Vector2<TScalar> l, in Vector2<TScalar> r ) => l.Multiply( r );
+	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, in Bivector2<TScalar> r ) => l.Multiply( r );
+	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, in Rotor2<TScalar> r ) => l.Multiply( r );
+	public static Multivector2<TScalar> operator *( in Vector2<TScalar> l, in Multivector2<TScalar> r ) => l.Multiply( r );
 
 	public Vector2<TScalar> Multiply( in Matrix2x2<TScalar> m ) => new( Dot( m.Col0 ), Dot( m.Col1 ) );
 	public static Vector2<TScalar> operator *( in Vector2<TScalar> l, in Matrix2x2<TScalar> r ) => l.Multiply( r );
@@ -74,9 +80,18 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 	public static Vector2<TScalar> operator /( in Vector2<TScalar> l, TScalar r ) => l.ScalarDivide( r );
 	public static Vector2<TScalar> operator /( TScalar l, in Vector2<TScalar> r ) => DivideScalar( l, r );
 
+	public bool GreaterThanEntrywise( in Vector2<TScalar> other ) => this.X > other.X && Y > other.Y;
+	public bool GreaterThanOrEqualEntrywise( in Vector2<TScalar> other ) => this.X >= other.X && Y >= other.Y;
+	public static bool operator <( in Vector2<TScalar> left, in Vector2<TScalar> right ) => right.GreaterThanEntrywise( left );
+	public static bool operator >( in Vector2<TScalar> left, in Vector2<TScalar> right ) => left.GreaterThanEntrywise( right );
+	public static bool operator <=( in Vector2<TScalar> left, in Vector2<TScalar> right ) => right.GreaterThanOrEqualEntrywise( left );
+	public static bool operator >=( in Vector2<TScalar> left, in Vector2<TScalar> right ) => left.GreaterThanOrEqualEntrywise( right );
+
 	public static bool operator ==( in Vector2<TScalar> l, in Vector2<TScalar> r ) => l.X == r.X && l.Y == r.Y;
 	public static bool operator !=( in Vector2<TScalar> l, in Vector2<TScalar> r ) => !(l == r);
 	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Vector2<TScalar> v && this == v;
 	public override int GetHashCode() => HashCode.Combine( X, Y );
-	public override string ToString() => $"[{X:N3}X, {Y:N3}Y]";
+	public override string ToString() 
+		=> string.Create( CultureInfo.InvariantCulture, 
+			$"[{X:#,##0.###}X {Y.SignCharacter()} {TScalar.Abs( Y ):#,##0.###}Y]" );
 }

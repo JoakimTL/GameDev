@@ -1,6 +1,4 @@
-﻿using Engine.Math.NewFolder;
-
-namespace Engine.Math.Benchmarks;
+﻿namespace Engine.Math.Benchmarks;
 
 //public class Matrix4x4DeterminantBechmarks {
 

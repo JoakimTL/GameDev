@@ -1,16 +1,11 @@
 ﻿using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Math.NewVectors.Interfaces;
-
-public interface ILinearAlgebraOperators<TVector, TScalar>
+public interface ILinearAlgebraScalarOperators<TVector, TScalar>
 	where TVector :
-		unmanaged, ILinearAlgebraOperators<TVector, TScalar>, ILinearAlgebraOperations<TVector, TScalar>
+		unmanaged, ILinearAlgebraScalarOperators<TVector, TScalar>, ILinearAlgebraScalarOperations<TVector, TScalar>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
-	static abstract TVector operator -( in TVector l );
-	static abstract TVector operator +( in TVector l, in TVector r );
-	static abstract TVector operator -( in TVector l, in TVector r );
 	static abstract TVector operator *( in TVector l, TScalar r );
 	static abstract TVector operator *( TScalar l, in TVector r );
 	static abstract TVector operator /( in TVector l, TScalar r );

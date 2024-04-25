@@ -7,5 +7,5 @@ public interface IProductOperation<TLeft, TRight, TResult>
 		unmanaged
 	where TResult :
 		unmanaged {
-	TResult Multiply( in TRight l );
+	TResult Multiply( in TRight r );
 }

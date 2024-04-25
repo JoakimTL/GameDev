@@ -1,4 +1,5 @@
 ﻿using Engine.Math.NewVectors;
+using Engine.Math.NewVectors.Calculations;
 
 namespace Engine.Math.Tests.NewVectors;
 
@@ -9,6 +10,7 @@ public sealed class Multivector3Tests {
 	public void Constructors() {
 		Multivector3<int> vectorA = new( 1, new( 2, 3, 4 ), new( 5, 6, 7 ), new( 8 ) );
 		Multivector3<double> vectorB = new( 1.0, new( 2.0, 3.0, 4.0 ), new( 5.0, 6.0, 7.0 ), new( 8.0 ) );
+		Multivector3<int> vectorC = new( 1, 2, 3, 4, 5, 6, 7, 8 );
 
 		Assert.That( vectorA.Scalar, Is.EqualTo( 1 ) );
 		Assert.That( vectorA.Vector.X, Is.EqualTo( 2 ) );
@@ -27,6 +29,15 @@ public sealed class Multivector3Tests {
 		Assert.That( vectorB.Bivector.ZX, Is.EqualTo( 6.0 ) );
 		Assert.That( vectorB.Bivector.XY, Is.EqualTo( 7.0 ) );
 		Assert.That( vectorB.Trivector.XYZ, Is.EqualTo( 8.0 ) );
+
+		Assert.That( vectorC.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( vectorC.Vector.X, Is.EqualTo( 2 ) );
+		Assert.That( vectorC.Vector.Y, Is.EqualTo( 3 ) );
+		Assert.That( vectorC.Vector.Z, Is.EqualTo( 4 ) );
+		Assert.That( vectorC.Bivector.YZ, Is.EqualTo( 5 ) );
+		Assert.That( vectorC.Bivector.ZX, Is.EqualTo( 6 ) );
+		Assert.That( vectorC.Bivector.XY, Is.EqualTo( 7 ) );
+		Assert.That( vectorC.Trivector.XYZ, Is.EqualTo( 8 ) );
 	}
 
 	[Test]
@@ -194,6 +205,160 @@ public sealed class Multivector3Tests {
 
 		Multivector3<int> expected = new( 21, new( 16, 12, 10 ), new( 9, 8, 7 ), new( 6 ) );
 		Assert.That( 128 / vectorA, Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void MultiplyVector3Operator() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+		Vector3<int> b = new( 9, 10, 11 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyBivector3Operator() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+		Bivector3<int> b = new( 9, 10, 11 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyTrivector3Operator() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+		Trivector3<int> b = new( 9 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyRotor3Operator() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+		Rotor3<int> b = new( 9, 10, 11, 12 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+
+	[Test]
+	public void MultiplyMultivector3Operator() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+		Multivector3<int> b = new( 9, 10, 11, 12, 13, 14, 15, 16 );
+
+		Assert.That( a * b, Is.EqualTo( GeometricAlgebraMath3.Multiply( a, b ) ) );
+	}
+	#endregion
+
+	#region Methods
+	[Test]
+	public void GetMultivector() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+
+		Multivector3<int> multivector = a.GetMultivector();
+
+		Assert.That( multivector.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( multivector.Vector.X, Is.EqualTo( 2 ) );
+		Assert.That( multivector.Vector.Y, Is.EqualTo( 3 ) );
+		Assert.That( multivector.Vector.Z, Is.EqualTo( 4 ) );
+		Assert.That( multivector.Bivector.YZ, Is.EqualTo( 5 ) );
+		Assert.That( multivector.Bivector.ZX, Is.EqualTo( 6 ) );
+		Assert.That( multivector.Bivector.XY, Is.EqualTo( 7 ) );
+		Assert.That( multivector.Trivector.XYZ, Is.EqualTo( 8 ) );
+	}
+
+	[Test]
+	public void Dot() {
+		Multivector3<int> vectorA = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+		Multivector3<int> vectorB = new( 9, 10, 11, 12, 13, 14, 15, 16 );
+
+		int dot = vectorA.Dot( vectorB );
+
+		Assert.That( dot, Is.EqualTo( -272 ) );
+	}
+
+	[Test]
+	public void Test_Equals() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+
+		Assert.That( a.Equals( a ), Is.True );
+		Assert.That( a.Equals( new Multivector3<int>( 1, 2, 3, 4, 5, 6, 7, 8 ) ), Is.True );
+		Assert.That( a.Equals( new Multivector3<int>( 2, 5, 6, 12, -6, 12, 15, 66 ) ), Is.False );
+		Assert.That( a.Equals( "Test" ), Is.False );
+	}
+
+	[Test]
+	public void Test_GetHashCode() {
+		Multivector3<int> multivector_1 = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+		Multivector3<int> multivector_2 = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+		Multivector3<int> multivector_3 = new( 2, 5, 6, 10, -5, 12, 14, 16 );
+		Multivector3<int> multivector_4 = new( 2, 5, 6, 10, -5, 12, 14, 16 );
+
+		Assert.That( multivector_1.GetHashCode(), Is.EqualTo( multivector_2.GetHashCode() ) );
+		Assert.That( multivector_1.GetHashCode(), Is.Not.EqualTo( multivector_3.GetHashCode() ) );
+		Assert.That( multivector_3.GetHashCode(), Is.EqualTo( multivector_4.GetHashCode() ) );
+	}
+
+	[Test]
+	public void Test_ToString() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+		Multivector3<double> b = new( -69.4201, 70.5, 50.9999, 23.232, 10, 12, 1300, 66.53412 );
+
+
+		Assert.That( a.ToString(), Is.EqualTo( $"<1 + {a.Vector} + {a.Bivector} + {a.Trivector}>" ) );
+		Assert.That( b.ToString(), Is.EqualTo( $"<-69.42 + {b.Vector} + {b.Bivector} + {b.Trivector}>" ) );
+	}
+	#endregion
+
+	#region Casts
+	[Test]
+	public void CastToScalar() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+
+		int result = (int) a;
+
+		Assert.That( result, Is.EqualTo( 1 ) );
+	}
+
+	[Test]
+	public void CastToVector() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+
+		Vector3<int> result = (Vector3<int>) a;
+
+		Assert.That( result.X, Is.EqualTo( 2 ) );
+		Assert.That( result.Y, Is.EqualTo( 3 ) );
+		Assert.That( result.Z, Is.EqualTo( 4 ) );
+	}
+
+	[Test]
+	public void CastToBivector() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+
+		Bivector3<int> result = (Bivector3<int>) a;
+
+		Assert.That( result.YZ, Is.EqualTo( 5 ) );
+		Assert.That( result.ZX, Is.EqualTo( 6 ) );
+		Assert.That( result.XY, Is.EqualTo( 7 ) );
+	}
+
+	[Test]
+	public void CastToTrivector() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+
+		Trivector3<int> result = (Trivector3<int>) a;
+
+		Assert.That( result.XYZ, Is.EqualTo( 8 ) );
+	}
+
+	[Test]
+	public void CastToRotor() {
+		Multivector3<int> a = new( 1, 2, 3, 4, 5, 6, 7, 8 );
+
+		Rotor3<int> result = (Rotor3<int>) a;
+
+		Assert.That( result.Scalar, Is.EqualTo( 1 ) );
+		Assert.That( result.Bivector.YZ, Is.EqualTo( 5 ) );
+		Assert.That( result.Bivector.ZX, Is.EqualTo( 6 ) );
+		Assert.That( result.Bivector.XY, Is.EqualTo( 7 ) );
 	}
 	#endregion
 }

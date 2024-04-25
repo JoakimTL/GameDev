@@ -130,4 +130,73 @@ public sealed class Quadvector4Tests {
 		Assert.That( 4 / vectorA, Is.EqualTo( expected ) );
 	}
 	#endregion
+
+	#region Methods
+	[Test]
+	public void GetMultivector() {
+		Quadvector4<int> bivector = new( 1 );
+
+		Multivector4<int> multivector = bivector.GetMultivector();
+
+		Assert.That( multivector.Scalar, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.X, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.Y, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.Z, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Vector.W, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.YZ, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.ZX, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.XY, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.YW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.ZW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Bivector.XW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Trivector.YZW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Trivector.XZW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Trivector.XYW, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Trivector.XYZ, Is.EqualTo( 0 ) );
+		Assert.That( multivector.Quadvector.XYZW, Is.EqualTo( 1 ) );
+	}
+
+	[Test]
+	public void Dot() {
+		Quadvector4<int> a = new( 1 );
+		Quadvector4<int> b = new( 2 );
+
+		int expected = 2;
+
+		Assert.That( a.Dot( b ), Is.EqualTo( expected ) );
+	}
+
+	[Test]
+	public void Test_Equals() {
+		Quadvector4<int> bivector = new( 1);
+
+		Assert.That( bivector.Equals( bivector ), Is.True );
+		Assert.That( bivector.Equals( new Quadvector4<int>( 1 ) ), Is.True );
+		Assert.That( bivector.Equals( new Quadvector4<int>( 2 ) ), Is.False );
+		Assert.That( bivector.Equals( "Test" ), Is.False );
+	}
+
+	[Test]
+	public void Test_GetHashCode() {
+		Quadvector4<int> a = new( 1 );
+		Quadvector4<int> b = new( 1 );
+		Quadvector4<int> c = new( 2 );
+		Quadvector4<int> d = new( 2 );
+
+		Assert.That( a.GetHashCode(), Is.EqualTo( b.GetHashCode() ) );
+		Assert.That( a.GetHashCode(), Is.Not.EqualTo( c.GetHashCode() ) );
+		Assert.That( c.GetHashCode(), Is.EqualTo( d.GetHashCode() ) );
+	}
+
+	[Test]
+	public void Test_ToString() {
+		Quadvector4<int> a = new( 1 );
+		Quadvector4<int> b = new( -6030 );
+		Quadvector4<double> c = new( -69.4201 );
+
+		Assert.That( a.ToString(), Is.EqualTo( "[1XYZW]" ) );
+		Assert.That( b.ToString(), Is.EqualTo( "[-6,030XYZW]" ) );
+		Assert.That( c.ToString(), Is.EqualTo( "[-69.42XYZW]" ) );
+	}
+	#endregion
 }

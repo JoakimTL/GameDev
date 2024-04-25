@@ -1,31 +1,25 @@
-﻿using System.Numerics;
+﻿using Engine.Math.NewVectors.Interfaces;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Math.NewVectors;
 
-public static class AABBExtensions {
+public static partial class AABB {
+	public static bool Intersects<TVector>( in this AABB<TVector> r, in AABB<TVector> l )
+		where TVector :
+			unmanaged, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>, ILinearAlgebraVectorOperations<TVector>, IEntrywiseComparisonOperators<TVector>, IVectorIdentities<TVector>
+		=> r.Maxima.Subtract( l.Minima ) >= TVector.Zero && l.Maxima.Subtract( r.Minima ) >= TVector.Zero;
 
-	[MethodImpl( MethodImplOptions.AggressiveInlining )]
-	public static bool Intersects<TScalar>( in this AABB<Vector2<TScalar>, TScalar> r, in AABB<Vector2<TScalar>, TScalar> l ) where TScalar : unmanaged, INumber<TScalar>
-		=> r.Minima.X <= l.Maxima.X && r.Maxima.X >= l.Minima.X
-		&& r.Minima.Y <= l.Maxima.Y && r.Maxima.Y >= l.Minima.Y;
-
-	[MethodImpl( MethodImplOptions.AggressiveInlining )]
-	public static bool Intersects<TScalar>( in this AABB<Vector3<TScalar>, TScalar> r, in AABB<Vector3<TScalar>, TScalar> l ) where TScalar : unmanaged, INumber<TScalar>
-		=> r.Minima.X <= l.Maxima.X && r.Maxima.X >= l.Minima.X
-		&& r.Minima.Y <= l.Maxima.Y && r.Maxima.Y >= l.Minima.Y
-		&& r.Minima.Z <= l.Maxima.Z && r.Maxima.Z >= l.Minima.Z;
-
-	[MethodImpl( MethodImplOptions.AggressiveInlining )]
-	public static bool Intersects<TScalar>( in this AABB<Vector4<TScalar>, TScalar> r, in AABB<Vector4<TScalar>, TScalar> l ) where TScalar : unmanaged, INumber<TScalar>
-		=> r.Minima.X <= l.Maxima.X && r.Maxima.X >= l.Minima.X
-		&& r.Minima.Y <= l.Maxima.Y && r.Maxima.Y >= l.Minima.Y
-		&& r.Minima.Z <= l.Maxima.Z && r.Maxima.Z >= l.Minima.Z
-		&& r.Minima.W <= l.Maxima.W && r.Maxima.W >= l.Minima.W;
-
-
-	public static TScalar GetArea<TScalar>( in this AABB<Vector2<TScalar>, TScalar> aabb ) where TScalar : unmanaged, INumber<TScalar>
+	public static TScalar GetArea<TScalar>( in this AABB<Vector2<TScalar>> aabb ) where TScalar : unmanaged, INumber<TScalar>
 		=> (aabb.Maxima - aabb.Minima).ProductOfParts();
+	public static TScalar GetSurfaceArea<TScalar>( in this AABB<Vector3<TScalar>> aabb ) where TScalar : unmanaged, INumber<TScalar>
+		=> (aabb.Maxima - aabb.Minima).SumOfUnitBasisAreas() * (TScalar.One + TScalar.One);
+	public static TScalar GetVolume<TScalar>( in this AABB<Vector3<TScalar>> aabb ) where TScalar : unmanaged, INumber<TScalar>
+		=> (aabb.Maxima - aabb.Minima).ProductOfParts();
+	public static TVector GetCenter<TVector>( in this AABB<TVector> aabb )
+		where TVector :
+			unmanaged, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>, ILinearAlgebraVectorOperations<TVector>, IEntrywiseComparisonOperators<TVector>, IVectorIdentities<TVector>, IEntrywiseProductOperations<TVector> 
+		=> aabb.Minima.Add( aabb.Maxima.Subtract( aabb.Minima ).DivideEntrywise( TVector.Two ) );
 
 	//public static IEnumerable<TVector> GetPointsInBoundsOnPlane<TRotor, TVector, TScalar>( in this AABB<TVector, TScalar> aabb, TVector planeOrigin, TRotor planeRotation )
 	//	where TRotor :
@@ -34,7 +28,7 @@ public static class AABBExtensions {
 	//		unmanaged, IVector<TVector, TScalar>, IEntrywiseMinMaxOperations<TVector>
 	//	where TScalar :
 	//		unmanaged, INumber<TScalar> {
-		
+
 	//}
 
 	//public static IEnumerable<Vector2<T>> GetPointsInAreaExclusive( AABB2<T> aabb, T increment ) {

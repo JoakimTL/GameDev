@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 using Engine.Math.NewVectors.Interfaces;
 
@@ -8,7 +9,8 @@ namespace Engine.Math.NewVectors;
 public readonly struct Quadvector4<TScalar>( TScalar xyzw ) :
 		IVector<Quadvector4<TScalar>, TScalar>,
 		IPartOfMultivector<Multivector4<TScalar>, Quadvector4<TScalar>>,
-		ILinearAlgebraOperators<Quadvector4<TScalar>, TScalar>
+		ILinearAlgebraVectorOperators<Quadvector4<TScalar>>,
+		ILinearAlgebraScalarOperators<Quadvector4<TScalar>, TScalar>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar XYZW = xyzw;
@@ -17,8 +19,9 @@ public readonly struct Quadvector4<TScalar>( TScalar xyzw ) :
 	public static Quadvector4<TScalar> MultiplicativeIdentity => One;
 	public static Quadvector4<TScalar> Zero { get; } = new( TScalar.Zero );
 	public static Quadvector4<TScalar> One { get; } = new( TScalar.One );
+	public static Quadvector4<TScalar> Two { get; } = One + One;
 
-	public Multivector4<TScalar> GetMultivector(  ) => new( TScalar.Zero, Vector4<TScalar>.Zero, Bivector4<TScalar>.Zero, Trivector4<TScalar>.Zero, this );
+	public Multivector4<TScalar> GetMultivector() => new( TScalar.Zero, Vector4<TScalar>.Zero, Bivector4<TScalar>.Zero, Trivector4<TScalar>.Zero, this );
 
 	public Quadvector4<TScalar> Negate() => new( -XYZW );
 	public Quadvector4<TScalar> Add( in Quadvector4<TScalar> r ) => new( XYZW + r.XYZW );
@@ -40,5 +43,5 @@ public readonly struct Quadvector4<TScalar>( TScalar xyzw ) :
 	public static bool operator !=( in Quadvector4<TScalar> l, in Quadvector4<TScalar> r ) => !(l == r);
 	public override bool Equals( [NotNullWhen( true )] object? obj ) => obj is Quadvector4<TScalar> v && this == v;
 	public override int GetHashCode() => HashCode.Combine( XYZW );
-	public override string ToString() => $"[{XYZW:N3}XYZW]";
+	public override string ToString() => string.Create( CultureInfo.InvariantCulture, $"[{XYZW:#,##0.###}XYZW]" );
 }

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Engine.Math.NewVectors;
 
-public static class MatrixExtensions {
+public static partial class Matrix {
 	/// <returns>False if there is not enough space in the span for the copy of the matrix</returns>
 	public static bool TryFill<TMatrix, TData>( this TMatrix m, Span<TData> resultStorage, bool columnMajor = false, uint destinationOffsetBytes = 0 )
 		where TMatrix :

@@ -1,6 +1,4 @@
-﻿using static System.Net.Mime.MediaTypeNames;
-
-namespace Engine.Math.NewVectors.Interfaces;
+﻿namespace Engine.Math.NewVectors.Interfaces;
 
 public interface IProductOperator<TLeft, TRight, TResult>
 	where TLeft :

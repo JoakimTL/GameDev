@@ -9,4 +9,6 @@ public interface IVectorPartsOperations<TVector, TScalar>
 		unmanaged, INumber<TScalar> {
 	TScalar SumOfParts();
 	TScalar ProductOfParts();
+	TScalar SumOfUnitBasisAreas();
+	TScalar SumOfUnitBasisVolumes();
 }

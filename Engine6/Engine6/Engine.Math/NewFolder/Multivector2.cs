@@ -45,5 +45,5 @@ public readonly struct Multivector2<T>(T scalar, in Vector2<T> vector, in Bivect
     public static bool operator !=(in Multivector2<T> l, in Multivector2<T> r) => !(l == r);
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Multivector2<T> v && this == v;
     public override int GetHashCode() => HashCode.Combine(Scalar, Vector, Bivector);
-    public override string ToString() => $"[{Scalar:N3}+{Vector}+{Bivector}]";
+    public override string ToString() => $"[{Scalar:#,##0.###}+{Vector}+{Bivector}]";
 }
