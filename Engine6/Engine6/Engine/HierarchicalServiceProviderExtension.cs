@@ -1,13 +1,13 @@
 ﻿namespace Engine;
 
-public abstract class HierarchicalServiceProviderExtension<T> : Identifiable {
+public abstract class HierarchicalServiceProviderExtension<TServiceType, TProcessType> : Identifiable {
 	protected readonly IServiceProvider _serviceProvider;
-	protected readonly BidirectionalTypeTree _tree;
-	protected readonly List<T> _sortedServices;
+	protected readonly BidirectionalTypeTree<TProcessType> _tree;
+	protected readonly List<TServiceType> _sortedServices;
 
-	public HierarchicalServiceProviderExtension( IServiceProvider serviceProvider, Type processType, bool addConstructorParameterTypesAsParents ) {
+	public HierarchicalServiceProviderExtension( IServiceProvider serviceProvider, bool addConstructorParameterTypesAsParents ) {
 		_sortedServices = [];
-		_tree = new( processType, addConstructorParameterTypesAsParents );
+		_tree = new( addConstructorParameterTypesAsParents );
 		_tree.TreeUpdated += TreeUpdated;
 		_serviceProvider = serviceProvider;
 		_serviceProvider.ServiceAdded += OnServiceAdded;
@@ -15,11 +15,11 @@ public abstract class HierarchicalServiceProviderExtension<T> : Identifiable {
 
 	private void TreeUpdated() {
 		_sortedServices.Clear();
-		_sortedServices.AddRange( _tree.GetNodesSorted().Select( _serviceProvider.GetService ).OfType<T>() );
+		_sortedServices.AddRange( _tree.GetNodesSorted().Select( _serviceProvider.GetService ).OfType<TServiceType>() );
 	}
 
 	private void OnServiceAdded( object service ) {
-		if (service is T t)
+		if (service is TServiceType t)
 			_tree.Add( t.GetType() );
 	}
 

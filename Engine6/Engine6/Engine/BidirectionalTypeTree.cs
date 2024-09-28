@@ -4,31 +4,34 @@ using System.Reflection;
 
 namespace Engine;
 
-public class BidirectionalTypeTree : Identifiable {
+public class BidirectionalTypeTree<TProcessType>( bool addConstructorParameterTypesAsParents = false ) : Identifiable {
 
-	private readonly ConcurrentDictionary<Type, BidirectionalNode> _nodes;
-	private readonly Type _processType;
-	private readonly bool _addConstructorParameterTypesAsParents;
+	private readonly ConcurrentDictionary<Type, BidirectionalNode> _nodes = new();
+	private readonly Type _processType = typeof( TProcessType );
+	private readonly bool _addConstructorParameterTypesAsParents = addConstructorParameterTypesAsParents;
 	private bool _needsUpdate;
 
 	public event Action? TreeUpdated;
 
-	public BidirectionalTypeTree( Type processType, bool addConstructorParameterTypesAsParents = false ) {
-		_nodes = new();
-		_processType = processType;
-		_addConstructorParameterTypesAsParents = addConstructorParameterTypesAsParents;
+	public void Add( Type t ) {
+		ArgumentNullException.ThrowIfNull( t );
+		AddInternal( t );
 	}
 
-	public void Add( Type t ) {
-		if (t is null)
-			throw new ArgumentNullException( nameof( t ) );
+	public void Add<T>() => AddInternal( typeof( T ) );
+
+	private void AddInternal(Type t ) {
 		if (_nodes.TryAdd( t, new BidirectionalNode( t ) ))
 			_needsUpdate = true;
 	}
 
 	public void Remove( Type t ) {
-		if (t is null)
-			throw new ArgumentNullException( nameof( t ) );
+		ArgumentNullException.ThrowIfNull( t );
+		RemoveInternal( t );
+	}
+	public void Remove<T>() => RemoveInternal( typeof( T ) );
+
+	private void RemoveInternal( Type t ) {
 		if (_nodes.TryRemove( t, out _ ))
 			_needsUpdate = true;
 	}
@@ -41,7 +44,7 @@ public class BidirectionalTypeTree : Identifiable {
 
 		foreach (BidirectionalNode node in _nodes.Values) {
 			Type t = node.Value;
-			HashSet<Type> preceding = t.GetCustomAttributes<ProcessAfterAttribute>().Where( p => p.ProcessType == _processType ).Select( p => p.PrecedingType ).ToHashSet();
+			HashSet<Type> preceding = t.GetCustomAttributes<Direction.AfterAttribute>().Where( p => p.ProcessType == _processType ).Select( p => p.PrecedingType ).ToHashSet();
 			if (_addConstructorParameterTypesAsParents) {
 				ConstructorInfo? ctor = t.GetConstructors().FirstOrDefault();
 				if (ctor is not null) {
@@ -49,7 +52,7 @@ public class BidirectionalTypeTree : Identifiable {
 						preceding.Add( p );
 				}
 			}
-			IEnumerable<Type> following = t.GetCustomAttributes<ProcessBeforeAttribute>().Where( p => p.ProcessType == _processType ).Select( p => p.FollowingType );
+			HashSet<Type> following = t.GetCustomAttributes<Direction.BeforeAttribute>().Where( p => p.ProcessType == _processType ).Select( p => p.FollowingType ).ToHashSet();
 			foreach (Type pre in preceding) {
 				if (_nodes.TryGetValue( pre, out BidirectionalNode? preNode )) {
 					node.AddParent( pre );
@@ -68,7 +71,7 @@ public class BidirectionalTypeTree : Identifiable {
 	}
 
 	public IEnumerable<Type> GetNodesSorted() {
-		HashSet<Type> walked = new();
+		HashSet<Type> walked = [];
 		Queue<BidirectionalNode> unprocessed = new( _nodes.Values.Where( p => p.Parents.Count == 0 ) );
 
 		while (unprocessed.TryDequeue( out BidirectionalNode? node )) {
@@ -103,8 +106,8 @@ public class BidirectionalTypeTree : Identifiable {
 
 		public BidirectionalNode( Type value ) {
 			Value = value;
-			_parents = new();
-			_children = new();
+			_parents = [];
+			_children = [];
 		}
 
 		public void AddParent( Type parent ) => _parents.Add( parent );

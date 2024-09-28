@@ -1,11 +1,10 @@
 ﻿using Engine.Data;
-using Engine.Math.NewFolder;
 
 namespace Engine.Modules.Physics;
 public class CollisionShape3 {
 
 	private readonly CollisionShapeTemplate3 _template;
-	private IMatrixProvider? _matrixProvider;
+	private IMatrixProvider<double>? _matrixProvider;
 	private bool _matrixChanged;
 
 	public CollisionShape3( CollisionShapeTemplate3 template ) {
@@ -13,7 +12,7 @@ public class CollisionShape3 {
 		this._matrixProvider = null;
 	}
 
-	public void SetMatrixProvider( IMatrixProvider? matrixProvider ) {
+	public void SetMatrixProvider( IMatrixProvider<double>? matrixProvider ) {
 		if ( this._matrixProvider is not null )
 			this._matrixProvider.MatrixChanged -= OnMatrixChanged;
 		this._matrixProvider = matrixProvider;
@@ -21,11 +20,11 @@ public class CollisionShape3 {
 			this._matrixProvider.MatrixChanged += OnMatrixChanged;
 	}
 
-	private void OnMatrixChanged( IMatrixProvider provider ) => _matrixChanged = true;
+	private void OnMatrixChanged( IMatrixProvider<double> provider ) => _matrixChanged = true;
 
 	public bool IsValid() => this._matrixProvider is not null;
 
-	public bool TryGetAAb( out AABB3<double> aabb ) {
+	public bool TryGetAAb( out AABB<Vector3<double>> aabb ) {
 		throw new NotImplementedException();
 	}
 

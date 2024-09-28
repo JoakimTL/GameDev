@@ -10,7 +10,7 @@ public static class Services {
 		Global = new ServiceProvider( GlobalRegistry );
 	}
 
-	public static IServiceProvider CreateServiceProvider( IServiceRegistry registry ) => new ServiceProvider( registry );
+	public static IServiceProvider CreateServiceProvider( IServiceRegistry? registry ) => new ServiceProvider( registry );
 
 	public static IServiceRegistry CreateServiceRegistry() => new ServiceRegistry();
 

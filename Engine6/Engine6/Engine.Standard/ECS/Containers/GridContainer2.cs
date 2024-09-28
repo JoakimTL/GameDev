@@ -1,30 +1,20 @@
 ﻿using Engine.Data;
-using Engine.Math.NewFolder;
-using Engine.Math.NewFolder.Operations;
 using Engine.Modules.ECS;
 using Engine.Standard.ECS.Components;
 
 namespace Engine.Standard.ECS.Containers;
 
-public sealed class GridContainer2 : EntityContainerBase<Vector2<double>> {
+public sealed class GridContainer2( EntityManager entityManager, int gridSize = 32 ) : EntityContainerBase<Vector2<double>>( entityManager ) {
 
-	private readonly DynamicLookup<CollisionShape2Component, Vector2<int>> _currentComponentGrids;
-	private readonly DynamicLookup<Vector2<int>, CollisionShape2Component> _componentsByGrid;
+	private readonly DynamicLookup<CollisionShape2Component, Vector2<int>> _currentComponentGrids = new();
+	private readonly DynamicLookup<Vector2<int>, CollisionShape2Component> _componentsByGrid = new();
 
-	private readonly UnmanagedList _gridList;
+	private readonly UnmanagedList _gridList = new();
 
-	public int GridSize { get; }
-
-	public GridContainer2( EntityManager entityManager, int gridSize = 32 ) : base( entityManager ) {
-		this._currentComponentGrids = new();
-		this._componentsByGrid = new();
-		_gridList = new();
-		this.GridSize = gridSize;
-	}
+	public int GridSize { get; } = gridSize;
 
 	public override IEnumerable<Entity> GetEntities( Vector2<double> t )
 		=> this._componentsByGrid[ GetGrid( t ) ].Select( p => p.Entity );
-
 
 	protected override void ComponentAdded( Entity e, ComponentBase component ) {
 		if (component is CollisionShape2Component csc) {
@@ -80,7 +70,7 @@ public sealed class GridContainer2 : EntityContainerBase<Vector2<double>> {
 		SetGrids( csc );
 	}
 
-	private void GetGrids( in AABB2<double> aabb, UnmanagedList gridList ) {
+	private void GetGrids( in AABB<Vector2<double>> aabb, UnmanagedList gridList ) {
 		Vector2<int> minGrid = GetGrid( aabb.Minima );
 		Vector2<int> maxGrid = GetGrid( aabb.Maxima );
 
@@ -90,10 +80,10 @@ public sealed class GridContainer2 : EntityContainerBase<Vector2<double>> {
 	}
 
 	private Vector2<int> GetGrid( Vector2<double> position )
-		=> ( position / GridSize ).Floor().CastSaturating<double, int>();
+		=> (position / GridSize).Floor<Vector2<double>, double>().CastSaturating<double, int>();
 
 	private void SetGrids( CollisionShape2Component csc ) {
-		if (csc.TryGetAABB( out AABB2<double> aabb )) {
+		if (csc.TryGetAABB( out AABB<Vector2<double>> aabb )) {
 			_gridList.Flush();
 			GetGrids( aabb, _gridList );
 			Span<Vector2<int>> grids = stackalloc Vector2<int>[ (int) _gridList.GetElementCount<Vector2<int>>() ];

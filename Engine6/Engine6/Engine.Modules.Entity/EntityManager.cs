@@ -1,4 +1,6 @@
-﻿namespace Engine.Modules.ECS;
+﻿using Engine.Reflection;
+
+namespace Engine.Modules.ECS;
 
 public class EntityManager : IUpdateable {
 
@@ -10,15 +12,22 @@ public class EntityManager : IUpdateable {
 
 	private readonly Dictionary<Type, EntityContainerBase> _entityContainers;
 
+	private readonly (SystemBase, SystemEntityContainer)[] _systems;
+
 	public event EntityListChangeHandler? EntityAdded;
 	public event EntityListChangeHandler? EntityRemoved;
 	public event EntityComponentChangeHandler? ComponentAdded;
 	public event EntityComponentChangeHandler? ComponentRemoved;
 
 	public EntityManager() {
-		this._entities = new();
+		this._entities = [];
 		this._removedEntities = new();
-		this._entityContainers = new();
+		this._entityContainers = [];
+		_systems = TypeUtilities.GetAllSubtypes<SystemBase>()
+			.Select( t => t.TryInstantiate( out SystemBase? system ) ? system : Log.WarningThenReturnDefault<SystemBase>( "Unable to create system!" ) )
+			.Where( p => p is not null )
+			.Select( p => (p!, new SystemEntityContainer( this, p! )) )
+			.ToArray();
 	}
 
 	internal IReadOnlyCollection<Entity> AllEntities => this._entities.Values;
@@ -81,5 +90,9 @@ public class EntityManager : IUpdateable {
 			} else
 				this.LogWarning( $"Failed to remove entity with id {entityId}." );
 
+		foreach ((SystemBase system, SystemEntityContainer container) in this._systems) {
+			if (container.EligibleEntities.Count >0)
+				system.Update( container.EligibleEntities, time, deltaTime );
+		}
 	}
 }

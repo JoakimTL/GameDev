@@ -2,13 +2,9 @@
 
 namespace Engine;
 
-public abstract class DependencyInjectorBase : Identifiable {
+public abstract class DependencyInjectorBase( IServiceRegistry? serviceRegistry ) : Identifiable {
 
-	protected readonly IServiceRegistry _serviceRegistry;
-
-	public DependencyInjectorBase( IServiceRegistry serviceRegistry ) {
-		this._serviceRegistry = serviceRegistry ?? throw new ArgumentNullException( nameof( serviceRegistry ) );
-	}
+	protected readonly IServiceRegistry? _serviceRegistry = serviceRegistry;
 
 	protected abstract object? GetInternal( Type t );
 
@@ -44,9 +40,9 @@ public abstract class DependencyInjectorBase : Identifiable {
 		if ( t.IsValueType )
 			throw new ServiceProviderException( t, "Value types can't be services." );
 		if ( t.IsAbstract )
-			t = this._serviceRegistry.GetImplementation( t ) ?? throw new ServiceProviderException( originalType, "No registered type for abstract class found." );
+			t = this._serviceRegistry?.GetImplementation( t ) ?? throw new ServiceProviderException( originalType, "No registered type for abstract class found." );
 		if ( t.IsInterface )
-			t = this._serviceRegistry.GetImplementation( t ) ?? throw new ServiceProviderException( originalType, "No registered type for interface found." );
+			t = this._serviceRegistry?.GetImplementation( t ) ?? throw new ServiceProviderException( originalType, "No registered type for interface found." );
 		return t;
 	}
 

@@ -7,7 +7,7 @@ public sealed class DynamicLookup<TKey, TValue> where TKey : notnull {
 	public IReadOnlyCollection<TKey> Keys => this._dictionary.Keys;
 
 	public DynamicLookup() {
-		this._dictionary = new();
+		this._dictionary = [];
 	}
 
 	public void Add( TKey key, TValue value ) {
@@ -16,7 +16,7 @@ public sealed class DynamicLookup<TKey, TValue> where TKey : notnull {
 		if ( value is null )
 			throw new ArgumentNullException( nameof( value ) );
 		if ( !this._dictionary.TryGetValue( key, out HashSet<TValue>? values ) )
-			this._dictionary.Add( key, values = new() );
+			this._dictionary.Add( key, values = [] );
 		values.Add( value );
 	}
 
@@ -26,7 +26,7 @@ public sealed class DynamicLookup<TKey, TValue> where TKey : notnull {
 		if ( values is null )
 			throw new ArgumentNullException( nameof( values ) );
 		if ( !this._dictionary.TryGetValue( key, out HashSet<TValue>? valueSet ) )
-			this._dictionary.Add( key, valueSet = new() );
+			this._dictionary.Add( key, valueSet = [] );
 		foreach ( TValue value in values )
 			valueSet.Add( value );
 	}
@@ -34,7 +34,7 @@ public sealed class DynamicLookup<TKey, TValue> where TKey : notnull {
 		if ( key is null )
 			throw new ArgumentNullException( nameof( key ) );
 		if ( !this._dictionary.TryGetValue( key, out HashSet<TValue>? valueSet ) )
-			this._dictionary.Add( key, valueSet = new() );
+			this._dictionary.Add( key, valueSet = [] );
 		foreach ( TValue value in values )
 			valueSet.Add( value );
 	}
@@ -71,7 +71,7 @@ public sealed class DynamicLookup<TKey, TValue> where TKey : notnull {
 	/// </summary>
 	/// <returns>A new hashset with all values present in the lookup</returns>
 	public HashSet<TValue> GetAllValues() {
-		HashSet<TValue> allValues = new();
+		HashSet<TValue> allValues = [];
 		foreach ( HashSet<TValue> values in this._dictionary.Values )
 			allValues.UnionWith( values );
 		return allValues;

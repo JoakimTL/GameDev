@@ -2,7 +2,7 @@
 
 namespace Engine.Data;
 
-public unsafe sealed class UnmanagedList( uint initialSizeBytes = 512 ) : UnmanagedData( initialSizeBytes ) {
+public unsafe sealed class UnmanagedList( uint initialSizeBytes = 512 ) : UnmanagedDataBase( initialSizeBytes ) {
 	public nuint BytesUsed { get; private set; } = 0;
 
 	public void Add<T>( T item ) where T : unmanaged {

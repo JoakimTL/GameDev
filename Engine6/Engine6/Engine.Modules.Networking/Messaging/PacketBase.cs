@@ -34,7 +34,7 @@ public abstract class PacketBase {
 	protected void SetBytes( byte[] data ) => _data = data;
 
 	public byte[]? GetPacketTransferData( int id ) {
-		var data = GetData();
+		byte[]? data = GetData();
 		if (data is null)
 			return null;
 		byte[] transferData = new byte[ data.Length + (sizeof( int ) * 2) ];

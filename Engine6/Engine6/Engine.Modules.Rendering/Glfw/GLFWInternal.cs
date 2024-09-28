@@ -6,7 +6,7 @@ namespace Engine.Modules.Rendering.Glfw;
 
 internal static unsafe partial class GLFWInternal {
 	//https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke-source-generation
-	public const string LIBRARY = "glfw3";
+	public const string LIBRARY = "Glfw/glfw3";
 
 	#region Glfw
 	#region Vulkan

@@ -61,7 +61,7 @@ public abstract class OglBufferBase : DisposableIdentifiable {
 /// <param name="resizeFactor">How much to resize when more space is needed. This is percentage, where 0 means no resizing and 1 means doubling in size.</param>
 public sealed class OglSegementedBuffer( BufferUsage usage, uint sizeBytes, float resizeFactor ) : OglBufferBase( usage, sizeBytes ) {
 
-	private readonly List<OglBufferSegment> _segments = new();
+	private readonly List<OglBufferSegment> _segments = [];
 	private readonly float _resizeFactor = resizeFactor >= 0 ? resizeFactor : throw new ArgumentOutOfRangeException( nameof( resizeFactor ), "Can't have a negative resizing factor" );
 	private bool _fragmented = false;
 	private uint _bytesAllocated = 0;

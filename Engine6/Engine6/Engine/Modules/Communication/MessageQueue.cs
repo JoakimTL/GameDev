@@ -8,7 +8,7 @@ public sealed class MessageQueue<T> : IDisposable {
 	private readonly HashSet<IMessageEmitter> _emitters;
 
 	public MessageQueue() {
-		this._emitters = new();
+		this._emitters = [];
 		this._queue = new();
 	}
 

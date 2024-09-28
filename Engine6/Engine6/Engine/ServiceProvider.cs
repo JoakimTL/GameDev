@@ -2,7 +2,7 @@
 
 namespace Engine;
 
-internal sealed class ServiceProvider( IServiceRegistry serviceRegistry ) : DependencyInjectorBase( serviceRegistry ), IServiceProvider {
+internal sealed class ServiceProvider( IServiceRegistry? serviceRegistry ) : DependencyInjectorBase( serviceRegistry ), IServiceProvider {
 
 	private readonly ConcurrentDictionary<Type, object> _instances = new();
 	private readonly ConcurrentDictionary<Type, object> _constants = new();

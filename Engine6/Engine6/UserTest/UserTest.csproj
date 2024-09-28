@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine.Math\Engine.Math.csproj" />
+    <ProjectReference Include="..\Engine.Modules.Entity\Engine.Modules.ECS.csproj" />
+    <ProjectReference Include="..\Engine.Modules.Networking\Engine.Modules.Networking.csproj" />
+    <ProjectReference Include="..\Engine.Modules.Physics\Engine.Modules.Physics.csproj" />
+    <ProjectReference Include="..\Engine.Modules.Rendering\Engine.Modules.Rendering.csproj" />
+    <ProjectReference Include="..\Engine.Shared\Engine.Shared.csproj" />
+    <ProjectReference Include="..\Engine.Standard\Engine.Standard.csproj" />
+    <ProjectReference Include="..\Engines.Modules.Input\Engine.Modules.Input.csproj" />
+    <ProjectReference Include="..\Engine\Engine.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,4 @@
-﻿using Engine.Math.NewFolder;
-using Engine.Modules.Rendering.Ogl.OOP;
-using Engine.Modules.Rendering.Ogl.Utilities;
+﻿using Engine.Modules.Rendering.Ogl.OOP;
 using OpenGL;
 
 namespace Engine.Modules.Rendering.Ogl.Services;
@@ -104,24 +102,4 @@ public sealed class FramebufferStateService( ViewportStateService viewport ) : I
 		UnbindFramebuffer( FramebufferTarget.ReadFramebuffer );
 	}
 
-}
-
-public sealed class WindowService : Identifiable {
-	private readonly Context _context;
-	private readonly ViewportStateService _viewportStateService;
-	private readonly FramebufferStateService _framebufferStateService;
-	private OglWindow? _window;
-
-	public WindowService(Context context, ViewportStateService viewportStateService, FramebufferStateService framebufferStateService)
-    {
-		this._context = context;
-		this._viewportStateService = viewportStateService;
-		this._framebufferStateService = framebufferStateService;
-	}
-
-	public OglWindow Window { get => GetWindow(); }
-
-	internal void CreateWindow() => _window ??= new OglWindow( _framebufferStateService, _viewportStateService, WindowCreationUtility.Create( _context.WindowSettings ) );
-
-	private OglWindow GetWindow() => _window ??= new OglWindow( _framebufferStateService, _viewportStateService, WindowCreationUtility.Create( _context.WindowSettings ) );
 }

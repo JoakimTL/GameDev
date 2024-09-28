@@ -1,5 +1,4 @@
 ﻿using Engine.Data;
-using Engine.Math.NewFolder;
 using Engine.Modules.ECS;
 using Engine.Modules.Physics;
 
@@ -9,7 +8,7 @@ public sealed class CollisionShape3Component : ComponentBase {
 
 	public CollisionShapeTemplate3? Template { get; private set; }
 	public CollisionShape3? Shape { get; private set; }
-	private IMatrixProvider? _matrixProvider;
+	private IMatrixProvider<double>? _matrixProvider;
 
 	public CollisionShape3Component() {
 		this.Template = null;
@@ -50,12 +49,12 @@ public sealed class CollisionShape3Component : ComponentBase {
 		TriggerChanged();
 	}
 
-	private void SetMatrixProvider( IMatrixProvider? matrixProvider ) {
+	private void SetMatrixProvider( IMatrixProvider<double>? matrixProvider ) {
 		this._matrixProvider = matrixProvider;
 		TriggerChanged();
 	}
 
-	internal bool TryGetAABB( out AABB3<double> aabb ) {
+	internal bool TryGetAABB( out AABB<Vector3<double>> aabb ) {
 		throw new NotImplementedException();
 	}
 }

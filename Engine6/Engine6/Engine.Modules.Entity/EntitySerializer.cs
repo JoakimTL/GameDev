@@ -106,7 +106,7 @@ public class EntitySerializer {
 				uint index = 0;
 				uint entityCount = *(uint*) ptr;
 				index += sizeof( uint );
-				List<EntityData> entities = new();
+				List<EntityData> entities = [];
 				for (int i = 0; i < entityCount; i++) {
 					entities.Add( *(EntityData*) (ptr + index) );
 					index += (uint) sizeof( EntityData );

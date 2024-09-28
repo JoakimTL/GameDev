@@ -1,56 +1,58 @@
 ﻿using System.Numerics;
 
 namespace Engine.Data.Transforms;
-public class Transform2 : TransformBase<Vector2, float, Vector2> {
+public class Transform2<TScalar> : TransformBase<TScalar, Vector2<TScalar>, TScalar, Vector2<TScalar>>
+	where TScalar :
+		unmanaged, IFloatingPointIeee754<TScalar> {
 
 	public Transform2() {
-		this.Scale = Vector2.One;
+		this.Scale = Vector2<TScalar>.One;
 	}
 
-	protected override float GetGlobalRotation() {
-		if ( this.Parent is not null )
+	protected override TScalar GetGlobalRotation() {
+		if (this.Parent is not null)
 			return this.Rotation + this.Parent.GlobalRotation;
 		return this.Rotation;
 	}
 
-	protected override Vector2 GetGlobalScale() {
-		if ( this.Parent is not null )
-			return this.Scale * this.Parent.GlobalScale;
+	protected override Vector2<TScalar> GetGlobalScale() {
+		if (this.Parent is not null)
+			return this.Scale.MultiplyEntrywise( this.Parent.GlobalScale );
 		return this.Scale;
 	}
 
-	protected override Vector2 GetGlobalTranslation() {
-		if ( this.Parent is not null )
-			return Vector2.Transform( this.Translation, this.Parent.Matrix );
+	protected override Vector2<TScalar> GetGlobalTranslation() {
+		if (this.Parent is not null)
+			return this.Parent.Matrix.TransformWorld( this.Translation ) ?? this.Translation;
 		return this.Translation;
 	}
 
-	protected override TransformData<Vector2, float, Vector2> GetInterpolated( TransformBase<Vector2, float, Vector2> other, float interpolation ) =>
-		new( Vector2.Lerp( this.GlobalTranslation, other.GlobalTranslation, interpolation ),
-			 (this.GlobalRotation * ( 1 - interpolation )) + (other.GlobalRotation * interpolation),
-			Vector2.Lerp( this.GlobalScale, other.GlobalScale, interpolation ) );
+	protected override TransformData<Vector2<TScalar>, TScalar, Vector2<TScalar>> GetInterpolated( TransformBase<TScalar, Vector2<TScalar>, TScalar, Vector2<TScalar>> other, TScalar interpolation ) =>
+		new( this.GlobalTranslation.Lerp( other.GlobalTranslation, interpolation ),
+			 (this.GlobalRotation * (TScalar.One - interpolation)) + (other.GlobalRotation * interpolation),
+			this.GlobalScale.Lerp( other.GlobalScale, interpolation ) );
 
-	protected override Matrix4x4 GetLocalMatrix() {
-		Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation( new Vector3( this.Translation, 0 ) );
-		Matrix4x4 rotationMatrix = Matrix4x4.CreateRotationZ( this.Rotation );
-		Matrix4x4 scaleMatrix = Matrix4x4.CreateScale( new Vector3( this.Scale, 0 ) );
+	protected override Matrix4x4<TScalar> GetLocalMatrix() {
+		Matrix4x4<TScalar> translationMatrix = Engine.Matrix.Create4x4.Translation( this.Translation );
+		Matrix4x4<TScalar> rotationMatrix = Engine.Matrix.Create4x4.RotationZ( this.Rotation );
+		Matrix4x4<TScalar> scaleMatrix = Engine.Matrix.Create4x4.Scaling( this.Scale );
 		return scaleMatrix * rotationMatrix * translationMatrix;
 	}
 
 
-	protected override void RevertAdjustment( TransformBase<Vector2, float, Vector2>? parent ) {
-		if ( parent is null )
+	protected override void RevertAdjustment( TransformBase<TScalar, Vector2<TScalar>, TScalar, Vector2<TScalar>>? parent ) {
+		if (parent is null)
 			return;
-		this.Translation = Vector2.Transform( this.Translation, parent.Matrix );
-		this.Rotation = parent.GlobalRotation * this.Rotation;
-		this.Scale *= parent.GlobalScale;
+		this.Translation = parent.Matrix.TransformWorld( this.Translation ) ?? this.Translation;
+		this.Rotation += parent.GlobalRotation;
+		this.Scale = this.Scale.MultiplyEntrywise( parent.GlobalScale );
 	}
 
-	protected override void Adjust( TransformBase<Vector2, float, Vector2>? parent ) {
-		if ( parent is null )
+	protected override void Adjust( TransformBase<TScalar, Vector2<TScalar>, TScalar, Vector2<TScalar>>? parent ) {
+		if (parent is null)
 			return;
-		this.Translation = Vector2.Transform( this.Translation, parent.InverseMatrix );
+		this.Translation = parent.InverseMatrix.TransformWorld( this.Translation ) ?? this.Translation;
 		this.Rotation -= parent.GlobalRotation;
-		this.Scale /= parent.GlobalScale;
+		this.Scale = this.Scale.DivideEntrywise( parent.GlobalScale );
 	}
 }

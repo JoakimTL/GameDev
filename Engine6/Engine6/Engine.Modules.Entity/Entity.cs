@@ -37,8 +37,8 @@ public sealed class Entity : Identifiable {
 	private Entity( Guid entityId, Guid ownerId ) {
 		this.EntityId = entityId;
 		this.OwnerId = ownerId;
-		this._components = new();
-		this._children = new();
+		this._components = [];
+		this._children = [];
 		this.Alive = true;
 	}
 
@@ -47,34 +47,34 @@ public sealed class Entity : Identifiable {
 	internal Entity( EntityData data ) : this( data.EntityId, data.OwnerId ) { }
 
 	public void SetParent( Entity? entity ) {
-		if ( entity == this.Parent )
+		if (entity == this.Parent)
 			return;
-		if ( IsRecursiveParenting( this, entity ) )
+		if (IsRecursiveParenting( this, entity ))
 			return;
 
 		BeforeParentChange?.Invoke( this.Parent, entity );
-		if ( this.Parent is not null )
+		if (this.Parent is not null)
 			this.Parent.RemoveChild( this );
 		this.Parent = entity;
-		if ( this.Parent is not null )
+		if (this.Parent is not null)
 			this.Parent.AddChild( this );
 		AfterParentChange?.Invoke( this.Parent, entity );
 	}
 
 	private void AddChild( Entity e ) {
-		if ( this._children.Add( e ) )
+		if (this._children.Add( e ))
 			ChildAdded?.Invoke( this, e );
 	}
 
 	private void RemoveChild( Entity e ) {
-		if ( this._children.Remove( e ) )
+		if (this._children.Remove( e ))
 			ChildRemoved?.Invoke( this, e );
 	}
 
 	private bool IsRecursiveParenting( Entity child, Entity? parent ) {
-		if ( parent is null )
+		if (parent is null)
 			return false;
-		if ( parent == child ) {
+		if (parent == child) {
 			child.LogWarning( "Cannot parent an entity to itself." );
 			return true;
 		}
@@ -83,26 +83,34 @@ public sealed class Entity : Identifiable {
 
 	public T? RemoveComponent<T>() where T : ComponentBase {
 		Type type = typeof( T );
-		if ( !this._components.ContainsKey( type ) )
+		if (!this._components.TryGetValue( type, out ComponentBase? componentBase ))
 			return null;
-		ComponentBase componentBase = this._components[ type ];
-		if ( componentBase is not T component )
+		if (componentBase is not T component)
 			throw new EntityException( this, $"Component assigned to type {type.Name} was instead of type {componentBase.GetType()}." );
 		this._components.Remove( type );
 		ComponentRemoved?.Invoke( this, component );
 		return component;
 	}
 
-	public bool TryGetComponent<T>( [NotNullWhen( true )] out T? component ) where T : ComponentBase {
-		component = GetComponent<T>();
-		return component is not null;
+	public bool HasAllComponents(IEnumerable<Type> componentTypes ) {
+		foreach (Type t in componentTypes)
+			if (!this._components.ContainsKey( t ))
+				return false;
+		return true;
 	}
 
-	public T? GetComponent<T>() where T : ComponentBase => this._components[ typeof( T ) ] as T;
+	public bool HasComponent( Type componentType ) => _components.ContainsKey( componentType );
+	public bool HasComponent<T>() where T : ComponentBase => _components.ContainsKey( typeof(T) );
+
+	public bool TryGetComponent( Type componentType, [NotNullWhen( true )] out ComponentBase? component ) => (component = GetComponent( componentType )) is not null;
+	public bool TryGetComponent<T>( [NotNullWhen( true )] out T? component ) where T : ComponentBase => (component = GetComponent<T>()) is not null;
+
+	public ComponentBase? GetComponent( Type componentType ) => this._components[ componentType ];
+	public T? GetComponent<T>() where T : ComponentBase => GetComponent( typeof( T ) ) as T;
 
 	private ComponentBase AddComponentInternal( ComponentBase component ) {
 		Type type = component.GetType();
-		if ( this._components.ContainsKey( type ) ) {
+		if (this._components.ContainsKey( type )) {
 			this.LogLine( $"Entity already has a component of type {type.Name}.", Log.Level.NORMAL );
 			return this._components[ type ];
 		}
@@ -121,9 +129,9 @@ public sealed class Entity : Identifiable {
 
 	public SerializableComponentBase? GetOrCreateComponent( Guid guid ) {
 		Type? t = SerializableComponentTypeHelper.GetComponentType( guid );
-		if ( t is null )
+		if (t is null)
 			return null;
-		if ( this._components.ContainsKey( t ) )
+		if (this._components.ContainsKey( t ))
 			return this._components[ t ] as SerializableComponentBase;
 		SerializableComponentBase component = Activator.CreateInstance( t ) as SerializableComponentBase ?? throw new EntityException( this, $"Failed to create component of type {t.Name}." );
 		AddComponentInternal( component );
@@ -136,10 +144,10 @@ public sealed class Entity : Identifiable {
 	}
 
 	internal void Dispose() {
-		foreach ( Entity child in this.Children )
+		foreach (Entity child in this.Children)
 			child.SetParent( null );
-		foreach ( ComponentBase component in this._components.Values )
-			if ( component is IDisposable disposable )
+		foreach (ComponentBase component in this._components.Values)
+			if (component is IDisposable disposable)
 				disposable.Dispose();
 	}
 }

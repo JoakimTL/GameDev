@@ -13,5 +13,5 @@ internal sealed class ServiceRegistry : IServiceRegistry {
 	public Type? GetImplementation( Type interfaceType ) => this._registry.GetValueOrDefault( interfaceType );
 	public Type? GetImplementation<T>() => GetImplementation( typeof( T ) );
 
-	public void Register<Interface, Class>() where Class : Interface => this._registry = this._registry.Add( typeof( Interface ), typeof( Class ) );
+	public void Register<TInterface, TClass>() where TClass : class, TInterface => this._registry = this._registry.Add( typeof( TInterface ), typeof( TClass ) );
 }

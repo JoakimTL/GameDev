@@ -43,8 +43,8 @@ public unsafe static class GLFW {
 		=> GLFWInternal.SetWindowPosition( windowPtr, mx, my );
 	public static void SetWindowAttribute( nint windowPtr, int attribute, bool value )
 		=> GLFWInternal.SetWindowAttribute( windowPtr, attribute, value );
-	public static nint CreateWindow( int width, int height, string title, nint monitorPtr, nint shareWindowPtr )
-		=> GLFWInternal.CreateWindow( width, height, Encoding.UTF8.GetBytes( title ), monitorPtr, shareWindowPtr );
+	public static nint CreateWindow( uint width, uint height, string title, nint monitorPtr, nint shareWindowPtr )
+		=> GLFWInternal.CreateWindow( (int) width, (int) height, Encoding.UTF8.GetBytes( title ), monitorPtr, shareWindowPtr );
 	public static int GetWindowAttribute( nint windowPtr, int attribute )
 		=> GLFWInternal.GetWindowAttribute( windowPtr, attribute );
 	public static void GetWindowSize( nint windowPtr, out int w, out int h )

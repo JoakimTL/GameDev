@@ -1,6 +1,4 @@
-﻿using Engine.Math.NewFolder;
-using Engine.Math.NewFolder.Operations;
-using OpenGL;
+﻿using OpenGL;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Modules.Rendering.Ogl.Services;

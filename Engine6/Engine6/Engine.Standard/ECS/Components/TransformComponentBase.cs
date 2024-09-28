@@ -1,35 +1,43 @@
 ﻿using Engine.Data.Transforms;
 using Engine.Modules.ECS;
+using System.Numerics;
 
 namespace Engine.Standard.ECS.Components;
 
-public abstract class TransformComponentBase<T, R, S> : SerializableComponentBase
-	where T : unmanaged
-	where R : unmanaged
-	where S : unmanaged {
+public abstract class TransformComponentBase<TScalar, TTranslation, TRotation, TScale> : SerializableComponentBase, ITransformComponent<TScalar, TTranslation, TRotation, TScale>
+	where TScalar :
+		unmanaged, INumber<TScalar>
+	where TTranslation :
+		unmanaged
+	where TRotation :
+		unmanaged
+	where TScale :
+		unmanaged {
 
-	protected abstract TransformData<T, R, S> GetTransformData();
-	protected abstract void SetFromTransformData( TransformData<T, R, S> data );
+	public abstract TransformInterface<TScalar, TTranslation, TRotation, TScale> Transform { get; }
+
+	protected abstract TransformData<TTranslation, TRotation, TScale> GetTransformData();
+	protected abstract void SetFromTransformData( TransformData<TTranslation, TRotation, TScale> data );
 
 	protected override bool InternalDeserialize( ReadOnlySpan<byte> data ) {
 		unsafe {
-			if (data.Length < sizeof( TransformData<T, R, S> ))
+			if (data.Length < sizeof( TransformData<TTranslation, TRotation, TScale> ))
 				return false;
 			fixed (byte* ptr = data)
-				SetFromTransformData( *(TransformData<T, R, S>*) ptr );
+				SetFromTransformData( *(TransformData<TTranslation, TRotation, TScale>*) ptr );
 		}
 		return true;
 	}
 
 	protected override bool InternalSerialize( Span<byte> data, out uint writtenBytes ) {
 		unsafe {
-			uint sizeBytes = (uint) sizeof( TransformData<T, R, S> );
+			uint sizeBytes = (uint) sizeof( TransformData<TTranslation, TRotation, TScale> );
 			if (data.Length < sizeBytes) {
 				writtenBytes = 0;
 				return false;
 			}
 			fixed (byte* ptr = data)
-				*(TransformData<T, R, S>*) ptr = GetTransformData();
+				*(TransformData<TTranslation, TRotation, TScale>*) ptr = GetTransformData();
 			writtenBytes = sizeBytes;
 			return true;
 		}

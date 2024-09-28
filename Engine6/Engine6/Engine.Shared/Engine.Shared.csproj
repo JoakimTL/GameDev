@@ -8,4 +8,8 @@
     <BaseOutputPath>..\..\Build\</BaseOutputPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Engine.Math\Engine.Math.csproj" />
+  </ItemGroup>
+
 </Project>

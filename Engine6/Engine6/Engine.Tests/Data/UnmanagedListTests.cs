@@ -93,7 +93,7 @@ public sealed class UnmanagedListTests {
 	public void ToByteArray() {
 		UnmanagedList list = new();
 		list.Add( 0xff00ff00 );
-		var arr = list.ToArray<byte>( 0, 4 );
+		byte[] arr = list.ToArray<byte>( 0, 4 );
 		Assert.That( arr[ 0 ], Is.EqualTo( 0x00 ) );
 		Assert.That( arr[ 1 ], Is.EqualTo( 0xff ) );
 		Assert.That( arr[ 2 ], Is.EqualTo( 0x00 ) );

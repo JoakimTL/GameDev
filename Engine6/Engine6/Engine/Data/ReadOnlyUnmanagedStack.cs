@@ -5,7 +5,7 @@ namespace Engine.Data;
 /// <summary>
 /// A stack allowing for allocation of then read only data. When all segments are disposed the stack is automatically flushed and can be reused without reallocation.
 /// </summary>
-public unsafe sealed class ReadOnlyUnmanagedStack( uint sizeBytes ) : UnmanagedData( sizeBytes ) {
+public unsafe sealed class ReadOnlyUnmanagedStack( uint sizeBytes ) : UnmanagedDataBase( sizeBytes ) {
 
 	private readonly List<ReadOnlyUnmanagedStackSegment> _livingSegments = [];
 	public nuint BytesUsed { get; private set; } = 0;
