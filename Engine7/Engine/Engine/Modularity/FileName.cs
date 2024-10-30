@@ -11,17 +11,10 @@ internal class FileName {
 
 public abstract class ModuleBase {
 
-	public IServiceProvider ServiceProvider { get; }
-	public IServiceCatalog ServiceCatalog { get; }
-	public IServiceLibrary ServiceLibrary { get; }
+	public IInstanceProvider InstanceProvider { get; }
 
 	public ModuleBase() {
-		ServiceLibrary serviceLibrary = new();
-		ServiceCatalog serviceCatalog = new( serviceLibrary );
-		ServiceProvider serviceProvider = new( serviceCatalog );
-		this.ServiceProvider = serviceProvider;
-		this.ServiceCatalog = serviceCatalog;
-		this.ServiceLibrary = serviceLibrary;
+		this.InstanceProvider = InstanceManagement.CreateProvider();
 	}
 
 }

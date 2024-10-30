@@ -1,6 +1,6 @@
 ﻿namespace Engine;
 
-public interface IServiceLibrary {
+public interface IInstanceLibrary {
 
 	/// <summary>
 	/// Assigns a implementation to a contract, the <see cref="{TImplementation}"/> type must be instantiable (not abstract or an interface).

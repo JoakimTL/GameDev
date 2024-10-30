@@ -1,3 +1,5 @@
+using Engine.Structures;
+
 namespace Engine.Tests;
 
 [TestFixture]

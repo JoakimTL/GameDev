@@ -1,6 +1,6 @@
 ﻿namespace Engine;
 
-internal sealed class ServiceLibrary : IServiceLibrary {
+internal sealed class InstanceLibrary : IInstanceLibrary {
 
 	private readonly Dictionary<Type, Type> _connections = [];
 

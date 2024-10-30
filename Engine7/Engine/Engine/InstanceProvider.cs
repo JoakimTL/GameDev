@@ -2,15 +2,26 @@
 
 namespace Engine;
 
-internal sealed class ServiceProvider( ServiceCatalog serviceCatalog ) : IServiceProvider, IDisposable {
+internal sealed class InstanceProvider : IInstanceProvider, IDisposable {
 
-	private readonly ServiceCatalog _serviceCatalog = serviceCatalog;
+	private readonly InstanceCatalog _instanceCatalog;
 	private readonly List<IDisposable> _disposables = [];
 	private readonly Dictionary<Type, object> _instances = [];
 	public event Action<object>? OnInstanceAdded;
+	public IInstanceCatalog Catalog => this._instanceCatalog;
+
+	public InstanceProvider( InstanceCatalog instanceCatalog ) {
+		this._instanceCatalog = instanceCatalog;
+		instanceCatalog.OnHostedTypeAdded += OnHostedTypeAdded;
+		foreach (Type hostedType in instanceCatalog.HostedTypes)
+			Get( hostedType );
+	}
+
+	private void OnHostedTypeAdded( Type type ) 
+		=> Get( type );
 
 	public object Get( Type t ) {
-		Type implementationType = this._serviceCatalog.TryResolve( t, out Type? type ) ? type : throw new InvalidOperationException( $"No implementation found for {t.Name}" );
+		Type implementationType = this._instanceCatalog.TryResolve( t, out Type? type ) ? type : throw new InvalidOperationException( $"No implementation found for {t.Name}" );
 
 		if (this._instances.TryGetValue( implementationType, out object? instance ))
 			return instance;

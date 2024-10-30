@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using Engine.Structures;
 
 namespace Engine.Benchmarks;
 

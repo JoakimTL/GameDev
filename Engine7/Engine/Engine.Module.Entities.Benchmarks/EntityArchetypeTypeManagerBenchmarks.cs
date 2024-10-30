@@ -34,14 +34,14 @@ public class EntityArchetypeTypeManagerBenchmarks {
 
 	[GlobalSetup]
 	public void Setup() {
-		_e = _entityContainer.CreateEntity();
-		_e.AddComponent<TestComponent>().Value = 10;
-		_e.AddComponent<TestComponent2>();
+		this._e = this._entityContainer.CreateEntity();
+		this._e.AddComponent<TestComponent>().Value = 10;
+		this._e.AddComponent<TestComponent2>();
 	}
 
 	[Benchmark]
 	public void Run() {
-		_currentArchetype = (TestArchetype) EntityArchetypeTypeManager.CreateArchetypeInstance(typeof(TestArchetype), _e);
+		this._currentArchetype = (TestArchetype) EntityArchetypeTypeManager.CreateArchetypeInstance(typeof(TestArchetype), this._e );
 	}
 
 	//[Benchmark]

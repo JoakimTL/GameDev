@@ -1,6 +1,6 @@
-﻿namespace Engine;
+﻿namespace Engine.Structures;
 
-public partial class TypeDigraph {
+public sealed partial class TypeDigraph {
 	public static partial class Sort {
 		/// <summary>
 		/// Allocates memory, but is faster when the number of types is large.

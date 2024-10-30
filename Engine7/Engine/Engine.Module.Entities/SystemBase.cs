@@ -1,23 +1,11 @@
 ﻿namespace Engine.Module.Entities;
 
-public abstract class SystemBase : IUpdateable {
+public abstract class SystemBase<TArchetype> : IUpdateable where TArchetype : ArchetypeBase {
+	protected readonly EntityContainer _container = null!;
+	protected readonly Type _archetype = typeof( TArchetype );
 
-	protected readonly EntityContainer _container;
-	protected readonly Type _archetype;
-
-	internal SystemBase( EntityContainer container, Type archetype ) {
-		if (!archetype.IsClass || archetype.IsAbstract)
-			throw new ArgumentException( "Archetype must be a non-abstract class." );
-		this._container = container;
-		this._archetype = archetype;
-	}
-
-	public abstract void Update( double time, double deltaTime );
-}
-
-public abstract class SystemBase<TArchetype>( EntityContainer container ) : SystemBase( container, typeof( TArchetype ) ) where TArchetype : ArchetypeBase {
-	public override void Update( double time, double deltaTime ) {
-		foreach (TArchetype archetype in _container.ArchetypeManager.GetArchetypes<TArchetype>())
+	public void Update( double time, double deltaTime ) {
+		foreach (TArchetype archetype in this._container.ArchetypeManager.GetArchetypes<TArchetype>())
 			ProcessEntity( archetype );
 	}
 

@@ -6,6 +6,9 @@ public sealed class EntityContainerArchetypeManager : IDisposable {
 	private readonly Dictionary<Type, Dictionary<Guid, ArchetypeBase>> _archetypeDataByArchetypeType;
 	private readonly EntityContainer _container;
 
+	public event Action<Type>? OnArchetypeAdded;
+	public event Action<Type>? OnArchetypeRemoved;
+
 	public EntityContainerArchetypeManager( EntityContainer container ) {
 		this._container = container;
 		this._hookedEntities = [];
@@ -24,8 +27,10 @@ public sealed class EntityContainerArchetypeManager : IDisposable {
 			bool isArchetype = component.Entity.IsArchetype( archetypeType );
 			if (!isArchetype)
 				continue;
-			if (!this._archetypeDataByArchetypeType.TryGetValue( archetypeType, out Dictionary<Guid, ArchetypeBase>? archetypeData ))
+			if (!this._archetypeDataByArchetypeType.TryGetValue( archetypeType, out Dictionary<Guid, ArchetypeBase>? archetypeData )) {
 				this._archetypeDataByArchetypeType.Add( archetypeType, archetypeData = [] );
+				OnArchetypeAdded?.Invoke( archetypeType );
+			}
 			archetypeData.Add( component.Entity.EntityId, EntityArchetypeTypeManager.CreateArchetypeInstance( archetypeType, component.Entity ) );
 		}
 	}
@@ -37,6 +42,10 @@ public sealed class EntityContainerArchetypeManager : IDisposable {
 			if (!this._archetypeDataByArchetypeType.TryGetValue( archetypeType, out Dictionary<Guid, ArchetypeBase>? archetypeData ))
 				continue;
 			archetypeData.Remove( component.Entity.EntityId );
+			if (archetypeData.Count == 0) {
+				this._archetypeDataByArchetypeType.Remove( archetypeType );
+				OnArchetypeRemoved?.Invoke( archetypeType );
+			}
 		}
 	}
 

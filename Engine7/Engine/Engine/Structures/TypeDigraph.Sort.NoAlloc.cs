@@ -1,4 +1,4 @@
-﻿namespace Engine;
+﻿namespace Engine.Structures;
 
 public sealed partial class TypeDigraph {
 	public static partial class Sort {

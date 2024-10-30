@@ -2,10 +2,11 @@
 
 namespace Engine;
 
-internal sealed class ServiceCatalog( ServiceLibrary serviceLibrary ) : IServiceCatalog {
+internal sealed class InstanceCatalog( InstanceLibrary instanceLibrary ) : IInstanceCatalog {
 
 	private readonly HashSet<Type> _hostedTypes = [];
-	private readonly ServiceLibrary _serviceLibrary = serviceLibrary;
+	private readonly InstanceLibrary _instanceLibrary = instanceLibrary;
+	public IInstanceLibrary Library => this._instanceLibrary;
 	internal IReadOnlyCollection<Type> HostedTypes => this._hostedTypes;
 	public event Action<Type>? OnHostedTypeAdded;
 
@@ -23,7 +24,7 @@ internal sealed class ServiceCatalog( ServiceLibrary serviceLibrary ) : IService
 			implementationType = contractType;
 			return true;
 		}
-		if (this._serviceLibrary.Connections.TryGetValue( contractType, out implementationType ))
+		if (this._instanceLibrary.Connections.TryGetValue( contractType, out implementationType ))
 			return true;
 
 		Type[] eligibleTypes = TypeManager.AllTypes.Where( p => p.IsClass && !p.IsAbstract && p.IsAssignableTo( contractType ) ).ToArray();
