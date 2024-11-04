@@ -2,7 +2,7 @@
 
 namespace Engine.Module.Entities;
 
-public sealed class Entity : NamedIdentifiable {
+public sealed class Entity : Identifiable {
 
 	//Entity components can be added or removed. There should be events for this.
 

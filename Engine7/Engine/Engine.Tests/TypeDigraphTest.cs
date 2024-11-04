@@ -9,30 +9,30 @@ public class TypeDigraphTest {
 	private sealed class Smelting;
 	private sealed class Mining;
 	private sealed class Log;
-	[Process.After<Log, Crafting>]
+	[Do.After<Log, Crafting>]
 	private sealed class Plank;
-	[Process.After<Plank, Crafting>]
+	[Do.After<Plank, Crafting>]
 	private sealed class Stick;
-	[Process.After<Plank, Crafting>]
-	[Process.After<Stick, Crafting>]
+	[Do.After<Plank, Crafting>]
+	[Do.After<Stick, Crafting>]
 	private sealed class WoodenPickaxe;
-	[Process.After<WoodenPickaxe, Mining>]
+	[Do.After<WoodenPickaxe, Mining>]
 	private sealed class Cobblestone;
-	[Process.After<Cobblestone, Crafting>]
-	[Process.After<Stick, Crafting>]
+	[Do.After<Cobblestone, Crafting>]
+	[Do.After<Stick, Crafting>]
 	private sealed class StonePickaxe;
-	[Process.After<StonePickaxe, Mining>]
+	[Do.After<StonePickaxe, Mining>]
 	private sealed class IronOre;
-	[Process.After<Cobblestone, Crafting>]
+	[Do.After<Cobblestone, Crafting>]
 	private sealed class Furnace;
-	[Process.After<IronOre, Smelting>]
-	[Process.After<Furnace, Smelting>]
+	[Do.After<IronOre, Smelting>]
+	[Do.After<Furnace, Smelting>]
 	private sealed class IronIngot;
-	[Process.After<IronIngot, Crafting>]
-	[Process.After<Stick, Crafting>]
+	[Do.After<IronIngot, Crafting>]
+	[Do.After<Stick, Crafting>]
 	private sealed class IronPickaxe;
-	[Process.After<IronPickaxe, Crafting>]
-	[Process.Before<Plank, Crafting>]
+	[Do.After<IronPickaxe, Crafting>]
+	[Do.Before<Plank, Crafting>]
 	private sealed class Looper;
 
 	[Test]

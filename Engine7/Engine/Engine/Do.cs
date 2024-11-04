@@ -1,6 +1,6 @@
 ﻿namespace Engine;
 
-public static class Process {
+public static class Do {
 	internal interface IProcessDirection {
 		/// <summary>
 		/// The common process type between this type and the chosen type.

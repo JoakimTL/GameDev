@@ -7,445 +7,445 @@ namespace Engine.Benchmarks;
 public class TypeDigraphBigBenchmark {
 	public sealed class TestProcess;
 
-	[Process.Before<Node55, TestProcess>]
+	[Do.Before<Node55, TestProcess>]
 	public sealed class Node0;
 
-	[Process.Before<Node61, TestProcess>]
+	[Do.Before<Node61, TestProcess>]
 	public sealed class Node1;
 
-	[Process.Before<Node27, TestProcess>]
-	[Process.Before<Node99, TestProcess>]
+	[Do.Before<Node27, TestProcess>]
+	[Do.Before<Node99, TestProcess>]
 	public sealed class Node2;
 
-	[Process.Before<Node1, TestProcess>]
-	[Process.Before<Node71, TestProcess>]
-	[Process.Before<Node91, TestProcess>]
-	[Process.Before<Node19, TestProcess>]
+	[Do.Before<Node1, TestProcess>]
+	[Do.Before<Node71, TestProcess>]
+	[Do.Before<Node91, TestProcess>]
+	[Do.Before<Node19, TestProcess>]
 	public sealed class Node3;
 
-	[Process.Before<Node88, TestProcess>]
-	[Process.Before<Node61, TestProcess>]
-	[Process.Before<Node13, TestProcess>]
-	[Process.Before<Node2, TestProcess>]
-	[Process.Before<Node50, TestProcess>]
-	[Process.Before<Node12, TestProcess>]
+	[Do.Before<Node88, TestProcess>]
+	[Do.Before<Node61, TestProcess>]
+	[Do.Before<Node13, TestProcess>]
+	[Do.Before<Node2, TestProcess>]
+	[Do.Before<Node50, TestProcess>]
+	[Do.Before<Node12, TestProcess>]
 	public sealed class Node4;
 
-	[Process.Before<Node53, TestProcess>]
-	[Process.Before<Node44, TestProcess>]
-	[Process.Before<Node59, TestProcess>]
-	[Process.Before<Node38, TestProcess>]
+	[Do.Before<Node53, TestProcess>]
+	[Do.Before<Node44, TestProcess>]
+	[Do.Before<Node59, TestProcess>]
+	[Do.Before<Node38, TestProcess>]
 	public sealed class Node5;
 
-	[Process.Before<Node20, TestProcess>]
-	[Process.Before<Node4, TestProcess>]
+	[Do.Before<Node20, TestProcess>]
+	[Do.Before<Node4, TestProcess>]
 	public sealed class Node6;
 
-	[Process.Before<Node27, TestProcess>]
-	[Process.Before<Node77, TestProcess>]
-	[Process.Before<Node21, TestProcess>]
+	[Do.Before<Node27, TestProcess>]
+	[Do.Before<Node77, TestProcess>]
+	[Do.Before<Node21, TestProcess>]
 	public sealed class Node7;
 
-	[Process.Before<Node19, TestProcess>]
-	[Process.Before<Node48, TestProcess>]
-	[Process.Before<Node7, TestProcess>]
-	[Process.Before<Node40, TestProcess>]
-	[Process.Before<Node27, TestProcess>]
-	[Process.Before<Node46, TestProcess>]
+	[Do.Before<Node19, TestProcess>]
+	[Do.Before<Node48, TestProcess>]
+	[Do.Before<Node7, TestProcess>]
+	[Do.Before<Node40, TestProcess>]
+	[Do.Before<Node27, TestProcess>]
+	[Do.Before<Node46, TestProcess>]
 	public sealed class Node8;
 
-	[Process.Before<Node76, TestProcess>]
-	[Process.Before<Node0, TestProcess>]
-	[Process.Before<Node95, TestProcess>]
+	[Do.Before<Node76, TestProcess>]
+	[Do.Before<Node0, TestProcess>]
+	[Do.Before<Node95, TestProcess>]
 	public sealed class Node9;
 
-	[Process.Before<Node69, TestProcess>]
+	[Do.Before<Node69, TestProcess>]
 	public sealed class Node10;
 
 	public sealed class Node11;
 
-	[Process.Before<Node54, TestProcess>]
+	[Do.Before<Node54, TestProcess>]
 	public sealed class Node12;
 
-	[Process.Before<Node54, TestProcess>]
-	[Process.Before<Node34, TestProcess>]
-	[Process.Before<Node3, TestProcess>]
-	[Process.Before<Node95, TestProcess>]
-	[Process.Before<Node66, TestProcess>]
-	[Process.Before<Node45, TestProcess>]
+	[Do.Before<Node54, TestProcess>]
+	[Do.Before<Node34, TestProcess>]
+	[Do.Before<Node3, TestProcess>]
+	[Do.Before<Node95, TestProcess>]
+	[Do.Before<Node66, TestProcess>]
+	[Do.Before<Node45, TestProcess>]
 	public sealed class Node13;
 
-	[Process.Before<Node26, TestProcess>]
-	[Process.Before<Node90, TestProcess>]
-	[Process.Before<Node34, TestProcess>]
-	[Process.Before<Node17, TestProcess>]
-	[Process.Before<Node25, TestProcess>]
-	[Process.Before<Node58, TestProcess>]
+	[Do.Before<Node26, TestProcess>]
+	[Do.Before<Node90, TestProcess>]
+	[Do.Before<Node34, TestProcess>]
+	[Do.Before<Node17, TestProcess>]
+	[Do.Before<Node25, TestProcess>]
+	[Do.Before<Node58, TestProcess>]
 	public sealed class Node14;
 
 	public sealed class Node15;
 
-	[Process.Before<Node93, TestProcess>]
-	[Process.Before<Node66, TestProcess>]
+	[Do.Before<Node93, TestProcess>]
+	[Do.Before<Node66, TestProcess>]
 	public sealed class Node16;
 
-	[Process.Before<Node3, TestProcess>]
-	[Process.Before<Node58, TestProcess>]
-	[Process.Before<Node70, TestProcess>]
-	[Process.Before<Node18, TestProcess>]
+	[Do.Before<Node3, TestProcess>]
+	[Do.Before<Node58, TestProcess>]
+	[Do.Before<Node70, TestProcess>]
+	[Do.Before<Node18, TestProcess>]
 	public sealed class Node17;
 
-	[Process.Before<Node68, TestProcess>]
-	[Process.Before<Node89, TestProcess>]
-	[Process.Before<Node94, TestProcess>]
-	[Process.Before<Node52, TestProcess>]
+	[Do.Before<Node68, TestProcess>]
+	[Do.Before<Node89, TestProcess>]
+	[Do.Before<Node94, TestProcess>]
+	[Do.Before<Node52, TestProcess>]
 	public sealed class Node18;
 
-	[Process.Before<Node69, TestProcess>]
-	[Process.Before<Node18, TestProcess>]
-	[Process.Before<Node82, TestProcess>]
+	[Do.Before<Node69, TestProcess>]
+	[Do.Before<Node18, TestProcess>]
+	[Do.Before<Node82, TestProcess>]
 	public sealed class Node19;
 
-	[Process.Before<Node68, TestProcess>]
-	[Process.Before<Node94, TestProcess>]
-	[Process.Before<Node3, TestProcess>]
-	[Process.Before<Node21, TestProcess>]
+	[Do.Before<Node68, TestProcess>]
+	[Do.Before<Node94, TestProcess>]
+	[Do.Before<Node3, TestProcess>]
+	[Do.Before<Node21, TestProcess>]
 	public sealed class Node20;
 
-	[Process.Before<Node65, TestProcess>]
+	[Do.Before<Node65, TestProcess>]
 	public sealed class Node21;
 
-	[Process.Before<Node54, TestProcess>]
-	[Process.Before<Node72, TestProcess>]
+	[Do.Before<Node54, TestProcess>]
+	[Do.Before<Node72, TestProcess>]
 	public sealed class Node22;
 
-	[Process.Before<Node70, TestProcess>]
+	[Do.Before<Node70, TestProcess>]
 	public sealed class Node23;
 
-	[Process.Before<Node58, TestProcess>]
+	[Do.Before<Node58, TestProcess>]
 	public sealed class Node24;
 
-	[Process.Before<Node35, TestProcess>]
-	[Process.Before<Node55, TestProcess>]
-	[Process.Before<Node84, TestProcess>]
-	[Process.Before<Node19, TestProcess>]
-	[Process.Before<Node52, TestProcess>]
+	[Do.Before<Node35, TestProcess>]
+	[Do.Before<Node55, TestProcess>]
+	[Do.Before<Node84, TestProcess>]
+	[Do.Before<Node19, TestProcess>]
+	[Do.Before<Node52, TestProcess>]
 	public sealed class Node25;
 
-	[Process.Before<Node52, TestProcess>]
-	[Process.Before<Node23, TestProcess>]
-	[Process.Before<Node79, TestProcess>]
-	[Process.Before<Node32, TestProcess>]
-	[Process.Before<Node28, TestProcess>]
+	[Do.Before<Node52, TestProcess>]
+	[Do.Before<Node23, TestProcess>]
+	[Do.Before<Node79, TestProcess>]
+	[Do.Before<Node32, TestProcess>]
+	[Do.Before<Node28, TestProcess>]
 	public sealed class Node26;
 
-	[Process.Before<Node17, TestProcess>]
-	[Process.Before<Node65, TestProcess>]
+	[Do.Before<Node17, TestProcess>]
+	[Do.Before<Node65, TestProcess>]
 	public sealed class Node27;
 
-	[Process.Before<Node24, TestProcess>]
-	[Process.Before<Node56, TestProcess>]
-	[Process.Before<Node69, TestProcess>]
+	[Do.Before<Node24, TestProcess>]
+	[Do.Before<Node56, TestProcess>]
+	[Do.Before<Node69, TestProcess>]
 	public sealed class Node28;
 
-	[Process.Before<Node43, TestProcess>]
-	[Process.Before<Node78, TestProcess>]
+	[Do.Before<Node43, TestProcess>]
+	[Do.Before<Node78, TestProcess>]
 	public sealed class Node29;
 
-	[Process.Before<Node19, TestProcess>]
-	[Process.Before<Node70, TestProcess>]
-	[Process.Before<Node97, TestProcess>]
+	[Do.Before<Node19, TestProcess>]
+	[Do.Before<Node70, TestProcess>]
+	[Do.Before<Node97, TestProcess>]
 	public sealed class Node30;
 
-	[Process.Before<Node29, TestProcess>]
-	[Process.Before<Node90, TestProcess>]
+	[Do.Before<Node29, TestProcess>]
+	[Do.Before<Node90, TestProcess>]
 	public sealed class Node31;
 
 	public sealed class Node32;
 
-	[Process.Before<Node28, TestProcess>]
+	[Do.Before<Node28, TestProcess>]
 	public sealed class Node33;
 
-	[Process.Before<Node58, TestProcess>]
-	[Process.Before<Node46, TestProcess>]
-	[Process.Before<Node17, TestProcess>]
-	[Process.Before<Node1, TestProcess>]
-	[Process.Before<Node57, TestProcess>]
+	[Do.Before<Node58, TestProcess>]
+	[Do.Before<Node46, TestProcess>]
+	[Do.Before<Node17, TestProcess>]
+	[Do.Before<Node1, TestProcess>]
+	[Do.Before<Node57, TestProcess>]
 	public sealed class Node34;
 
-	[Process.Before<Node38, TestProcess>]
-	[Process.Before<Node18, TestProcess>]
-	[Process.Before<Node12, TestProcess>]
-	[Process.Before<Node46, TestProcess>]
-	[Process.Before<Node61, TestProcess>]
+	[Do.Before<Node38, TestProcess>]
+	[Do.Before<Node18, TestProcess>]
+	[Do.Before<Node12, TestProcess>]
+	[Do.Before<Node46, TestProcess>]
+	[Do.Before<Node61, TestProcess>]
 	public sealed class Node35;
 
 	public sealed class Node36;
 
-	[Process.Before<Node2, TestProcess>]
+	[Do.Before<Node2, TestProcess>]
 	public sealed class Node37;
 
-	[Process.Before<Node22, TestProcess>]
-	[Process.Before<Node51, TestProcess>]
+	[Do.Before<Node22, TestProcess>]
+	[Do.Before<Node51, TestProcess>]
 	public sealed class Node38;
 
-	[Process.Before<Node26, TestProcess>]
-	[Process.Before<Node66, TestProcess>]
-	[Process.Before<Node82, TestProcess>]
+	[Do.Before<Node26, TestProcess>]
+	[Do.Before<Node66, TestProcess>]
+	[Do.Before<Node82, TestProcess>]
 	public sealed class Node39;
 
-	[Process.Before<Node16, TestProcess>]
-	[Process.Before<Node27, TestProcess>]
-	[Process.Before<Node5, TestProcess>]
+	[Do.Before<Node16, TestProcess>]
+	[Do.Before<Node27, TestProcess>]
+	[Do.Before<Node5, TestProcess>]
 	public sealed class Node40;
 
-	[Process.Before<Node5, TestProcess>]
-	[Process.Before<Node43, TestProcess>]
-	[Process.Before<Node44, TestProcess>]
+	[Do.Before<Node5, TestProcess>]
+	[Do.Before<Node43, TestProcess>]
+	[Do.Before<Node44, TestProcess>]
 	public sealed class Node41;
 
-	[Process.Before<Node4, TestProcess>]
-	[Process.Before<Node71, TestProcess>]
-	[Process.Before<Node24, TestProcess>]
+	[Do.Before<Node4, TestProcess>]
+	[Do.Before<Node71, TestProcess>]
+	[Do.Before<Node24, TestProcess>]
 	public sealed class Node42;
 
-	[Process.Before<Node84, TestProcess>]
-	[Process.Before<Node47, TestProcess>]
-	[Process.Before<Node7, TestProcess>]
-	[Process.Before<Node68, TestProcess>]
+	[Do.Before<Node84, TestProcess>]
+	[Do.Before<Node47, TestProcess>]
+	[Do.Before<Node7, TestProcess>]
+	[Do.Before<Node68, TestProcess>]
 	public sealed class Node43;
 
-	[Process.Before<Node91, TestProcess>]
-	[Process.Before<Node28, TestProcess>]
-	[Process.Before<Node22, TestProcess>]
-	[Process.Before<Node6, TestProcess>]
+	[Do.Before<Node91, TestProcess>]
+	[Do.Before<Node28, TestProcess>]
+	[Do.Before<Node22, TestProcess>]
+	[Do.Before<Node6, TestProcess>]
 	public sealed class Node44;
 
-	[Process.Before<Node25, TestProcess>]
-	[Process.Before<Node75, TestProcess>]
+	[Do.Before<Node25, TestProcess>]
+	[Do.Before<Node75, TestProcess>]
 	public sealed class Node45;
 
-	[Process.Before<Node98, TestProcess>]
+	[Do.Before<Node98, TestProcess>]
 	public sealed class Node46;
 
 	public sealed class Node47;
 
-	[Process.Before<Node53, TestProcess>]
-	[Process.Before<Node88, TestProcess>]
-	[Process.Before<Node99, TestProcess>]
-	[Process.Before<Node58, TestProcess>]
-	[Process.Before<Node95, TestProcess>]
-	[Process.Before<Node62, TestProcess>]
+	[Do.Before<Node53, TestProcess>]
+	[Do.Before<Node88, TestProcess>]
+	[Do.Before<Node99, TestProcess>]
+	[Do.Before<Node58, TestProcess>]
+	[Do.Before<Node95, TestProcess>]
+	[Do.Before<Node62, TestProcess>]
 	public sealed class Node48;
 
-	[Process.Before<Node2, TestProcess>]
-	[Process.Before<Node26, TestProcess>]
-	[Process.Before<Node10, TestProcess>]
-	[Process.Before<Node18, TestProcess>]
+	[Do.Before<Node2, TestProcess>]
+	[Do.Before<Node26, TestProcess>]
+	[Do.Before<Node10, TestProcess>]
+	[Do.Before<Node18, TestProcess>]
 	public sealed class Node49;
 
-	[Process.Before<Node22, TestProcess>]
-	[Process.Before<Node21, TestProcess>]
-	[Process.Before<Node16, TestProcess>]
-	[Process.Before<Node9, TestProcess>]
+	[Do.Before<Node22, TestProcess>]
+	[Do.Before<Node21, TestProcess>]
+	[Do.Before<Node16, TestProcess>]
+	[Do.Before<Node9, TestProcess>]
 	public sealed class Node50;
 
-	[Process.Before<Node0, TestProcess>]
-	[Process.Before<Node15, TestProcess>]
-	[Process.Before<Node71, TestProcess>]
+	[Do.Before<Node0, TestProcess>]
+	[Do.Before<Node15, TestProcess>]
+	[Do.Before<Node71, TestProcess>]
 	public sealed class Node51;
 
-	[Process.Before<Node70, TestProcess>]
+	[Do.Before<Node70, TestProcess>]
 	public sealed class Node52;
 
-	[Process.Before<Node3, TestProcess>]
+	[Do.Before<Node3, TestProcess>]
 	public sealed class Node53;
 
-	[Process.Before<Node88, TestProcess>]
+	[Do.Before<Node88, TestProcess>]
 	public sealed class Node54;
 
-	[Process.Before<Node46, TestProcess>]
+	[Do.Before<Node46, TestProcess>]
 	public sealed class Node55;
 
-	[Process.Before<Node74, TestProcess>]
-	[Process.Before<Node30, TestProcess>]
-	[Process.Before<Node73, TestProcess>]
+	[Do.Before<Node74, TestProcess>]
+	[Do.Before<Node30, TestProcess>]
+	[Do.Before<Node73, TestProcess>]
 	public sealed class Node56;
 
-	[Process.Before<Node65, TestProcess>]
-	[Process.Before<Node23, TestProcess>]
-	[Process.Before<Node43, TestProcess>]
-	[Process.Before<Node74, TestProcess>]
-	[Process.Before<Node63, TestProcess>]
-	[Process.Before<Node58, TestProcess>]
-	[Process.Before<Node50, TestProcess>]
+	[Do.Before<Node65, TestProcess>]
+	[Do.Before<Node23, TestProcess>]
+	[Do.Before<Node43, TestProcess>]
+	[Do.Before<Node74, TestProcess>]
+	[Do.Before<Node63, TestProcess>]
+	[Do.Before<Node58, TestProcess>]
+	[Do.Before<Node50, TestProcess>]
 	public sealed class Node57;
 
-	[Process.Before<Node47, TestProcess>]
-	[Process.Before<Node59, TestProcess>]
+	[Do.Before<Node47, TestProcess>]
+	[Do.Before<Node59, TestProcess>]
 	public sealed class Node58;
 
-	[Process.Before<Node73, TestProcess>]
-	[Process.Before<Node55, TestProcess>]
+	[Do.Before<Node73, TestProcess>]
+	[Do.Before<Node55, TestProcess>]
 	public sealed class Node59;
 
-	[Process.Before<Node53, TestProcess>]
-	[Process.Before<Node55, TestProcess>]
-	[Process.Before<Node19, TestProcess>]
+	[Do.Before<Node53, TestProcess>]
+	[Do.Before<Node55, TestProcess>]
+	[Do.Before<Node19, TestProcess>]
 	public sealed class Node60;
 
-	[Process.Before<Node88, TestProcess>]
-	[Process.Before<Node80, TestProcess>]
+	[Do.Before<Node88, TestProcess>]
+	[Do.Before<Node80, TestProcess>]
 	public sealed class Node61;
 
-	[Process.Before<Node68, TestProcess>]
-	[Process.Before<Node45, TestProcess>]
+	[Do.Before<Node68, TestProcess>]
+	[Do.Before<Node45, TestProcess>]
 	public sealed class Node62;
 
-	[Process.Before<Node87, TestProcess>]
-	[Process.Before<Node95, TestProcess>]
+	[Do.Before<Node87, TestProcess>]
+	[Do.Before<Node95, TestProcess>]
 	public sealed class Node63;
 
-	[Process.Before<Node14, TestProcess>]
-	[Process.Before<Node58, TestProcess>]
-	[Process.Before<Node49, TestProcess>]
+	[Do.Before<Node14, TestProcess>]
+	[Do.Before<Node58, TestProcess>]
+	[Do.Before<Node49, TestProcess>]
 	public sealed class Node64;
 
-	[Process.Before<Node55, TestProcess>]
-	[Process.Before<Node88, TestProcess>]
-	[Process.Before<Node67, TestProcess>]
-	[Process.Before<Node33, TestProcess>]
+	[Do.Before<Node55, TestProcess>]
+	[Do.Before<Node88, TestProcess>]
+	[Do.Before<Node67, TestProcess>]
+	[Do.Before<Node33, TestProcess>]
 	public sealed class Node65;
 
-	[Process.Before<Node53, TestProcess>]
-	[Process.Before<Node32, TestProcess>]
+	[Do.Before<Node53, TestProcess>]
+	[Do.Before<Node32, TestProcess>]
 	public sealed class Node66;
 
-	[Process.Before<Node12, TestProcess>]
-	[Process.Before<Node69, TestProcess>]
-	[Process.Before<Node66, TestProcess>]
+	[Do.Before<Node12, TestProcess>]
+	[Do.Before<Node69, TestProcess>]
+	[Do.Before<Node66, TestProcess>]
 	public sealed class Node67;
 
 	public sealed class Node68;
 
-	[Process.Before<Node96, TestProcess>]
-	[Process.Before<Node24, TestProcess>]
+	[Do.Before<Node96, TestProcess>]
+	[Do.Before<Node24, TestProcess>]
 	public sealed class Node69;
 
-	[Process.Before<Node47, TestProcess>]
-	[Process.Before<Node36, TestProcess>]
-	[Process.Before<Node38, TestProcess>]
+	[Do.Before<Node47, TestProcess>]
+	[Do.Before<Node36, TestProcess>]
+	[Do.Before<Node38, TestProcess>]
 	public sealed class Node70;
 
-	[Process.Before<Node73, TestProcess>]
+	[Do.Before<Node73, TestProcess>]
 	public sealed class Node71;
 
 	public sealed class Node72;
 
-	[Process.Before<Node78, TestProcess>]
-	[Process.Before<Node76, TestProcess>]
-	[Process.Before<Node88, TestProcess>]
-	[Process.Before<Node36, TestProcess>]
+	[Do.Before<Node78, TestProcess>]
+	[Do.Before<Node76, TestProcess>]
+	[Do.Before<Node88, TestProcess>]
+	[Do.Before<Node36, TestProcess>]
 	public sealed class Node73;
 
-	[Process.Before<Node68, TestProcess>]
+	[Do.Before<Node68, TestProcess>]
 	public sealed class Node74;
 
-	[Process.Before<Node15, TestProcess>]
-	[Process.Before<Node80, TestProcess>]
-	[Process.Before<Node61, TestProcess>]
-	[Process.Before<Node46, TestProcess>]
+	[Do.Before<Node15, TestProcess>]
+	[Do.Before<Node80, TestProcess>]
+	[Do.Before<Node61, TestProcess>]
+	[Do.Before<Node46, TestProcess>]
 	public sealed class Node75;
 
-	[Process.Before<Node95, TestProcess>]
+	[Do.Before<Node95, TestProcess>]
 	public sealed class Node76;
 
-	[Process.Before<Node95, TestProcess>]
-	[Process.Before<Node65, TestProcess>]
-	[Process.Before<Node33, TestProcess>]
-	[Process.Before<Node39, TestProcess>]
-	[Process.Before<Node49, TestProcess>]
-	[Process.Before<Node90, TestProcess>]
+	[Do.Before<Node95, TestProcess>]
+	[Do.Before<Node65, TestProcess>]
+	[Do.Before<Node33, TestProcess>]
+	[Do.Before<Node39, TestProcess>]
+	[Do.Before<Node49, TestProcess>]
+	[Do.Before<Node90, TestProcess>]
 	public sealed class Node77;
 
-	[Process.Before<Node12, TestProcess>]
+	[Do.Before<Node12, TestProcess>]
 	public sealed class Node78;
 
 	public sealed class Node79;
 
-	[Process.Before<Node83, TestProcess>]
+	[Do.Before<Node83, TestProcess>]
 	public sealed class Node80;
 
 	public sealed class Node81;
 
-	[Process.Before<Node0, TestProcess>]
-	[Process.Before<Node84, TestProcess>]
-	[Process.Before<Node61, TestProcess>]
-	[Process.Before<Node63, TestProcess>]
-	[Process.Before<Node75, TestProcess>]
+	[Do.Before<Node0, TestProcess>]
+	[Do.Before<Node84, TestProcess>]
+	[Do.Before<Node61, TestProcess>]
+	[Do.Before<Node63, TestProcess>]
+	[Do.Before<Node75, TestProcess>]
 	public sealed class Node82;
 
-	[Process.Before<Node95, TestProcess>]
-	[Process.Before<Node93, TestProcess>]
+	[Do.Before<Node95, TestProcess>]
+	[Do.Before<Node93, TestProcess>]
 	public sealed class Node83;
 
-	[Process.Before<Node12, TestProcess>]
+	[Do.Before<Node12, TestProcess>]
 	public sealed class Node84;
 
-	[Process.Before<Node1, TestProcess>]
-	[Process.Before<Node13, TestProcess>]
-	[Process.Before<Node74, TestProcess>]
-	[Process.Before<Node53, TestProcess>]
-	[Process.Before<Node37, TestProcess>]
+	[Do.Before<Node1, TestProcess>]
+	[Do.Before<Node13, TestProcess>]
+	[Do.Before<Node74, TestProcess>]
+	[Do.Before<Node53, TestProcess>]
+	[Do.Before<Node37, TestProcess>]
 	public sealed class Node85;
 
-	[Process.Before<Node64, TestProcess>]
+	[Do.Before<Node64, TestProcess>]
 	public sealed class Node86;
 
-	[Process.Before<Node93, TestProcess>]
+	[Do.Before<Node93, TestProcess>]
 	public sealed class Node87;
 
-	[Process.Before<Node95, TestProcess>]
+	[Do.Before<Node95, TestProcess>]
 	public sealed class Node88;
 
-	[Process.Before<Node0, TestProcess>]
-	[Process.Before<Node15, TestProcess>]
+	[Do.Before<Node0, TestProcess>]
+	[Do.Before<Node15, TestProcess>]
 	public sealed class Node89;
 
-	[Process.Before<Node73, TestProcess>]
-	[Process.Before<Node59, TestProcess>]
-	[Process.Before<Node20, TestProcess>]
-	[Process.Before<Node50, TestProcess>]
+	[Do.Before<Node73, TestProcess>]
+	[Do.Before<Node59, TestProcess>]
+	[Do.Before<Node20, TestProcess>]
+	[Do.Before<Node50, TestProcess>]
 	public sealed class Node90;
 
-	[Process.Before<Node28, TestProcess>]
+	[Do.Before<Node28, TestProcess>]
 	public sealed class Node91;
 
-	[Process.Before<Node96, TestProcess>]
-	[Process.Before<Node22, TestProcess>]
-	[Process.Before<Node7, TestProcess>]
+	[Do.Before<Node96, TestProcess>]
+	[Do.Before<Node22, TestProcess>]
+	[Do.Before<Node7, TestProcess>]
 	public sealed class Node92;
 
-	[Process.Before<Node70, TestProcess>]
-	[Process.Before<Node96, TestProcess>]
+	[Do.Before<Node70, TestProcess>]
+	[Do.Before<Node96, TestProcess>]
 	public sealed class Node93;
 
 	public sealed class Node94;
 
-	[Process.Before<Node94, TestProcess>]
-	[Process.Before<Node96, TestProcess>]
+	[Do.Before<Node94, TestProcess>]
+	[Do.Before<Node96, TestProcess>]
 	public sealed class Node95;
 
-	[Process.Before<Node11, TestProcess>]
+	[Do.Before<Node11, TestProcess>]
 	public sealed class Node96;
 
-	[Process.Before<Node32, TestProcess>]
+	[Do.Before<Node32, TestProcess>]
 	public sealed class Node97;
 
-	[Process.Before<Node95, TestProcess>]
+	[Do.Before<Node95, TestProcess>]
 	public sealed class Node98;
 
-	[Process.Before<Node91, TestProcess>]
+	[Do.Before<Node91, TestProcess>]
 	public sealed class Node99;
 
 

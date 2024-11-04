@@ -3,7 +3,7 @@ using Engine.Structures;
 
 namespace Engine;
 
-public abstract class InstanceProviderExtensionBase<TProcess, TInstanceType> : NamedIdentifiable {
+public abstract class InstanceProviderExtensionBase<TProcess, TInstanceType> : Identifiable {
 	private readonly TypeDigraph<TProcess> _digraph;
 	private readonly List<TInstanceType> _sortedInstances;
 	private readonly IInstanceProvider _instanceProvider;

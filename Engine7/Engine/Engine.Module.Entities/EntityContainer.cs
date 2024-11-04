@@ -1,6 +1,6 @@
 ﻿namespace Engine.Module.Entities;
 
-public sealed class EntityContainer : NamedIdentifiable {
+public sealed class EntityContainer : Identifiable {
 
 	public const int MAX_GUID_ATTEMPTS = 16777216;
 	private readonly Dictionary<Guid, Entity> _entitiesById;
@@ -10,10 +10,12 @@ public sealed class EntityContainer : NamedIdentifiable {
 
 	public EntityContainer() {
 		this._entitiesById = [];
-		this.ArchetypeManager = new(this);
+		this.ArchetypeManager = new( this );
+		this.SystemManager = new( this, this.ArchetypeManager );
 	}
 
 	public EntityContainerArchetypeManager ArchetypeManager { get; }
+	public EntityContainerSystemManager SystemManager { get; }
 
 	public Entity CreateEntity() {
 		Guid guid = FindFreeGuid();

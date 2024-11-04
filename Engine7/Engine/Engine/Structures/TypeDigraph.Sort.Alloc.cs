@@ -21,14 +21,14 @@ public sealed partial class TypeDigraph {
 				var nodes = unorderedTypes.Select( p => new Node( p ) ).ToDictionary( p => p.ResolvedType.Type );
 
 				foreach (var node in nodes.Values) {
-					var relevantAttributes = node.ResolvedType.GetAttributes<Process.IProcessDirection>().Where( p => p.ProcessType == processType );
-					foreach (var beforeAttribute in relevantAttributes.OfType<Process.IProcessBefore>()) {
+					var relevantAttributes = node.ResolvedType.GetAttributes<Do.IProcessDirection>().Where( p => p.ProcessType == processType );
+					foreach (var beforeAttribute in relevantAttributes.OfType<Do.IProcessBefore>()) {
 						if (!nodes.TryGetValue( beforeAttribute.BeforeType, out Node? beforeNode ))
 							continue;
 						beforeNode.Parents.Add( node.ResolvedType.Type );
 						node.Children.Add( beforeNode.ResolvedType.Type );
 					}
-					foreach (var afterAttribute in relevantAttributes.OfType<Process.IProcessAfter>()) {
+					foreach (var afterAttribute in relevantAttributes.OfType<Do.IProcessAfter>()) {
 						if (!nodes.TryGetValue( afterAttribute.AfterType, out Node? afterNode ))
 							continue;
 						node.Parents.Add( afterNode.ResolvedType.Type );

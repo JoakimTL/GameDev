@@ -22,17 +22,17 @@ public sealed partial class TypeDigraph {
 
 				for (int node = 0; node < unorderedTypes.Count; node++) {
 					int numReferences = 0;
-					IReadOnlyList<Process.IProcessDirection> attributes = unorderedTypes[ node ].GetAttributes<Process.IProcessDirection>();
+					IReadOnlyList<Do.IProcessDirection> attributes = unorderedTypes[ node ].GetAttributes<Do.IProcessDirection>();
 					for (int i = 0; i < attributes.Count; i++) {
-						Process.IProcessDirection attribute = attributes[ i ];
+						Do.IProcessDirection attribute = attributes[ i ];
 						if (!(processType == attribute.ProcessType))
 							continue;
 						Type? expectedType = null;
 						bool nodeIsParent = false;
-						if (attribute is Process.IProcessBefore beforeAttribute) {
+						if (attribute is Do.IProcessBefore beforeAttribute) {
 							expectedType = beforeAttribute.BeforeType;
 							nodeIsParent = true;
-						} else if (attribute is Process.IProcessAfter afterAttribute)
+						} else if (attribute is Do.IProcessAfter afterAttribute)
 							expectedType = afterAttribute.AfterType;
 						if (expectedType is null)
 							continue;

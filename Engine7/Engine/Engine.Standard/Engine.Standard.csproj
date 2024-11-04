@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Entities\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine.Module.Entities\Engine.Module.Entities.csproj" />
+    <ProjectReference Include="..\Engine.Module.Networking\Engine.Module.Networking.csproj" />
+    <ProjectReference Include="..\Engine.Module.Render\Engine.Module.Render.csproj" />
+    <ProjectReference Include="..\Engine.Physics\Engine.Physics.csproj" />
+    <ProjectReference Include="..\Engine\Engine.csproj" />
+  </ItemGroup>
+
+</Project>
