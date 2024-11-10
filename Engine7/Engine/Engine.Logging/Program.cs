@@ -6,7 +6,7 @@ if (args.Length <= 0)
 	throw new ArgumentException( "No name given!" );
 string pipeName = args[ 0 ];
 var dateTimeNowString = DateTime.Now.ToString( "yyyyMMdd.HHmmssff" );
-string path = $"logs/normal/{dateTimeNowString}.log";
+string path = $"logs/{dateTimeNowString}.log";
 NamedPipeClientStream pipeClient = new( ".", pipeName, PipeDirection.In );
 
 try {
@@ -18,19 +18,23 @@ try {
 }
 byte[] data = new byte[ ushort.MaxValue + 1 ];
 
-while (pipeClient.IsConnected || pipeClient.Length > 0) {
-	try {
-		int read = pipeClient.Read( data, 0, data.Length );
-		unsafe {
-			fixed (byte* ptr = data) {
-				char* charPtr = (char*) ptr;
-				var logString = new string( charPtr, 0, read / sizeof( char ) );
-				LogString( path, logString );
+try {
+	while (pipeClient.IsConnected || pipeClient.Length > 0) {
+		try {
+			int read = pipeClient.Read( data, 0, data.Length );
+			unsafe {
+				fixed (byte* ptr = data) {
+					char* charPtr = (char*) ptr;
+					var logString = new string( charPtr, 0, read / sizeof( char ) );
+					LogString( path, logString );
+				}
 			}
+		} catch (Exception e) {
+			Console.WriteLine( e );
 		}
-	} catch (Exception e) {
-		Console.WriteLine( e );
 	}
+} catch (NotSupportedException) {
+	LogString( path, "Disconnected Logging" );
 }
 pipeClient.Close();
 pipeClient.Dispose();

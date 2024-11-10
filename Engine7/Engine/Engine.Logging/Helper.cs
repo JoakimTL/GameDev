@@ -47,7 +47,7 @@ internal static class Helper {
 		uint writtenBytes = 0;
 		uint attempts = 0;
 		while (writtenBytes < message.Length && attempts < 10) {
-			uint bytesToBeSent = (uint) Math.Min( message.Length - writtenBytes, ushort.MaxValue );
+			uint bytesToBeSent = (uint) Math.Min( (message.Length * sizeof( char )) - writtenBytes, ushort.MaxValue );
 			fixed (char* srcPtr = message)
 				Unsafe.CopyBlock( dstPtr, srcPtr + writtenBytes, bytesToBeSent );
 

@@ -5,6 +5,5 @@ internal enum InternalLevel {
 	WARNING,
 	HIGH,
 	NORMAL,
-	LOW,
 	VERBOSE,
 }

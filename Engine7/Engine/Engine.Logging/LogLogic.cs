@@ -6,7 +6,7 @@ namespace Engine;
 
 internal sealed class LogLogic : IDisposable {
 
-	public Log.Level LoggingLevel { get; set; } = Log.Level.VERBOSE;
+	public Log.Level LoggingLevel { get; set; } = Log.Level.NORMAL;
 
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -31,7 +31,7 @@ internal sealed class LogLogic : IDisposable {
 		_pipeThread.Start();
 	}
 
-	private static ConsoleColor DetermineColor(ConsoleColor desiredColor, InternalLevel logLevel ) {
+	private static ConsoleColor DetermineColor( ConsoleColor desiredColor, InternalLevel logLevel ) {
 		if (logLevel == InternalLevel.CRITICAL)
 			return ConsoleColor.Red;
 		if (logLevel == InternalLevel.WARNING)
@@ -54,13 +54,15 @@ internal sealed class LogLogic : IDisposable {
 
 	private void ConsoleLoggingFunction() {
 		while (!_cancellationTokenSource.IsCancellationRequested) {
-			while (_consoleLogData.TryTake( out (InternalLevel level, ConsoleColor color, string message) data, Timeout.Infinite, _cancellationTokenSource.Token )) {
-				Log.Statistics.Increment( data.level );
-				ConsoleColor prevColor = Console.ForegroundColor;
-				Console.ForegroundColor = data.color;
-				Console.Write( data.message );
-				Console.ForegroundColor = prevColor;
-			}
+			try {
+				while (_consoleLogData.TryTake( out (InternalLevel level, ConsoleColor color, string message) data, Timeout.Infinite, _cancellationTokenSource.Token )) {
+					Log.Statistics.Increment( data.level );
+					ConsoleColor prevColor = Console.ForegroundColor;
+					Console.ForegroundColor = data.color;
+					Console.Write( data.message );
+					Console.ForegroundColor = prevColor;
+				}
+			} catch (OperationCanceledException) { }
 		}
 	}
 
@@ -72,8 +74,10 @@ internal sealed class LogLogic : IDisposable {
 		try {
 			_pipeServer.WaitForConnection();
 			while (!_cancellationTokenSource.IsCancellationRequested) {
-				while (_pipeLogData.TryTake( out string? message, Timeout.Infinite, _cancellationTokenSource.Token ))
-					Helper.SendMessageOverPipe( _pipeServer, message );
+				try {
+					while (_pipeLogData.TryTake( out string? message, Timeout.Infinite, _cancellationTokenSource.Token ))
+						Helper.SendMessageOverPipe( _pipeServer, message );
+				} catch (OperationCanceledException) { }
 			}
 		} catch (Exception e) {
 			Log.Critical( e );

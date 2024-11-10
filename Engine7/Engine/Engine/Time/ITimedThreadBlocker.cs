@@ -13,10 +13,3 @@ public interface ITimedThreadBlocker : ICancellable {
 	/// <returns>The state of the the timed blocker.<br/>
 	TimedBlockerState Block();
 }
-
-public enum TimedBlockerState {
-	Blocking,
-	NonBlocking,
-	Skipping,
-	Cancelled
-}

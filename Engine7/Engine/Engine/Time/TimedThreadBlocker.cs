@@ -37,17 +37,17 @@ public sealed class TimedThreadBlocker<TTickSupplier> : DisposableIdentifiable, 
 
 		double elapsedMilliseconds = tickDelta * _invFreqMs;
 		this.AccumulatedMs += elapsedMilliseconds - this.PeriodMs;
-		this.LogLine( $"Blocking! {this.PeriodMs}ms A:{this.AccumulatedMs:N4}ms {currentTick}t {tickDelta}dt {elapsedMilliseconds:N4}dms" );
+		this.LogLine( $"Blocking! {this.PeriodMs}ms A:{this.AccumulatedMs:N4}ms {currentTick}t {tickDelta}dt {elapsedMilliseconds:N4}dms", Log.Level.VERBOSE, ConsoleColor.DarkGray );
 
 		if (this.AccumulatedMs > this.PeriodMs) {
-			double skippedPeriods = System.Math.Floor( this.AccumulatedMs / this.PeriodMs );
+			double skippedPeriods = Math.Floor( this.AccumulatedMs / this.PeriodMs );
 			this.AccumulatedMs -= skippedPeriods * this.PeriodMs;
-			this.LogWarning( $"Skipping {skippedPeriods:N0} periods, equivalent to {skippedPeriods * this.PeriodMs}ms!" );
+			this.LogWarning( $"Skipping {skippedPeriods:N0} period{(skippedPeriods > 1 ? "s" : "")}, equivalent to {skippedPeriods * this.PeriodMs}ms!" );
 			return TimedBlockerState.Skipping;
 		}
 
 		return this.AccumulatedMs < 0
-			? this._threadBlocker.Block( (uint) System.Math.Abs( this.AccumulatedMs ) ) 
+			? this._threadBlocker.Block( (uint) Math.Abs( this.AccumulatedMs ) ) 
 				? TimedBlockerState.Blocking
 				: TimedBlockerState.Cancelled
 			: TimedBlockerState.NonBlocking;

@@ -2,7 +2,7 @@
 
 namespace Engine;
 
-internal sealed class InstanceProvider : IInstanceProvider, IDisposable {
+internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvider {
 
 	private readonly InstanceCatalog _instanceCatalog;
 	private readonly List<IDisposable> _disposables = [];
@@ -44,9 +44,10 @@ internal sealed class InstanceProvider : IInstanceProvider, IDisposable {
 		return instance;
 	}
 
-	public void Dispose() {
+	protected override bool InternalDispose() {
 		foreach (IDisposable disposable in this._disposables)
 			disposable.Dispose();
 		this._disposables.Clear();
+		return true;
 	}
 }

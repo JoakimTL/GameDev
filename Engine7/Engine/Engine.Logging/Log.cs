@@ -56,7 +56,6 @@ public static class Log {
 	public enum Level {
 		HIGH = InternalLevel.HIGH,
 		NORMAL = InternalLevel.NORMAL,
-		LOW = InternalLevel.LOW,
 		VERBOSE = InternalLevel.VERBOSE,
 	}
 }
