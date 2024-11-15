@@ -13,5 +13,8 @@ public abstract class ComponentBase {
 		this._entity = entity;
 	}
 
+	internal void AddChangedListener( ComponentChangeHandler handler ) => ComponentChanged += handler;
+	internal void RemoveChangedListener( ComponentChangeHandler handler ) => ComponentChanged -= handler;
+
 	protected void InvokeComponentChanged() => ComponentChanged?.Invoke( this );
 }

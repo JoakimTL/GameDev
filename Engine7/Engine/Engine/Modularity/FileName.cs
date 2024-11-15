@@ -33,7 +33,7 @@ internal static class ModuleManager {
 			throw new InvalidOperationException( "No modules have been added." );
 		Thread.CurrentThread.Name = "Entrypoint";
 		Log.Line( "Starting engine..." );
-		foreach (var overseer in _moduleOverseers)
+		foreach (ModuleOverseer overseer in _moduleOverseers)
 			overseer.Start();
 		UpdatePeriod();
 		_moduleMonitoringThread = new Thread( MonitorModules ) {

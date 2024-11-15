@@ -42,12 +42,30 @@ public class ArchetypeTests {
 public class SystemManagerTests {
 
 	public sealed class TestComponent : ComponentBase {
-		public int Value { get; set; }
+		private int _value;
+		public int Value {
+			get => _value;
+			set {
+				if (_value == value)
+					return;
+				_value = value;
+				InvokeComponentChanged();
+			}
+		}
 	}
 
 
 	public sealed class TestComponent2 : ComponentBase {
-		public int Value { get; set; }
+		private int _value;
+		public int Value {
+			get => _value;
+			set {
+				if (_value == value)
+					return;
+				_value = value;
+				InvokeComponentChanged();
+			}
+		}
 	}
 
 	public sealed class TestArchetype : ArchetypeBase {
@@ -77,8 +95,48 @@ public class SystemManagerTests {
 		success = entity.TryGetComponent( out TestComponent2? testComponent2 );
 		Assert.That( success, Is.True );
 
-		Assert.That( testComponent.Value, Is.EqualTo( 11 ) );
-		Assert.That( testComponent2.Value, Is.EqualTo( 1 ) );
+		Assert.That( testComponent!.Value, Is.EqualTo( 11 ) );
+		Assert.That( testComponent2!.Value, Is.EqualTo( 1 ) );
+	}
+
+	[Test]
+	public void TestArchetypeComponentChangeListeners() {
+		Assert.That( TypeManager.AllTypes.Contains( typeof( TestSystem ) ), Is.True );
+		EntityContainer entityContainer = new();
+		Entity entity = entityContainer.CreateEntity();
+		entity.AddComponent<TestComponent>().Value = 10;
+		entity.AddComponent<TestComponent2>();
+
+		TestArchetype archetype = entity.CurrentArchetypes.OfType<TestArchetype>().First();
+		archetype.SubscribeToComponentChanges( OnComponentChanged );
+
+		int valueA = 0;
+		int valueB = 0;
+
+		void OnComponentChanged( ComponentBase component ) {
+			if (component is TestComponent testComponent)
+				valueA = testComponent.Value;
+			if (component is TestComponent2 testComponent2)
+				valueB = testComponent2.Value;
+		}
+
+		entityContainer.SystemManager.Update( 0, 0 );
+
+		archetype.UnsubscribeFromComponentChanges( OnComponentChanged );
+
+		entityContainer.SystemManager.Update( 0, 0 );
+
+
+		bool success = entity.TryGetComponent( out TestComponent? testComponent );
+		Assert.That( success, Is.True );
+		success = entity.TryGetComponent( out TestComponent2? testComponent2 );
+		Assert.That( success, Is.True );
+
+		Assert.That( testComponent!.Value, Is.EqualTo( 12 ) );
+		Assert.That( testComponent2!.Value, Is.EqualTo( 2 ) );
+
+		Assert.That( valueA, Is.EqualTo( 11 ) );
+		Assert.That( valueB, Is.EqualTo( 1 ) );
 	}
 
 }

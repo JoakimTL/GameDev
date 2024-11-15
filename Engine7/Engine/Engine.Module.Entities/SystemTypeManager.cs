@@ -19,13 +19,7 @@ public static class SystemTypeManager {
 	}
 
 	private static Func<EntityContainer, IUpdateable> CreateSystemFactory( Type systemType ) {
-		ConstructorInfo[] constructors = systemType.GetConstructors();
-		if (constructors.Length != 1)
-			throw new InvalidOperationException( $"System {systemType.Name} must have exactly one constructor." );
-		ConstructorInfo constructor = constructors[ 0 ];
-		ParameterInfo[] parameters = constructor.GetParameters();
-		if (parameters.Length != 0)
-			throw new InvalidOperationException( $"System {systemType.Name} must have a parameterless constructor." );
+		TypeManager.AssertHasOnlyParameterlessConstructor( systemType );
 		Type systemBaseType = systemType.BaseType ?? throw new InvalidOperationException( $"System {systemType.Name} must have a base type." );
 
 		ParameterExpression entityContainerParam = Expression.Parameter( typeof( EntityContainer ), "entityContainer" );
@@ -57,5 +51,4 @@ public static class SystemTypeManager {
 			throw new InvalidOperationException( $"No factory found for system {systemType.Name}" );
 		return factory( entityContainer );
 	}
-
 }

@@ -6,6 +6,7 @@ public sealed class ResolvedType {
 
 	public Type Type { get; }
 	public bool HasParameterlessConstructor { get; }
+	public int ConstructorCount { get; }
 	public IReadOnlyList<Attribute> Attributes { get; }
 	private readonly Dictionary<Type, object> _attributesByType = [];
 	private readonly Dictionary<BindingFlags, List<PropertyInfo>> _propertiesByBindingFlags = [];
@@ -13,6 +14,7 @@ public sealed class ResolvedType {
 	public ResolvedType( Type type ) {
 		this.Type = type;
 		this.HasParameterlessConstructor = type.IsValueType || type.GetConstructor( Type.EmptyTypes ) != null;
+		this.ConstructorCount = type.GetConstructors().Length;
 		this.Attributes = type.GetCustomAttributes( true ).OfType<Attribute>().ToArray();
 	}
 

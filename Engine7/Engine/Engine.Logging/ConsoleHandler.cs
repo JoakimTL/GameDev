@@ -17,12 +17,12 @@ internal static class ConsoleHandler {
 	const int SW_SHOW = 5;
 
 	public static void Hide() {
-		var handle = GetConsoleWindow();
+		nint handle = GetConsoleWindow();
 		ShowWindow( handle, SW_HIDE );
 	}
 
 	public static void Show() {
-		var handle = GetConsoleWindow();
+		nint handle = GetConsoleWindow();
 		ShowWindow( handle, SW_SHOW );
 	}
 

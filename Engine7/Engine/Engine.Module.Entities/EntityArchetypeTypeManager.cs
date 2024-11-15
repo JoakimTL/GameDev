@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Engine.Module.Entities;
 
@@ -7,11 +6,15 @@ public static class EntityArchetypeTypeManager {
 	private static readonly Dictionary<Type, HashSet<Type>> _requirementsByArchetypes;
 	private static readonly Dictionary<Type, HashSet<Type>> _archetypesByRequirements;
 	private static readonly Dictionary<Type, Func<Entity, ArchetypeBase>> _archetypeFactories;
+	private static readonly Dictionary<Type, Action<ComponentChangeHandler, ArchetypeBase>> _archetypeComponentChangeSubscribers;
+	private static readonly Dictionary<Type, Action<ComponentChangeHandler, ArchetypeBase>> _archetypeComponentChangeUnsubscribers;
 
 	static EntityArchetypeTypeManager() {
 		_requirementsByArchetypes = [];
 		_archetypesByRequirements = [];
 		_archetypeFactories = [];
+		_archetypeComponentChangeSubscribers = [];
+		_archetypeComponentChangeUnsubscribers = [];
 		LoadAllArchetypes();
 	}
 
@@ -30,48 +33,24 @@ public static class EntityArchetypeTypeManager {
 					_archetypesByRequirements.Add( property.PropertyType, archetypes = [] );
 				archetypes.Add( t );
 			}
-			_archetypeFactories[ t ] = CreateArchetypeFactoryDelegate( t, properties );
+			_archetypeFactories[ t ] = ArchetypeReflectionHelper.CreateArchetypeFactoryDelegate( t, properties );
+			_archetypeComponentChangeSubscribers[ t ] = ArchetypeReflectionHelper.CreateArchetypeComponentChangeSubscriber( t, properties );
+			_archetypeComponentChangeUnsubscribers[ t ] = ArchetypeReflectionHelper.CreateArchetypeComponentChangeUnsubscriber( t, properties );
 		}
 	}
 
-	private static Func<Entity, ArchetypeBase> CreateArchetypeFactoryDelegate( Type t, IReadOnlyList<PropertyInfo> properties ) {
-		ConstructorInfo[] constructors = t.GetConstructors();
-		if (constructors.Length != 1)
-			throw new InvalidOperationException( $"Archetype {t.Name} must have exactly one constructor." );
-		ConstructorInfo constructor = constructors[ 0 ];
-		ParameterInfo[] parameters = constructor.GetParameters();
-		if (parameters.Length != 0)
-			throw new InvalidOperationException( $"Archetype {t.Name} must have a parameterless constructor." );
-
-		ParameterExpression entityParam = Expression.Parameter( typeof( Entity ), "entity" );
-		MethodInfo getComponentMethod = typeof( Entity ).GetMethod( nameof( Entity.GetComponent ), BindingFlags.NonPublic | BindingFlags.Instance ) ?? throw new InvalidOperationException( "Entity.GetComponent method not found." );
-		NewExpression archetypeNewExpression = Expression.New( t );
-		ParameterExpression archetypeInstance = Expression.Variable( t );
-
-		LabelTarget returnTarget = Expression.Label( t );
-		GotoExpression returnExpression = Expression.Return( returnTarget, archetypeInstance, t );
-		LabelExpression returnLabel = Expression.Label( returnTarget, Expression.Default( t ) );
-
-		List<Expression> blockExpressions = [];
-		blockExpressions.Add( Expression.Assign( archetypeInstance, archetypeNewExpression ) );
-		foreach (PropertyInfo property in properties)
-			if (property.CanWrite && property.PropertyType.IsAssignableTo( typeof( ComponentBase ) ))
-				blockExpressions.Add( Expression.Assign( Expression.Property( archetypeInstance, property ), Expression.Convert( Expression.Call( entityParam, getComponentMethod, Expression.Constant( property.PropertyType ) ), property.PropertyType ) ) );
-		blockExpressions.Add( returnExpression );
-		blockExpressions.Add( returnLabel );
-		BlockExpression block = Expression.Block( [ archetypeInstance ], blockExpressions );
-
-		return Expression.Lambda<Func<Entity, ArchetypeBase>>( block, entityParam ).Compile();
-	}
-
-	public static ArchetypeBase CreateArchetypeInstance( Type archetypeType, Entity entity ) {
+	public static ArchetypeBase CreateArchetypeInstance( this Entity entity, Type archetypeType ) {
 		ArchetypeBase archetypeInstance = _archetypeFactories[ archetypeType ]( entity );
 		archetypeInstance.SetEntity( entity );
 		return archetypeInstance;
 	}
 
-	public static IReadOnlyCollection<Type> GetRequirementsForArchetype( Type archetype ) => _requirementsByArchetypes[ archetype ];
-	public static IReadOnlyCollection<Type> GetRequirementsForArchetype<T>() where T : ArchetypeBase => _requirementsByArchetypes[ typeof( T ) ];
-	public static IReadOnlyCollection<Type> GetArchetypesRequiringComponent( Type componentType ) => _archetypesByRequirements[ componentType ];
-	public static IReadOnlyCollection<Type> GetArchetypesRequiringComponent<T>() where T : ComponentBase => _archetypesByRequirements[ typeof( T ) ];
+	public static void SubscribeToComponentChanges( this ArchetypeBase archetype, ComponentChangeHandler componentChangeHandler ) => _archetypeComponentChangeSubscribers[ archetype.GetType() ]( componentChangeHandler, archetype );
+
+	public static void UnsubscribeFromComponentChanges( this ArchetypeBase archetype, ComponentChangeHandler componentChangeHandler ) => _archetypeComponentChangeUnsubscribers[ archetype.GetType() ]( componentChangeHandler, archetype );
+
+	public static IReadOnlyCollection<Type> GetRequirementsForArchetype( Type archetype ) => _requirementsByArchetypes.TryGetValue( archetype, out HashSet<Type>? requirements ) ? requirements : Type.EmptyTypes;
+	public static IReadOnlyCollection<Type> GetRequirementsForArchetype<T>() where T : ArchetypeBase => _requirementsByArchetypes.TryGetValue( typeof( T ), out HashSet<Type>? requirements ) ? requirements : Type.EmptyTypes;
+	public static IReadOnlyCollection<Type> GetArchetypesRequiringComponent( Type componentType ) => _archetypesByRequirements.TryGetValue( componentType, out HashSet<Type>? requirements ) ? requirements : Type.EmptyTypes;
+	public static IReadOnlyCollection<Type> GetArchetypesRequiringComponent<T>() where T : ComponentBase => _archetypesByRequirements.TryGetValue( typeof( T ), out HashSet<Type>? requirements ) ? requirements : Type.EmptyTypes;
 }

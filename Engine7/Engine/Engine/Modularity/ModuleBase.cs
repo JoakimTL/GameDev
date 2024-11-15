@@ -19,13 +19,13 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	public ModuleBase( bool important, double frequency ) {
 		if (frequency <= 0)
 			throw new ArgumentOutOfRangeException( "Execution frequency must be a non-zero positive number." );
-		InstanceProvider = InstanceManagement.CreateProvider();
-		_instanceUpdaterExtension = InstanceProvider.CreateUpdater();
-		_instanceInitializerExtension = InstanceProvider.CreateInitializer();
+		this.InstanceProvider = InstanceManagement.CreateProvider();
+		this._instanceUpdaterExtension = this.InstanceProvider.CreateUpdater();
+		this._instanceInitializerExtension = this.InstanceProvider.CreateInitializer();
 		this.Important = important;
-		ExecutionFrequency = frequency;
-		ModuleClock = new( 1 );
-		Running = true;
+		this.ExecutionFrequency = frequency;
+		this.ModuleClock = new( 1 );
+		this.Running = true;
 	}
 
 	/// <param name="frequency">The number of ticks per second. If <see cref="TimeBetweenTicksMs"/> is 0, there is no delay between ticks.</param>
@@ -38,24 +38,24 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	}
 
 	public void Stop() {
-		Running = false;
+		this.Running = false;
 		this.LogLine( "Shutdown was requested." );
 	}
 
 	internal bool DoTick() {
-		if (Running) {
-			var currentTime = ModuleClock.Time;
-			var timeSinceLastTick = currentTime - _lastTickTime;
-			_lastTickTime = currentTime;
-			_instanceInitializerExtension.Update( currentTime, timeSinceLastTick );
-			_instanceUpdaterExtension.Update( currentTime, timeSinceLastTick );
+		if (this.Running) {
+			double currentTime = this.ModuleClock.Time;
+			double timeSinceLastTick = currentTime - this._lastTickTime;
+			this._lastTickTime = currentTime;
+			this._instanceInitializerExtension.Update( currentTime, timeSinceLastTick );
+			this._instanceUpdaterExtension.Update( currentTime, timeSinceLastTick );
 			Tick( currentTime, timeSinceLastTick );
 		}
-		return Running;
+		return this.Running;
 	}
 
 	protected override bool InternalDispose() {
-		InstanceProvider.Dispose();
+		this.InstanceProvider.Dispose();
 		return true;
 	}
 	protected internal abstract void Tick( double time, double deltaTime );

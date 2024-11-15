@@ -5,23 +5,30 @@ namespace Engine.Module.Entities;
 public class EntityContainerSystemManager : IUpdateable {
 
 	private readonly EntityContainer _container;
-	private readonly EntityContainerArchetypeManager _entityContainerArchetypeManager;
 	private readonly Dictionary<Type, IUpdateable> _systemTypesByArchetype;
 	private readonly TypeDigraph<IUpdateable> _systemUpdateTree;
 	private readonly List<IUpdateable> _orderedSystems;
 
-	public EntityContainerSystemManager( EntityContainer container, EntityContainerArchetypeManager entityContainerArchetypeManager ) {
+	public EntityContainerSystemManager( EntityContainer container ) {
 		this._container = container;
-		this._entityContainerArchetypeManager = entityContainerArchetypeManager;
 		this._systemTypesByArchetype = [];
 		this._systemUpdateTree = new();
 		this._orderedSystems = [];
-		this._entityContainerArchetypeManager.OnArchetypeAdded += OnArchetypeAdded;
-		this._entityContainerArchetypeManager.OnArchetypeRemoved += OnArchetypeRemoved;
+		container.CreateListChangeHandler( OnEntityAdded, OnEntityRemoved );
 	}
 
-	private void OnArchetypeAdded( Type archetypeType ) {
-		IReadOnlyList<Type>? newSystemTypes = SystemTypeManager.GetSystemTypesUsingArchetype( archetypeType );
+	private void OnEntityAdded( Entity entity ) {
+		entity.ArchetypeAdded += OnArchetypeAdded;
+		entity.ArchetypeRemoved += OnArchetypeRemoved;
+	}
+
+	private void OnEntityRemoved( Entity entity ) {
+		entity.ArchetypeAdded -= OnArchetypeAdded;
+		entity.ArchetypeRemoved -= OnArchetypeRemoved;
+	}
+
+	private void OnArchetypeAdded( ArchetypeBase archetype ) {
+		IReadOnlyList<Type>? newSystemTypes = SystemTypeManager.GetSystemTypesUsingArchetype( archetype.GetType() );
 		if (newSystemTypes == null)
 			return;
 		bool changed = false;
@@ -41,8 +48,8 @@ public class EntityContainerSystemManager : IUpdateable {
 		this._orderedSystems.AddRange( this._systemUpdateTree.GetTypes().Select( p => this._systemTypesByArchetype[ p ] ) );
 	}
 
-	private void OnArchetypeRemoved( Type archetypeType ) {
-		var newSystemTypes = SystemTypeManager.GetSystemTypesUsingArchetype( archetypeType );
+	private void OnArchetypeRemoved( ArchetypeBase archetype ) {
+		IReadOnlyList<Type>? newSystemTypes = SystemTypeManager.GetSystemTypesUsingArchetype( archetype.GetType() );
 		if (newSystemTypes == null)
 			return;
 		foreach (Type systemType in newSystemTypes) {

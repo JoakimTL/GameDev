@@ -18,17 +18,17 @@ public sealed partial class TypeDigraph {
 			}
 
 			public static void Sort( Type processType, List<ResolvedType> unorderedTypes, List<Type> orderedTypes ) {
-				var nodes = unorderedTypes.Select( p => new Node( p ) ).ToDictionary( p => p.ResolvedType.Type );
+				Dictionary<Type, Node> nodes = unorderedTypes.Select( p => new Node( p ) ).ToDictionary( p => p.ResolvedType.Type );
 
-				foreach (var node in nodes.Values) {
-					var relevantAttributes = node.ResolvedType.GetAttributes<Do.IProcessDirection>().Where( p => p.ProcessType == processType );
-					foreach (var beforeAttribute in relevantAttributes.OfType<Do.IProcessBefore>()) {
+				foreach (Node? node in nodes.Values) {
+					IEnumerable<Do.IProcessDirection> relevantAttributes = node.ResolvedType.GetAttributes<Do.IProcessDirection>().Where( p => p.ProcessType == processType );
+					foreach (Do.IProcessBefore beforeAttribute in relevantAttributes.OfType<Do.IProcessBefore>()) {
 						if (!nodes.TryGetValue( beforeAttribute.BeforeType, out Node? beforeNode ))
 							continue;
 						beforeNode.Parents.Add( node.ResolvedType.Type );
 						node.Children.Add( beforeNode.ResolvedType.Type );
 					}
-					foreach (var afterAttribute in relevantAttributes.OfType<Do.IProcessAfter>()) {
+					foreach (Do.IProcessAfter afterAttribute in relevantAttributes.OfType<Do.IProcessAfter>()) {
 						if (!nodes.TryGetValue( afterAttribute.AfterType, out Node? afterNode ))
 							continue;
 						node.Parents.Add( afterNode.ResolvedType.Type );
@@ -36,7 +36,7 @@ public sealed partial class TypeDigraph {
 					}
 				}
 
-				foreach (var node in nodes.Values) {
+				foreach (Node? node in nodes.Values) {
 					if (node.State == Node.NodeState.Processed)
 						continue;
 					if (HasCycle( nodes, node ))

@@ -21,14 +21,14 @@ internal sealed class LogLogic : IDisposable {
 	private readonly UnhandledExceptionHandler _unhandledExceptionHandler = new();
 
 	public LogLogic() {
-		_consoleThread = new Thread( ConsoleLoggingFunction ) {
+		this._consoleThread = new Thread( ConsoleLoggingFunction ) {
 			Name = "Console Logging"
 		};
-		_consoleThread.Start();
-		_pipeThread = new Thread( PipeLoggingFunction ) {
+		this._consoleThread.Start();
+		this._pipeThread = new Thread( PipeLoggingFunction ) {
 			Name = "Pipe Logging"
 		};
-		_pipeThread.Start();
+		this._pipeThread.Start();
 	}
 
 	private static ConsoleColor DetermineColor( ConsoleColor desiredColor, InternalLevel logLevel ) {
@@ -40,22 +40,22 @@ internal sealed class LogLogic : IDisposable {
 	}
 
 	internal void LogInternal( string text, InternalLevel internalLogLevel, int stackLevel, bool logToConsole, ConsoleColor color ) {
-		if ((int) internalLogLevel > (int) LoggingLevel)
+		if ((int) internalLogLevel > (int) this.LoggingLevel)
 			return;
 		color = DetermineColor( color, internalLogLevel );
 		string logString = $"{internalLogLevel.ToString()[ ..3 ]}|{Helper.GetLogPrefix()}: {text}";
 		if (stackLevel >= 0)
 			logString += $"{Environment.NewLine}{Helper.GenerateStackTrace( stackLevel )}";
-		_pipeLogData.Add( logString );
-		_consoleLogData.Add( (internalLogLevel, color, logString) );
+		this._pipeLogData.Add( logString );
+		this._consoleLogData.Add( (internalLogLevel, color, logString) );
 	}
 
-	internal void Stop() => _cancellationTokenSource.Cancel();
+	internal void Stop() => this._cancellationTokenSource.Cancel();
 
 	private void ConsoleLoggingFunction() {
-		while (!_cancellationTokenSource.IsCancellationRequested) {
+		while (!this._cancellationTokenSource.IsCancellationRequested) {
 			try {
-				while (_consoleLogData.TryTake( out (InternalLevel level, ConsoleColor color, string message) data, Timeout.Infinite, _cancellationTokenSource.Token )) {
+				while (this._consoleLogData.TryTake( out (InternalLevel level, ConsoleColor color, string message) data, Timeout.Infinite, this._cancellationTokenSource.Token )) {
 					Log.Statistics.Increment( data.level );
 					ConsoleColor prevColor = Console.ForegroundColor;
 					Console.ForegroundColor = data.color;
@@ -68,27 +68,27 @@ internal sealed class LogLogic : IDisposable {
 
 	private void PipeLoggingFunction() {
 		string pipeName = Guid.NewGuid().ToString();
-		_pipeServer = new NamedPipeServerStream( pipeName, PipeDirection.Out );
+		this._pipeServer = new NamedPipeServerStream( pipeName, PipeDirection.Out );
 		Process p = Process.Start( "Engine.Logging.exe", pipeName );
 
 		try {
-			_pipeServer.WaitForConnection();
-			while (!_cancellationTokenSource.IsCancellationRequested) {
+			this._pipeServer.WaitForConnection();
+			while (!this._cancellationTokenSource.IsCancellationRequested) {
 				try {
-					while (_pipeLogData.TryTake( out string? message, Timeout.Infinite, _cancellationTokenSource.Token ))
-						Helper.SendMessageOverPipe( _pipeServer, message );
+					while (this._pipeLogData.TryTake( out string? message, Timeout.Infinite, this._cancellationTokenSource.Token ))
+						Helper.SendMessageOverPipe( this._pipeServer, message );
 				} catch (OperationCanceledException) { }
 			}
 		} catch (Exception e) {
 			Log.Critical( e );
 		}
 
-		_pipeServer.Close();
-		_pipeServer.Dispose();
+		this._pipeServer.Close();
+		this._pipeServer.Dispose();
 	}
 
 	public void Dispose() {
-		_unhandledExceptionHandler.Dispose();
+		this._unhandledExceptionHandler.Dispose();
 	}
 }
 

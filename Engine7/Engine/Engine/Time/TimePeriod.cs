@@ -80,9 +80,9 @@ internal sealed class TimePeriod : IDisposable {
 	}
 
 	public void Dispose() {
-		if (_disposed)
+		if (this._disposed)
 			return;
-		_disposed = true;
+		this._disposed = true;
 		timeEndPeriod( this._period );
 		Interlocked.Decrement( ref _inTimePeriod );
 	}

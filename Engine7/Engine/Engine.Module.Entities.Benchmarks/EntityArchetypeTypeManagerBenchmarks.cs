@@ -41,7 +41,7 @@ public class EntityArchetypeTypeManagerBenchmarks {
 
 	[Benchmark]
 	public void Run() {
-		this._currentArchetype = (TestArchetype) EntityArchetypeTypeManager.CreateArchetypeInstance(typeof(TestArchetype), this._e );
+		this._currentArchetype = (TestArchetype) this._e!.CreateArchetypeInstance( typeof( TestArchetype ) );
 	}
 
 	//[Benchmark]

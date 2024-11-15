@@ -5,7 +5,7 @@ using System.IO.Pipes;
 if (args.Length <= 0)
 	throw new ArgumentException( "No name given!" );
 string pipeName = args[ 0 ];
-var dateTimeNowString = DateTime.Now.ToString( "yyyyMMdd.HHmmssff" );
+string dateTimeNowString = DateTime.Now.ToString( "yyyyMMdd.HHmmssff" );
 string path = $"logs/{dateTimeNowString}.log";
 NamedPipeClientStream pipeClient = new( ".", pipeName, PipeDirection.In );
 
@@ -25,7 +25,7 @@ try {
 			unsafe {
 				fixed (byte* ptr = data) {
 					char* charPtr = (char*) ptr;
-					var logString = new string( charPtr, 0, read / sizeof( char ) );
+					string logString = new string( charPtr, 0, read / sizeof( char ) );
 					LogString( path, logString );
 				}
 			}

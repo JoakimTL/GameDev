@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Module.Entities;
 
@@ -7,12 +8,15 @@ public sealed class Entity : Identifiable {
 	//Entity components can be added or removed. There should be events for this.
 
 	private readonly Dictionary<Type, ComponentBase> _components;
+	private readonly Dictionary<Type, ArchetypeBase> _archetypes;
 
 	public event ComponentListChangedHandler? ComponentAdded;
 	public event ComponentListChangedHandler? ComponentRemoved;
 	public event EntityRelationChangedHandler? ParentChanged;
 	public event Action<Entity>? OnEntityShouldBeRemoved;
 	private readonly ParentIdChanged _parentIdChangedDelegate;
+	public event EntityArchetypeChangeHandler? ArchetypeAdded;
+	public event EntityArchetypeChangeHandler? ArchetypeRemoved;
 
 	public Guid EntityId { get; }
 	public Guid? ParentId { get; private set; }
@@ -26,6 +30,7 @@ public sealed class Entity : Identifiable {
 		this.ParentId = null;
 		this.Parent = null;
 		this._components = [];
+		this._archetypes = [];
 	}
 
 	public void SetParent( Guid? parentId ) {
@@ -39,11 +44,27 @@ public sealed class Entity : Identifiable {
 		ParentChanged?.Invoke( this, oldParent, parentEntity );
 	}
 
+	internal void AddArchetype( ArchetypeBase archetype ) {
+		this._archetypes.Add( archetype.GetType(), archetype );
+		ArchetypeAdded?.Invoke( archetype );
+	}
+
+	internal void RemoveArchetype( Type archetypeType ) {
+		if (!this._archetypes.Remove( archetypeType, out ArchetypeBase? archetype ))
+			return;
+		ArchetypeRemoved?.Invoke( archetype );
+	}
+
+	public IReadOnlyCollection<ComponentBase> Components => this._components.Values;
+
+	public IReadOnlyCollection<ArchetypeBase> CurrentArchetypes => this._archetypes.Values;
+
 	public T AddComponent<T>() where T : ComponentBase, new() {
 		T component = new();
 		component.SetEntity( this );
 		this._components.Add( typeof( T ), component );
 		ComponentAdded?.Invoke( component );
+		CheckAndAddArchetypes( typeof( T ) );
 		component.ComponentChanged += OnComponentChanged;
 		return component;
 	}
@@ -90,7 +111,7 @@ public sealed class Entity : Identifiable {
 	/// <exception cref="ComponentNotFoundException"></exception>
 	public T GetComponentOrThrow<T>() where T : ComponentBase, new() => this._components.TryGetValue( typeof( T ), out ComponentBase? component )
 		? (T) component
-		: throw new ComponentNotFoundException(typeof( T ));
+		: throw new ComponentNotFoundException( typeof( T ) );
 
 	/// <summary>
 	/// Gets the requested component, but if it's not available a <see cref="ComponentNotFoundException"/> is thrown.<br />
@@ -114,7 +135,25 @@ public sealed class Entity : Identifiable {
 		if (this._components.TryGetValue( typeof( T ), out ComponentBase? component )) {
 			this._components.Remove( typeof( T ) );
 			ComponentRemoved?.Invoke( component );
+			RemoveArchetypes( typeof( T ) );
 			component.ComponentChanged -= OnComponentChanged;
+		}
+	}
+
+	private void CheckAndAddArchetypes( Type componentType ) {
+		IReadOnlyCollection<Type> potentialArchetypes = EntityArchetypeTypeManager.GetArchetypesRequiringComponent( componentType );
+		foreach (Type archetypeType in potentialArchetypes) {
+			bool isArchetype = IsArchetype( archetypeType );
+			if (!isArchetype)
+				continue;
+			AddArchetype( this.CreateArchetypeInstance( archetypeType ) );
+		}
+	}
+
+	private void RemoveArchetypes( Type componentType ) {
+		IReadOnlyCollection<Type> affectedArchetypes = EntityArchetypeTypeManager.GetArchetypesRequiringComponent( componentType );
+		foreach (Type archetypeType in affectedArchetypes) {
+			RemoveArchetype( archetypeType );
 		}
 	}
 

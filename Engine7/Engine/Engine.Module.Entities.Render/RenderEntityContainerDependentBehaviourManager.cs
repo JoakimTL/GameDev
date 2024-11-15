@@ -1,0 +1,36 @@
+﻿
+using System.Collections.Concurrent;
+
+namespace Engine.Module.Entities.Render;
+
+internal class RenderEntityContainerDependentBehaviourManager( RenderEntityContainer renderEntityContainer ) : IUpdateable {
+
+	private readonly  RenderEntityContainer _renderEntityContainer = renderEntityContainer;
+	private readonly ConcurrentQueue<ArchetypeBase> _archetypesAdded = [];
+	private readonly ConcurrentQueue<ArchetypeBase> _archetypesRemoved = [];
+
+	//Called on game logic thread
+	internal void OnArchetypeAdded( ArchetypeBase archetype ) => _archetypesAdded.Enqueue( archetype );
+
+	//Called on game logic thread
+	internal void OnArchetypeRemoved( ArchetypeBase archetype ) => _archetypesRemoved.Enqueue( archetype );
+
+	private void ProcessAddedArchetype( ArchetypeBase archetype ) {
+		if (!_renderEntityContainer.TryGetRenderEntity( archetype.Entity.EntityId, out RenderEntity? renderEntity ))
+			return;
+		renderEntity.AddDependenciesOnArchetype( archetype );
+	}
+
+	private void ProcessRemovedArchetype( ArchetypeBase archetype ) {
+		if (!_renderEntityContainer.TryGetRenderEntity( archetype.Entity.EntityId, out RenderEntity? renderEntity ))
+			return;
+		renderEntity.RemoveAllDependentsOnArchetype( archetype );
+	}
+
+	public void Update( double time, double deltaTime ) {
+		while (_archetypesAdded.TryDequeue( out ArchetypeBase? archetype ))
+			ProcessAddedArchetype( archetype );
+		while (_archetypesRemoved.TryDequeue( out ArchetypeBase? archetype ))
+			ProcessRemovedArchetype( archetype );
+	}
+}
