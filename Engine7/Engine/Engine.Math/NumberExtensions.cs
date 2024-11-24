@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Engine;
 public static class NumberExtensions {
@@ -15,11 +16,11 @@ public static class NumberExtensions {
 	/// <param name="frequency">The frequency of the oscilation in Hz.</param>
 	/// <returns>Returns the oscilation period of input <paramref name="frequency"/> in milliseconds. If the period is lower than 1ms it will return 1ms.</returns>
 	/// <exception cref="Exception">If the <paramref name="frequency"/> is less than <see cref="IFloatingPointIeee754{T}.Epsilon"/>.</exception>"
-	public static uint ToPeriodMs<T>( this T frequency )
+	public static uint ToPeriodMs<T>( this T frequency, uint lowestPossiblePeriodMs = 0, uint highestPossiblePeriodMs = uint.MaxValue)
 		where T :
 			unmanaged, IFloatingPointIeee754<T>
 		=> frequency > T.Epsilon
-			? uint.Max( uint.CreateSaturating( T.CreateSaturating( 1000 ) / frequency ), 1 )
+			? uint.Clamp( uint.CreateSaturating( T.CreateSaturating( 1000 ) / frequency ), lowestPossiblePeriodMs, highestPossiblePeriodMs )
 			: throw new Exception( $"Frequency must be greater than {T.Epsilon}." );
 
 	/// <typeparam name="T">The type which the frequency is supplied.</typeparam>
@@ -32,7 +33,7 @@ public static class NumberExtensions {
 		where T :
 			unmanaged, IFloatingPointIeee754<T>
 		=> maxFrequency >= minFrequency
-			? uint.Max( uint.CreateSaturating( T.CreateSaturating( 1000 ) / T.Min( T.Max( frequency, minFrequency ), maxFrequency ) ), 1 )
+			? uint.Max( uint.CreateSaturating( T.CreateSaturating( 1000 ) / T.Clamp( frequency, minFrequency, maxFrequency ) ), 1 )
 			: throw new ArgumentException( "Max frequency must be greater than or equal to min frequency." );
 
 	/// <typeparam name="T">The output frequenct type</typeparam>

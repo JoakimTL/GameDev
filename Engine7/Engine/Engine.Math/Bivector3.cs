@@ -34,8 +34,8 @@ public readonly struct Bivector3<TScalar>( TScalar yz, TScalar zx, TScalar xy ) 
 	public Bivector3<TScalar> ScalarMultiply( TScalar r ) => new( this.YZ * r, this.ZX * r, this.XY * r );
 	public Bivector3<TScalar> ScalarDivide( TScalar r ) => new( this.YZ / r, this.ZX / r, this.XY / r );
 	public static Bivector3<TScalar> DivideScalar( TScalar l, in Bivector3<TScalar> r ) => new( l / r.YZ, l / r.ZX, l / r.XY );
-	public TScalar Dot( in Bivector3<TScalar> r ) => -(this.YZ * r.YZ) - this.ZX * r.ZX - this.XY * r.XY;
-	public TScalar MagnitudeSquared() => this.YZ * this.YZ + this.ZX * this.ZX + this.XY * this.XY;
+	public TScalar Dot( in Bivector3<TScalar> r ) => -(this.YZ * r.YZ) - (this.ZX * r.ZX) - (this.XY * r.XY);
+	public TScalar MagnitudeSquared() => (this.YZ * this.YZ) + (this.ZX * this.ZX) + (this.XY * this.XY);
 
 	public Multivector3<TScalar> Multiply( in Vector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Rotor3<TScalar> Multiply( in Bivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );

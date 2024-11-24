@@ -1,7 +1,11 @@
-﻿using Engine;
-using Engine.Modularity;
+﻿using Engine.Modularity;
 using Sandbox;
 
 Startup.BeginInit()
 	.WithModule<TestModule>()
+	.WithModule<SandboxRenderModule>()
 	.Start();
+
+/*
+ * 
+ */

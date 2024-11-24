@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Engine.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Module.Entities.Render;
 public sealed class Scene : DisposableIdentifiable {
@@ -18,29 +19,31 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 
 	}
 
+	public void SendMessageToEntity( object message ) => _entity.AddMessage( message );
+
 	public bool AddBehaviour( RenderBehaviourBase behaviour ) {
-		if (!_behaviours.TryAdd( behaviour.GetType(), behaviour ))
+		if (!this._behaviours.TryAdd( behaviour.GetType(), behaviour ))
 			return this.LogWarningThenReturn( $"Behaviour of type {behaviour.GetType().Name} already exists.", false );
 		return true;
 	}
 
 	public void RemoveBehaviour( Type behaviourType ) {
-		if (!_behaviours.Remove( behaviourType ))
+		if (!this._behaviours.Remove( behaviourType ))
 			this.LogWarning( $"Couldn't find behaviour of type {behaviourType.Name}." );
 	}
 
-	public bool TryGetBehaviour<T>( [NotNullWhen( true )] out T? behaviour ) where T : RenderBehaviourBase 
-		=> (behaviour = null) is null && _behaviours.TryGetValue( typeof( T ), out RenderBehaviourBase? baseBehaviour ) && (behaviour = baseBehaviour as T) is not null;
+	public bool TryGetBehaviour<T>( [NotNullWhen( true )] out T? behaviour ) where T : RenderBehaviourBase
+		=> (behaviour = null) is null && this._behaviours.TryGetValue( typeof( T ), out RenderBehaviourBase? baseBehaviour ) && (behaviour = baseBehaviour as T) is not null;
 
 	public void Update( double time, double deltaTime ) {
-		foreach (RenderBehaviourBase behaviour in _behaviours.Values)
+		foreach (RenderBehaviourBase behaviour in this._behaviours.Values)
 			behaviour.Update( time, deltaTime );
 	}
 
 	protected override bool InternalDispose() {
-		foreach (RenderBehaviourBase behaviour in _behaviours.Values)
+		foreach (RenderBehaviourBase behaviour in this._behaviours.Values)
 			behaviour.Dispose();
-		_behaviours.Clear();
+		this._behaviours.Clear();
 		return true;
 	}
 }

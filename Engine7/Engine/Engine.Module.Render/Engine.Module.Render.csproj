@@ -4,6 +4,32 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Ogl\OOP\OglSegementedBuffer.cs" />
+    <Compile Remove="Ogl\OOP\OglSegementedBuffer.IOglBufferSegment.cs" />
+    <Compile Remove="Ogl\OOP\OglSegementedBuffer.Segment.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Glfw\glfw3.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine.Module.Render.Domain\Engine.Module.Render.Domain.csproj" />
+    <ProjectReference Include="..\Engine\Engine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Window\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenGL.Net" Version="0.8.4" />
+  </ItemGroup>
 
 </Project>

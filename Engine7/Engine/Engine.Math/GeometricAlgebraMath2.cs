@@ -34,8 +34,8 @@ public static class GeometricAlgebraMath2 {
 	public static Rotor2<TScalar> Multiply<TScalar>( in Vector2<TScalar> l, in Vector2<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			l.X * r.X + l.Y * r.Y,
-			l.X * r.Y - l.Y * r.X
+			(l.X * r.X) + (l.Y * r.Y),
+			(l.X * r.Y) - (l.Y * r.X)
 		);
 
 	public static Vector2<TScalar> Multiply<TScalar>( in Vector2<TScalar> l, in Bivector2<TScalar> r )
@@ -48,17 +48,17 @@ public static class GeometricAlgebraMath2 {
 	public static Vector2<TScalar> Multiply<TScalar>( in Vector2<TScalar> l, in Rotor2<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			l.X * r.Scalar - l.Y * r.Bivector.XY,
-			l.Y * r.Scalar + l.X * r.Bivector.XY
+			(l.X * r.Scalar) - (l.Y * r.Bivector.XY),
+			(l.Y * r.Scalar) + (l.X * r.Bivector.XY)
 		);
 
 	public static Multivector2<TScalar> Multiply<TScalar>( in Vector2<TScalar> l, in Multivector2<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			l.X * r.Vector.X + l.Y * r.Vector.Y,
-			l.X * r.Scalar - l.Y * r.Bivector.XY,
-			l.Y * r.Scalar + l.X * r.Bivector.XY,
-			l.X * r.Vector.Y - l.Y * r.Vector.X
+			(l.X * r.Vector.X) + (l.Y * r.Vector.Y),
+			(l.X * r.Scalar) - (l.Y * r.Bivector.XY),
+			(l.Y * r.Scalar) + (l.X * r.Bivector.XY),
+			(l.X * r.Vector.Y) - (l.Y * r.Vector.X)
 		);
 
 	public static Vector2<TScalar> Multiply<TScalar>( in Bivector2<TScalar> l, in Vector2<TScalar> r )
@@ -91,8 +91,8 @@ public static class GeometricAlgebraMath2 {
 	public static Vector2<TScalar> Multiply<TScalar>( in Rotor2<TScalar> l, in Vector2<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			l.Scalar * r.X + l.Bivector.XY * r.Y,
-			l.Scalar * r.Y - l.Bivector.XY * r.X
+			(l.Scalar * r.X) + (l.Bivector.XY * r.Y),
+			(l.Scalar * r.Y) - (l.Bivector.XY * r.X)
 		);
 
 	public static Rotor2<TScalar> Multiply<TScalar>( in Rotor2<TScalar> l, in Bivector2<TScalar> r )
@@ -105,26 +105,26 @@ public static class GeometricAlgebraMath2 {
 	public static Rotor2<TScalar> Multiply<TScalar>( in Rotor2<TScalar> l, in Rotor2<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			l.Scalar * r.Scalar - l.Bivector.XY * r.Bivector.XY,
-			l.Scalar * r.Bivector.XY + l.Bivector.XY * r.Scalar
+			(l.Scalar * r.Scalar) - (l.Bivector.XY * r.Bivector.XY),
+			(l.Scalar * r.Bivector.XY) + (l.Bivector.XY * r.Scalar)
 		);
 
 	public static Multivector2<TScalar> Multiply<TScalar>( in Rotor2<TScalar> l, in Multivector2<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			l.Scalar * r.Scalar - l.Bivector.XY * r.Bivector.XY,
-			l.Scalar * r.Vector.X + l.Bivector.XY * r.Vector.Y,
-			l.Scalar * r.Vector.Y - l.Bivector.XY * r.Vector.X,
-			l.Scalar * r.Bivector.XY + l.Bivector.XY * r.Scalar
+			(l.Scalar * r.Scalar) - (l.Bivector.XY * r.Bivector.XY),
+			(l.Scalar * r.Vector.X) + (l.Bivector.XY * r.Vector.Y),
+			(l.Scalar * r.Vector.Y) - (l.Bivector.XY * r.Vector.X),
+			(l.Scalar * r.Bivector.XY) + (l.Bivector.XY * r.Scalar)
 		);
 
 	public static Multivector2<TScalar> Multiply<TScalar>( in Multivector2<TScalar> l, in Vector2<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			l.Vector.X * r.X + l.Vector.Y * r.Y,
-			l.Scalar * r.X + l.Bivector.XY * r.Y,
-			l.Scalar * r.Y - l.Bivector.XY * r.X,
-			l.Vector.X * r.Y - l.Vector.Y * r.X
+			(l.Vector.X * r.X) + (l.Vector.Y * r.Y),
+			(l.Scalar * r.X) + (l.Bivector.XY * r.Y),
+			(l.Scalar * r.Y) - (l.Bivector.XY * r.X),
+			(l.Vector.X * r.Y) - (l.Vector.Y * r.X)
 		);
 
 	public static Multivector2<TScalar> Multiply<TScalar>( in Multivector2<TScalar> l, in Bivector2<TScalar> r )
@@ -139,18 +139,18 @@ public static class GeometricAlgebraMath2 {
 	public static Multivector2<TScalar> Multiply<TScalar>( in Multivector2<TScalar> l, in Rotor2<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			l.Scalar * r.Scalar - l.Bivector.XY * r.Bivector.XY,
-			l.Vector.X * r.Scalar - l.Vector.Y * r.Bivector.XY,
-			l.Vector.Y * r.Scalar + l.Vector.X * r.Bivector.XY,
-			l.Scalar * r.Bivector.XY + l.Bivector.XY * r.Scalar
+			(l.Scalar * r.Scalar) - (l.Bivector.XY * r.Bivector.XY),
+			(l.Vector.X * r.Scalar) - (l.Vector.Y * r.Bivector.XY),
+			(l.Vector.Y * r.Scalar) + (l.Vector.X * r.Bivector.XY),
+			(l.Scalar * r.Bivector.XY) + (l.Bivector.XY * r.Scalar)
 		);
 
 	public static Multivector2<TScalar> Multiply<TScalar>( in Multivector2<TScalar> l, in Multivector2<TScalar> r )
 		where TScalar : unmanaged, INumber<TScalar>
 		=> new(
-			l.Scalar * r.Scalar + l.Vector.X * r.Vector.X + l.Vector.Y * r.Vector.Y - l.Bivector.XY * r.Bivector.XY,
-			l.Scalar * r.Vector.X + l.Vector.X * r.Scalar + l.Bivector.XY * r.Vector.Y - l.Vector.Y * r.Bivector.XY,
-			l.Scalar * r.Vector.Y + l.Vector.Y * r.Scalar + l.Vector.X * r.Bivector.XY - l.Bivector.XY * r.Vector.X,
-			l.Scalar * r.Bivector.XY + l.Bivector.XY * r.Scalar + l.Vector.X * r.Vector.Y - l.Vector.Y * r.Vector.X
+			(l.Scalar * r.Scalar) + (l.Vector.X * r.Vector.X) + (l.Vector.Y * r.Vector.Y) - (l.Bivector.XY * r.Bivector.XY),
+			(l.Scalar * r.Vector.X) + (l.Vector.X * r.Scalar) + (l.Bivector.XY * r.Vector.Y) - (l.Vector.Y * r.Bivector.XY),
+			(l.Scalar * r.Vector.Y) + (l.Vector.Y * r.Scalar) + (l.Vector.X * r.Bivector.XY) - (l.Bivector.XY * r.Vector.X),
+			(l.Scalar * r.Bivector.XY) + (l.Bivector.XY * r.Scalar) + (l.Vector.X * r.Vector.Y) - (l.Vector.Y * r.Vector.X)
 		);
 }

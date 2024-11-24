@@ -237,14 +237,14 @@ public readonly struct Matrix4x4<TScalar>( TScalar m00, TScalar m01, TScalar m02
 			l / r.M30, l / r.M31, l / r.M32, l / r.M33
 		);
 	public TScalar Dot( in Matrix4x4<TScalar> r ) =>
-		this.M00 * r.M00 + this.M01 * r.M01 + this.M02 * r.M02 + this.M03 * r.M03 +
-		this.M10 * r.M10 + this.M11 * r.M11 + this.M12 * r.M12 + this.M13 * r.M13 +
-		this.M20 * r.M20 + this.M21 * r.M21 + this.M22 * r.M22 + this.M23 * r.M23 +
-		this.M30 * r.M30 + this.M31 * r.M31 + this.M32 * r.M32 + this.M33 * r.M33;
+		(this.M00 * r.M00) + (this.M01 * r.M01) + (this.M02 * r.M02) + (this.M03 * r.M03) +
+		(this.M10 * r.M10) + (this.M11 * r.M11) + (this.M12 * r.M12) + (this.M13 * r.M13) +
+		(this.M20 * r.M20) + (this.M21 * r.M21) + (this.M22 * r.M22) + (this.M23 * r.M23) +
+		(this.M30 * r.M30) + (this.M31 * r.M31) + (this.M32 * r.M32) + (this.M33 * r.M33);
 	public TScalar MagnitudeSquared() => Dot( this );
 
 	public TScalar GetDeterminant()
-		=> this.M00 * this.Excluding00.GetDeterminant() - this.M01 * this.Excluding01.GetDeterminant() + this.M02 * this.Excluding02.GetDeterminant() - this.M03 * this.Excluding03.GetDeterminant();
+		=> (this.M00 * this.Excluding00.GetDeterminant()) - (this.M01 * this.Excluding01.GetDeterminant()) + (this.M02 * this.Excluding02.GetDeterminant()) - (this.M03 * this.Excluding03.GetDeterminant());
 	public Matrix4x4<TScalar> GetTransposed()
 		=> new(
 			this.M00, this.M10, this.M20, this.M30,

@@ -1,6 +1,4 @@
-﻿using System.Xml;
-
-namespace Engine;
+﻿namespace Engine;
 
 public abstract class Identifiable {
 
@@ -9,6 +7,7 @@ public abstract class Identifiable {
 
 	public ulong UniqueId { get; }
 	public string? Nickname { get; protected set; }
+	public string FullName => ToString();
 	private readonly int _hashCode;
 
 	protected Identifiable() {

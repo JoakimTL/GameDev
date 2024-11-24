@@ -45,14 +45,14 @@ public readonly struct Vector4<TScalar>( TScalar x, TScalar y, TScalar z, TScala
 	public Vector4<TScalar> MultiplyEntrywise( in Vector4<TScalar> r ) => new( this.X * r.X, this.Y * r.Y, this.Z * r.Z, this.W * r.W );
 	public Vector4<TScalar> DivideEntrywise( in Vector4<TScalar> r ) => new( this.X / r.X, this.Y / r.Y, this.Z / r.Z, this.W / r.W );
 	public Vector4<TScalar> EntrywiseOperation( Func<TScalar, TScalar> operation ) => new( operation( this.X ), operation( this.Y ), operation( this.Z ), operation( this.W ) );
-	public TScalar Dot( in Vector4<TScalar> r ) => this.X * r.X + this.Y * r.Y + this.Z * r.Z + this.W * r.W;
+	public TScalar Dot( in Vector4<TScalar> r ) => (this.X * r.X) + (this.Y * r.Y) + (this.Z * r.Z) + (this.W * r.W);
 	public TScalar MagnitudeSquared() => Dot( this );
 	public Vector4<TScalar> Min( in Vector4<TScalar> r ) => new( TScalar.Min( this.X, r.X ), TScalar.Min( this.Y, r.Y ), TScalar.Min( this.Z, r.Z ), TScalar.Min( this.W, r.W ) );
 	public Vector4<TScalar> Max( in Vector4<TScalar> r ) => new( TScalar.Max( this.X, r.X ), TScalar.Max( this.Y, r.Y ), TScalar.Max( this.Z, r.Z ), TScalar.Max( this.W, r.W ) );
 	public TScalar SumOfParts() => this.X + this.Y + this.Z + this.W;
 	public TScalar ProductOfParts() => this.X * this.Y * this.Z * this.W;
-	public TScalar SumOfUnitBasisAreas() => this.X * this.Y + this.Y * this.Z + this.Z * this.X + this.W * this.X + this.W * this.Y + this.W * this.Z;
-	public TScalar SumOfUnitBasisVolumes() => this.X * this.Y * this.Z + this.Y * this.Z * this.W + this.Z * this.W * this.X + this.W * this.X * this.Y;
+	public TScalar SumOfUnitBasisAreas() => (this.X * this.Y) + (this.Y * this.Z) + (this.Z * this.X) + (this.W * this.X) + (this.W * this.Y) + (this.W * this.Z);
+	public TScalar SumOfUnitBasisVolumes() => (this.X * this.Y * this.Z) + (this.Y * this.Z * this.W) + (this.Z * this.W * this.X) + (this.W * this.X * this.Y);
 
 	public Vector4<TScalar> Multiply( in Matrix4x4<TScalar> m ) => new( Dot( m.Col0 ), Dot( m.Col1 ), Dot( m.Col2 ), Dot( m.Col3 ) );
 	public static Vector4<TScalar> operator *( in Vector4<TScalar> l, in Matrix4x4<TScalar> r ) => l.Multiply( r );

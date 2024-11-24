@@ -24,8 +24,8 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 		this._renderEntitiesToAddQueue = [];
 		this._renderEntitiesToRemoveQueue = [];
 		this._handler = container.CreateListChangeHandler( OnEntityAdded, OnEntityRemoved );
-		this._container.ArchetypeManager.ArchetypeAdded += _renderEntityContainerDependentBehaviourManager.OnArchetypeAdded;
-		this._container.ArchetypeManager.ArchetypeRemoved += _renderEntityContainerDependentBehaviourManager.OnArchetypeRemoved;
+		this._container.ArchetypeManager.ArchetypeAdded += this._renderEntityContainerDependentBehaviourManager.OnArchetypeAdded;
+		this._container.ArchetypeManager.ArchetypeRemoved += this._renderEntityContainerDependentBehaviourManager.OnArchetypeRemoved;
 	}
 
 	public int PendingEntitiesToAdd => this._renderEntitiesToAddQueue.Count;
@@ -40,7 +40,7 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 		entity.ComponentAdded += OnComponentAdded;
 		entity.ComponentRemoved += OnComponentRemoved;
 		if (entity.HasComponent<RenderComponent>())
-			_renderEntitiesToAddQueue.Enqueue( entity );
+			this._renderEntitiesToAddQueue.Enqueue( entity );
 	}
 
 	//Called on game logic thread
@@ -48,57 +48,57 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 		entity.ComponentAdded -= OnComponentAdded;
 		entity.ComponentRemoved -= OnComponentRemoved;
 		if (entity.HasComponent<RenderComponent>())
-			_renderEntitiesToRemoveQueue.Enqueue( entity );
+			this._renderEntitiesToRemoveQueue.Enqueue( entity );
 	}
 
 	//Called on game logic thread
 	private void OnComponentAdded( ComponentBase component ) {
 		if (component is not RenderComponent)
 			return;
-		_renderEntitiesToAddQueue.Enqueue( component.Entity );
+		this._renderEntitiesToAddQueue.Enqueue( component.Entity );
 	}
 
 	//Called on game logic thread
 	private void OnComponentRemoved( ComponentBase component ) {
 		if (component is not RenderComponent)
 			return;
-		_renderEntitiesToRemoveQueue.Enqueue( component.Entity );
+		this._renderEntitiesToRemoveQueue.Enqueue( component.Entity );
 	}
 
 	public void Update( double time, double deltaTime ) {
-		while (_renderEntitiesToAddQueue.TryDequeue( out Entity? entity ))
+		while (this._renderEntitiesToAddQueue.TryDequeue( out Entity? entity ))
 			AddRenderEntity( entity );
-		while (_renderEntitiesToRemoveQueue.TryDequeue( out Entity? entity ))
+		while (this._renderEntitiesToRemoveQueue.TryDequeue( out Entity? entity ))
 			RemoveRenderEntity( entity );
-		_renderEntityContainerDependentBehaviourManager.Update( time, deltaTime );
-		foreach (RenderEntity renderEntity in _renderEntitiesByEntityId.Values)
+		this._renderEntityContainerDependentBehaviourManager.Update( time, deltaTime );
+		foreach (RenderEntity renderEntity in this._renderEntitiesByEntityId.Values)
 			renderEntity.Update( time, deltaTime );
 	}
 
 	private void AddRenderEntity( Entity entity ) {
-		if (_renderEntitiesByEntityId.ContainsKey( entity.EntityId ))
+		if (this._renderEntitiesByEntityId.ContainsKey( entity.EntityId ))
 			return;
 		RenderEntity renderEntity = new( entity );
-		_renderEntitiesByEntityId.Add( entity.EntityId, renderEntity );
+		this._renderEntitiesByEntityId.Add( entity.EntityId, renderEntity );
 		foreach (ArchetypeBase archetype in entity.CurrentArchetypes)
 			renderEntity.AddDependenciesOnArchetype( archetype );
 		OnRenderEntityAdded?.Invoke( renderEntity );
 	}
 
 	private void RemoveRenderEntity( Entity e ) {
-		if (!_renderEntitiesByEntityId.Remove( e.EntityId, out RenderEntity? renderEntity ))
+		if (!this._renderEntitiesByEntityId.Remove( e.EntityId, out RenderEntity? renderEntity ))
 			return;
 		renderEntity.Dispose();
 		OnRenderEntityRemoved?.Invoke( renderEntity );
 	}
 
 	protected override bool InternalDispose() {
-		_container.RemoveHandler( _handler );
-		this._container.ArchetypeManager.ArchetypeAdded -= _renderEntityContainerDependentBehaviourManager.OnArchetypeAdded;
-		this._container.ArchetypeManager.ArchetypeRemoved -= _renderEntityContainerDependentBehaviourManager.OnArchetypeRemoved;
-		foreach (RenderEntity renderEntity in _renderEntitiesByEntityId.Values)
+		this._container.RemoveHandler( this._handler );
+		this._container.ArchetypeManager.ArchetypeAdded -= this._renderEntityContainerDependentBehaviourManager.OnArchetypeAdded;
+		this._container.ArchetypeManager.ArchetypeRemoved -= this._renderEntityContainerDependentBehaviourManager.OnArchetypeRemoved;
+		foreach (RenderEntity renderEntity in this._renderEntitiesByEntityId.Values)
 			renderEntity.Dispose();
-		_renderEntitiesByEntityId.Clear();
+		this._renderEntitiesByEntityId.Clear();
 		return true;
 	}
 }

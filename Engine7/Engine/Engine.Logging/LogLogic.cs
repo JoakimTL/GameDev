@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO.Pipes;
 
-namespace Engine;
+namespace Engine.Logging;
 
 internal sealed class LogLogic : IDisposable {
 
@@ -53,7 +53,7 @@ internal sealed class LogLogic : IDisposable {
 	internal void Stop() => this._cancellationTokenSource.Cancel();
 
 	private void ConsoleLoggingFunction() {
-		while (!this._cancellationTokenSource.IsCancellationRequested) {
+		while (!this._cancellationTokenSource.IsCancellationRequested)
 			try {
 				while (this._consoleLogData.TryTake( out (InternalLevel level, ConsoleColor color, string message) data, Timeout.Infinite, this._cancellationTokenSource.Token )) {
 					Log.Statistics.Increment( data.level );
@@ -63,7 +63,6 @@ internal sealed class LogLogic : IDisposable {
 					Console.ForegroundColor = prevColor;
 				}
 			} catch (OperationCanceledException) { }
-		}
 	}
 
 	private void PipeLoggingFunction() {
@@ -73,12 +72,11 @@ internal sealed class LogLogic : IDisposable {
 
 		try {
 			this._pipeServer.WaitForConnection();
-			while (!this._cancellationTokenSource.IsCancellationRequested) {
+			while (!this._cancellationTokenSource.IsCancellationRequested)
 				try {
 					while (this._pipeLogData.TryTake( out string? message, Timeout.Infinite, this._cancellationTokenSource.Token ))
 						Helper.SendMessageOverPipe( this._pipeServer, message );
 				} catch (OperationCanceledException) { }
-			}
 		} catch (Exception e) {
 			Log.Critical( e );
 		}

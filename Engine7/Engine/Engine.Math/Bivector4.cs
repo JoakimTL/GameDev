@@ -32,8 +32,8 @@ public readonly struct Bivector4<TScalar>( TScalar yz, TScalar zx, TScalar xy, T
 	public Bivector4<TScalar> ScalarMultiply( TScalar r ) => new( this.YZ * r, this.ZX * r, this.XY * r, this.YW * r, this.ZW * r, this.XW * r );
 	public Bivector4<TScalar> ScalarDivide( TScalar r ) => new( this.YZ / r, this.ZX / r, this.XY / r, this.YW / r, this.ZW / r, this.XW / r );
 	public static Bivector4<TScalar> DivideScalar( TScalar l, in Bivector4<TScalar> r ) => new( l / r.YZ, l / r.ZX, l / r.XY, l / r.YW, l / r.ZW, l / r.XW );
-	public TScalar Dot( in Bivector4<TScalar> r ) => -this.YZ * r.YZ - this.ZX * r.ZX - this.XY * r.XY - this.YW * r.YW - this.ZW * r.ZW - this.XW * r.XW;
-	public TScalar MagnitudeSquared() => this.YZ * this.YZ + this.ZX * this.ZX + this.XY * this.XY + this.YW * this.YW + this.ZW * this.ZW + this.XW * this.XW;
+	public TScalar Dot( in Bivector4<TScalar> r ) => (-this.YZ * r.YZ) - (this.ZX * r.ZX) - (this.XY * r.XY) - (this.YW * r.YW) - (this.ZW * r.ZW) - (this.XW * r.XW);
+	public TScalar MagnitudeSquared() => (this.YZ * this.YZ) + (this.ZX * this.ZX) + (this.XY * this.XY) + (this.YW * this.YW) + (this.ZW * this.ZW) + (this.XW * this.XW);
 
 	public static Bivector4<TScalar> operator -( in Bivector4<TScalar> l ) => l.Negate();
 	public static Bivector4<TScalar> operator +( in Bivector4<TScalar> l, in Bivector4<TScalar> r ) => l.Add( r );

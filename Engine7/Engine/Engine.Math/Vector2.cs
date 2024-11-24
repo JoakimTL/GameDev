@@ -47,9 +47,9 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 	public Vector2<TScalar> MultiplyEntrywise( in Vector2<TScalar> r ) => new( this.X * r.X, this.Y * r.Y );
 	public Vector2<TScalar> DivideEntrywise( in Vector2<TScalar> r ) => new( this.X / r.X, this.Y / r.Y );
 	public Vector2<TScalar> EntrywiseOperation( Func<TScalar, TScalar> operation ) => new( operation( this.X ), operation( this.Y ) );
-	public TScalar Dot( in Vector2<TScalar> r ) => this.X * r.X + this.Y * r.Y;
+	public TScalar Dot( in Vector2<TScalar> r ) => (this.X * r.X) + (this.Y * r.Y);
 	public TScalar MagnitudeSquared() => Dot( this );
-	public Bivector2<TScalar> Wedge( in Vector2<TScalar> r ) => new( this.X * r.Y - this.Y * r.X );
+	public Bivector2<TScalar> Wedge( in Vector2<TScalar> r ) => new( (this.X * r.Y) - (this.Y * r.X) );
 	public Vector2<TScalar> Min( in Vector2<TScalar> r ) => new( TScalar.Min( this.X, r.X ), TScalar.Min( this.Y, r.Y ) );
 	public Vector2<TScalar> Max( in Vector2<TScalar> r ) => new( TScalar.Max( this.X, r.X ), TScalar.Max( this.Y, r.Y ) );
 	public TScalar SumOfParts() => this.X + this.Y;

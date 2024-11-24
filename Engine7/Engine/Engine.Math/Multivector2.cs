@@ -40,8 +40,8 @@ public readonly struct Multivector2<TScalar>( TScalar scalar, Vector2<TScalar> v
 	public Multivector2<TScalar> ScalarMultiply( TScalar r ) => new( this.Scalar * r, this.Vector * r, this.Bivector * r );
 	public Multivector2<TScalar> ScalarDivide( TScalar r ) => new( this.Scalar / r, this.Vector / r, this.Bivector / r );
 	public static Multivector2<TScalar> DivideScalar( TScalar l, in Multivector2<TScalar> r ) => new( l / r.Scalar, l / r.Vector, l / r.Bivector );
-	public TScalar Dot( in Multivector2<TScalar> r ) => this.Scalar * r.Scalar + this.Vector.Dot( r.Vector ) + this.Bivector.Dot( r.Bivector );
-	public TScalar MagnitudeSquared() => this.Scalar * this.Scalar + this.Vector.MagnitudeSquared() + this.Bivector.MagnitudeSquared();
+	public TScalar Dot( in Multivector2<TScalar> r ) => (this.Scalar * r.Scalar) + this.Vector.Dot( r.Vector ) + this.Bivector.Dot( r.Bivector );
+	public TScalar MagnitudeSquared() => (this.Scalar * this.Scalar) + this.Vector.MagnitudeSquared() + this.Bivector.MagnitudeSquared();
 
 	public Multivector2<TScalar> Multiply( in Vector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Multivector2<TScalar> Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );

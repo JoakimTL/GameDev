@@ -73,10 +73,10 @@ public readonly struct Matrix2x2<TScalar>( TScalar m00, TScalar m01, TScalar m10
 	public Matrix2x2<TScalar> ScalarMultiply( TScalar r ) => new( this.M00 * r, this.M01 * r, this.M10 * r, this.M11 * r );
 	public Matrix2x2<TScalar> ScalarDivide( TScalar r ) => new( this.M00 / r, this.M01 / r, this.M10 / r, this.M11 / r );
 	public static Matrix2x2<TScalar> DivideScalar( TScalar l, in Matrix2x2<TScalar> r ) => new( l / r.M00, l / r.M01, l / r.M10, l / r.M11 );
-	public TScalar Dot( in Matrix2x2<TScalar> r ) => this.M00 * r.M00 + this.M01 * r.M01 + this.M10 * r.M10 + this.M11 * r.M11;
+	public TScalar Dot( in Matrix2x2<TScalar> r ) => (this.M00 * r.M00) + (this.M01 * r.M01) + (this.M10 * r.M10) + (this.M11 * r.M11);
 	public TScalar MagnitudeSquared() => Dot( this );
 
-	public TScalar GetDeterminant() => this.M00 * this.M11 - this.M01 * this.M10;
+	public TScalar GetDeterminant() => (this.M00 * this.M11) - (this.M01 * this.M10);
 	public Matrix2x2<TScalar> GetTransposed() => new( this.M00, this.M10, this.M01, this.M11 );
 	public bool TryGetInverse( out Matrix2x2<TScalar> matrix ) {
 		TScalar determinant = GetDeterminant();

@@ -34,8 +34,8 @@ public readonly struct Multivector4<TScalar>( TScalar scalar, Vector4<TScalar> v
 	public Multivector4<TScalar> ScalarMultiply( TScalar r ) => new( this.Scalar * r, this.Vector * r, this.Bivector * r, this.Trivector * r, this.Quadvector * r );
 	public Multivector4<TScalar> ScalarDivide( TScalar r ) => new( this.Scalar / r, this.Vector / r, this.Bivector / r, this.Trivector / r, this.Quadvector / r );
 	public static Multivector4<TScalar> DivideScalar( TScalar l, in Multivector4<TScalar> r ) => new( l / r.Scalar, l / r.Vector, l / r.Bivector, l / r.Trivector, l / r.Quadvector );
-	public TScalar Dot( in Multivector4<TScalar> r ) => this.Scalar * r.Scalar + this.Vector.Dot( r.Vector ) + this.Bivector.Dot( r.Bivector ) + this.Trivector.Dot( r.Trivector ) + this.Quadvector.Dot( r.Quadvector );
-	public TScalar MagnitudeSquared() => this.Scalar * this.Scalar + this.Vector.MagnitudeSquared() + this.Bivector.MagnitudeSquared() + this.Trivector.MagnitudeSquared() + this.Quadvector.MagnitudeSquared();
+	public TScalar Dot( in Multivector4<TScalar> r ) => (this.Scalar * r.Scalar) + this.Vector.Dot( r.Vector ) + this.Bivector.Dot( r.Bivector ) + this.Trivector.Dot( r.Trivector ) + this.Quadvector.Dot( r.Quadvector );
+	public TScalar MagnitudeSquared() => (this.Scalar * this.Scalar) + this.Vector.MagnitudeSquared() + this.Bivector.MagnitudeSquared() + this.Trivector.MagnitudeSquared() + this.Quadvector.MagnitudeSquared();
 
 	public static Multivector4<TScalar> operator -( in Multivector4<TScalar> l ) => l.Negate();
 	public static Multivector4<TScalar> operator +( in Multivector4<TScalar> l, in Multivector4<TScalar> r ) => l.Add( r );

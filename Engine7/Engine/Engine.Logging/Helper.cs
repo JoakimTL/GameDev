@@ -2,9 +2,9 @@
 using System.IO.Pipes;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using static Engine.Log;
+using static Engine.Logging.Log;
 
-namespace Engine;
+namespace Engine.Logging;
 
 internal static class Helper {
 	public static string GenerateStackTrace( int level ) {
@@ -47,7 +47,7 @@ internal static class Helper {
 		uint writtenBytes = 0;
 		uint attempts = 0;
 		while (writtenBytes < message.Length && attempts < 10) {
-			uint bytesToBeSent = (uint) Math.Min( (message.Length * sizeof( char )) - writtenBytes, ushort.MaxValue );
+			uint bytesToBeSent = (uint) Math.Min( message.Length * sizeof( char ) - writtenBytes, ushort.MaxValue );
 			fixed (char* srcPtr = message)
 				Unsafe.CopyBlock( dstPtr, srcPtr + writtenBytes, bytesToBeSent );
 
@@ -61,9 +61,8 @@ internal static class Helper {
 				attempts++;
 			}
 		}
-		if (attempts >= 10) {
+		if (attempts >= 10)
 			Warning( "Stopped sending log data to pipe." );
-		}
 	}
 
 	public static string GetLogPrefix() => $"{Thread.CurrentThread.Name}:{Environment.CurrentManagedThreadId}/{Thread.CurrentThread.CurrentCulture.Name}|{DateTime.Now:HHmm:ss.f}";

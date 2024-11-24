@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
 namespace Engine;
 
@@ -17,7 +18,7 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 			Get( hostedType );
 	}
 
-	private void OnHostedTypeAdded( Type type ) 
+	private void OnHostedTypeAdded( Type type )
 		=> Get( type );
 
 	public object Get( Type t ) {
@@ -42,6 +43,17 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 		if (instance is IDisposable disposable)
 			this._disposables.Add( disposable );
 		return instance;
+	}
+
+	public bool Include<T>( T instance, bool triggerEvents ) {
+		ArgumentNullException.ThrowIfNull( instance );
+		Type contractType = typeof( T );
+		Type implementationType = this._instanceCatalog.TryResolve( contractType, out Type? type ) ? type : throw new InvalidOperationException( $"No implementation found for {contractType.Name}" );
+		if (!this._instances.TryAdd( implementationType, instance ))
+			return false;
+		if (triggerEvents)
+			OnInstanceAdded?.Invoke( instance );
+		return true;
 	}
 
 	protected override bool InternalDispose() {

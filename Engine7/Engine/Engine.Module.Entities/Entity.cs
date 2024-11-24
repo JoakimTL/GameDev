@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Module.Entities;
@@ -9,6 +9,8 @@ public sealed class Entity : Identifiable {
 
 	private readonly Dictionary<Type, ComponentBase> _components;
 	private readonly Dictionary<Type, ArchetypeBase> _archetypes;
+	private readonly HashSet<IMessageReadingComponent> _messageReaders;
+	private readonly ConcurrentQueue<object> _internalMessageQueue;
 
 	public event ComponentListChangedHandler? ComponentAdded;
 	public event ComponentListChangedHandler? ComponentRemoved;
@@ -31,6 +33,8 @@ public sealed class Entity : Identifiable {
 		this.Parent = null;
 		this._components = [];
 		this._archetypes = [];
+		this._messageReaders = [];
+		this._internalMessageQueue = [];
 	}
 
 	public void SetParent( Guid? parentId ) {
@@ -63,6 +67,8 @@ public sealed class Entity : Identifiable {
 		T component = new();
 		component.SetEntity( this );
 		this._components.Add( typeof( T ), component );
+		if (component is IMessageReadingComponent messageReader)
+			this._messageReaders.Add( messageReader );
 		ComponentAdded?.Invoke( component );
 		CheckAndAddArchetypes( typeof( T ) );
 		component.ComponentChanged += OnComponentChanged;
@@ -132,8 +138,9 @@ public sealed class Entity : Identifiable {
 	}
 
 	public void RemoveComponent<T>() where T : ComponentBase, new() {
-		if (this._components.TryGetValue( typeof( T ), out ComponentBase? component )) {
-			this._components.Remove( typeof( T ) );
+		if (this._components.Remove( typeof( T ), out ComponentBase? component )) {
+			if (component is IMessageReadingComponent messageReader)
+				this._messageReaders.Remove( messageReader );
 			ComponentRemoved?.Invoke( component );
 			RemoveArchetypes( typeof( T ) );
 			component.ComponentChanged -= OnComponentChanged;
@@ -163,6 +170,19 @@ public sealed class Entity : Identifiable {
 				ComponentRequestsRemoval();
 				return;
 			}
+	}
+
+	public void AddMessage( object message ) => this._internalMessageQueue.Enqueue( message );
+
+	internal void ReadInternalMessages() {
+		while (this._internalMessageQueue.TryDequeue( out object? message ))
+			foreach (IMessageReadingComponent messageReader in this._messageReaders)
+				messageReader.ReadMessage( message );
+	}
+
+	internal void ReadExternalMessage( object message ) {
+			foreach (IMessageReadingComponent messageReader in this._messageReaders)
+				messageReader.ReadMessage( message );
 	}
 
 	private void ComponentRequestsRemoval() => OnEntityShouldBeRemoved?.Invoke( this );

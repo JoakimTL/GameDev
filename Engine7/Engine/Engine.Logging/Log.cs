@@ -1,4 +1,4 @@
-﻿namespace Engine;
+﻿namespace Engine.Logging;
 
 public static class Log {
 

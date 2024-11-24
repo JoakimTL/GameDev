@@ -18,3 +18,7 @@ public abstract class ComponentBase {
 
 	protected void InvokeComponentChanged() => ComponentChanged?.Invoke( this );
 }
+
+public interface IMessageReadingComponent {
+	void ReadMessage( object message );
+}

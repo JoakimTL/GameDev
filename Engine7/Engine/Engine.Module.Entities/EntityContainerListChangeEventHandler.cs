@@ -16,7 +16,7 @@ public sealed class EntityContainerListChangeEventHandler : DisposableIdentifiab
 		this._hookedEntities = [];
 		this._container.OnEntityAdded += OnEntityAdded;
 		this._container.OnEntityRemoved += OnEntityRemoved;
-		foreach (Entity entity in _container.Entities)
+		foreach (Entity entity in this._container.Entities)
 			OnEntityAdded( entity );
 	}
 

@@ -30,8 +30,8 @@ public readonly struct Trivector4<TScalar>( TScalar yzw, TScalar xzw, TScalar xy
 	public Trivector4<TScalar> ScalarMultiply( TScalar r ) => new( this.YZW * r, this.XZW * r, this.XYW * r, this.XYZ * r );
 	public Trivector4<TScalar> ScalarDivide( TScalar r ) => new( this.YZW / r, this.XZW / r, this.XYW / r, this.XYZ / r );
 	public static Trivector4<TScalar> DivideScalar( TScalar l, in Trivector4<TScalar> r ) => new( l / r.YZW, l / r.XZW, l / r.XYW, l / r.XYZ );
-	public TScalar Dot( in Trivector4<TScalar> r ) => -this.YZW * r.YZW - this.XZW * r.XZW - this.XYW * r.XYW - this.XYZ * r.XYZ;
-	public TScalar MagnitudeSquared() => this.YZW * this.YZW + this.XZW * this.XZW + this.XYW * this.XYW + this.XYZ * this.XYZ;
+	public TScalar Dot( in Trivector4<TScalar> r ) => (-this.YZW * r.YZW) - (this.XZW * r.XZW) - (this.XYW * r.XYW) - (this.XYZ * r.XYZ);
+	public TScalar MagnitudeSquared() => (this.YZW * this.YZW) + (this.XZW * this.XZW) + (this.XYW * this.XYW) + (this.XYZ * this.XYZ);
 
 	public static Trivector4<TScalar> operator -( in Trivector4<TScalar> l ) => l.Negate();
 	public static Trivector4<TScalar> operator +( in Trivector4<TScalar> l, in Trivector4<TScalar> r ) => l.Add( r );

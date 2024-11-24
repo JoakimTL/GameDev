@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-namespace Engine.Module.Entities;
+﻿namespace Engine.Module.Entities;
 
 public sealed class EntityContainerArchetypeManager {
 
@@ -27,19 +25,19 @@ public sealed class EntityContainerArchetypeManager {
 	}
 
 	private void OnArchetypeAdded( ArchetypeBase archetype ) {
-		if (!_archetypeDataByArchetypeType.TryGetValue( archetype.GetType(), out Dictionary<Guid, ArchetypeBase>? archetypeData ))
-			_archetypeDataByArchetypeType.Add( archetype.GetType(), archetypeData = [] );
+		if (!this._archetypeDataByArchetypeType.TryGetValue( archetype.GetType(), out Dictionary<Guid, ArchetypeBase>? archetypeData ))
+			this._archetypeDataByArchetypeType.Add( archetype.GetType(), archetypeData = [] );
 		archetypeData.Add( archetype.Entity.EntityId, archetype );
 		ArchetypeAdded?.Invoke( archetype );
 	}
 
 	private void OnArchetypeRemoved( ArchetypeBase archetype ) {
-		if (!_archetypeDataByArchetypeType.TryGetValue( archetype.GetType(), out Dictionary<Guid, ArchetypeBase>? archetypeData ))
+		if (!this._archetypeDataByArchetypeType.TryGetValue( archetype.GetType(), out Dictionary<Guid, ArchetypeBase>? archetypeData ))
 			return;
 		archetypeData.Remove( archetype.Entity.EntityId );
 		ArchetypeRemoved?.Invoke( archetype );
 		if (archetypeData.Count == 0)
-			_archetypeDataByArchetypeType.Remove( archetype.GetType() );
+			this._archetypeDataByArchetypeType.Remove( archetype.GetType() );
 	}
 
 	public IEnumerable<TArchetype> GetArchetypes<TArchetype>() where TArchetype : ArchetypeBase

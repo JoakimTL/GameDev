@@ -1,4 +1,5 @@
-﻿using Engine.Time;
+﻿using Engine.Logging;
+using Engine.Time;
 
 namespace Engine.Modularity;
 
@@ -27,6 +28,7 @@ internal class ModuleOverseer {
 	private void RunModule() {
 		this.Running = true;
 		this._module.LogLine( "Starting module..." );
+		this._module.Initialize();
 		while (this._blocker.Block() != TimedBlockerState.Cancelled) {
 			if (!this._module.DoTick())
 				this._blocker.Cancel();

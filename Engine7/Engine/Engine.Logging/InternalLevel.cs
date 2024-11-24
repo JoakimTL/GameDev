@@ -1,4 +1,4 @@
-﻿namespace Engine;
+﻿namespace Engine.Logging;
 
 internal enum InternalLevel {
 	CRITICAL,

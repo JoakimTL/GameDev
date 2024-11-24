@@ -6,11 +6,11 @@ public class RenderEntityContainerTests {
 	private class Translation3Component : ComponentBase {
 		private Vector3<double> _translation;
 		public Vector3<double> Translation {
-			get => _translation;
+			get => this._translation;
 			set {
-				if (_translation == value)
+				if (this._translation == value)
 					return;
-				_translation = value;
+				this._translation = value;
 				InvokeComponentChanged();
 			}
 		}
@@ -19,11 +19,11 @@ public class RenderEntityContainerTests {
 	private class Motion3Component : ComponentBase {
 		private Vector3<double> _velocity;
 		public Vector3<double> Velocity {
-			get => _velocity;
+			get => this._velocity;
 			set {
-				if (_velocity == value)
+				if (this._velocity == value)
 					return;
-				_velocity = value;
+				this._velocity = value;
 				InvokeComponentChanged();
 			}
 		}
@@ -47,20 +47,20 @@ public class RenderEntityContainerTests {
 		public Vector3<float> CurrentVelocity { get; private set; }
 
 		protected override void Initialize() {
-			_newTranslation = Archetype.Translation.Translation;
-			_newVelocity = Archetype.Motion.Velocity;
-			CurrentTranslation = _newTranslation.CastSaturating<double, float>();
-			CurrentVelocity = _newVelocity.CastSaturating<double, float>();
+			this._newTranslation = this.Archetype.Translation.Translation;
+			this._newVelocity = this.Archetype.Motion.Velocity;
+			this.CurrentTranslation = this._newTranslation.CastSaturating<double, float>();
+			this.CurrentVelocity = this._newVelocity.CastSaturating<double, float>();
 		}
 
 		protected override bool PrepareSynchronization( ComponentBase component ) {
 			if (component is Translation3Component translation) {
-				_newTranslation = translation.Translation;
+				this._newTranslation = translation.Translation;
 				return true;
 			}
 
 			if (component is Motion3Component motion) {
-				_newVelocity = motion.Velocity;
+				this._newVelocity = motion.Velocity;
 				return true;
 			}
 
@@ -68,8 +68,8 @@ public class RenderEntityContainerTests {
 		}
 
 		protected override void Synchronize() {
-			CurrentTranslation = _newTranslation.CastSaturating<double, float>();
-			CurrentVelocity = _newVelocity.CastSaturating<double, float>();
+			this.CurrentTranslation = this._newTranslation.CastSaturating<double, float>();
+			this.CurrentVelocity = this._newVelocity.CastSaturating<double, float>();
 		}
 	}
 
@@ -108,6 +108,18 @@ public class RenderEntityContainerTests {
 		Assert.That( renderBehaviour._newTranslation, Is.EqualTo( new Vector3<double>( 0.25, 0.5, 0.75 ) ) );
 		Assert.That( renderBehaviour.CurrentVelocity, Is.EqualTo( new Vector3<float>( 1, 2, 3 ) ) );
 		Assert.That( renderBehaviour.CurrentTranslation, Is.EqualTo( new Vector3<float>( 0.25f, 0.5f, 0.75f ) ) );
+
+		entity.RemoveComponent<RenderComponent>();
+		Assert.That( renderContainer.PendingEntitiesToRemove, Is.EqualTo( 1 ) );
+
+		container.SystemManager.Update( 0.5, 0.25 );
+		Assert.That( renderBehaviour!._newVelocity, Is.EqualTo( new Vector3<double>( 1, 2, 3 ) ) );
+		Assert.That( renderBehaviour._newTranslation, Is.EqualTo( new Vector3<double>( 0.5, 1, 1.5 ) ) );
+		Assert.That( renderBehaviour.CurrentVelocity, Is.EqualTo( new Vector3<float>( 1, 2, 3 ) ) );
+		Assert.That( renderBehaviour.CurrentTranslation, Is.EqualTo( new Vector3<float>( 0.25f, 0.5f, 0.75f ) ) );
+		renderContainer.Update( 0.5, 0.25 );
+		Assert.That( renderContainer.PendingEntitiesToRemove, Is.EqualTo( 0 ) );
+		Assert.That( renderContainer.RenderEntities.Count, Is.EqualTo( 0 ) );
 
 
 	}

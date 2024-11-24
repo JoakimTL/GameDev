@@ -1,4 +1,5 @@
-﻿using Engine.Time;
+﻿using Engine.Logging;
+using Engine.Time;
 
 namespace Engine.Modularity;
 
@@ -14,8 +15,12 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	protected Clock<double, StopwatchTickSupplier> ModuleClock { get; }
 	internal event Action? FrequencyAltered;
 
+	protected event Action? OnInitialize;
+	protected event Action<double, double>? OnUpdate;
+	protected event Action? OnDispose;
+
 	/// <param name="important">Determines if this module keeps the application running</param>
-	/// <param name="frequency">The number of ticks per second. If <see cref="TimeBetweenTicksMs"/> is 0, there is no delay between ticks.</param>
+	/// <param name="frequency">The number of ticks per second. If <see cref="ExecutionFrequency"/> is <see cref="double.PositiveInfinity"/> (or any high enough number), there is no delay between ticks.</param>
 	public ModuleBase( bool important, double frequency ) {
 		if (frequency <= 0)
 			throw new ArgumentOutOfRangeException( "Execution frequency must be a non-zero positive number." );
@@ -42,6 +47,10 @@ public abstract class ModuleBase : DisposableIdentifiable {
 		this.LogLine( "Shutdown was requested." );
 	}
 
+	internal void Initialize() {
+		OnInitialize?.Invoke();
+	}
+
 	internal bool DoTick() {
 		if (this.Running) {
 			double currentTime = this.ModuleClock.Time;
@@ -49,15 +58,14 @@ public abstract class ModuleBase : DisposableIdentifiable {
 			this._lastTickTime = currentTime;
 			this._instanceInitializerExtension.Update( currentTime, timeSinceLastTick );
 			this._instanceUpdaterExtension.Update( currentTime, timeSinceLastTick );
-			Tick( currentTime, timeSinceLastTick );
+			OnUpdate?.Invoke( currentTime, timeSinceLastTick );
 		}
 		return this.Running;
 	}
 
 	protected override bool InternalDispose() {
 		this.InstanceProvider.Dispose();
+		OnDispose?.Invoke();
 		return true;
 	}
-	protected internal abstract void Tick( double time, double deltaTime );
-
 }

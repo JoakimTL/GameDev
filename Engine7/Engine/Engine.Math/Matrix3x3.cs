@@ -124,10 +124,10 @@ public readonly struct Matrix3x3<TScalar>( TScalar m00, TScalar m01, TScalar m02
 	public Matrix3x3<TScalar> ScalarMultiply( TScalar r ) => new( this.M00 * r, this.M01 * r, this.M02 * r, this.M10 * r, this.M11 * r, this.M12 * r, this.M20 * r, this.M21 * r, this.M22 * r );
 	public Matrix3x3<TScalar> ScalarDivide( TScalar r ) => new( this.M00 / r, this.M01 / r, this.M02 / r, this.M10 / r, this.M11 / r, this.M12 / r, this.M20 / r, this.M21 / r, this.M22 / r );
 	public static Matrix3x3<TScalar> DivideScalar( TScalar l, in Matrix3x3<TScalar> r ) => new( l / r.M00, l / r.M01, l / r.M02, l / r.M10, l / r.M11, l / r.M12, l / r.M20, l / r.M21, l / r.M22 );
-	public TScalar Dot( in Matrix3x3<TScalar> r ) => this.M00 * r.M00 + this.M01 * r.M01 + this.M02 * r.M02 + this.M10 * r.M10 + this.M11 * r.M11 + this.M12 * r.M12 + this.M20 * r.M20 + this.M21 * r.M21 + this.M22 * r.M22;
+	public TScalar Dot( in Matrix3x3<TScalar> r ) => (this.M00 * r.M00) + (this.M01 * r.M01) + (this.M02 * r.M02) + (this.M10 * r.M10) + (this.M11 * r.M11) + (this.M12 * r.M12) + (this.M20 * r.M20) + (this.M21 * r.M21) + (this.M22 * r.M22);
 	public TScalar MagnitudeSquared() => Dot( this );
 
-	public TScalar GetDeterminant() => this.M00 * this.Excluding00.GetDeterminant() - this.M01 * this.Excluding01.GetDeterminant() + this.M02 * this.Excluding02.GetDeterminant();
+	public TScalar GetDeterminant() => (this.M00 * this.Excluding00.GetDeterminant()) - (this.M01 * this.Excluding01.GetDeterminant()) + (this.M02 * this.Excluding02.GetDeterminant());
 	public Matrix3x3<TScalar> GetTransposed() => new( this.M00, this.M10, this.M20, this.M01, this.M11, this.M21, this.M02, this.M12, this.M22 );
 	public bool TryGetInverse( out Matrix3x3<TScalar> matrix ) {
 		TScalar determinant = GetDeterminant();

@@ -35,8 +35,8 @@ public readonly struct Rotor2<TScalar>( TScalar scalar, Bivector2<TScalar> bivec
 	public Rotor2<TScalar> ScalarMultiply( TScalar r ) => new( this.Scalar * r, this.Bivector * r );
 	public Rotor2<TScalar> ScalarDivide( TScalar r ) => new( this.Scalar / r, this.Bivector / r );
 	public static Rotor2<TScalar> DivideScalar( TScalar l, in Rotor2<TScalar> r ) => new( l / r.Scalar, l / r.Bivector );
-	public TScalar Dot( in Rotor2<TScalar> r ) => this.Scalar * r.Scalar + this.Bivector.Dot( r.Bivector );
-	public TScalar MagnitudeSquared() => this.Scalar * this.Scalar + this.Bivector.MagnitudeSquared();
+	public TScalar Dot( in Rotor2<TScalar> r ) => (this.Scalar * r.Scalar) + this.Bivector.Dot( r.Bivector );
+	public TScalar MagnitudeSquared() => (this.Scalar * this.Scalar) + this.Bivector.MagnitudeSquared();
 
 	public Rotor2<TScalar> Conjugate() => new( this.Scalar, -this.Bivector );
 	public Vector2<TScalar> Rotate( in Vector2<TScalar> v ) => Multiply( v ).Multiply( Conjugate() );

@@ -1,11 +1,11 @@
-﻿namespace Engine;
+﻿namespace Engine.Logging;
 
 public static class LoggingExtensions {
 
-	public static void Log( this Exception e, bool logToConsole = true ) => Engine.Log.Critical( e, logToConsole );
-	public static void LogWarning( this object o, string errorText, bool logToConsole = true, bool stacktrace = false ) => Engine.Log.Warning( $"{o}: {errorText}", logToConsole, stacktrace );
-	public static void LogLine( this object o, string text, Log.Level logLevel = Engine.Log.Level.NORMAL, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true ) => Engine.Log.Line( $"{o}: {text}", logLevel, color, stackLevel, logToConsole );
-	public static void LogText( this object o, string text, Log.Level logLevel = Engine.Log.Level.NORMAL, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true ) => Engine.Log.Text( $"{o}: {text}", logLevel, color, stackLevel, logToConsole );
+	public static void Log( this Exception e, bool logToConsole = true ) => Logging.Log.Critical( e, logToConsole );
+	public static void LogWarning( this object o, string errorText, bool logToConsole = true, bool stacktrace = false ) => Logging.Log.Warning( $"{o}: {errorText}", logToConsole, stacktrace );
+	public static void LogLine( this object o, string text, Log.Level logLevel = Logging.Log.Level.NORMAL, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true ) => Logging.Log.Line( $"{o}: {text}", logLevel, color, stackLevel, logToConsole );
+	public static void LogText( this object o, string text, Log.Level logLevel = Logging.Log.Level.NORMAL, ConsoleColor color = ConsoleColor.Gray, int stackLevel = -1, bool logToConsole = true ) => Logging.Log.Text( $"{o}: {text}", logLevel, color, stackLevel, logToConsole );
 
 	public static T LogWarningThenReturn<T>( this object o, string text, T @return, bool logToConsole = true, bool stacktrace = false ) {
 		o.LogWarning( text, logToConsole, stacktrace );

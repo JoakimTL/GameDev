@@ -1,4 +1,6 @@
-﻿namespace Engine.Time;
+﻿using Engine.Logging;
+
+namespace Engine.Time;
 
 /// <summary>
 /// Enforces a periodic exectution of code by blocking for a certain amount of time. The period enforcer expects the block method to be used for each loop. 

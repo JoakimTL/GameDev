@@ -50,14 +50,14 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 	public Vector3<TScalar> MultiplyEntrywise( in Vector3<TScalar> r ) => new( this.X * r.X, this.Y * r.Y, this.Z * r.Z );
 	public Vector3<TScalar> DivideEntrywise( in Vector3<TScalar> r ) => new( this.X / r.X, this.Y / r.Y, this.Z / r.Z );
 	public Vector3<TScalar> EntrywiseOperation( Func<TScalar, TScalar> operation ) => new( operation( this.X ), operation( this.Y ), operation( this.Z ) );
-	public TScalar Dot( in Vector3<TScalar> r ) => this.X * r.X + this.Y * r.Y + this.Z * r.Z;
+	public TScalar Dot( in Vector3<TScalar> r ) => (this.X * r.X) + (this.Y * r.Y) + (this.Z * r.Z);
 	public TScalar MagnitudeSquared() => Dot( this );
-	public Bivector3<TScalar> Wedge( in Vector3<TScalar> r ) => new( this.Y * r.Z - this.Z * r.Y, this.Z * r.X - this.X * r.Z, this.X * r.Y - this.Y * r.X );
+	public Bivector3<TScalar> Wedge( in Vector3<TScalar> r ) => new( (this.Y * r.Z) - (this.Z * r.Y), (this.Z * r.X) - (this.X * r.Z), (this.X * r.Y) - (this.Y * r.X) );
 	public Vector3<TScalar> Min( in Vector3<TScalar> r ) => new( TScalar.Min( this.X, r.X ), TScalar.Min( this.Y, r.Y ), TScalar.Min( this.Z, r.Z ) );
 	public Vector3<TScalar> Max( in Vector3<TScalar> r ) => new( TScalar.Max( this.X, r.X ), TScalar.Max( this.Y, r.Y ), TScalar.Max( this.Z, r.Z ) );
 	public TScalar SumOfParts() => this.X + this.Y + this.Z;
 	public TScalar ProductOfParts() => this.X * this.Y * this.Z;
-	public TScalar SumOfUnitBasisAreas() => this.X * this.Y + this.Y * this.Z + this.Z * this.X;
+	public TScalar SumOfUnitBasisAreas() => (this.X * this.Y) + (this.Y * this.Z) + (this.Z * this.X);
 	public TScalar SumOfUnitBasisVolumes() => this.X * this.Y * this.Z;
 	public Vector3<TScalar> ReflectNormal( in Vector3<TScalar> normal ) => normal.Multiply( this ).Multiply( normal ).Vector;
 

@@ -43,8 +43,8 @@ public readonly struct Multivector3<TScalar>( TScalar scalar, Vector3<TScalar> v
 	public Multivector3<TScalar> ScalarMultiply( TScalar r ) => new( this.Scalar * r, this.Vector * r, this.Bivector * r, this.Trivector * r );
 	public Multivector3<TScalar> ScalarDivide( TScalar r ) => new( this.Scalar / r, this.Vector / r, this.Bivector / r, this.Trivector / r );
 	public static Multivector3<TScalar> DivideScalar( TScalar l, in Multivector3<TScalar> r ) => new( l / r.Scalar, l / r.Vector, l / r.Bivector, l / r.Trivector );
-	public TScalar Dot( in Multivector3<TScalar> r ) => this.Scalar * r.Scalar + this.Vector.Dot( r.Vector ) + this.Bivector.Dot( r.Bivector ) + this.Trivector.Dot( r.Trivector );
-	public TScalar MagnitudeSquared() => this.Scalar * this.Scalar + this.Vector.MagnitudeSquared() + this.Bivector.MagnitudeSquared() + this.Trivector.MagnitudeSquared();
+	public TScalar Dot( in Multivector3<TScalar> r ) => (this.Scalar * r.Scalar) + this.Vector.Dot( r.Vector ) + this.Bivector.Dot( r.Bivector ) + this.Trivector.Dot( r.Trivector );
+	public TScalar MagnitudeSquared() => (this.Scalar * this.Scalar) + this.Vector.MagnitudeSquared() + this.Bivector.MagnitudeSquared() + this.Trivector.MagnitudeSquared();
 
 	public Multivector3<TScalar> Multiply( in Vector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Bivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );

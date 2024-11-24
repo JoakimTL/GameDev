@@ -27,3 +27,20 @@ public class Class1 {
 // So the system would be an entity container which looks for a "ShouldRender" component on entities, and then creates a render entity which contains a reference to the original entity.
 //	This render entity then contains the relevant render data for the entity.
 //	Updates and such must be handled thread safely.
+
+/// <summary>
+/// Represents a mesh of vertices. The mesh is stored in memory, and can be read from and written to. The mesh buffer cannot be resized.
+/// </summary>
+public unsafe sealed class Mesh<T>( uint elementCount ) : Buffers.StaticWritableSystemBuffer( elementCount * (uint) sizeof( T ) ) where T : unmanaged;
+
+public sealed class WritableGraphicsBuffer {
+
+	public WritableGraphicsBuffer( IWritableBuffer<uint> buffer ) {
+
+	}
+
+	public void Synchronize() {
+
+	}
+
+}

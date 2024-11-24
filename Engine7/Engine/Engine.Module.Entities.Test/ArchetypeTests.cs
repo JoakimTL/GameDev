@@ -44,11 +44,11 @@ public class SystemManagerTests {
 	public sealed class TestComponent : ComponentBase {
 		private int _value;
 		public int Value {
-			get => _value;
+			get => this._value;
 			set {
-				if (_value == value)
+				if (this._value == value)
 					return;
-				_value = value;
+				this._value = value;
 				InvokeComponentChanged();
 			}
 		}
@@ -58,11 +58,11 @@ public class SystemManagerTests {
 	public sealed class TestComponent2 : ComponentBase {
 		private int _value;
 		public int Value {
-			get => _value;
+			get => this._value;
 			set {
-				if (_value == value)
+				if (this._value == value)
 					return;
-				_value = value;
+				this._value = value;
 				InvokeComponentChanged();
 			}
 		}

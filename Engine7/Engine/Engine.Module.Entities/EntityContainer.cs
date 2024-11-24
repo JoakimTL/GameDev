@@ -1,10 +1,13 @@
-﻿namespace Engine.Module.Entities;
+﻿using System.Collections.Concurrent;
+
+namespace Engine.Module.Entities;
 
 public sealed class EntityContainer : DisposableIdentifiable {
 
 	public const int MAX_GUID_ATTEMPTS = 16777216;
 	private readonly Dictionary<Guid, Entity> _entitiesById;
 	private readonly HashSet<EntityContainerListChangeEventHandler> _handlers;
+	private readonly ConcurrentQueue<object> _messages;
 
 	public event EntityListChangedHandler? OnEntityAdded;
 	public event EntityListChangedHandler? OnEntityRemoved;
@@ -12,6 +15,7 @@ public sealed class EntityContainer : DisposableIdentifiable {
 	public EntityContainer() {
 		this._entitiesById = [];
 		this._handlers = [];
+		this._messages = [];
 		this.ArchetypeManager = new( this );
 		this.SystemManager = new( this );
 	}
@@ -64,6 +68,16 @@ public sealed class EntityContainer : DisposableIdentifiable {
 	public void RemoveEntity( Guid entityId ) {
 		if (this._entitiesById.TryGetValue( entityId, out Entity? entity ))
 			RemoveEntity( entity );
+	}
+
+	public void AddMessage( object message ) => this._messages.Enqueue( message );
+
+	internal void ReadMessages() {
+		while (this._messages.TryDequeue( out object? message ))
+			foreach (Entity entity in this._entitiesById.Values)
+				entity.ReadExternalMessage( message );
+		foreach (Entity entity in this._entitiesById.Values)
+			entity.ReadInternalMessages();
 	}
 
 	private void OnEntityShouldBeRemoved( Entity entity ) => RemoveEntity( entity );
