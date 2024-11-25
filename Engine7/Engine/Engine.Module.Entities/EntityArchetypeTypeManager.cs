@@ -19,7 +19,7 @@ public static class EntityArchetypeTypeManager {
 	}
 
 	private static void LoadAllArchetypes() {
-		IEnumerable<Type> allArchetypes = TypeManager.AllTypes.Where( p => p.IsClass && !p.IsAbstract && p.IsAssignableTo( typeof( ArchetypeBase ) ) );
+		IEnumerable<Type> allArchetypes = TypeManager.Registry.AllTypes.Where( p => p.IsClass && !p.IsAbstract && p.IsAssignableTo( typeof( ArchetypeBase ) ) );
 		foreach (Type t in allArchetypes) {
 			ResolvedType archetype = TypeManager.ResolveType( t );
 			IReadOnlyList<PropertyInfo> properties = archetype.GetProperties( BindingFlags.Public | BindingFlags.Instance );

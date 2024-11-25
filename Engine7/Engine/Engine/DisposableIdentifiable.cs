@@ -2,7 +2,7 @@
 
 namespace Engine;
 
-public abstract class DisposableIdentifiable : Identifiable {
+public abstract class DisposableIdentifiable : Identifiable, IDisposable {
 
 	public bool Disposed { get; private set; } = false;
 

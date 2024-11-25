@@ -10,12 +10,14 @@ public sealed class ResolvedType {
 	public IReadOnlyList<Attribute> Attributes { get; }
 	private readonly Dictionary<Type, object> _attributesByType = [];
 	private readonly Dictionary<BindingFlags, List<PropertyInfo>> _propertiesByBindingFlags = [];
+	private readonly TypeInstanceFactory _instanceFactory;
 
 	public ResolvedType( Type type ) {
 		this.Type = type;
 		this.HasParameterlessConstructor = type.IsValueType || type.GetConstructor( Type.EmptyTypes ) != null;
 		this.ConstructorCount = type.GetConstructors().Length;
 		this.Attributes = type.GetCustomAttributes( true ).OfType<Attribute>().ToArray();
+		this._instanceFactory = new TypeInstanceFactory( type );
 	}
 
 	public IReadOnlyList<T> GetAttributes<T>() {
@@ -36,4 +38,5 @@ public sealed class ResolvedType {
 		return list;
 	}
 
+	public object? CreateInstance( object[]? parameters ) => this._instanceFactory.CreateInstance( parameters );
 }

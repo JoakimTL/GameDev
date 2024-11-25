@@ -8,6 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="test.frag" />
+    <None Remove="test.vert" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="assets\shaders\test.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\test.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Engine.Module.Entities\Engine.Module.Entities.csproj" />
     <ProjectReference Include="..\Engine.Module.Networking\Engine.Module.Networking.csproj" />
     <ProjectReference Include="..\Engine.Module.Render\Engine.Module.Render.csproj" />

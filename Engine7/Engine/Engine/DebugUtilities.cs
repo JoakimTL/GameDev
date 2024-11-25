@@ -13,10 +13,10 @@ public static class DebugUtilities {
 
 	public static void Breakpoint( this object obj ) {
 		if (System.Diagnostics.Debugger.IsAttached) {
-			obj.LogWarning( $"{obj?.ToString() ?? "NULL"} has triggered a breakpoint!" );
+			obj.LogWarning( $"Triggering a breakpoint!" );
 			System.Diagnostics.Debugger.Break();
 			return;
 		}
-		obj.LogWarning( $"{obj?.ToString() ?? "NULL"} has attempted to trigger a breakpoint, but no debugger is attached." );
+		obj.LogWarning( $"Attempted to trigger a breakpoint, but no debugger is attached." );
 	}
 }

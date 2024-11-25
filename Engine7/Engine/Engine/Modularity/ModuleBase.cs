@@ -16,7 +16,7 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	internal event Action? FrequencyAltered;
 
 	protected event Action? OnInitialize;
-	protected event Action<double, double>? OnUpdate;
+	protected event UpdateHandler? OnUpdate;
 	protected event Action? OnDispose;
 
 	/// <param name="important">Determines if this module keeps the application running</param>

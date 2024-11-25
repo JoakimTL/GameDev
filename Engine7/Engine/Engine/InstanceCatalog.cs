@@ -27,7 +27,7 @@ internal sealed class InstanceCatalog( InstanceLibrary instanceLibrary ) : IInst
 		if (this._instanceLibrary.Connections.TryGetValue( contractType, out implementationType ))
 			return true;
 
-		Type[] eligibleTypes = TypeManager.AllTypes.Where( p => p.IsClass && !p.IsAbstract && p.IsAssignableTo( contractType ) ).ToArray();
+		Type[] eligibleTypes = TypeManager.Registry.AllTypes.Where( p => p.IsClass && !p.IsAbstract && p.IsAssignableTo( contractType ) ).ToArray();
 		if (eligibleTypes.Length == 1) {
 			implementationType = eligibleTypes[ 0 ];
 			return true;

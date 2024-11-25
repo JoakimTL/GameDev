@@ -1,0 +1,52 @@
+﻿using Engine.Logging;
+using Engine.Module.Render.Ogl.Services;
+using OpenGL;
+
+namespace Engine.Module.Render.Ogl.OOP;
+
+public abstract class OglShaderPipelineBase : DisposableIdentifiable {
+	private readonly Dictionary<ShaderType, OglShaderProgramBase> _programs;
+	public uint PipelineId { get; private set; }
+	public IReadOnlyDictionary<ShaderType, OglShaderProgramBase> Programs => _programs;
+	public abstract bool UsesTransparency { get; }
+
+	protected OglShaderPipelineBase() {
+		_programs = [];
+		PipelineId = Gl.GenProgramPipeline();
+	}
+
+	protected abstract IEnumerable<OglShaderProgramBase> GetShaderPrograms( ShaderProgramService shaderProgramService );
+
+	internal void CreatePipeline( ShaderProgramService shaderProgramService ) {
+		var shaderPrograms = GetShaderPrograms( shaderProgramService );
+		List<OglShaderProgramBase> validPrograms = new( shaderPrograms );
+		if (validPrograms.Count == 0)
+			return;
+		for (int i = 0; i < validPrograms.Count; i++) {
+			OglShaderProgramBase prg = validPrograms[ i ];
+			bool valid = true;
+			foreach (ShaderType type in prg.Sources.Keys) {
+				if (_programs.ContainsKey( type )) {
+					this.LogWarning( "Cannot have multiple programs with the same mask bits active." );
+					valid = false;
+					break;
+				}
+			}
+			if (!valid)
+				continue;
+
+			foreach (ShaderType type in prg.Sources.Keys)
+				_programs.Add( type, prg );
+
+			Gl.UseProgramStage( PipelineId, prg.Mask, prg.ProgramID );
+		}
+	}
+
+	public void Bind() => Gl.BindProgramPipeline( PipelineId );
+	public static void Unbind() => Gl.BindProgramPipeline( 0 );
+
+	protected override bool InternalDispose() {
+		Gl.DeleteProgramPipelines( PipelineId );
+		return true;
+	}
+}

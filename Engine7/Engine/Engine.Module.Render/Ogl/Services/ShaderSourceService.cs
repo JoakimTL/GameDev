@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 namespace Engine.Module.Render.Ogl.Services;
 public sealed class ShaderSourceService : DisposableIdentifiable {
 
+	public const string BasePath = """assets\shaders\""";
+
 	private static readonly IReadOnlyDictionary<string, ShaderType> _allowedExtensions = new Dictionary<string, ShaderType>() {
 			{ ".vert", ShaderType.VertexShader },
 			{ ".frag", ShaderType.FragmentShader },
@@ -31,10 +33,16 @@ public sealed class ShaderSourceService : DisposableIdentifiable {
 		return Add( path );
 	}
 
+	public OglShaderSource GetOrThrow( string path ) {
+		if (_sources.TryGetValue( path, out OglShaderSource? source ))
+			return source;
+		return Add( path ) ?? throw new InvalidOperationException( $"Shader source {path} not found!" );
+	}
+
 	private OglShaderSource? Add( string path ) {
 		path = path.Replace( "/", "\\" );
-		if (!path.StartsWith( "assets\\shaders\\" ))
-			path = "assets\\shaders\\" + path;
+		if (!path.StartsWith( BasePath ))
+			path = Path.Combine( BasePath, path );
 		if (!File.Exists( path )) {
 			this.LogWarning( $"File {path} does not exist!" );
 #if DEBUG

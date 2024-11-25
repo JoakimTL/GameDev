@@ -18,7 +18,7 @@ public static class DependentRenderBehaviourTypeManager {
 	public static RenderBehaviourBase CreateBehaviour( Type dependentType, ArchetypeBase archetype ) => _dependentRenderBehaviourFactories[ dependentType ]( archetype );
 
 	private static void LoadAllDependents() {
-		foreach (Type type in TypeManager.GetAllSubclassesOfGenericType( typeof( DependentRenderBehaviourBase<> ) )) {
+		foreach (Type type in TypeManager.Registry.GetAllSubclassesOfGenericType( typeof( DependentRenderBehaviourBase<> ) )) {
 			Type archetypeType = type.BaseType!.GetGenericArguments()[ 0 ] ?? throw new InvalidOperationException( "DependentRenderBehaviourBase must have a generic type." );
 			if (!_typesDependentOnComponent.TryGetValue( archetypeType, out List<Type>? dependentTypes ))
 				_typesDependentOnComponent.Add( archetypeType, dependentTypes = [] );

@@ -9,7 +9,7 @@ public static class SystemTypeManager {
 	private static readonly Dictionary<Type, Func<EntityContainer, IUpdateable>> _systemFactories = [];
 
 	static SystemTypeManager() {
-		foreach (Type systemType in TypeManager.GetAllSubclassesOfGenericType( typeof( SystemBase<> ) )) {
+		foreach (Type systemType in TypeManager.Registry.GetAllSubclassesOfGenericType( typeof( SystemBase<> ) )) {
 			Type archetypeType = systemType.BaseType!.GetGenericArguments().Single();
 			if (!_systemTypesByArchetype.TryGetValue( archetypeType, out List<Type>? systemTypes ))
 				_systemTypesByArchetype.Add( archetypeType, systemTypes = [] );

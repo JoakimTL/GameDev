@@ -2,7 +2,7 @@
 using Sandbox;
 
 Startup.BeginInit()
-	.WithModule<TestModule>()
+	//.WithModule<TestModule>()
 	.WithModule<SandboxRenderModule>()
 	.Start();
 

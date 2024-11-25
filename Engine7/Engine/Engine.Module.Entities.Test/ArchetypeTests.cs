@@ -82,7 +82,7 @@ public class SystemManagerTests {
 
 	[Test]
 	public void TestSystemProcessesEntities() {
-		Assert.That( TypeManager.AllTypes.Contains( typeof( TestSystem ) ), Is.True );
+		Assert.That( TypeManager.Registry.AllTypes.Contains( typeof( TestSystem ) ), Is.True );
 		EntityContainer entityContainer = new();
 		Entity entity = entityContainer.CreateEntity();
 		entity.AddComponent<TestComponent>().Value = 10;
@@ -101,7 +101,7 @@ public class SystemManagerTests {
 
 	[Test]
 	public void TestArchetypeComponentChangeListeners() {
-		Assert.That( TypeManager.AllTypes.Contains( typeof( TestSystem ) ), Is.True );
+		Assert.That( TypeManager.Registry.AllTypes.Contains( typeof( TestSystem ) ), Is.True );
 		EntityContainer entityContainer = new();
 		Entity entity = entityContainer.CreateEntity();
 		entity.AddComponent<TestComponent>().Value = 10;

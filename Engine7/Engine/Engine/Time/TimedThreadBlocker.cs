@@ -32,8 +32,10 @@ public sealed class TimedThreadBlocker<TTickSupplier> : DisposableIdentifiable, 
 	public TimedBlockerState Block() {
 		if (this.Cancelled || this.Disposed)
 			return TimedBlockerState.Cancelled;
+		if (PeriodMs == 0)
+			return TimedBlockerState.NonBlocking;
 
-        long currentTick = TTickSupplier.Ticks;
+		long currentTick = TTickSupplier.Ticks;
 		long tickDelta = currentTick - this._lastPeriodStartTick;
 		this._lastPeriodStartTick = currentTick;
 
@@ -49,7 +51,7 @@ public sealed class TimedThreadBlocker<TTickSupplier> : DisposableIdentifiable, 
 		}
 
 		return this.AccumulatedMs < 0
-			? this._threadBlocker.Block( (uint) Math.Abs( this.AccumulatedMs ) ) 
+			? this._threadBlocker.Block( (uint) Math.Abs( this.AccumulatedMs ) )
 				? TimedBlockerState.Blocking
 				: TimedBlockerState.Cancelled
 			: TimedBlockerState.NonBlocking;

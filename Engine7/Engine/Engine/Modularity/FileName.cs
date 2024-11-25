@@ -44,8 +44,12 @@ internal static class ModuleManager {
 	}
 
 	private static void UpdatePeriod() {
-		uint lowestNonZeroPeriod = _moduleOverseers.Where( p => p.PeriodMs > 0 ).Select(p => p.PeriodMs).Min();
-		TimePeriod.Begin( (int) lowestNonZeroPeriod );
+		uint lowestNonZeroPeriod = uint.MaxValue;
+		foreach (ModuleOverseer overseer in _moduleOverseers) {
+			if (overseer.PeriodMs > 0 && overseer.PeriodMs < lowestNonZeroPeriod)
+				lowestNonZeroPeriod = overseer.PeriodMs;
+		}
+		TimePeriod.Begin( lowestNonZeroPeriod );
 	}
 
 	private static void MonitorModules() {

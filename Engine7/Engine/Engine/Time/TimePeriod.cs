@@ -36,14 +36,18 @@ internal sealed class TimePeriod : IDisposable {
 
 	public static int CurrentPeriod => _currentPeriod?.Period ?? WINDEFAULTPERIOD;
 
-	internal static void Begin( int period ) {
+	internal static void Begin( uint period ) {
 		if (period > WINDEFAULTPERIOD) {
-			_currentPeriod?.Dispose();
-			_currentPeriod = null;
+			End();
 			return;
 		}
 		_currentPeriod?.Dispose();
-		_currentPeriod = new( period );
+		_currentPeriod = new( (int) period );
+	}
+
+	internal static void End() {
+		_currentPeriod?.Dispose();
+		_currentPeriod = null;
 	}
 
 	private readonly int _period;

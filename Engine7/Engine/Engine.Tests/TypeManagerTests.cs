@@ -20,16 +20,16 @@ public class TypeManagerTests {
 
 	[Test]
 	public void TestNonGenericSubclasses() {
-		IEnumerable<Type> types = TypeManager.GetAllSubclassesOfGenericType( typeof( BaseType ) );
+		IEnumerable<Type> types = TypeManager.Registry.GetAllSubclassesOfGenericType( typeof( BaseType ) );
 		CollectionAssert.AreEqual( new[] { typeof( Implementation ), typeof( Implementation2 ) }, types );
 	}
 
 	[Test]
 	public void TestGenericSubclasses() {
-		IEnumerable<Type> types = TypeManager.GetAllSubclassesOfGenericType( typeof( FirstLayerBaseTypeGeneric<> ) );
+		IEnumerable<Type> types = TypeManager.Registry.GetAllSubclassesOfGenericType( typeof( FirstLayerBaseTypeGeneric<> ) );
 		CollectionAssert.AreEqual( new[] { typeof( ImplementationFirstLayerGeneric1 ), typeof( ImplementationFirstLayerGeneric2 ), typeof( ImplementationSecondLayerGeneric1 ), typeof( ImplementationSecondLayerGeneric2 ) }, types );
 
-		types = TypeManager.GetAllSubclassesOfGenericType( typeof( SecondLayerBaseTypeGeneric<> ) );
+		types = TypeManager.Registry.GetAllSubclassesOfGenericType( typeof( SecondLayerBaseTypeGeneric<> ) );
 		CollectionAssert.AreEqual( new[] { typeof( ImplementationSecondLayerGeneric1 ), typeof( ImplementationSecondLayerGeneric2 ) }, types );
 	}
 
