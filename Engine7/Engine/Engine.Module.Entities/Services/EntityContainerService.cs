@@ -6,25 +6,25 @@ namespace Engine.Module.Entities.Services;
 public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable {
 
 	private readonly List<EntityContainer> _containers;
-	private readonly MessageReceiver _messageReceiver;
+	private readonly MessageBusStop _messageBusStop;
 
 	public EntityContainerService() {
 		_containers = [];
-		_messageReceiver = MessageBus.CreateMessageReceiver();
-		_messageReceiver.OnMessageReceived += OnMessageReceived;
+		_messageBusStop = MessageBus.CreateManager();
+		_messageBusStop.OnMessageReceived += OnMessageReceived;
 	}
 
-	private void OnMessageReceived( object obj ) {
-		if (obj is EntityContainerListRequest listRequest)
+	private void OnMessageReceived( Message message ) {
+		if (message.Content is EntityContainerListRequest listRequest)
 			foreach (EntityContainer container in _containers)
-				MessageBus.SendMessage( new EntityContainerRequestResponse( container ) );
+				message.ResponseFrom( _messageBusStop, new EntityContainerRequestResponse( container ) );
 	}
 
 	public EntityContainer CreateContainer() {
 		EntityContainer container = new();
 		_containers.Add( container );
 		container.OnDisposed += OnContainerDisposed;
-		MessageBus.SendMessage( new EntityContainerCreatedEvent( container ) );
+		_messageBusStop.Publish( new EntityContainerCreatedEvent( container ) );
 		return container;
 	}
 
@@ -43,7 +43,7 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 	}
 
 	public void Update( double time, double deltaTime ) {
-		_messageReceiver.ProcessQueue();
+		_messageBusStop.ProcessQueue();
 		foreach (EntityContainer container in _containers)
 			container.SystemManager.Update( time, deltaTime );
 	}

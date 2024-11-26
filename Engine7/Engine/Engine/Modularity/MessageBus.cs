@@ -1,25 +1,27 @@
 ﻿namespace Engine.Modularity;
 
 public static class MessageBus {
-	private static readonly List<MessageReceiver> _receivers = [];
+	private static readonly List<MessageBusStop> _managers = [];
 	private static readonly Lock _lock = new();
 
-	public static MessageReceiver CreateMessageReceiver() {
-		MessageReceiver receiver = new();
+	public static MessageBusStop CreateManager() {
+		MessageBusStop receiver = new();
 		lock (_lock)
-			_receivers.Add( receiver );
+			_managers.Add( receiver );
 		receiver.OnDisposed += ReceiverDisposed;
 		return receiver;
 	}
 
 	private static void ReceiverDisposed() {
 		lock (_lock)
-			_receivers.RemoveAll( p => p.Disposed );
+			_managers.RemoveAll( p => p.Disposed );
 	}
 
-	public static void SendMessage( object message ) {
+	public static void PublishAnonymously( object content ) => Publish( new( null, content ) );
+
+	public static void Publish( Message message ) {
 		lock (_lock)
-			foreach (MessageReceiver receiver in _receivers)
+			foreach (MessageBusStop receiver in _managers)
 				receiver.ReceiveMessage( message );
 	}
 }
