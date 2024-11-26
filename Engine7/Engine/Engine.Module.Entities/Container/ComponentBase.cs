@@ -1,4 +1,4 @@
-﻿namespace Engine.Module.Entities;
+﻿namespace Engine.Module.Entities.Container;
 
 public abstract class ComponentBase {
 	//Components can change, there should be events for this.

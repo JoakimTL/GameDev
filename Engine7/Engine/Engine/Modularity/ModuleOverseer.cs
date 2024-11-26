@@ -4,22 +4,21 @@ using Engine.Time;
 namespace Engine.Modularity;
 
 internal class ModuleOverseer {
-
-	private readonly ModuleBase _module;
 	private readonly TimedThreadBlocker<StopwatchTickSupplier> _blocker;
 	private readonly Thread _moduleThread;
 	public bool Running { get; private set; }
 	public uint PeriodMs => this._blocker.PeriodMs;
 	public event Action? PeriodChanged;
+	public ModuleBase Module { get; }
 
 	public ModuleOverseer( ModuleBase module ) {
-		this._module = module;
-		this._module.FrequencyAltered += SetNewDelay;
+		this.Module = module;
+		this.Module.FrequencyAltered += SetNewDelay;
 		this._blocker = new( new ThreadBlocker(), 1000 );
 		SetNewDelay();
 		this._moduleThread = new Thread( RunModule ) {
-			Name = $"{GetType().Name} Thread",
-			IsBackground = !this._module.Important
+			Name = $"{module.GetType().Name} Thread",
+			IsBackground = !this.Module.Important
 		};
 	}
 
@@ -27,19 +26,19 @@ internal class ModuleOverseer {
 
 	private void RunModule() {
 		this.Running = true;
-		this._module.LogLine( "Starting module..." );
-		this._module.Initialize();
+		this.Module.LogLine( "Starting module..." );
+		this.Module.Initialize();
 		while (this._blocker.Block() != TimedBlockerState.Cancelled) {
-			if (!this._module.DoTick())
+			if (!this.Module.DoTick())
 				this._blocker.Cancel();
 		}
-		this._module.LogLine( "Shutting down module..." );
-		this._module.Dispose();
+		this.Module.LogLine( "Shutting down module..." );
+		this.Module.Dispose();
 		this.Running = false;
 	}
 
 	private void SetNewDelay() {
-		uint newDelay = this._module.ExecutionFrequency.ToPeriodMs();
+		uint newDelay = this.Module.ExecutionFrequency.ToPeriodMs();
 		if (newDelay == this._blocker.PeriodMs)
 			return;
 		this._blocker.SetPeriod( newDelay );

@@ -1,6 +1,6 @@
 ﻿using Engine.Module.Render.Ogl.Services;
 
-namespace Engine.Module.Render.Ogl.OOP;
+namespace Engine.Module.Render.Ogl.OOP.Shaders;
 
 public abstract class ShaderBundleBase : Identifiable {
 

@@ -1,4 +1,4 @@
-﻿namespace Engine.Module.Entities;
+﻿namespace Engine.Module.Entities.Container;
 
 public sealed class EntityContainerListChangeEventHandler : DisposableIdentifiable {
 

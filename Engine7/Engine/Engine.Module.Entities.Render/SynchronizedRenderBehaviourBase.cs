@@ -1,4 +1,6 @@
-﻿namespace Engine.Module.Entities.Render;
+﻿using Engine.Module.Entities.Container;
+
+namespace Engine.Module.Entities.Render;
 
 /// <summary>
 /// Allows for synchronization of archetype data when the consitiuent components are changed.

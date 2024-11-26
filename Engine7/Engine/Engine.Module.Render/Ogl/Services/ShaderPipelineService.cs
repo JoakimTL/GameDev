@@ -1,5 +1,4 @@
-﻿using Engine.Logging;
-using Engine.Module.Render.Ogl.OOP;
+﻿using Engine.Module.Render.Ogl.OOP.Shaders;
 
 namespace Engine.Module.Render.Ogl.Services;
 
@@ -68,7 +67,7 @@ public sealed class ShaderBundleService : Identifiable, IInitializable {
 	}
 
 	public T? Get<T>() where T : ShaderBundleBase => _bundles.TryGetValue( typeof( T ), out ShaderBundleBase? bundle ) ? bundle as T : null;
-	public ShaderBundleBase? Get( Type type ) => _bundles.TryGetValue( type, out var bundle ) ? bundle : null;
+	public ShaderBundleBase? Get( Type type ) => _bundles.TryGetValue( type, out ShaderBundleBase? bundle ) ? bundle : null;
 	public ShaderBundleBase? Get( string identity ) => _bundleTypeFromIdentity.TryGetValue( identity, out Type? type ) ? Get( type ) : null;
 
 	public IReadOnlyList<string> AllShaderIndices => _allIndices;

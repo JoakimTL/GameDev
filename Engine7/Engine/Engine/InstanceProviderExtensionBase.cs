@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using Engine.Logging;
 using Engine.Structures;
 
 namespace Engine;
@@ -40,9 +39,9 @@ public abstract class InstanceProviderExtensionBase<TProcess, TInstanceType> : I
 		get {
 			if (this._changed) {
 				this._sortedInstances.Clear();
-				var types = this._digraph.GetTypes().ToList();
-				var instances = types.Select( this._instanceProvider.Get ).ToList();
-				var filtered = instances.OfType<TInstanceType>().ToList();
+				List<Type> types = this._digraph.GetTypes().ToList();
+				List<object> instances = types.Select( this._instanceProvider.Get ).ToList();
+				List<TInstanceType> filtered = instances.OfType<TInstanceType>().ToList();
 				this._sortedInstances.AddRange( filtered );
 				this._changed = false;
 			}

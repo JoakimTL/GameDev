@@ -11,4 +11,9 @@ public static class ResolvedTypeExtensions {
 	/// </summary>
 	/// <throws cref="InvalidOperationException"></throws>
 	public static T GetAttribute<T>( this ResolvedType type ) => type.GetAttributes<T>().Single();
+	/// <summary>
+	/// Creates a new instance of the specified type using the provided parameters. If the parameter array is null, it is treated as an empty array.
+	/// </summary>
+	/// <returns>Null if no constructor for the parameter list was found.</returns>
+	public static object? CreateInstance( this Type type, object[]? parameters ) => TypeManager.ResolveType( type ).CreateInstance( parameters );
 }

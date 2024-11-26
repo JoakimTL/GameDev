@@ -36,7 +36,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine.Logging", "Engine.Lo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Sandbox\Sandbox.csproj", "{81096A76-0E59-49FB-BC48-ED58DECC9A0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine.Module.Entities.Render", "Engine.Module.Entities.Render\Engine.Module.Entities.Render.csproj", "{C15A3458-A4EC-46BE-BEC2-EB788961BFF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine.Module.Render.Entities", "Engine.Module.Entities.Render\Engine.Module.Render.Entities.csproj", "{C15A3458-A4EC-46BE-BEC2-EB788961BFF5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine.Module.Entities.Render.Tests", "Engine.Module.Entities.Render.Tests\Engine.Module.Entities.Render.Tests.csproj", "{F9F51B60-FE06-4E6F-8362-10B727D1E3C6}"
 EndProject

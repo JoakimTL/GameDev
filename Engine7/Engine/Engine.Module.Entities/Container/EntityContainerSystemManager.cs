@@ -1,6 +1,6 @@
 ﻿using Engine.Structures;
 
-namespace Engine.Module.Entities;
+namespace Engine.Module.Entities.Container;
 
 public class EntityContainerSystemManager : IUpdateable {
 

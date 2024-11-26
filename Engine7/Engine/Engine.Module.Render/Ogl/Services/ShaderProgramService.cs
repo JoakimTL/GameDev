@@ -1,4 +1,4 @@
-﻿using Engine.Module.Render.Ogl.OOP;
+﻿using Engine.Module.Render.Ogl.OOP.Shaders;
 
 namespace Engine.Module.Render.Ogl.Services;
 

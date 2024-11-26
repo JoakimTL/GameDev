@@ -9,12 +9,16 @@ public sealed class ContextManagementService : DisposableIdentifiable, IUpdateab
 	private readonly Queue<Context> _initializationQueue = new();
 	private readonly List<Context> _contexts = [];
 
+	public IReadOnlyList<Context> Contexts => _contexts.AsReadOnly();
+	public event Action<Context>? OnContextAdded;
+
 	public bool ShouldStop { get; private set; }
 
 	public Context CreateContext( WindowSettings settings ) {
 		Context context = new( settings );
 		_contexts.Add( context );
 		_initializationQueue.Enqueue( context );
+		OnContextAdded?.Invoke( context );
 		return context;
 	}
 

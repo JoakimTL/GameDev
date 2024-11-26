@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Engine.Module.Entities;
+namespace Engine.Module.Entities.Container;
 
 public sealed class Entity : Identifiable {
 
@@ -159,9 +159,8 @@ public sealed class Entity : Identifiable {
 
 	private void RemoveArchetypes( Type componentType ) {
 		IReadOnlyCollection<Type> affectedArchetypes = EntityArchetypeTypeManager.GetArchetypesRequiringComponent( componentType );
-		foreach (Type archetypeType in affectedArchetypes) {
+		foreach (Type archetypeType in affectedArchetypes)
 			RemoveArchetype( archetypeType );
-		}
 	}
 
 	private void OnComponentChanged( ComponentBase component ) {
@@ -181,8 +180,8 @@ public sealed class Entity : Identifiable {
 	}
 
 	internal void ReadExternalMessage( object message ) {
-			foreach (IMessageReadingComponent messageReader in this._messageReaders)
-				messageReader.ReadMessage( message );
+		foreach (IMessageReadingComponent messageReader in this._messageReaders)
+			messageReader.ReadMessage( message );
 	}
 
 	private void ComponentRequestsRemoval() => OnEntityShouldBeRemoved?.Invoke( this );

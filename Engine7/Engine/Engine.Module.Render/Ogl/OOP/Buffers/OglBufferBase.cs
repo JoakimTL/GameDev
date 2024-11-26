@@ -1,6 +1,6 @@
 ﻿using OpenGL;
 
-namespace Engine.Module.Render.Ogl.OOP;
+namespace Engine.Module.Render.Ogl.OOP.Buffers;
 public abstract class OglBufferBase : DisposableIdentifiable, IBuffer<uint> {
 
 	public readonly BufferUsage Usage;

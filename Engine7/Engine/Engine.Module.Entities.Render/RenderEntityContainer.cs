@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using Engine.Logging;
+using Engine.Module.Entities.Container;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Module.Entities.Render;
@@ -66,6 +68,7 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 	}
 
 	public void Update( double time, double deltaTime ) {
+		//TODO test creating an entity here. If the entity exists paint a triangle based on it's attributes.
 		while (this._renderEntitiesToAddQueue.TryDequeue( out Entity? entity ))
 			AddRenderEntity( entity );
 		while (this._renderEntitiesToRemoveQueue.TryDequeue( out Entity? entity ))

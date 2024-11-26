@@ -11,6 +11,7 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 	public readonly IInstanceProvider InstanceProvider;
 	private readonly InstanceUpdaterExtension _serviceProviderUpdater;
 	private readonly InstanceInitializerExtension _serviceProviderInitializer;
+	private readonly RenderPipelineExecuterInstanceExtension _pipelineExecuterExtension;
 	private Thread? _contextThread;
 
 	//TODO: allow values to be edited in the windowsettings. We can listen to changes and update the window accordingly.
@@ -20,7 +21,8 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 		InstanceProvider = InstanceManagement.CreateProvider();
 		_serviceProviderUpdater = InstanceProvider.CreateUpdater();
 		_serviceProviderInitializer = InstanceProvider.CreateInitializer();
-		InstanceProvider.Include( this, false );
+		_pipelineExecuterExtension = new( InstanceProvider );
+		InstanceProvider.Inject( this, false );
 		WindowSettings = settings;
 	}
 
@@ -61,6 +63,8 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 
 		_serviceProviderInitializer.Update( time, deltaTime );
 		_serviceProviderUpdater.Update( time, deltaTime );
+		_pipelineExecuterExtension.PrepareRendering( time, deltaTime );
+		_pipelineExecuterExtension.DrawToScreen();
 
 		window.SwapBuffer();
 
@@ -96,4 +100,3 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 		return true;
 	}
 }
-

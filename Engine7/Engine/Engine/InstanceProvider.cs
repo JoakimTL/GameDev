@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Engine;
 
@@ -45,7 +44,7 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 		return instance;
 	}
 
-	public bool Include<T>( T instance, bool triggerEvents ) {
+	public bool Inject<T>( T instance, bool triggerEvents ) {
 		ArgumentNullException.ThrowIfNull( instance );
 		Type contractType = typeof( T );
 		Type implementationType = this._instanceCatalog.TryResolve( contractType, out Type? type ) ? type : throw new InvalidOperationException( $"No implementation found for {contractType.Name}" );

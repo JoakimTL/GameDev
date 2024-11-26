@@ -1,32 +1,31 @@
 ﻿using Engine;
 using Engine.Logging;
 using Engine.Modularity;
+using Engine.Module.Entities.Container;
+using Engine.Module.Entities.Services;
 using Engine.Module.Render;
 using Engine.Module.Render.Ogl.OOP;
 using Engine.Module.Render.Ogl.OOP.Buffers;
+using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
+using Engine.Module.Render.Ogl.Utilities;
 using OpenGL;
-using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace Sandbox;
-internal class TestModule : ModuleBase {
-	public TestModule() : base( true, 100 ) {
-		OnUpdate += Tick;
+
+internal sealed class GameLogicModule : ModuleBase {
+
+	public GameLogicModule() : base( false, 50 ) {
+		OnInitialize += Init;
 	}
 
-	private void Tick( double time, double deltaTime ) {
-		this.LogLine( $"Time: {time}, DeltaTime: {deltaTime}" );
-		if (time > 5)
-			Stop();
+	private void Init() {
+		InstanceProvider.Get<EntityContainerService>().CreateContainer();
 	}
 }
-internal class SandboxRenderModule : RenderModuleBase {
 
-	private OglStaticBuffer _vertexBuffer;
-	private OglStaticBuffer _elementBuffer;
-	private TestVertexArrayObject _testVertexArrayObject;
-	private ShaderBundleBase _shaderBundle;
+internal class SandboxRenderModule : RenderModuleBase {
 
 	public SandboxRenderModule() : base() {
 		OnInitialize += Init;
@@ -37,24 +36,31 @@ internal class SandboxRenderModule : RenderModuleBase {
 			string msg = Marshal.PtrToStringAnsi( message, length );
 			this.LogLine( $"OpenGL: {msg}" );
 		}, IntPtr.Zero );
-		Context?.InstanceProvider.Catalog.Host<ContextTest>();
+		InstanceProvider.Get<ContextManagementService>().Contexts[ 0 ].InstanceProvider.Catalog.Host<ContextTest>();
 	}
 
 }
 
 public sealed class ContextTest : DisposableIdentifiable, IInitializable, IUpdateable {
 	private readonly ShaderBundleService _shaderBundleService;
+	private readonly WindowService _windowService;
 	private OglStaticBuffer _vertexBuffer;
 	private OglStaticBuffer _elementBuffer;
 	private TestVertexArrayObject _testVertexArrayObject;
 	private ShaderBundleBase _shaderBundle;
 
-	public ContextTest( ShaderBundleService shaderBundleService ) {
+	public ContextTest( ShaderBundleService shaderBundleService, WindowService windowService ) {
 		this._shaderBundleService = shaderBundleService;
+		this._windowService = windowService;
+		this._vertexBuffer = null!;
+		this._elementBuffer = null!;
+		this._testVertexArrayObject = null!;
+		this._shaderBundle = null!;
 	}
 
 	public void Initialize() {
 		this.LogLine( "SandboxRenderModule initialized." );
+		ContextUtilities.SwapInterval( 1 );
 		_vertexBuffer = new( BufferUsage.DynamicDraw, 6 * sizeof( float ) );
 		_vertexBuffer.WriteRange( [ 0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f ], 0 );
 		_elementBuffer = new( BufferUsage.DynamicDraw, 3 * sizeof( int ) );
@@ -64,6 +70,8 @@ public sealed class ContextTest : DisposableIdentifiable, IInitializable, IUpdat
 	}
 
 	public void Update( double time, double deltaTime ) {
+		_windowService.Window.Title = $"Time: {time:#,##0.###}s, DeltaTime: {deltaTime:#,##0.###}s, FPS: {(1 / deltaTime):#,##0.###}f/s";
+		_vertexBuffer.WriteRange( [ MathF.Sin( (float) time ), 0.5f, 0.5f, -0.5f, -0.5f, -0.5f ], 0 );
 		Gl.Clear( ClearBufferMask.ColorBufferBit );
 		_shaderBundle.Get( "default" )!.Bind();
 		_testVertexArrayObject.Bind();

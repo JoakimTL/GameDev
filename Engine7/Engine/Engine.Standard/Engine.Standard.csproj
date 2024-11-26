@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Engine.Module.Entities.Render\Engine.Module.Entities.Render.csproj" />
+    <ProjectReference Include="..\Engine.Module.Entities.Render\Engine.Module.Render.Entities.csproj" />
     <ProjectReference Include="..\Engine.Module.Entities\Engine.Module.Entities.csproj" />
     <ProjectReference Include="..\Engine.Module.Networking\Engine.Module.Networking.csproj" />
     <ProjectReference Include="..\Engine.Module.Render\Engine.Module.Render.csproj" />

@@ -5,6 +5,7 @@ namespace Engine.Modularity;
 
 public abstract class ModuleBase : DisposableIdentifiable {
 
+	//TODO Add message bus so that EntityContainer can be sent to the render module
 	public IInstanceProvider InstanceProvider { get; }
 	private readonly InstanceUpdaterExtension _instanceUpdaterExtension;
 	private readonly InstanceInitializerExtension _instanceInitializerExtension;
@@ -13,11 +14,12 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	public double ExecutionFrequency { get; private set; }
 	private double _lastTickTime;
 	protected Clock<double, StopwatchTickSupplier> ModuleClock { get; }
+
 	internal event Action? FrequencyAltered;
 
 	protected event Action? OnInitialize;
 	protected event UpdateHandler? OnUpdate;
-	protected event Action? OnDispose;
+	protected event Action? OnDisposing;
 
 	/// <param name="important">Determines if this module keeps the application running</param>
 	/// <param name="frequency">The number of ticks per second. If <see cref="ExecutionFrequency"/> is <see cref="double.PositiveInfinity"/> (or any high enough number), there is no delay between ticks.</param>
@@ -43,6 +45,8 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	}
 
 	public void Stop() {
+		if (!Running)
+			return;
 		this.Running = false;
 		this.LogLine( "Shutdown was requested." );
 	}
@@ -64,8 +68,8 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	}
 
 	protected override bool InternalDispose() {
+		OnDisposing?.Invoke();
 		this.InstanceProvider.Dispose();
-		OnDispose?.Invoke();
 		return true;
 	}
 }

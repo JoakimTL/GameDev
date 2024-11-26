@@ -1,4 +1,5 @@
-﻿using OpenGL;
+﻿using Engine.Module.Render.Ogl.OOP.Buffers;
+using OpenGL;
 
 namespace Engine.Module.Render.Ogl.OOP;
 

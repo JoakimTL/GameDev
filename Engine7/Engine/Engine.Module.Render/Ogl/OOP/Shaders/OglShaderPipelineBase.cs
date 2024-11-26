@@ -2,7 +2,7 @@
 using Engine.Module.Render.Ogl.Services;
 using OpenGL;
 
-namespace Engine.Module.Render.Ogl.OOP;
+namespace Engine.Module.Render.Ogl.OOP.Shaders;
 
 public abstract class OglShaderPipelineBase : DisposableIdentifiable {
 	private readonly Dictionary<ShaderType, OglShaderProgramBase> _programs;
@@ -18,20 +18,19 @@ public abstract class OglShaderPipelineBase : DisposableIdentifiable {
 	protected abstract IEnumerable<OglShaderProgramBase> GetShaderPrograms( ShaderProgramService shaderProgramService );
 
 	internal void CreatePipeline( ShaderProgramService shaderProgramService ) {
-		var shaderPrograms = GetShaderPrograms( shaderProgramService );
+		IEnumerable<OglShaderProgramBase> shaderPrograms = GetShaderPrograms( shaderProgramService );
 		List<OglShaderProgramBase> validPrograms = new( shaderPrograms );
 		if (validPrograms.Count == 0)
 			return;
 		for (int i = 0; i < validPrograms.Count; i++) {
 			OglShaderProgramBase prg = validPrograms[ i ];
 			bool valid = true;
-			foreach (ShaderType type in prg.Sources.Keys) {
+			foreach (ShaderType type in prg.Sources.Keys)
 				if (_programs.ContainsKey( type )) {
 					this.LogWarning( "Cannot have multiple programs with the same mask bits active." );
 					valid = false;
 					break;
 				}
-			}
 			if (!valid)
 				continue;
 

@@ -1,3 +1,5 @@
+using Engine.Module.Entities.Container;
+
 namespace Engine.Module.Entities.Render.Tests;
 
 [TestFixture]
@@ -89,7 +91,7 @@ public class RenderEntityContainerTests {
 		renderContainer.Update( 0, 0 );
 		Assert.That( renderContainer.PendingEntitiesToAdd, Is.EqualTo( 0 ) );
 		Assert.That( renderContainer.RenderEntities.Count, Is.EqualTo( 1 ) );
-		var renderEntity = renderContainer.RenderEntities.First();
+		RenderEntity renderEntity = renderContainer.RenderEntities.First();
 		bool success = renderEntity.TryGetBehaviour( out Moving3RenderBehaviour? renderBehaviour );
 		Assert.IsTrue( success );
 		Assert.That( renderBehaviour, Is.Not.Null );

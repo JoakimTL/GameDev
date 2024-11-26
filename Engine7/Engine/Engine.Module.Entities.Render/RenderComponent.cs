@@ -1,4 +1,6 @@
-﻿namespace Engine.Module.Entities.Render;
+﻿using Engine.Module.Entities.Container;
+
+namespace Engine.Module.Entities.Render;
 
 /// <summary>
 /// If an entity has this component any rendering system will attempt to render it if the current scene matches the <see cref="SceneName"/>.

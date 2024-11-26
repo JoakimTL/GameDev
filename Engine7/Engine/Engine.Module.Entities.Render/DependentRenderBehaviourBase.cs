@@ -1,4 +1,6 @@
-﻿namespace Engine.Module.Entities.Render;
+﻿using Engine.Module.Entities.Container;
+
+namespace Engine.Module.Entities.Render;
 
 public abstract class DependentRenderBehaviourBase<TArchetype> : RenderBehaviourBase where TArchetype : ArchetypeBase {
 

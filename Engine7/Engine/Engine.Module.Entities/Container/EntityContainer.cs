@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Engine.Module.Entities;
+namespace Engine.Module.Entities.Container;
 
 public sealed class EntityContainer : DisposableIdentifiable {
 
@@ -56,11 +56,10 @@ public sealed class EntityContainer : DisposableIdentifiable {
 		foreach (Entity e in this._entitiesById.Values) {
 			if (e.Parent != entity)
 				continue;
-			if (e.HasComponent<InheritsParentsParentWhenParentIsRemovedComponent>()) {
+			if (e.HasComponent<InheritsParentsParentWhenParentIsRemovedComponent>())
 				e.SetParent( entity.ParentId );
-			} else {
+			else
 				e.SetParent( null );
-			}
 		}
 		OnEntityRemoved?.Invoke( entity );
 	}

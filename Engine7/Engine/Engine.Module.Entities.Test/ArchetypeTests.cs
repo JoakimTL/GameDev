@@ -1,3 +1,5 @@
+using Engine.Module.Entities.Container;
+
 namespace Engine.Module.Entities.Test;
 
 [TestFixture]

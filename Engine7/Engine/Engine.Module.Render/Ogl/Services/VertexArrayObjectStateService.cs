@@ -1,7 +1,4 @@
-﻿using Engine.Logging;
-using Engine.Module.Render.Ogl.OOP;
-
-namespace Engine.Module.Render.Ogl.Services;
+﻿namespace Engine.Module.Render.Ogl.Services;
 
 //public sealed class VertexArrayObjectStateService( OglBufferBase elementBuffer ) : Identifiable {
 

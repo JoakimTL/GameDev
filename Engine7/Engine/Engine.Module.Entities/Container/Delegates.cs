@@ -1,4 +1,4 @@
-﻿namespace Engine.Module.Entities;
+﻿namespace Engine.Module.Entities.Container;
 
 public delegate void EntityListChangedHandler( Entity entity );
 public delegate void ComponentChangeHandler( ComponentBase component );

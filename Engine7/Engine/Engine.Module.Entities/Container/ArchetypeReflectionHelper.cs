@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Engine.Module.Entities;
+namespace Engine.Module.Entities.Container;
 
 public static class ArchetypeReflectionHelper {
 	internal static Func<Entity, ArchetypeBase> CreateArchetypeFactoryDelegate( Type t, IReadOnlyList<PropertyInfo> properties ) {

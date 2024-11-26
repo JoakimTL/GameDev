@@ -1,11 +1,6 @@
 ﻿using Engine.Logging;
-using Engine.Module.Render.Ogl.OOP;
+using Engine.Module.Render.Ogl.OOP.Shaders;
 using OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Module.Render.Ogl.Services;
 public sealed class ShaderSourceService : DisposableIdentifiable {

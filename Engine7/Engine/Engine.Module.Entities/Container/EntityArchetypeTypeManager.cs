@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Engine.Module.Entities;
+namespace Engine.Module.Entities.Container;
 
 public static class EntityArchetypeTypeManager {
 	private static readonly Dictionary<Type, HashSet<Type>> _requirementsByArchetypes;

@@ -41,7 +41,6 @@ public sealed class TimedThreadBlocker<TTickSupplier> : DisposableIdentifiable, 
 
 		double elapsedMilliseconds = tickDelta * _invFreqMs;
 		this.AccumulatedMs += elapsedMilliseconds - this.PeriodMs;
-		this.LogLine( $"Blocking! {this.PeriodMs}ms A:{this.AccumulatedMs:N4}ms {currentTick}t {tickDelta}dt {elapsedMilliseconds:N4}dms", Log.Level.VERBOSE, ConsoleColor.DarkGray );
 
 		if (this.AccumulatedMs > this.PeriodMs) {
 			double skippedPeriods = Math.Floor( this.AccumulatedMs / this.PeriodMs );

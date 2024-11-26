@@ -1,4 +1,4 @@
-﻿namespace Engine.Module.Entities;
+﻿namespace Engine.Module.Entities.Container;
 
 public abstract class SystemBase<TArchetype> : IUpdateable where TArchetype : ArchetypeBase {
 #pragma warning disable IDE0044 // Add readonly modifier This is set by the SystemTypeManager system factory

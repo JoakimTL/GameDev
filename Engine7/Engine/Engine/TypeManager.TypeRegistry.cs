@@ -1,5 +1,7 @@
 ﻿using Engine.Logging;
 using System.Reflection;
+using System.ComponentModel.Composition.Hosting;
+using System.ComponentModel.Composition.Primitives;
 
 namespace Engine;
 public sealed class TypeRegistry {
@@ -15,16 +17,47 @@ public sealed class TypeRegistry {
 	public readonly IReadOnlyList<Type> ImplementationTypes;
 
 	public TypeRegistry() {
-		LoadAllAssemblies();
+		List<string> directoriesToSearch = [ ".", ".\\mods" ];
+		directoriesToSearch.AddRange( Directory.GetDirectories( ".\\mods", "*", SearchOption.AllDirectories ) );
+
+		List<string> allDlls = [];
+		foreach (string directory in directoriesToSearch)
+			if (Directory.Exists( directory ))
+				allDlls.AddRange( Directory.GetFiles( directory, "*.dll", SearchOption.TopDirectoryOnly ) );
+
+		List<ComposablePartCatalog> catalogs = [];
+		foreach (string dllPath in allDlls) {
+			try {
+				catalogs.Add( new AssemblyCatalog( dllPath ) );
+			} catch (Exception ex) {
+				Log.Warning( $"Error loading assembly {dllPath}: {ex.Message}" );
+			}
+		}
+
+		AggregateCatalog aggregateCatalog = new( catalogs );
+
+		List<Assembly> assemblies = aggregateCatalog.Catalogs.OfType<AssemblyCatalog>().Select(p => p.Assembly).ToList();
+		this.LogLine( $"Found {assemblies.Count} assembl{(assemblies.Count == 1 ? "y" : "ies")}!", Log.Level.NORMAL );
+		foreach (Assembly assembly in assemblies)
+			this.LogLine( $"- {assembly.GetName().Name}", Log.Level.VERBOSE );
+
 		List<Type> allTypes = [];
+
+		foreach (Assembly assembly in assemblies)
+			try {
+				allTypes.AddRange( assembly.GetTypes() );
+			} catch (ReflectionTypeLoadException ex) {
+				this.LogWarning( $"Error loading types from assembly {assembly.FullName}: {ex.Message}" );
+				allTypes.AddRange( ex.Types.OfType<Type>() );
+			}
+
 		List<Type> abstractTypes = [];
 		List<Type> sealedTypes = [];
 		List<Type> interfaceTypes = [];
 		List<Type> derivedTypes = [];
 		List<Type> implementationTypes = [];
 
-		foreach (Type type in AppDomain.CurrentDomain.GetAssemblies().SelectMany( p => p.GetTypes() )) {
-			allTypes.Add( type );
+		foreach (Type type in allTypes) {
 			if (type.IsAbstract)
 				abstractTypes.Add( type );
 			if (type.IsInterface)
@@ -44,24 +77,6 @@ public sealed class TypeRegistry {
 		DerivedTypes = derivedTypes.AsReadOnly();
 		InterfaceTypes = interfaceTypes.AsReadOnly();
 		ImplementationTypes = implementationTypes.AsReadOnly();
-	}
-
-	private void LoadAllAssemblies() {
-		foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-			LoadReferencedAssembly( assembly );
-		foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
-			this.LogLine( $"Assembly {ass.GetName().Name} loaded", Log.Level.VERBOSE );
-		this.LogLine( $"Loaded {AppDomain.CurrentDomain.GetAssemblies().Count()} assemblies!", Log.Level.NORMAL );
-	}
-
-	private void LoadReferencedAssembly( Assembly assembly ) {
-		foreach (AssemblyName name in assembly.GetReferencedAssemblies())
-			if (!AppDomain.CurrentDomain.GetAssemblies().Any( a => a.FullName == name.FullName ))
-				try {
-					LoadReferencedAssembly( Assembly.Load( name ) );
-				} catch (Exception e) {
-					Log.Warning( e.Message );
-				}
 	}
 
 	/// <summary>

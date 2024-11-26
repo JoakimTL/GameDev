@@ -1,8 +1,11 @@
-﻿using Engine.Modularity;
+﻿using Engine.Logging;
+using Engine.Modularity;
 using Sandbox;
 
+Log.LoggingLevel = Log.Level.VERBOSE;
+
 Startup.BeginInit()
-	//.WithModule<TestModule>()
+	.WithModule<GameLogicModule>()
 	.WithModule<SandboxRenderModule>()
 	.Start();
 

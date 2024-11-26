@@ -21,7 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Engine.Module.Render.Domain\Engine.Module.Render.Domain.csproj" />
-    <ProjectReference Include="..\Engine\Engine.csproj" />
   </ItemGroup>
 
   <ItemGroup>

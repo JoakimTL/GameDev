@@ -3,7 +3,7 @@ using Engine.Module.Render.Ogl.Services;
 using OpenGL;
 using System.Text;
 
-namespace Engine.Module.Render.Ogl.OOP;
+namespace Engine.Module.Render.Ogl.OOP.Shaders;
 
 public abstract class OglShaderProgramBase : DisposableIdentifiable {
 
@@ -140,7 +140,7 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 		if (status == 0) {
 			this.Breakpoint();
 			StringBuilder ss = new( 1024 );
-			Gl.GetProgramInfoLog( ProgramID, 1024, out int len, ss );
+			Gl.GetProgramInfoLog( ProgramID, 1024, out _, ss );
 			this.LogWarning( $"Linking error {ss}" );
 			//Dispose();
 			return;
@@ -152,13 +152,13 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 		if (status == 0) {
 			this.Breakpoint();
 			StringBuilder ss = new( 1024 );
-			Gl.GetProgramInfoLog( ProgramID, 1024, out int len, ss );
+			Gl.GetProgramInfoLog( ProgramID, 1024, out _, ss );
 			this.LogWarning( $"Validation error {ss}" );
 			//Dispose();
 			return;
 		}
 
-		this.LogLine( $"Shader validated!", Log.Level.HIGH, color: ConsoleColor.Green );
+		this.LogLine( $"Shader validated!", color: ConsoleColor.Green );
 	}
 
 	protected override bool InternalDispose() {

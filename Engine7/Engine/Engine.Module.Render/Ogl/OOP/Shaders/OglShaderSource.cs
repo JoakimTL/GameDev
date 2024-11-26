@@ -1,9 +1,8 @@
 ﻿using Engine.Logging;
-using Khronos;
 using OpenGL;
 using System.Text;
 
-namespace Engine.Module.Render.Ogl.OOP;
+namespace Engine.Module.Render.Ogl.OOP.Shaders;
 
 public sealed class OglShaderSource : DisposableIdentifiable {
 	public uint ShaderID { get; private set; }

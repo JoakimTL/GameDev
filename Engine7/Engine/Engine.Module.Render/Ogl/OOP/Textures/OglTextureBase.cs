@@ -1,7 +1,7 @@
 ﻿using Engine.Logging;
 using OpenGL;
 
-namespace Engine.Module.Render.Ogl.OOP;
+namespace Engine.Module.Render.Ogl.OOP.Textures;
 
 public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struct {
 	public readonly uint TextureID;

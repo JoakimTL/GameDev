@@ -17,6 +17,7 @@ public sealed partial class TypeDigraph<TProcessType> : Identifiable, ITypeDigra
 	public IReadOnlyList<Type> GetTypes() {
 		if (this._needsReorder)
 			TypeDigraph.Sort.Alloc.Sort( this._processType, this._unorderedTypes, this._orderedTypes );
+		//TODO: Fix noalloc? Is it worth it?
 		//if (this._unorderedTypes.Count < 25)
 		//		TypeDigraph.Sort.NoAlloc.Sort( this._processType, this._types, this._unorderedTypes, this._orderedTypes );
 		//	else

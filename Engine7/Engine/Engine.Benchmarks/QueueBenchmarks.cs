@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System.Collections.Concurrent;
-using TraceReloggerLib;
 
 namespace Engine.Benchmarks;
 

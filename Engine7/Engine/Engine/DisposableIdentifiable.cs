@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Engine.Logging;
+using System.Diagnostics;
 
 namespace Engine;
 
@@ -17,8 +18,10 @@ public abstract class DisposableIdentifiable : Identifiable, IDisposable {
 	}
 
 	public void Dispose() {
-		if (this.Disposed)
+		if (this.Disposed) {
+			this.LogLine( $"Dispose was called on already disposed object!", Log.Level.VERBOSE );
 			return;
+		}
 		if (InternalDispose()) {
 			this.Disposed = true;
 			OnDisposed?.Invoke();
