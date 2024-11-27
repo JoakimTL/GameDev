@@ -1,5 +1,4 @@
 ﻿using Engine.Logging;
-using Engine.Module.Render.Domain;
 using OpenGL;
 
 namespace Engine.Module.Render.Ogl.OOP.Buffers;
@@ -26,17 +25,6 @@ public unsafe class OglStaticBuffer( BufferUsage usage, uint lengthBytes ) : Ogl
 		if (destinationOffsetBytes + srcLengthBytes > LengthBytes)
 			return false;
 		Write( new nint( srcPtr ), destinationOffsetBytes, srcLengthBytes );
-		return true;
-	}
-}
-
-public unsafe class OglDynamicBuffer( BufferUsage usage, uint lengthBytes ) : OglStaticBuffer( usage, lengthBytes ), IResizableClientBuffer<uint> {
-	public new bool ResizeWrite( nint srcPtr, uint srcLengthBytes ) {
-		if (Disposed)
-			return this.LogWarningThenReturn( "Already disposed!", false );
-		if (srcLengthBytes == 0)
-			return this.LogWarningThenReturn( "Cannot write 0 bytes!", false );
-		base.ResizeWrite( srcPtr, srcLengthBytes );
 		return true;
 	}
 }

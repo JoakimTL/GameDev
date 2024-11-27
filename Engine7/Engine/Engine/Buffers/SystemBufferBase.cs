@@ -10,8 +10,8 @@ namespace Engine.Buffers;
 public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthBytes ) : DisposableIdentifiable, IBuffer<TScalar>, IObservableBuffer<TScalar>, IVariableLengthBuffer<TScalar> where TScalar : unmanaged, IBinaryInteger<TScalar>, IUnsignedNumber<TScalar> {
 	private byte* _dataPointer = (byte*) NativeMemory.Alloc( nuint.CreateSaturating( initialLengthBytes ) );
 	public TScalar LengthBytes { get; private set; } = initialLengthBytes;
-	public event Action<IBuffer<TScalar>>? BufferResized;
-	public event BufferDataChanged<TScalar>? BufferWrittenTo;
+	public event Action<IBuffer<TScalar>>? OnBufferResized;
+	public event BufferDataChanged<TScalar>? OnBufferWrittenTo;
 
 	protected bool ReadRange<T>( Span<T> destination, TScalar sourceOffsetBytes ) where T : unmanaged {
 		if (destination.Length == 0)
@@ -41,7 +41,7 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 			return false;
 		fixed (T* srcPtr = source)
 			DataUtilities.PerformMemCopy( (byte*) srcPtr, _dataPointer, 0, destinationOffsetBytes, bytesToCopy );
-		BufferWrittenTo?.Invoke( destinationOffsetBytes, bytesToCopy );
+		OnBufferWrittenTo?.Invoke( destinationOffsetBytes, bytesToCopy );
 		return true;
 	}
 
@@ -51,13 +51,27 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 		if (destinationOffsetBytes + srcLengthBytes > LengthBytes)
 			return false;
 		DataUtilities.PerformMemCopy( (byte*) srcPtr, _dataPointer, 0, destinationOffsetBytes, srcLengthBytes );
-		BufferWrittenTo?.Invoke( destinationOffsetBytes, srcLengthBytes );
+		OnBufferWrittenTo?.Invoke( destinationOffsetBytes, srcLengthBytes );
 		return true;
 	}
 
 	protected void InternalMove( TScalar srcOffsetBytes, TScalar dstOffsetBytes, TScalar lengthBytes ) {
 		DataUtilities.PerformMemCopy( _dataPointer, _dataPointer, srcOffsetBytes, dstOffsetBytes, lengthBytes );
-		BufferWrittenTo?.Invoke( dstOffsetBytes, lengthBytes );
+		OnBufferWrittenTo?.Invoke( dstOffsetBytes, lengthBytes );
+	}
+
+	protected bool CopyTo<TRecepientScalar>( IWritableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar dstOffsetBytes, TRecepientScalar bytesToCopy )
+		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar> {
+		if (srcOffsetBytes + TScalar.CreateSaturating( bytesToCopy ) > LengthBytes)
+			return false;
+		return recepient.WriteRange( _dataPointer + nint.CreateSaturating( srcOffsetBytes ), bytesToCopy, dstOffsetBytes );
+	}
+
+	protected bool Overwrite<TRecepientScalar>( IWriteResizableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar bytesToCopy )
+		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar> {
+		if (srcOffsetBytes + TScalar.CreateSaturating( bytesToCopy ) > LengthBytes)
+			return false;
+		return recepient.ResizeWrite( (nint) (_dataPointer + nint.CreateSaturating( srcOffsetBytes )), bytesToCopy );
 	}
 
 	protected void Extend( TScalar numBytes ) {
@@ -65,7 +79,7 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 			return;
 		LengthBytes += numBytes;
 		_dataPointer = (byte*) NativeMemory.Realloc( _dataPointer, nuint.CreateSaturating( LengthBytes ) );
-		BufferResized?.Invoke( this );
+		OnBufferResized?.Invoke( this );
 		this.LogLine( $"Extended to {LengthBytes}!", Log.Level.VERBOSE );
 	}
 

@@ -1,7 +1,7 @@
 ﻿using Engine.Module.Render.Ogl.OOP.Buffers;
 using OpenGL;
 
-namespace Engine.Module.Render.Ogl.OOP;
+namespace Engine.Module.Render.Ogl.OOP.VertexArrays;
 
 public abstract class OglVertexArrayObjectBase : DisposableIdentifiable {
 

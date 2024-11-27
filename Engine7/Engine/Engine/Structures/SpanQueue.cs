@@ -24,19 +24,3 @@ public ref struct SpanQueue<T>(Span<T> underlyingSpan) where T : unmanaged
         return true;
     }
 }
-
-//public ref struct SpanSet<T>(Span<T> underlyingSpan ) where T : unmanaged {
-//	public readonly Span<T> Span = underlyingSpan;
-
-//	public void Add( T item ) {
-
-//	}
-
-//	public bool Contains( T item ) {
-
-//	}
-
-//	public bool Remove( T item ) {
-
-//	}
-//}

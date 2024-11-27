@@ -11,7 +11,7 @@ public sealed class BufferSynchronizer<TSource, TDestination> where TSource : IR
 		_sourceBuffer = systemBuffer;
 		_destinationBuffer = gpuBuffer;
 		_changedSegments = [];
-		systemBuffer.BufferWrittenTo += OnSystemBufferWrittenTo;
+		systemBuffer.OnBufferWrittenTo += OnSystemBufferWrittenTo;
 	}
 
 	private void OnSystemBufferWrittenTo( ulong offsetBytes, ulong lengthBytes ) {

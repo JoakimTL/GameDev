@@ -7,7 +7,7 @@ public interface IBuffer<TScalar> where TScalar : unmanaged, IBinaryInteger<TSca
 }
 
 public interface IObservableBuffer<TScalar> : IBuffer<TScalar> where TScalar : unmanaged, IBinaryInteger<TScalar>, IUnsignedNumber<TScalar> {
-	event BufferDataChanged<TScalar>? BufferWrittenTo;
+	event BufferDataChanged<TScalar>? OnBufferWrittenTo;
 }
 
 public interface IBufferSegment<TScalar> : IBuffer<TScalar> where TScalar : unmanaged, IBinaryInteger<TScalar>, IUnsignedNumber<TScalar> {
@@ -42,7 +42,7 @@ public interface IVariableLengthBuffer<TScalar> : IBuffer<TScalar> where TScalar
 	/// <summary>
 	/// Called when the buffer has been resized.
 	/// </summary>
-	event Action<IBuffer<TScalar>>? BufferResized;
+	event Action<IBuffer<TScalar>>? OnBufferResized;
 }
 
 public interface IWritableBuffer<TScalar> : IBuffer<TScalar> where TScalar : unmanaged, IBinaryInteger<TScalar>, IUnsignedNumber<TScalar> {
@@ -56,4 +56,15 @@ public interface IWritableBuffer<TScalar> : IBuffer<TScalar> where TScalar : unm
 	/// </summary>
 	/// <returns>True if the data was copied from the span, false if the operation failed.</returns>
 	unsafe bool WriteRange( void* srcPtr, TScalar srcLengthBytes, TScalar destinationOffsetBytes );
+}
+
+public interface ICopyableBuffer<TScalar> {
+	bool CopyTo<TRecepientScalar>( IWritableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar dstOffsetBytes, TRecepientScalar bytesToCopy ) 
+		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar>;
+	bool Overwrite<TRecepientScalar>( IWriteResizableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar bytesToCopy )
+		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar>;
+}
+
+public interface IWriteResizableBuffer<TScalar> where TScalar : unmanaged, IBinaryInteger<TScalar>, IUnsignedNumber<TScalar> {
+	bool ResizeWrite( nint srcPtr, TScalar srcLengthBytes );
 }

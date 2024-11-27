@@ -2,11 +2,12 @@
 using Engine.Logging;
 using Engine.Modularity;
 using Engine.Module.Entities.Container;
+using Engine.Module.Entities.Render;
 using Engine.Module.Entities.Services;
 using Engine.Module.Render;
-using Engine.Module.Render.Ogl.OOP;
 using Engine.Module.Render.Ogl.OOP.Buffers;
 using Engine.Module.Render.Ogl.OOP.Shaders;
+using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using OpenGL;
@@ -21,7 +22,9 @@ internal sealed class GameLogicModule : ModuleBase {
 	}
 
 	private void Init() {
-		InstanceProvider.Get<EntityContainerService>().CreateContainer();
+		var container = InstanceProvider.Get<EntityContainerService>().CreateContainer();
+		var entity = container.CreateEntity();
+		entity.AddComponent<RenderComponent>();
 	}
 }
 

@@ -6,7 +6,7 @@ public abstract class Identifiable {
 	private static ulong GetNextUniqueId() => Interlocked.Increment( ref _uniqueIdCounter );
 
 	public ulong UniqueId { get; }
-	public string? Nickname { get; protected set; }
+	public string? Nickname { get; set; }
 	public string FullName => ToString();
 	private readonly int _hashCode;
 

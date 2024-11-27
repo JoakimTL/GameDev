@@ -8,6 +8,7 @@ public sealed class TypeRegistry {
 
 	public readonly IReadOnlyList<Type> AllTypes;
 	public readonly IReadOnlyList<Type> AbstractTypes;
+	public readonly IReadOnlyList<Type> ValueTypes;
 	public readonly IReadOnlyList<Type> SealedTypes;
 	public readonly IReadOnlyList<Type> DerivedTypes;
 	public readonly IReadOnlyList<Type> InterfaceTypes;
@@ -52,6 +53,7 @@ public sealed class TypeRegistry {
 			}
 
 		List<Type> abstractTypes = [];
+		List<Type> valueTypes = [];
 		List<Type> sealedTypes = [];
 		List<Type> interfaceTypes = [];
 		List<Type> derivedTypes = [];
@@ -60,6 +62,8 @@ public sealed class TypeRegistry {
 		foreach (Type type in allTypes) {
 			if (type.IsAbstract)
 				abstractTypes.Add( type );
+			if (type.IsValueType)
+				valueTypes.Add( type );
 			if (type.IsInterface)
 				interfaceTypes.Add( type );
 			if (type.IsSealed)
@@ -72,6 +76,7 @@ public sealed class TypeRegistry {
 		}
 
 		AllTypes = allTypes.AsReadOnly();
+		ValueTypes = valueTypes.AsReadOnly();
 		AbstractTypes = abstractTypes.AsReadOnly();
 		SealedTypes = sealedTypes.AsReadOnly();
 		DerivedTypes = derivedTypes.AsReadOnly();

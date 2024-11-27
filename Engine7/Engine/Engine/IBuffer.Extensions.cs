@@ -12,11 +12,17 @@ public static class BufferExtensions {
 	/// <param name="destinationOffsetBytes">Offset at the destination buffer</param>
 	/// <param name="bytesToCopy">Number of bytes to copy from the source to the destination.</param>
 	/// <returns>Returns false if bytesToCopy isn't a natural number, or if either the <see cref="IReadableBuffer.ReadRange{T}(Span{T}, ulong)"/> or <see cref="IWritableBuffer.WriteRange{T}(Span{T}, ulong)"/> operation fails.</returns>
-	public static bool CopyTo<TScalarSource, TScalarDestination>( this IReadableBuffer<TScalarSource> sourceBuffer, IWritableBuffer<TScalarDestination> destinationBuffer, TScalarSource sourceOffsetBytes, TScalarDestination destinationOffsetBytes, int bytesToCopy ) where TScalarSource : unmanaged, IBinaryInteger<TScalarSource>, IUnsignedNumber<TScalarSource> where TScalarDestination : unmanaged, IBinaryInteger<TScalarDestination>, IUnsignedNumber<TScalarDestination> {
+	public static unsafe bool CopyTo<TScalarSource, TScalarDestination>( this IReadableBuffer<TScalarSource> sourceBuffer, IWritableBuffer<TScalarDestination> destinationBuffer, TScalarSource sourceOffsetBytes, TScalarDestination destinationOffsetBytes, int bytesToCopy ) where TScalarSource : unmanaged, IBinaryInteger<TScalarSource>, IUnsignedNumber<TScalarSource> where TScalarDestination : unmanaged, IBinaryInteger<TScalarDestination>, IUnsignedNumber<TScalarDestination> {
 		if (bytesToCopy <= 0)
 			return false;
-		Span<byte> copiedBytes = stackalloc byte[ bytesToCopy ];
-		return sourceBuffer.ReadRange( copiedBytes, sourceOffsetBytes ) && destinationBuffer.WriteRange( copiedBytes, destinationOffsetBytes );
+		if (bytesToCopy <= 131072) {
+			byte* spanIntermediaryPtr = stackalloc byte[ bytesToCopy ];
+			return sourceBuffer.ReadRange( spanIntermediaryPtr, TScalarSource.CreateSaturating( bytesToCopy ), sourceOffsetBytes ) && destinationBuffer.WriteRange( spanIntermediaryPtr, TScalarDestination.CreateSaturating( bytesToCopy ), destinationOffsetBytes );
+		}
+		byte* heapIntermediaryPtr = (byte*) System.Runtime.InteropServices.NativeMemory.Alloc( nuint.CreateSaturating( bytesToCopy ) );
+		bool result = sourceBuffer.ReadRange( heapIntermediaryPtr, TScalarSource.CreateSaturating( bytesToCopy ), sourceOffsetBytes ) && destinationBuffer.WriteRange( heapIntermediaryPtr, TScalarDestination.CreateSaturating( bytesToCopy ), destinationOffsetBytes );
+		System.Runtime.InteropServices.NativeMemory.Free( heapIntermediaryPtr );
+		return result;
 	}
 
 	public static unsafe bool Read<TScalar, T>( this IReadableBuffer<TScalar> buffer, TScalar sourceOffsetBytes, out T value ) where TScalar : unmanaged, IBinaryInteger<TScalar>, IUnsignedNumber<TScalar> where T : unmanaged {
