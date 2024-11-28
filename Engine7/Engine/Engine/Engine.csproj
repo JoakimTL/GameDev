@@ -8,6 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="global.usings.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="global.usings.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.ComponentModel.Composition" Version="9.0.0" />
   </ItemGroup>
 

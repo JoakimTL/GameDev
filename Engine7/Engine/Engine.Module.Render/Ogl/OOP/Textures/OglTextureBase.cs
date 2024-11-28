@@ -14,7 +14,7 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 	/// <summary>
 	/// Level 0 is guaranteed to exist, with a size of 1x1 or greater.
 	/// </summary>
-	public Vector2<int> Level0 => _levels[ 0 ];
+	public Vector2<int> Level0 => this._levels[ 0 ];
 	public bool Resident { get; private set; }
 
 	public OglTextureBase( string name, TextureTarget target, Vector2<int> level0, T metadata, params (TextureParameterName, int)[] parameters ) {
@@ -22,84 +22,84 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 			throw new OpenGlArgumentException( "Texture size must be greater than zero on both axis", nameof( level0 ) );
 		this.Target = target;
 		this._levels = GetLevels( level0, metadata );
-		Resident = false;
+		this.Resident = false;
 
-		TextureID = Gl.CreateTexture( Target );
+		this.TextureID = Gl.CreateTexture( this.Target );
 		GenerateTexture( metadata );
 		for (int i = 0; i < parameters.Length; i++)
-			Gl.TextureParameter( TextureID, parameters[ i ].Item1, parameters[ i ].Item2 );
-		_handle = Gl.GetTextureHandleARB( TextureID );
-		Nickname = $"TEX{TextureID} {name}";
+			Gl.TextureParameter( this.TextureID, parameters[ i ].Item1, parameters[ i ].Item2 );
+		this._handle = Gl.GetTextureHandleARB( this.TextureID );
+		this.Nickname = $"TEX{this.TextureID} {name}";
 	}
 
 	protected abstract void GenerateTexture( T metadata );
 
 	protected abstract IReadOnlyList<Vector2<int>> GetLevels( Vector2<int> level0, T metadata );
 
-	internal ulong Handle => _handle;
+	internal ulong Handle => this._handle;
 
 	public Vector2<int> GetLevel( uint level ) {
-		if (level > _levels.Count) {
+		if (level > this._levels.Count) {
 			this.LogWarning( $"Has no level {level}" );
 			return (0, 0);
 		}
-		return _levels[ (int) level ];
+		return this._levels[ (int) level ];
 	}
 
 	public TextureReference GetTextureReference() {
-		if (Disposed)
-			throw new ObjectDisposedException( FullName );
+		if (this.Disposed)
+			throw new ObjectDisposedException( this.FullName );
 		TextureReference reference = new( this );
 		reference.OnDestruction += OnReferenceDestruction;
-		if (_referenceCount == 0)
+		if (this._referenceCount == 0)
 			MakeResident();
-		_referenceCount++;
+		this._referenceCount++;
 		return reference;
 	}
 
 	private void OnReferenceDestruction() {
-		_referenceCount--;
-		if (_referenceCount == 0)
+		this._referenceCount--;
+		if (this._referenceCount == 0)
 			MakeNonResident();
 	}
 
 	//How? How to handle it being non-resident, but still referenced? Is this even relevant? Should a texture be non-resident but still referencable?
 	internal void MakeResident() {
-		if (Disposed)
-			throw new ObjectDisposedException( FullName );
-		if (Resident)
+		if (this.Disposed)
+			throw new ObjectDisposedException( this.FullName );
+		if (this.Resident)
 			return;
-		Gl.MakeTextureHandleResidentARB( _handle );
+		Gl.MakeTextureHandleResidentARB( this._handle );
 	}
 
 	internal void MakeNonResident() {
-		if (Disposed)
-			throw new ObjectDisposedException( FullName );
-		if (!Resident)
+		if (this.Disposed)
+			throw new ObjectDisposedException( this.FullName );
+		if (!this.Resident)
 			return;
-		Gl.MakeTextureHandleNonResidentARB( _handle );
+		Gl.MakeTextureHandleNonResidentARB( this._handle );
 	}
 
 	public void SetPixels( PixelFormat format, PixelType pixelType, nint ptr, uint level = 0 ) {
-		if (level > _levels.Count) {
+		if (level > this._levels.Count) {
 			this.LogWarning( "Attempted to set pixels at a deeper mipmap level than present." );
 			return;
 		}
-		Vector2<int> mm = _levels[ (int) level ];
-		Gl.TextureSubImage2D( TextureID, (int) level, 0, 0, mm.X, mm.Y, format, pixelType, ptr );
+		Vector2<int> mm = this._levels[ (int) level ];
+		Gl.TextureSubImage2D( this.TextureID, (int) level, 0, 0, mm.X, mm.Y, format, pixelType, ptr );
 	}
 
 	public void SetPixelsCompressed( PixelFormat format, int size, nint ptr, uint level = 0 ) {
-		if (level > _levels.Count) {
+		if (level > this._levels.Count) {
 			this.LogWarning( "Attempted to set pixels at a deeper mipmap level than present." );
 			return;
 		}
-		Vector2<int> mm = _levels[ (int) level ];
-		Gl.CompressedTextureSubImage2D( TextureID, (int) level, 0, 0, mm.X, mm.Y, format, size, ptr );
+		Vector2<int> mm = this._levels[ (int) level ];
+		Gl.CompressedTextureSubImage2D( this.TextureID, (int) level, 0, 0, mm.X, mm.Y, format, size, ptr );
 	}
 
 	protected override bool InternalDispose() {
-		Gl.DeleteTextures( [ TextureID ] );
+		Gl.DeleteTextures( [ this.TextureID ] );
 		return true;
 	}
 
@@ -109,13 +109,13 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 		internal event Action? OnDestruction;
 
 		public TextureReference( OglTextureBase<T> texture ) {
-			_texture = texture;
+			this._texture = texture;
 		}
 
 		~TextureReference() {
 			OnDestruction?.Invoke();
 		}
 
-		internal ulong GetHandle() => _texture.Handle;
+		internal ulong GetHandle() => this._texture.Handle;
 	}
 }

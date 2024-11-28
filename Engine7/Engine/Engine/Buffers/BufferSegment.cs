@@ -3,62 +3,66 @@
 public sealed class BufferSegment : DisposableIdentifiable, IBufferSegment<ulong>, IReadableBuffer<ulong>, IWritableBuffer<ulong> {
 	private readonly SegmentedSystemBuffer _buffer;
 
+#if DEBUG
+	public Memory<byte> DebugData => _buffer.GetDebugSlice( this );
+#endif
+
 	public ulong OffsetBytes { get; private set; }
 	public ulong LengthBytes { get; }
 
 	public event Action<IBufferSegment<ulong>>? OffsetChanged;
 
 	internal BufferSegment( SegmentedSystemBuffer buffer, ulong offsetBytes, ulong lengthBytes ) {
-		_buffer = buffer;
-		OffsetBytes = offsetBytes;
-		LengthBytes = lengthBytes;
+		this._buffer = buffer;
+		this.OffsetBytes = offsetBytes;
+		this.LengthBytes = lengthBytes;
 	}
 
 	public unsafe bool ReadRange<T>( Span<T> destination, ulong sourceOffsetBytes ) where T : unmanaged {
-		if (Disposed)
+		if (this.Disposed)
 			return false;
-		if (sourceOffsetBytes + ((ulong) destination.Length * (uint) sizeof( T )) > LengthBytes)
+		if (sourceOffsetBytes + ((ulong) destination.Length * (uint) sizeof( T )) > this.LengthBytes)
 			return false;
-		return _buffer.ReadRange( destination, OffsetBytes + sourceOffsetBytes );
+		return this._buffer.ReadRange( destination, this.OffsetBytes + sourceOffsetBytes );
 	}
 
 	public unsafe bool ReadRange( void* dstPtr, ulong dstLengthBytes, ulong sourceOffsetBytes ) {
-		if (Disposed)
+		if (this.Disposed)
 			return false;
-		if (sourceOffsetBytes + dstLengthBytes > LengthBytes)
+		if (sourceOffsetBytes + dstLengthBytes > this.LengthBytes)
 			return false;
-		return _buffer.ReadRange( dstPtr, dstLengthBytes, OffsetBytes + sourceOffsetBytes );
+		return this._buffer.ReadRange( dstPtr, dstLengthBytes, this.OffsetBytes + sourceOffsetBytes );
 	}
 
 	public unsafe bool WriteRange<T>( Span<T> source, ulong destinationOffsetBytes ) where T : unmanaged {
-		if (Disposed)
+		if (this.Disposed)
 			return false;
-		if (destinationOffsetBytes + ((ulong) source.Length * (uint) sizeof( T )) > LengthBytes)
+		if (destinationOffsetBytes + ((ulong) source.Length * (uint) sizeof( T )) > this.LengthBytes)
 			return false;
-		if (!_buffer.WriteRange( source, OffsetBytes + destinationOffsetBytes ))
+		if (!this._buffer.WriteRange( source, this.OffsetBytes + destinationOffsetBytes ))
 			return false;
 		return true;
 	}
 
 	public unsafe bool WriteRange( void* srcPtr, ulong srcLengthBytes, ulong destinationOffsetBytes ) {
-		if (Disposed)
+		if (this.Disposed)
 			return false;
-		if (destinationOffsetBytes + srcLengthBytes > LengthBytes)
+		if (destinationOffsetBytes + srcLengthBytes > this.LengthBytes)
 			return false;
-		if (!_buffer.WriteRange( srcPtr, srcLengthBytes, OffsetBytes + destinationOffsetBytes ))
+		if (!this._buffer.WriteRange( srcPtr, srcLengthBytes, this.OffsetBytes + destinationOffsetBytes ))
 			return false;
 		return true;
 	}
 
 	internal void SetOffsetBytes( ulong newOffsetBytes ) {
-		if (OffsetBytes == newOffsetBytes)
+		if (this.OffsetBytes == newOffsetBytes)
 			return;
-		OffsetBytes = newOffsetBytes;
+		this.OffsetBytes = newOffsetBytes;
 		OffsetChanged?.Invoke( this );
 	}
 
 	protected override bool InternalDispose() {
-		_buffer.Free( this );
+		this._buffer.Free( this );
 		return true;
 	}
 }

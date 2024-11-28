@@ -10,27 +10,23 @@ public sealed class ViewportStateService : Identifiable {
 	private Vector2<int> _size;
 
 	public Vector2<int> Location {
-		get => _location;
+		get => this._location;
 		set {
-			if (value == _location) {
-				this.LogWarning( "Viewport location is already set to the given value" );
+			if (value == this._location)
 				return;
-			}
-			_location = value;
+			this._location = value;
 			SetInternal();
 		}
 	}
 
 	public Vector2<int> Size {
-		get => _size;
+		get => this._size;
 		set {
 			if (value.IsNegativeOrZero())
 				throw new ArgumentOutOfRangeException( nameof( value ), value, "Viewport size must be positive" );
-			if (value == _size) {
-				this.LogWarning( "Viewport size is already set to the given value" );
+			if (value == this._size)
 				return;
-			}
-			_size = value;
+			this._size = value;
 			SetInternal();
 		}
 	}
@@ -41,15 +37,13 @@ public sealed class ViewportStateService : Identifiable {
 	public void Set( Vector2<int> location, Vector2<int> size ) {
 		if (size.IsNegativeOrZero())
 			throw new ArgumentOutOfRangeException( nameof( size ), size, "Viewport size must be positive" );
-		if (location == _location && size == _size) {
-			this.LogWarning( "Viewport location and size are already set to the given values" );
+		if (location == this._location && size == this._size)
 			return;
-		}
-		_location = location;
-		_size = size;
+		this._location = location;
+		this._size = size;
 		SetInternal();
 	}
 
 	[MethodImpl( MethodImplOptions.AggressiveInlining )]
-	private void SetInternal() => Gl.Viewport( _location.X, _location.Y, _size.X, _size.Y );
+	private void SetInternal() => Gl.Viewport( this._location.X, this._location.Y, this._size.X, this._size.Y );
 }

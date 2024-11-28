@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Engine;
 
-public abstract class DisposableIdentifiable : Identifiable, IDisposable {
+public abstract class DisposableIdentifiable : Identifiable, IListenableDisposable {
 
 	public bool Disposed { get; private set; } = false;
 

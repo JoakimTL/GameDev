@@ -17,9 +17,9 @@ public sealed class WindowService : Identifiable {
 
 	public OglWindow Window { get => GetWindow(); }
 
-	internal void CreateWindow() => _window ??= new OglWindow( _framebufferStateService, _viewportStateService, WindowCreationUtility.Create( _context.WindowSettings ) );
+	internal void CreateWindow() => this._window ??= new OglWindow( this._framebufferStateService, this._viewportStateService, WindowCreationUtility.Create( this._context.WindowSettings ) );
 
-	private OglWindow GetWindow() => _window ??= new OglWindow( _framebufferStateService, _viewportStateService, WindowCreationUtility.Create( _context.WindowSettings ) );
+	private OglWindow GetWindow() => this._window ??= new OglWindow( this._framebufferStateService, this._viewportStateService, WindowCreationUtility.Create( this._context.WindowSettings ) );
 }
 
 public sealed class UserInputService : DisposableIdentifiable {

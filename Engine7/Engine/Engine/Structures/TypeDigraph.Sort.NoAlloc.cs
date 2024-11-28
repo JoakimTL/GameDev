@@ -1,4 +1,6 @@
-﻿namespace Engine.Structures;
+﻿using Engine.Processing;
+
+namespace Engine.Structures;
 
 public sealed partial class TypeDigraph {
 	public static partial class Sort {
@@ -22,17 +24,17 @@ public sealed partial class TypeDigraph {
 
 				for (int node = 0; node < unorderedTypes.Count; node++) {
 					int numReferences = 0;
-					IReadOnlyList<Do.IProcessDirection> attributes = unorderedTypes[ node ].GetAttributes<Do.IProcessDirection>();
+					IReadOnlyList<IProcessDirection> attributes = unorderedTypes[ node ].GetAttributes<IProcessDirection>();
 					for (int i = 0; i < attributes.Count; i++) {
-						Do.IProcessDirection attribute = attributes[ i ];
+						IProcessDirection attribute = attributes[ i ];
 						if (!(processType == attribute.ProcessType))
 							continue;
 						Type? expectedType = null;
 						bool nodeIsParent = false;
-						if (attribute is Do.IProcessBefore beforeAttribute) {
+						if (attribute is IProcessBefore beforeAttribute) {
 							expectedType = beforeAttribute.BeforeType;
 							nodeIsParent = true;
-						} else if (attribute is Do.IProcessAfter afterAttribute)
+						} else if (attribute is IProcessAfter afterAttribute)
 							expectedType = afterAttribute.AfterType;
 						if (expectedType is null)
 							continue;

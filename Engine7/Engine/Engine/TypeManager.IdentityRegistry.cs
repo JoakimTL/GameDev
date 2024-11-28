@@ -13,10 +13,10 @@ public sealed class IdentityRegistry {
 				throw new InvalidOperationException( $"Identity collision for \"{identityAttribute.Identity}\". Collision between {occupyingType.Type.FullName} and {resolvedType.Type.FullName}" );
 			typesByIdentity.Add( resolvedType.GetAttribute<IdentityAttribute>().Identity, resolvedType );
 		}
-		_typesByIdentity = FrozenDictionary.ToFrozenDictionary( typesByIdentity );
-		_typesWithIdentity = _typesByIdentity.Values.Select( p => p.Type ).ToFrozenSet();
+		this._typesByIdentity = FrozenDictionary.ToFrozenDictionary( typesByIdentity );
+		this._typesWithIdentity = this._typesByIdentity.Values.Select( p => p.Type ).ToFrozenSet();
 	}
 
-	public IReadOnlySet<Type> TypesWithIdentity => _typesWithIdentity;
-	public IReadOnlyDictionary<string, ResolvedType> TypesByIdentity => _typesByIdentity;
+	public IReadOnlySet<Type> TypesWithIdentity => this._typesWithIdentity;
+	public IReadOnlyDictionary<string, ResolvedType> TypesByIdentity => this._typesByIdentity;
 }

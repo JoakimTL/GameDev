@@ -9,7 +9,7 @@ public readonly struct OglMipmappedTextureMetadata {
 	public OglMipmappedTextureMetadata( uint levels, InternalFormat format ) {
 		if (levels == 0)
 			throw new OpenGlArgumentException( "Texture cannot have zero levels", nameof( levels ) );
-		Levels = levels;
-		Format = format;
+		this.Levels = levels;
+		this.Format = format;
 	}
 }

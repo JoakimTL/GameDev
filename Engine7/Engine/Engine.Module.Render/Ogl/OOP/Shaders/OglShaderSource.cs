@@ -12,27 +12,27 @@ public sealed class OglShaderSource : DisposableIdentifiable {
 	public event Action? FileChanged;
 
 	public OglShaderSource( string path, ShaderType shaderType ) {
-		Filepath = path;
+		this.Filepath = path;
 
-		ShaderID = Gl.CreateShader( shaderType );
-		ShaderType = shaderType;
+		this.ShaderID = Gl.CreateShader( shaderType );
+		this.ShaderType = shaderType;
 		string source = GetData();
-		Gl.ShaderSource( ShaderID, [ source ], [ source.Length ] );
-		Gl.CompileShader( ShaderID );
+		Gl.ShaderSource( this.ShaderID, [ source ], [ source.Length ] );
+		Gl.CompileShader( this.ShaderID );
 
-		Gl.GetShader( ShaderID, ShaderParameterName.CompileStatus, out int status );
+		Gl.GetShader( this.ShaderID, ShaderParameterName.CompileStatus, out int status );
 		if (status == 0) {
 			this.Breakpoint();
 			StringBuilder sb = new( 1024 );
-			Gl.GetShaderInfoLog( ShaderID, sb.Capacity, out int logLength, sb );
+			Gl.GetShaderInfoLog( this.ShaderID, sb.Capacity, out int logLength, sb );
 			this.LogWarning( $"{logLength}-{sb}" );
 			//Dispose();
 		}
 
-		Nickname = $"SHA{ShaderID} {Filepath}";
+		this.Nickname = $"SHA{this.ShaderID} {this.Filepath}";
 	}
 
-	public string GetData() => ReadSource( Filepath, out string source ) ? source : string.Empty;
+	public string GetData() => ReadSource( this.Filepath, out string source ) ? source : string.Empty;
 
 	private static bool ReadSource( string path, out string source ) {
 		source = "";
@@ -68,7 +68,7 @@ public sealed class OglShaderSource : DisposableIdentifiable {
 	}
 
 	protected override bool InternalDispose() {
-		Gl.DeleteShader( ShaderID );
+		Gl.DeleteShader( this.ShaderID );
 		return true;
 	}
 }

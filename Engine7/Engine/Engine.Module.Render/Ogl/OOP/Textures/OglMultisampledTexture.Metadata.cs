@@ -10,8 +10,8 @@ public readonly struct OglMultisampledTextureMetadata {
 	public OglMultisampledTextureMetadata( uint samples, InternalFormat format, bool fixedSampleLocations ) {
 		if (samples == 0)
 			throw new OpenGlArgumentException( "Texture cannot have zero samples", nameof( samples ) );
-		Samples = samples;
-		Format = format;
-		FixedSampleLocations = fixedSampleLocations;
+		this.Samples = samples;
+		this.Format = format;
+		this.FixedSampleLocations = fixedSampleLocations;
 	}
 }

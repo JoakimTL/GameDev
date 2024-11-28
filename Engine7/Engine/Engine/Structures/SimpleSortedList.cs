@@ -21,20 +21,20 @@ public class SimpleSortedList<T>() where T : IComparable<T> {
 
 	private readonly List<T> _underlying = [];
 
-	public int Count => _underlying.Count;
+	public int Count => this._underlying.Count;
 
 	public T this[ int index ] {
-		get => _underlying[ index ];
-		set => _underlying[ index ] = value;
+		get => this._underlying[ index ];
+		set => this._underlying[ index ] = value;
 	}
 
 	public void Add( T item ) {
-		if (Count == 0) {
-			_underlying.Add( item );
+		if (this.Count == 0) {
+			this._underlying.Add( item );
 			return;
 		}
-		int index = FindIndex( 0, _underlying.Count, item );
-		_underlying.Insert( index, item );
+		int index = FindIndex( 0, this._underlying.Count, item );
+		this._underlying.Insert( index, item );
 	}
 
 	[MethodImpl( MethodImplOptions.AggressiveInlining )]
@@ -44,7 +44,7 @@ public class SimpleSortedList<T>() where T : IComparable<T> {
 		int order;
 		while (true) {
 			middle = start + (end - start) / 2;
-			valueAtIndex = _underlying[ middle ];
+			valueAtIndex = this._underlying[ middle ];
 			order = item.CompareTo( valueAtIndex );
 			if (order == 0)
 				return middle;
@@ -58,5 +58,5 @@ public class SimpleSortedList<T>() where T : IComparable<T> {
 		}
 	}
 
-	public void Clear() => _underlying.Clear();
+	public void Clear() => this._underlying.Clear();
 }

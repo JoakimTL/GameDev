@@ -17,19 +17,19 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 		if (destination.Length == 0)
 			return true;
 		TScalar bytesToCopy = TScalar.CreateSaturating( (ulong) destination.Length * (uint) sizeof( T ) );
-		if (sourceOffsetBytes + bytesToCopy > LengthBytes)
+		if (sourceOffsetBytes + bytesToCopy > this.LengthBytes)
 			return false;
 		fixed (T* dstPtr = destination)
-			DataUtilities.PerformMemCopy( _dataPointer, (byte*) dstPtr, sourceOffsetBytes, 0, bytesToCopy );
+			DataUtilities.PerformMemCopy( this._dataPointer, (byte*) dstPtr, sourceOffsetBytes, 0, bytesToCopy );
 		return true;
 	}
 
 	protected bool ReadRange( void* dstPtr, TScalar dstLengthBytes, TScalar sourceOffsetBytes ) {
 		if (dstLengthBytes == TScalar.Zero)
 			return true;
-		if (sourceOffsetBytes + dstLengthBytes > LengthBytes)
+		if (sourceOffsetBytes + dstLengthBytes > this.LengthBytes)
 			return false;
-		DataUtilities.PerformMemCopy( _dataPointer, (byte*) dstPtr, sourceOffsetBytes, 0, dstLengthBytes );
+		DataUtilities.PerformMemCopy( this._dataPointer, (byte*) dstPtr, sourceOffsetBytes, 0, dstLengthBytes );
 		return true;
 	}
 
@@ -37,10 +37,10 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 		if (source.Length == 0)
 			return true;
 		TScalar bytesToCopy = TScalar.CreateSaturating( (ulong) source.Length * (uint) sizeof( T ) );
-		if (destinationOffsetBytes + bytesToCopy > LengthBytes)
+		if (destinationOffsetBytes + bytesToCopy > this.LengthBytes)
 			return false;
 		fixed (T* srcPtr = source)
-			DataUtilities.PerformMemCopy( (byte*) srcPtr, _dataPointer, 0, destinationOffsetBytes, bytesToCopy );
+			DataUtilities.PerformMemCopy( (byte*) srcPtr, this._dataPointer, 0, destinationOffsetBytes, bytesToCopy );
 		OnBufferWrittenTo?.Invoke( destinationOffsetBytes, bytesToCopy );
 		return true;
 	}
@@ -48,46 +48,50 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 	protected bool WriteRange( void* srcPtr, TScalar srcLengthBytes, TScalar destinationOffsetBytes ) {
 		if (srcLengthBytes == TScalar.Zero)
 			return true;
-		if (destinationOffsetBytes + srcLengthBytes > LengthBytes)
+		if (destinationOffsetBytes + srcLengthBytes > this.LengthBytes)
 			return false;
-		DataUtilities.PerformMemCopy( (byte*) srcPtr, _dataPointer, 0, destinationOffsetBytes, srcLengthBytes );
+		DataUtilities.PerformMemCopy( (byte*) srcPtr, this._dataPointer, 0, destinationOffsetBytes, srcLengthBytes );
 		OnBufferWrittenTo?.Invoke( destinationOffsetBytes, srcLengthBytes );
 		return true;
 	}
 
 	protected void InternalMove( TScalar srcOffsetBytes, TScalar dstOffsetBytes, TScalar lengthBytes ) {
-		DataUtilities.PerformMemCopy( _dataPointer, _dataPointer, srcOffsetBytes, dstOffsetBytes, lengthBytes );
+		DataUtilities.PerformMemCopy( this._dataPointer, this._dataPointer, srcOffsetBytes, dstOffsetBytes, lengthBytes );
 		OnBufferWrittenTo?.Invoke( dstOffsetBytes, lengthBytes );
 	}
 
 	protected bool CopyTo<TRecepientScalar>( IWritableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar dstOffsetBytes, TRecepientScalar bytesToCopy )
 		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar> {
-		if (srcOffsetBytes + TScalar.CreateSaturating( bytesToCopy ) > LengthBytes)
+		if (srcOffsetBytes + TScalar.CreateSaturating( bytesToCopy ) > this.LengthBytes)
 			return false;
-		return recepient.WriteRange( _dataPointer + nint.CreateSaturating( srcOffsetBytes ), bytesToCopy, dstOffsetBytes );
+		return recepient.WriteRange( this._dataPointer + nint.CreateSaturating( srcOffsetBytes ), bytesToCopy, dstOffsetBytes );
 	}
 
 	protected bool Overwrite<TRecepientScalar>( IWriteResizableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar bytesToCopy )
 		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar> {
-		if (srcOffsetBytes + TScalar.CreateSaturating( bytesToCopy ) > LengthBytes)
+		if (srcOffsetBytes + TScalar.CreateSaturating( bytesToCopy ) > this.LengthBytes)
 			return false;
-		return recepient.ResizeWrite( (nint) (_dataPointer + nint.CreateSaturating( srcOffsetBytes )), bytesToCopy );
+		return recepient.ResizeWrite( (nint) (this._dataPointer + nint.CreateSaturating( srcOffsetBytes )), bytesToCopy );
 	}
 
 	protected void Extend( TScalar numBytes ) {
 		if (numBytes == TScalar.Zero)
 			return;
-		LengthBytes += numBytes;
-		_dataPointer = (byte*) NativeMemory.Realloc( _dataPointer, nuint.CreateSaturating( LengthBytes ) );
+		this.LengthBytes += numBytes;
+		this._dataPointer = (byte*) NativeMemory.Realloc( this._dataPointer, nuint.CreateSaturating( this.LengthBytes ) );
 		OnBufferResized?.Invoke( this );
-		this.LogLine( $"Extended to {LengthBytes}!", Log.Level.VERBOSE );
+		this.LogLine( $"Extended to {this.LengthBytes}!", Log.Level.VERBOSE );
 	}
 
 	protected override bool InternalDispose() {
-		if (_dataPointer != null) {
-			NativeMemory.Free( _dataPointer );
-			_dataPointer = null;
+		if (this._dataPointer != null) {
+			NativeMemory.Free( this._dataPointer );
+			this._dataPointer = null;
 		}
 		return true;
 	}
+
+#if DEBUG
+	protected Memory<byte> GetDebugSlice( nint startOffsetBytes, nint lengthBytes ) => DebugUtilities.PointerToMemory( this._dataPointer + startOffsetBytes, (uint) lengthBytes );
+#endif
 }

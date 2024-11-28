@@ -19,17 +19,17 @@ public sealed class ShaderSourceService : DisposableIdentifiable {
 	private readonly Dictionary<string, OglShaderSource> _sources;
 
 	public ShaderSourceService() {
-		_sources = new();
+		this._sources = new();
 	}
 
 	public OglShaderSource? Get( string path ) {
-		if (_sources.TryGetValue( path, out OglShaderSource? source ))
+		if (this._sources.TryGetValue( path, out OglShaderSource? source ))
 			return source;
 		return Add( path );
 	}
 
 	public OglShaderSource GetOrThrow( string path ) {
-		if (_sources.TryGetValue( path, out OglShaderSource? source ))
+		if (this._sources.TryGetValue( path, out OglShaderSource? source ))
 			return source;
 		return Add( path ) ?? throw new InvalidOperationException( $"Shader source {path} not found!" );
 	}
@@ -53,7 +53,7 @@ public sealed class ShaderSourceService : DisposableIdentifiable {
 		}
 
 		OglShaderSource source = new( path, shaderType );
-		_sources.Add( path, source );
+		this._sources.Add( path, source );
 		return source;
 	}
 
@@ -79,9 +79,9 @@ public sealed class ShaderSourceService : DisposableIdentifiable {
 	}
 
 	protected override bool InternalDispose() {
-		foreach (OglShaderSource source in _sources.Values)
+		foreach (OglShaderSource source in this._sources.Values)
 			source.Dispose();
-		_sources.Clear();
+		this._sources.Clear();
 		return true;
 	}
 }

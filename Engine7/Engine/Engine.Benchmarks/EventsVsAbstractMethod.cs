@@ -11,7 +11,7 @@ public class EventsVsAbstractMethod {
 
 	private sealed class Implementation : AbstractTest {
 		public int _latestValue = 0;
-		public override void Test( int i ) { _latestValue = i; }
+		public override void Test( int i ) { this._latestValue = i; }
 	}
 
 	private sealed class EventTest {
@@ -23,7 +23,7 @@ public class EventsVsAbstractMethod {
 				Event += Test;
 		}
 
-		private void Test( int i ) => _latestValue = i;
+		private void Test( int i ) => this._latestValue = i;
 		public void CallEvent( int i ) => Event?.Invoke( i );
 	}
 
@@ -33,24 +33,24 @@ public class EventsVsAbstractMethod {
 
 	[Benchmark]
 	public void AbstractMethod_1() {
-		_testAbstract.Test( 4 );
+		this._testAbstract.Test( 4 );
 	}
 
 	[Benchmark]
 	public void AbstractMethod_1000() {
 		for (int i = 0; i < 1000; i++) {
-			_testAbstract.Test( 4 );
+			this._testAbstract.Test( 4 );
 		}
 	}
 
 	[Benchmark]
 	public void Event_1() {
-		_testEvent1.CallEvent( 4 );
+		this._testEvent1.CallEvent( 4 );
 	}
 
 	[Benchmark]
 	public void Event_1000() {
-		_testEvent1000.CallEvent( 4 );
+		this._testEvent1000.CallEvent( 4 );
 	}
 
 

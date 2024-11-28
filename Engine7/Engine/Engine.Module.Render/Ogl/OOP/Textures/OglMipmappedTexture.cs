@@ -6,7 +6,7 @@ public class OglMipmappedTexture( string name, TextureTarget target, Vector2<int
 	: OglTextureBase<OglMipmappedTextureMetadata>( name, target, level0, new( Math.Max( levels, 1 ), format ), parameters ) {
 
 	protected override void GenerateTexture( OglMipmappedTextureMetadata metadata )
-		=> Gl.TextureStorage2D( TextureID, (int) metadata.Levels, metadata.Format, Level0.X, Level0.Y );
+		=> Gl.TextureStorage2D( this.TextureID, (int) metadata.Levels, metadata.Format, this.Level0.X, this.Level0.Y );
 
 	protected override IReadOnlyList<Vector2<int>> GetLevels( Vector2<int> level0, OglMipmappedTextureMetadata metadata ) {
 		Vector2<int>[] sizes = new Vector2<int>[ metadata.Levels ];

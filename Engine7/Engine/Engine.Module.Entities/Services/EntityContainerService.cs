@@ -9,33 +9,33 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 	private readonly MessageBusStop _messageBusStop;
 
 	public EntityContainerService() {
-		_containers = [];
-		_messageBusStop = MessageBus.CreateManager();
-		_messageBusStop.OnMessageReceived += OnMessageReceived;
+		this._containers = [];
+		this._messageBusStop = MessageBus.CreateManager();
+		this._messageBusStop.OnMessageReceived += OnMessageReceived;
 	}
 
 	private void OnMessageReceived( Message message ) {
 		if (message.Content is EntityContainerListRequest listRequest)
-			foreach (EntityContainer container in _containers)
-				message.ResponseFrom( _messageBusStop, new EntityContainerRequestResponse( container ) );
+			foreach (EntityContainer container in this._containers)
+				message.ResponseFrom( this._messageBusStop, new EntityContainerRequestResponse( container ) );
 	}
 
 	public EntityContainer CreateContainer() {
 		EntityContainer container = new();
-		_containers.Add( container );
+		this._containers.Add( container );
 		container.OnDisposed += OnContainerDisposed;
-		_messageBusStop.Publish( new EntityContainerCreatedEvent( container ) );
+		this._messageBusStop.Publish( new EntityContainerCreatedEvent( container ) );
 		return container;
 	}
 
 	private void OnContainerDisposed() {
-		List<EntityContainer> containersToRemove = _containers.Where( p => p.Disposed ).ToList();
+		List<EntityContainer> containersToRemove = this._containers.Where( p => p.Disposed ).ToList();
 		foreach (EntityContainer container in containersToRemove)
-			_containers.Remove( container );
+			this._containers.Remove( container );
 	}
 
 	protected override bool InternalDispose() {
-		foreach (EntityContainer container in _containers) {
+		foreach (EntityContainer container in this._containers) {
 			container.OnDisposed -= OnContainerDisposed;
 			container.Dispose();
 		}
@@ -43,8 +43,8 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 	}
 
 	public void Update( double time, double deltaTime ) {
-		_messageBusStop.ProcessQueue();
-		foreach (EntityContainer container in _containers)
+		this._messageBusStop.ProcessQueue();
+		foreach (EntityContainer container in this._containers)
 			container.SystemManager.Update( time, deltaTime );
 	}
 }

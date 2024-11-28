@@ -75,20 +75,20 @@ public sealed class TypeRegistry {
 			}
 		}
 
-		AllTypes = allTypes.AsReadOnly();
-		ValueTypes = valueTypes.AsReadOnly();
-		AbstractTypes = abstractTypes.AsReadOnly();
-		SealedTypes = sealedTypes.AsReadOnly();
-		DerivedTypes = derivedTypes.AsReadOnly();
-		InterfaceTypes = interfaceTypes.AsReadOnly();
-		ImplementationTypes = implementationTypes.AsReadOnly();
+		this.AllTypes = allTypes.AsReadOnly();
+		this.ValueTypes = valueTypes.AsReadOnly();
+		this.AbstractTypes = abstractTypes.AsReadOnly();
+		this.SealedTypes = sealedTypes.AsReadOnly();
+		this.DerivedTypes = derivedTypes.AsReadOnly();
+		this.InterfaceTypes = interfaceTypes.AsReadOnly();
+		this.ImplementationTypes = implementationTypes.AsReadOnly();
 	}
 
 	/// <summary>
 	/// Assumes the types you want are not abstract and are subclasses of the generic type directly.
 	/// </summary>
 	public IEnumerable<Type> GetAllSubclassesOfGenericType( Type genericType )
-		=> DerivedTypes.Where( p => HasSpecificBaseType( p, genericType ) && !p.IsAbstract );
+		=> this.DerivedTypes.Where( p => HasSpecificBaseType( p, genericType ) && !p.IsAbstract );
 
 	private bool HasSpecificBaseType( Type inquiringType, Type baseType ) {
 		if (inquiringType.BaseType == null)

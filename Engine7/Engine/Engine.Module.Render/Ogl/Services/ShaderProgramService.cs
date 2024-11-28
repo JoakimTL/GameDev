@@ -8,21 +8,21 @@ public sealed class ShaderProgramService : DisposableIdentifiable {
 	private readonly ShaderSourceService _sourceService;
 
 	public ShaderProgramService( ShaderSourceService sourceService ) {
-		_sourceService = sourceService;
-		_programProvider = InstanceManagement.CreateProvider();
-		_programProvider.OnInstanceAdded += CreateProgram;
+		this._sourceService = sourceService;
+		this._programProvider = InstanceManagement.CreateProvider();
+		this._programProvider.OnInstanceAdded += CreateProgram;
 	}
 
 	private void CreateProgram( object service ) {
 		if (service is OglShaderProgramBase program)
-			program.CreateProgram( _sourceService );
+			program.CreateProgram( this._sourceService );
 	}
 
-	public OglShaderProgramBase Get<T>() where T : OglShaderProgramBase => _programProvider.Get<T>();
-	public OglShaderProgramBase? Get( Type t ) => _programProvider.Get( t ) as OglShaderProgramBase;
+	public OglShaderProgramBase Get<T>() where T : OglShaderProgramBase => this._programProvider.Get<T>();
+	public OglShaderProgramBase? Get( Type t ) => this._programProvider.Get( t ) as OglShaderProgramBase;
 
 	protected override bool InternalDispose() {
-		_programProvider.Dispose();
+		this._programProvider.Dispose();
 		return true;
 	}
 }

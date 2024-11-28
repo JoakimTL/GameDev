@@ -12,54 +12,54 @@ public abstract class OglVertexArrayObjectBase : DisposableIdentifiable {
 	protected OglBufferBase? ElementBuffer { get; private set; }
 
 	public OglVertexArrayObjectBase() {
-		VertexArrayId = Gl.CreateVertexArray();
-		ElementBuffer = null;
-		_bufferBindings = [];
-		_setup = false;
-		Nickname = $"VAO{VertexArrayId}";
+		this.VertexArrayId = Gl.CreateVertexArray();
+		this.ElementBuffer = null;
+		this._bufferBindings = [];
+		this._setup = false;
+		this.Nickname = $"VAO{this.VertexArrayId}";
 	}
 
 	protected void SetBindingDivisor( uint binding, uint divisor ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		if (binding >= _bufferBindings.Count)
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		if (binding >= this._bufferBindings.Count)
 			throw new OpenGlArgumentException( "Binding index is out of range", nameof( binding ) );
-		Gl.VertexArrayBindingDivisor( VertexArrayId, binding, divisor );
+		Gl.VertexArrayBindingDivisor( this.VertexArrayId, binding, divisor );
 	}
 
 	protected void SetAttribBinding( uint binding, uint attribIndex ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		Gl.VertexArrayAttribBinding( VertexArrayId, attribIndex, binding );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Gl.VertexArrayAttribBinding( this.VertexArrayId, attribIndex, binding );
 	}
 
 	protected void SetAttribFormat( uint attribIndex, int size, VertexAttribType type, bool normalized, uint relativeOffset ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		Gl.VertexArrayAttribFormat( VertexArrayId, attribIndex, size, type, normalized, relativeOffset );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Gl.VertexArrayAttribFormat( this.VertexArrayId, attribIndex, size, type, normalized, relativeOffset );
 	}
 
 	protected void SetAttribLFormat( uint attribIndex, int size, VertexAttribType type, uint relativeOffset ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		Gl.VertexArrayAttribLFormat( VertexArrayId, attribIndex, size, type, relativeOffset );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Gl.VertexArrayAttribLFormat( this.VertexArrayId, attribIndex, size, type, relativeOffset );
 	}
 
 	protected void SetAttribIFormat( uint attribIndex, int size, VertexAttribType type, uint relativeOffset ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		Gl.VertexArrayAttribIFormat( VertexArrayId, attribIndex, size, type, relativeOffset );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Gl.VertexArrayAttribIFormat( this.VertexArrayId, attribIndex, size, type, relativeOffset );
 	}
 
 	protected void EnableAttrib( uint attribIndex ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		Gl.EnableVertexArrayAttrib( VertexArrayId, attribIndex );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Gl.EnableVertexArrayAttrib( this.VertexArrayId, attribIndex );
 	}
 
 	protected uint BindBuffer( uint buffer, uint offsetBytes, int strideBytes ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		if (_bufferBindings.TryGetValue( buffer, out uint binding ))
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		if (this._bufferBindings.TryGetValue( buffer, out uint binding ))
 			return binding;
-		binding = (uint) _bufferBindings.Count;
+		binding = (uint) this._bufferBindings.Count;
 		//if (binding >= Gl.GetInteger<int>(GetPName.MaxVertexAttribBindings)
 		//	throw new OpenGlArgumentException( "Too many buffer bindings", nameof( buffer ) );
-		Gl.VertexArrayVertexBuffer( VertexArrayId, binding, buffer, (nint) offsetBytes, strideBytes );
-		_bufferBindings.Add( buffer, binding );
+		Gl.VertexArrayVertexBuffer( this.VertexArrayId, binding, buffer, (nint) offsetBytes, strideBytes );
+		this._bufferBindings.Add( buffer, binding );
 		return binding;
 	}
 
@@ -111,31 +111,31 @@ public abstract class OglVertexArrayObjectBase : DisposableIdentifiable {
 	/// </summary>
 	/// <param name="bufferId">The buffer ID for the element buffer.</param>
 	protected void SetElementBuffer( OglBufferBase buffer ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		ElementBuffer = buffer;
-		Gl.VertexArrayElementBuffer( VertexArrayId, buffer.BufferId );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		this.ElementBuffer = buffer;
+		Gl.VertexArrayElementBuffer( this.VertexArrayId, buffer.BufferId );
 	}
 
 	public uint? GetBufferBinding( uint buffer ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		return _bufferBindings.TryGetValue( buffer, out uint binding ) ? binding : null;
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		return this._bufferBindings.TryGetValue( buffer, out uint binding ) ? binding : null;
 	}
 
 	protected abstract void Setup();
 
 	public void Bind() {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		if (!_setup) {
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		if (!this._setup) {
 			Setup();
-			_setup = true;
+			this._setup = true;
 		}
-		Gl.BindVertexArray( VertexArrayId );
+		Gl.BindVertexArray( this.VertexArrayId );
 	}
 
 	public static void Unbind() => Gl.BindVertexArray( 0 );
 
 	protected override bool InternalDispose() {
-		Gl.DeleteVertexArrays( VertexArrayId );
+		Gl.DeleteVertexArrays( this.VertexArrayId );
 		return true;
 	}
 }

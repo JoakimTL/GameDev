@@ -8,11 +8,11 @@ public sealed class TypeInstanceFactory {
 	private readonly FrozenDictionary<Type[], Func<object[]?, object?>> _factories;
 
 	public TypeInstanceFactory( Type t ) {
-		_factories = CreateFactories( t );
+		this._factories = CreateFactories( t );
 	}
 
 	public object? CreateInstance( object[]? parameters ) {
-		if (!_factories.TryGetValue( parameters?.Select( p => p.GetType() ).ToArray() ?? Type.EmptyTypes, out Func<object[]?, object?>? factory ))
+		if (!this._factories.TryGetValue( parameters?.Select( p => p.GetType() ).ToArray() ?? Type.EmptyTypes, out Func<object[]?, object?>? factory ))
 			return null;
 		return factory.Invoke( parameters );
 	}

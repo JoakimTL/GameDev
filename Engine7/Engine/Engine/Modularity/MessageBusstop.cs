@@ -10,26 +10,26 @@ public sealed class MessageBusStop : DisposableIdentifiable {
 	public event Action<Message>? OnMessageReceived;
 
 	public MessageBusStop() {
-		_messageQueue = [];
-		_interface = new( this );
+		this._messageQueue = [];
+		this._interface = new( this );
 	}
 
-	internal void ReceiveMessage( Message message ) => _messageQueue.Enqueue( message );
+	internal void ReceiveMessage( Message message ) => this._messageQueue.Enqueue( message );
 
 	public void ProcessQueue() {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		while (_messageQueue.TryDequeue( out Message? message ))
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		while (this._messageQueue.TryDequeue( out Message? message ))
 			OnMessageReceived?.Invoke( message );
 	}
 
 	public void Publish( object content ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		MessageBus.Publish( new( _interface, content ) );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		MessageBus.Publish( new( this._interface, content ) );
 	}
 
 	public void SendMessageTo( MessageQueueInterface messageQueue, object content ) {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		messageQueue.LeaveMessage( new( _interface, content ) );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		messageQueue.LeaveMessage( new( this._interface, content ) );
 	}
 
 	protected override bool InternalDispose() => true;
@@ -48,7 +48,7 @@ public sealed class MessageQueueInterface {
 	}
 
 	public void LeaveMessage( Message message ) {
-		_manager.ReceiveMessage( message );
+		this._manager.ReceiveMessage( message );
 	}
 }
 

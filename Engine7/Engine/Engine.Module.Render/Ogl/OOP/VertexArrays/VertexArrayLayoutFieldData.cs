@@ -11,10 +11,10 @@ public class VertexArrayLayoutFieldData {
 	public readonly bool Normalized;
 
 	internal VertexArrayLayoutFieldData( VertexAttribType vertexAttributeType, uint vertexCount, uint relativeOffsetBytes, VertexArrayAttributeType attributeType, bool normalized ) {
-		VertexAttributeType = vertexAttributeType;
-		VertexCount = vertexCount;
-		RelativeOffsetBytes = relativeOffsetBytes;
-		AttributeType = attributeType;
-		Normalized = normalized;
+		this.VertexAttributeType = vertexAttributeType;
+		this.VertexCount = vertexCount;
+		this.RelativeOffsetBytes = relativeOffsetBytes;
+		this.AttributeType = attributeType;
+		this.Normalized = normalized;
 	}
 }

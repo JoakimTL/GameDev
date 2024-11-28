@@ -20,7 +20,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 
 	}
 
-	public void SendMessageToEntity( object message ) => _entity.AddMessage( message );
+	public void SendMessageToEntity( object message ) => this._entity.AddMessage( message );
 
 	public bool AddBehaviour( RenderBehaviourBase behaviour ) {
 		if (!this._behaviours.TryAdd( behaviour.GetType(), behaviour ))

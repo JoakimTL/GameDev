@@ -11,11 +11,11 @@ public sealed class VertexArrayLayout {
 	public IReadOnlyList<VertexArrayLayoutFieldData> Attributes { get; }
 
 	internal VertexArrayLayout( Type bind, OglBufferBase vbo, uint offsetBytes, int strideBytes, uint instanceDivisor, IEnumerable<VertexArrayLayoutFieldData> fields ) {
-		BoundTo = bind;
-		Buffer = vbo;
-		OffsetBytes = offsetBytes;
-		StrideBytes = strideBytes;
-		InstanceDivisor = instanceDivisor;
-		Attributes = fields.ToList().AsReadOnly();
+		this.BoundTo = bind;
+		this.Buffer = vbo;
+		this.OffsetBytes = offsetBytes;
+		this.StrideBytes = strideBytes;
+		this.InstanceDivisor = instanceDivisor;
+		this.Attributes = fields.ToList().AsReadOnly();
 	}
 }

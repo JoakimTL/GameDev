@@ -15,7 +15,7 @@ public class RenderBehaviourService : IInitializable {
 		=> context.InstanceProvider.Catalog.Host<RenderBehaviourEntityContainerEventReceiverService>();
 
 	public void Initialize() {
-		foreach (Context context in _contextManagementService.Contexts)
+		foreach (Context context in this._contextManagementService.Contexts)
 			OnContextAdded( context );
 	}
 }

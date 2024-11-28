@@ -1,4 +1,6 @@
-﻿namespace Engine.Structures;
+﻿using Engine.Processing;
+
+namespace Engine.Structures;
 
 public sealed partial class TypeDigraph {
 	public static partial class Sort {
@@ -21,14 +23,14 @@ public sealed partial class TypeDigraph {
 				Dictionary<Type, Node> nodes = unorderedTypes.Select( p => new Node( p ) ).ToDictionary( p => p.ResolvedType.Type );
 
 				foreach (Node? node in nodes.Values) {
-					IEnumerable<Do.IProcessDirection> relevantAttributes = node.ResolvedType.GetAttributes<Do.IProcessDirection>().Where( p => p.ProcessType == processType );
-					foreach (Do.IProcessBefore beforeAttribute in relevantAttributes.OfType<Do.IProcessBefore>()) {
+					IEnumerable<IProcessDirection> relevantAttributes = node.ResolvedType.GetAttributes<IProcessDirection>().Where( p => p.ProcessType == processType );
+					foreach (IProcessBefore beforeAttribute in relevantAttributes.OfType<IProcessBefore>()) {
 						if (!nodes.TryGetValue( beforeAttribute.BeforeType, out Node? beforeNode ))
 							continue;
 						beforeNode.Parents.Add( node.ResolvedType.Type );
 						node.Children.Add( beforeNode.ResolvedType.Type );
 					}
-					foreach (Do.IProcessAfter afterAttribute in relevantAttributes.OfType<Do.IProcessAfter>()) {
+					foreach (IProcessAfter afterAttribute in relevantAttributes.OfType<IProcessAfter>()) {
 						if (!nodes.TryGetValue( afterAttribute.AfterType, out Node? afterNode ))
 							continue;
 						node.Parents.Add( afterNode.ResolvedType.Type );

@@ -9,25 +9,25 @@ public class RenderBehaviourEntityContainerEventReceiverService : DisposableIden
 	private readonly RenderEntityContainerService _renderEntityContainerService;
 
 	public RenderBehaviourEntityContainerEventReceiverService( RenderEntityContainerService renderEntityContainerService ) {
-		_messageBusStop = MessageBus.CreateManager();
-		_messageBusStop.OnMessageReceived += OnMessageReceived;
+		this._messageBusStop = MessageBus.CreateManager();
+		this._messageBusStop.OnMessageReceived += OnMessageReceived;
 		this._renderEntityContainerService = renderEntityContainerService;
-		_messageBusStop.Publish( new EntityContainerListRequest() );
+		this._messageBusStop.Publish( new EntityContainerListRequest() );
 	}
 
 	private void OnMessageReceived( object obj ) {
 		if (obj is EntityContainerCreatedEvent entityContainerCreatedEvent)
-			_renderEntityContainerService.RegisterEntityContainer( entityContainerCreatedEvent.EntityContainer );
+			this._renderEntityContainerService.RegisterEntityContainer( entityContainerCreatedEvent.EntityContainer );
 		if (obj is EntityContainerRequestResponse entityContainerRequestResponse)
-			_renderEntityContainerService.RegisterEntityContainer( entityContainerRequestResponse.EntityContainer );
+			this._renderEntityContainerService.RegisterEntityContainer( entityContainerRequestResponse.EntityContainer );
 	}
 
 	public void Update( double time, double deltaTime ) {
-		_messageBusStop.ProcessQueue();
+		this._messageBusStop.ProcessQueue();
 	}
 
 	protected override bool InternalDispose() {
-		_messageBusStop.Dispose();
+		this._messageBusStop.Dispose();
 		return true;
 	}
 }

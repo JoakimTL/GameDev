@@ -14,14 +14,14 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 
 	private readonly Dictionary<ShaderType, OglShaderSource> _sources;
 
-	public IReadOnlyDictionary<ShaderType, OglShaderSource> Sources => _sources;
+	public IReadOnlyDictionary<ShaderType, OglShaderSource> Sources => this._sources;
 
 	protected OglShaderProgramBase( bool separable = true ) {
-		Separable = separable;
-		_sources = new Dictionary<ShaderType, OglShaderSource>();
-		ProgramID = Gl.CreateProgram();
+		this.Separable = separable;
+		this._sources = new Dictionary<ShaderType, OglShaderSource>();
+		this.ProgramID = Gl.CreateProgram();
 		if (separable)
-			Gl.ProgramParameter( ProgramID, ProgramParameterPName.ProgramSeparable, Gl.TRUE );
+			Gl.ProgramParameter( this.ProgramID, ProgramParameterPName.ProgramSeparable, Gl.TRUE );
 	}
 
 	internal void CreateProgram( ShaderSourceService shaderSourceService ) {
@@ -36,33 +36,33 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 	public void AttachShader( OglShaderSource shader ) {
 		if (shader is null)
 			throw new ArgumentNullException( nameof( shader ) );
-		if (_sources.ContainsKey( shader.ShaderType )) {
+		if (this._sources.ContainsKey( shader.ShaderType )) {
 			this.LogWarning( $"A shader of the type [{shader.ShaderType}] is already attached!" );
 			return;
 		}
-		_sources.Add( shader.ShaderType, shader );
-		Gl.AttachShader( ProgramID, shader.ShaderID );
-		Mask |= GetMask( shader );
+		this._sources.Add( shader.ShaderType, shader );
+		Gl.AttachShader( this.ProgramID, shader.ShaderID );
+		this.Mask |= GetMask( shader );
 		this.LogLine( $"Attached [{shader.Filepath}]!", Log.Level.VERBOSE, color: ConsoleColor.DarkGreen );
 	}
 
 	public void DetachShader( OglShaderSource shader ) {
-		if (!_sources.ContainsKey( shader.ShaderType )) {
+		if (!this._sources.ContainsKey( shader.ShaderType )) {
 			this.LogWarning( $"No shader of the type [{shader.ShaderType}] is attached!" );
 			return;
 		}
-		if (_sources[ shader.ShaderType ] != shader) {
+		if (this._sources[ shader.ShaderType ] != shader) {
 			this.LogWarning( $"Attempting to detach a shader of type [{shader.ShaderType}], but that shader is not attached!" );
 			return;
 		}
-		_sources.Remove( shader.ShaderType );
-		Gl.DetachShader( ProgramID, shader.ShaderID );
-		Mask &= ~GetMask( shader );
+		this._sources.Remove( shader.ShaderType );
+		Gl.DetachShader( this.ProgramID, shader.ShaderID );
+		this.Mask &= ~GetMask( shader );
 		this.LogLine( $"Detached [{shader.ShaderID}]!", Log.Level.VERBOSE, color: ConsoleColor.Magenta );
 	}
 
 	public bool GetUniformBlockIndex( string blockName, out uint index ) {
-		index = Gl.GetUniformBlockIndex( ProgramID, blockName );
+		index = Gl.GetUniformBlockIndex( this.ProgramID, blockName );
 		if (index == Gl.INVALID_INDEX)
 			return false;
 		return true;
@@ -77,12 +77,12 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 	public bool SetUniformBinding( uint blockIndex, uint binding ) {
 		if (blockIndex == Gl.INVALID_INDEX)
 			return false;
-		Gl.UniformBlockBinding( ProgramID, blockIndex, binding );
+		Gl.UniformBlockBinding( this.ProgramID, blockIndex, binding );
 		return true;
 	}
 
 	public bool GetShaderStorageBlockIndex( string blockName, out uint index ) {
-		index = Gl.GetProgramResourceIndex( ProgramID, ProgramInterface.ShaderStorageBlock, blockName );
+		index = Gl.GetProgramResourceIndex( this.ProgramID, ProgramInterface.ShaderStorageBlock, blockName );
 		if (index == Gl.INVALID_INDEX)
 			return false;
 		return true;
@@ -97,7 +97,7 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 	public bool SetShaderStorageBinding( uint blockIndex, uint binding ) {
 		if (blockIndex == Gl.INVALID_INDEX)
 			return false;
-		Gl.ShaderStorageBlockBinding( ProgramID, blockIndex, binding );
+		Gl.ShaderStorageBlockBinding( this.ProgramID, blockIndex, binding );
 		return true;
 	}
 
@@ -107,7 +107,7 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 	/// </summary>
 	/// <param name="location">Location, from 0 and up.</param>
 	/// <param name="name">Name of the attribute, this is the name of an <b><i>in</i> variable</b> in the vertex shader.</param>
-	protected void SetAttribLocation( uint location, string name ) => Gl.BindAttribLocation( ProgramID, location, name );
+	protected void SetAttribLocation( uint location, string name ) => Gl.BindAttribLocation( this.ProgramID, location, name );
 
 	/// <summary>
 	/// Gets the attribute location of the input attribute.
@@ -116,7 +116,7 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 	/// <param name="loc">The attribute location.</param>
 	/// <returns>Whether the attribute exists or not.</returns>
 	public bool GetAttribLocation( string attribute, out uint loc ) {
-		int location = Gl.GetAttribLocation( ProgramID, attribute );
+		int location = Gl.GetAttribLocation( this.ProgramID, attribute );
 		loc = (uint) location;
 		if (location >= 0)
 			return true;
@@ -134,25 +134,25 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 	};
 
 	private void ValidateShader() {
-		Gl.LinkProgram( ProgramID );
+		Gl.LinkProgram( this.ProgramID );
 
-		Gl.GetProgram( ProgramID, ProgramProperty.LinkStatus, out int status );
+		Gl.GetProgram( this.ProgramID, ProgramProperty.LinkStatus, out int status );
 		if (status == 0) {
 			this.Breakpoint();
 			StringBuilder ss = new( 1024 );
-			Gl.GetProgramInfoLog( ProgramID, 1024, out _, ss );
+			Gl.GetProgramInfoLog( this.ProgramID, 1024, out _, ss );
 			this.LogWarning( $"Linking error {ss}" );
 			//Dispose();
 			return;
 		}
 
-		Gl.ValidateProgram( ProgramID );
+		Gl.ValidateProgram( this.ProgramID );
 
-		Gl.GetProgram( ProgramID, ProgramProperty.ValidateStatus, out status );
+		Gl.GetProgram( this.ProgramID, ProgramProperty.ValidateStatus, out status );
 		if (status == 0) {
 			this.Breakpoint();
 			StringBuilder ss = new( 1024 );
-			Gl.GetProgramInfoLog( ProgramID, 1024, out _, ss );
+			Gl.GetProgramInfoLog( this.ProgramID, 1024, out _, ss );
 			this.LogWarning( $"Validation error {ss}" );
 			//Dispose();
 			return;
@@ -162,9 +162,9 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 	}
 
 	protected override bool InternalDispose() {
-		foreach (KeyValuePair<ShaderType, OglShaderSource> kvp in _sources)
+		foreach (KeyValuePair<ShaderType, OglShaderSource> kvp in this._sources)
 			DetachShader( kvp.Value );
-		Gl.DeleteShader( ProgramID );
+		Gl.DeleteShader( this.ProgramID );
 		return true;
 	}
 }

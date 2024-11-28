@@ -15,63 +15,63 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 	public event Action<OglFramebuffer>? OnFramebufferGeneration;
 
 	private readonly Dictionary<int, OglFramebufferAttachmentType> _attachments;
-	public IReadOnlyDictionary<int, OglFramebufferAttachmentType> Attachments => _attachments.AsReadOnly();
+	public IReadOnlyDictionary<int, OglFramebufferAttachmentType> Attachments => this._attachments.AsReadOnly();
 
 	private readonly List<uint> _currentRenderbuffers;
 	private readonly List<OglTexture> _currentTextures;
 
 	public OglFramebuffer( uint framebufferId, Vector2<int> size ) {
 		if (size.X <= 0 || size.Y <= 0)
-			throw new OpenGlArgumentException( $"{FullName} must have positive non-zero size on both axis", nameof( size ) );
+			throw new OpenGlArgumentException( $"{this.FullName} must have positive non-zero size on both axis", nameof( size ) );
 
-		FramebufferId = framebufferId;
-		Size = size;
-		_attachments = [];
-		_currentRenderbuffers = [];
-		_currentTextures = [];
-		RequiresGeneration = true;
-		Nickname = $"FBO{FramebufferId}";
+		this.FramebufferId = framebufferId;
+		this.Size = size;
+		this._attachments = [];
+		this._currentRenderbuffers = [];
+		this._currentTextures = [];
+		this.RequiresGeneration = true;
+		this.Nickname = $"FBO{this.FramebufferId}";
 	}
 
 	internal void Generate() {
-		ObjectDisposedException.ThrowIf( Disposed, this );
-		if (!RequiresGeneration) {
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		if (!this.RequiresGeneration) {
 			this.LogWarning( $"Already generated." );
 			return;
 		}
 		Wipe();
 		OnFramebufferGeneration?.Invoke( this );
-		RequiresGeneration = false;
+		this.RequiresGeneration = false;
 		Validate();
 	}
 
 	public void Resize( Vector2<int> newSize ) {
 		if (newSize.X <= 0 || newSize.Y <= 0)
-			throw new OpenGlArgumentException( $"{FullName} must have positive non-zero size on both axis", nameof( newSize ) );
-		if (newSize == Size)
+			throw new OpenGlArgumentException( $"{this.FullName} must have positive non-zero size on both axis", nameof( newSize ) );
+		if (newSize == this.Size)
 			this.LogWarning( $"Already has size {newSize}." );
-		Size = newSize;
-		RequiresGeneration = true;
+		this.Size = newSize;
+		this.RequiresGeneration = true;
 	}
 
 	public OglTexture CreateTexture( TextureTarget target, InternalFormat internalFormat, params (TextureParameterName, int)[] parameters ) {
-		OglTexture t = new( $"FBO{FramebufferId}", target, Size, internalFormat, parameters );
-		_currentTextures.Add( t );
+		OglTexture t = new( $"FBO{this.FramebufferId}", target, this.Size, internalFormat, parameters );
+		this._currentTextures.Add( t );
 		return t;
 	}
 
 	public uint CreateRenderbuffer( InternalFormat format, int samples ) {
 		uint buffer = Gl.CreateRenderbuffer();
 		if (samples <= 0)
-			Gl.NamedRenderbufferStorage( buffer, format, Size.X, Size.Y );
+			Gl.NamedRenderbufferStorage( buffer, format, this.Size.X, this.Size.Y );
 		else
-			Gl.NamedRenderbufferStorageMultisample( buffer, samples, format, Size.X, Size.Y );
-		_currentRenderbuffers.Add( buffer );
+			Gl.NamedRenderbufferStorageMultisample( buffer, samples, format, this.Size.X, this.Size.Y );
+		this._currentRenderbuffers.Add( buffer );
 		return buffer;
 	}
 
 	private void Validate() {
-		FramebufferStatus status = Gl.CheckNamedFramebufferStatus( FramebufferId, FramebufferTarget.Framebuffer );
+		FramebufferStatus status = Gl.CheckNamedFramebufferStatus( this.FramebufferId, FramebufferTarget.Framebuffer );
 		if (status != FramebufferStatus.FramebufferComplete)
 			this.LogWarning( $"Validation failed: {status}" );
 	}
@@ -86,13 +86,13 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 		if (texture is null)
 			throw new ArgumentNullException( nameof( texture ) );
 		if (texture.TextureID == 0)
-			throw new OpenGlArgumentException( $"{FullName} says texture {texture} has not been created yet", nameof( texture ) );
-		if (!_attachments.TryAdd( (int) attachment, OglFramebufferAttachmentType.Texture )) {
+			throw new OpenGlArgumentException( $"{this.FullName} says texture {texture} has not been created yet", nameof( texture ) );
+		if (!this._attachments.TryAdd( (int) attachment, OglFramebufferAttachmentType.Texture )) {
 			this.LogWarning( $"Already an attachment at {attachment}." );
 			return;
 		}
 
-		Gl.NamedFramebufferTexture( FramebufferId, attachment, texture.TextureID, level );
+		Gl.NamedFramebufferTexture( this.FramebufferId, attachment, texture.TextureID, level );
 	}
 
 	/// <summary>
@@ -100,13 +100,13 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 	/// </summary>
 	/// <param name="attachment">The attachment point</param>
 	public void DetachTexture( FramebufferAttachment attachment ) {
-		if (!_attachments.TryGetValue( (int) attachment, out OglFramebufferAttachmentType type ) || type != OglFramebufferAttachmentType.Texture) {
+		if (!this._attachments.TryGetValue( (int) attachment, out OglFramebufferAttachmentType type ) || type != OglFramebufferAttachmentType.Texture) {
 			this.LogWarning( $"didn't have any attached texture at {attachment}." );
 			return;
 		}
 
-		_attachments.Remove( (int) attachment );
-		Gl.NamedFramebufferTexture( FramebufferId, attachment, 0, 0 );
+		this._attachments.Remove( (int) attachment );
+		Gl.NamedFramebufferTexture( this.FramebufferId, attachment, 0, 0 );
 	}
 
 
@@ -118,12 +118,12 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 	public void AttachRenderbuffer( FramebufferAttachment attachment, uint buffer ) {
 		if (buffer == 0)
 			throw new OpenGlArgumentException( $"Buffer id must be greater than zero", nameof( buffer ) );
-		if (!_attachments.TryAdd( (int) attachment, OglFramebufferAttachmentType.Renderbuffer )) {
+		if (!this._attachments.TryAdd( (int) attachment, OglFramebufferAttachmentType.Renderbuffer )) {
 			this.LogWarning( $"Already an attachment at {attachment}." );
 			return;
 		}
 
-		Gl.NamedFramebufferRenderbuffer( FramebufferId, attachment, RenderbufferTarget.Renderbuffer, buffer );
+		Gl.NamedFramebufferRenderbuffer( this.FramebufferId, attachment, RenderbufferTarget.Renderbuffer, buffer );
 	}
 
 	/// <summary>
@@ -131,42 +131,42 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 	/// </summary>
 	/// <param name="attachment">The attachment point</param>
 	public void DetachRenderbuffer( FramebufferAttachment attachment ) {
-		if (!_attachments.TryGetValue( (int) attachment, out OglFramebufferAttachmentType type ) || type != OglFramebufferAttachmentType.Renderbuffer) {
+		if (!this._attachments.TryGetValue( (int) attachment, out OglFramebufferAttachmentType type ) || type != OglFramebufferAttachmentType.Renderbuffer) {
 			this.LogWarning( $"Didn't have any attached renderbuffer at {attachment}." );
 			return;
 		}
 
-		_attachments.Remove( (int) attachment );
-		Gl.NamedFramebufferRenderbuffer( FramebufferId, attachment, RenderbufferTarget.Renderbuffer, 0 );
+		this._attachments.Remove( (int) attachment );
+		Gl.NamedFramebufferRenderbuffer( this.FramebufferId, attachment, RenderbufferTarget.Renderbuffer, 0 );
 	}
 
 	public void EnableCurrentColorAttachments() {
-		int[] attachments = [ .. _attachments.Keys.Where( p => p != (int) FramebufferAttachment.DepthAttachment && p != (int) FramebufferAttachment.DepthStencilAttachment ) ];
+		int[] attachments = [ .. this._attachments.Keys.Where( p => p != (int) FramebufferAttachment.DepthAttachment && p != (int) FramebufferAttachment.DepthStencilAttachment ) ];
 		Array.Sort( attachments );
-		if (_currentActiveAttachments is not null && _currentActiveAttachments.SequenceEqual( attachments )) {
+		if (this._currentActiveAttachments is not null && this._currentActiveAttachments.SequenceEqual( attachments )) {
 			this.LogWarning( $"Already has the correct color attachments enabled." );
 			return;
 		}
-		_currentActiveAttachments = attachments;
-		Gl.NamedFramebufferDrawBuffers( FramebufferId, attachments.Length, attachments );
+		this._currentActiveAttachments = attachments;
+		Gl.NamedFramebufferDrawBuffers( this.FramebufferId, attachments.Length, attachments );
 	}
 
-	public void Clear( OpenGL.Buffer bufferType, int buffer, uint[] values ) => Gl.ClearNamedFramebuffer( FramebufferId, bufferType, buffer, values );
+	public void Clear( OpenGL.Buffer bufferType, int buffer, uint[] values ) => Gl.ClearNamedFramebuffer( this.FramebufferId, bufferType, buffer, values );
 
-	public void Clear( OpenGL.Buffer bufferType, int buffer, int[] values ) => Gl.ClearNamedFramebuffer( FramebufferId, bufferType, buffer, values );
+	public void Clear( OpenGL.Buffer bufferType, int buffer, int[] values ) => Gl.ClearNamedFramebuffer( this.FramebufferId, bufferType, buffer, values );
 
-	public void Clear( OpenGL.Buffer bufferType, int buffer, float[] values ) => Gl.ClearNamedFramebuffer( FramebufferId, bufferType, buffer, values );
+	public void Clear( OpenGL.Buffer bufferType, int buffer, float[] values ) => Gl.ClearNamedFramebuffer( this.FramebufferId, bufferType, buffer, values );
 
-	public void ClearDepthStencil( OpenGL.Buffer bufferType, int buffer, float depth, int stencil ) => Gl.ClearNamedFramebuffer( FramebufferId, bufferType, buffer, depth, stencil );
+	public void ClearDepthStencil( OpenGL.Buffer bufferType, int buffer, float depth, int stencil ) => Gl.ClearNamedFramebuffer( this.FramebufferId, bufferType, buffer, depth, stencil );
 
 	protected override bool InternalDispose() {
 		Wipe();
-		Gl.DeleteFramebuffers( FramebufferId );
+		Gl.DeleteFramebuffers( this.FramebufferId );
 		return true;
 	}
 
 	private void Wipe() {
-		foreach (KeyValuePair<int, OglFramebufferAttachmentType> kvp in _attachments)
+		foreach (KeyValuePair<int, OglFramebufferAttachmentType> kvp in this._attachments)
 			switch (kvp.Value) {
 				case OglFramebufferAttachmentType.Texture:
 					DetachTexture( (FramebufferAttachment) kvp.Key );
@@ -178,13 +178,13 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 					throw new ArgumentOutOfRangeException( nameof( kvp.Value ), kvp.Value, null );
 			}
 
-		if (_currentRenderbuffers.Count > 0) {
-			Gl.DeleteRenderbuffers( [ .. _currentRenderbuffers ] );
-			_currentRenderbuffers.Clear();
+		if (this._currentRenderbuffers.Count > 0) {
+			Gl.DeleteRenderbuffers( [ .. this._currentRenderbuffers ] );
+			this._currentRenderbuffers.Clear();
 		}
 
-		for (int i = 0; i < _currentTextures.Count; i++)
-			_currentTextures[ i ].Dispose();
-		_currentTextures.Clear();
+		for (int i = 0; i < this._currentTextures.Count; i++)
+			this._currentTextures[ i ].Dispose();
+		this._currentTextures.Clear();
 	}
 }

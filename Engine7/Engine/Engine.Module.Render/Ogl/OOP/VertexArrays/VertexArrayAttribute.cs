@@ -11,10 +11,10 @@ public readonly struct VertexArrayAttribute {
 	public readonly bool Normalized;
 
 	public VertexArrayAttribute( VertexAttribType vertexAttributeType, int vertexCount, uint relativeOffsetBytes, VertexArrayAttributeType attributeType = VertexArrayAttributeType.DEFAULT, bool normalized = false ) {
-		VertexAttributeType = vertexAttributeType;
-		VertexCount = vertexCount;
-		RelativeOffsetBytes = relativeOffsetBytes;
-		AttributeType = attributeType;
-		Normalized = normalized;
+		this.VertexAttributeType = vertexAttributeType;
+		this.VertexCount = vertexCount;
+		this.RelativeOffsetBytes = relativeOffsetBytes;
+		this.AttributeType = attributeType;
+		this.Normalized = normalized;
 	}
 }

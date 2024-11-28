@@ -22,10 +22,10 @@ public static class VAO {
 		/// </summary>
 		public ushort TextureCount { get; private set; }
 		public SetupAttribute( uint offsetBytes, uint instanceDivisor, ushort textureCount, int strideBytesOverride = -1 ) {
-			OffsetBytes = offsetBytes;
-			InstanceDivisor = instanceDivisor;
-			TextureCount = textureCount;
-			StrideBytesOverride = strideBytesOverride;
+			this.OffsetBytes = offsetBytes;
+			this.InstanceDivisor = instanceDivisor;
+			this.TextureCount = textureCount;
+			this.StrideBytesOverride = strideBytesOverride;
 		}
 	}
 
@@ -44,11 +44,11 @@ public static class VAO {
 		/// <param name="normalized"></param>
 		/// <param name="relativeOffsetBytesOverride">Override of the relative offset. This value should usually not need to be tampered with. The <see cref="FieldOffsetAttribute"/> is usually enough to indicate the relative offset.</param>
 		public DataAttribute( VertexAttribType vertexAttributeType, uint vertexCount, VertexArrayAttributeType attributeType = VertexArrayAttributeType.DEFAULT, bool normalized = false, int relativeOffsetBytesOverride = -1 ) {
-			VertexAttributeType = vertexAttributeType;
-			VertexCount = vertexCount;
-			RelativeOffsetBytesOverride = relativeOffsetBytesOverride;
-			AttributeType = attributeType;
-			Normalized = normalized;
+			this.VertexAttributeType = vertexAttributeType;
+			this.VertexCount = vertexCount;
+			this.RelativeOffsetBytesOverride = relativeOffsetBytesOverride;
+			this.AttributeType = attributeType;
+			this.Normalized = normalized;
 		}
 	}
 }

@@ -65,7 +65,8 @@ internal static class Helper {
 			Warning( "Stopped sending log data to pipe." );
 	}
 
-	public static string GetLogPrefix() => $"{Thread.CurrentThread.Name}:{Environment.CurrentManagedThreadId}/{Thread.CurrentThread.CurrentCulture.Name}|{DateTime.Now:HHmm:ss.f}";
+	public static string GetLogPrefix() => $"{Thread.CurrentThread.Name?.GetUpperCaseLettersOnly(2, true)}:{Environment.CurrentManagedThreadId}/{Thread.CurrentThread.CurrentCulture.Name}|{DateTime.Now:HHmm:ss.f}";
+
 }
 
 

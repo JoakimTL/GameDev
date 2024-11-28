@@ -8,21 +8,21 @@ public sealed class ShaderPipelineService : DisposableIdentifiable {
 	private readonly ShaderProgramService _shaderProgramService;
 
 	public ShaderPipelineService( ShaderProgramService shaderProgramService ) {
-		_shaderProgramService = shaderProgramService;
-		_pipelineProvider = InstanceManagement.CreateProvider();
-		_pipelineProvider.OnInstanceAdded += CreatePipeline;
+		this._shaderProgramService = shaderProgramService;
+		this._pipelineProvider = InstanceManagement.CreateProvider();
+		this._pipelineProvider.OnInstanceAdded += CreatePipeline;
 	}
 
 	private void CreatePipeline( object service ) {
 		if (service is OglShaderPipelineBase pipeline)
-			pipeline.CreatePipeline( _shaderProgramService );
+			pipeline.CreatePipeline( this._shaderProgramService );
 	}
 
-	public OglShaderPipelineBase Get<T>() where T : OglShaderPipelineBase => _pipelineProvider.Get<T>();
-	public OglShaderPipelineBase? Get( Type type ) => _pipelineProvider.Get( type ) as OglShaderPipelineBase;
+	public OglShaderPipelineBase Get<T>() where T : OglShaderPipelineBase => this._pipelineProvider.Get<T>();
+	public OglShaderPipelineBase? Get( Type type ) => this._pipelineProvider.Get( type ) as OglShaderPipelineBase;
 
 	protected override bool InternalDispose() {
-		_pipelineProvider.Dispose();
+		this._pipelineProvider.Dispose();
 		return true;
 	}
 }
@@ -35,9 +35,9 @@ public sealed class ShaderBundleService : Identifiable, IInitializable {
 
 	public ShaderBundleService( ShaderPipelineService pipelineService ) {
 		this._pipelineService = pipelineService;
-		_bundles = [];
-		_allIndices = [];
-		_bundleTypeFromIdentity = LoadBundleIdentities();
+		this._bundles = [];
+		this._allIndices = [];
+		this._bundleTypeFromIdentity = LoadBundleIdentities();
 	}
 
 	private void LoadBundles() {
@@ -46,7 +46,7 @@ public sealed class ShaderBundleService : Identifiable, IInitializable {
 			.Select( p => TypeManager.ResolveType( p ).CreateInstance( null ) )
 			.OfType<ShaderBundleBase>();
 		foreach (ShaderBundleBase shaderBundle in bundles)
-			_bundles.Add( shaderBundle.GetType(), shaderBundle );
+			this._bundles.Add( shaderBundle.GetType(), shaderBundle );
 	}
 
 	private Dictionary<string, Type> LoadBundleIdentities() {
@@ -61,15 +61,15 @@ public sealed class ShaderBundleService : Identifiable, IInitializable {
 	}
 	public void Initialize() {
 		LoadBundles();
-		foreach (ShaderBundleBase bundle in _bundles.Values)
-			bundle.CreateBundle( _pipelineService );
-		_allIndices.AddRange( _bundles.Values.SelectMany( p => p.AllIndices ).Distinct() );
+		foreach (ShaderBundleBase bundle in this._bundles.Values)
+			bundle.CreateBundle( this._pipelineService );
+		this._allIndices.AddRange( this._bundles.Values.SelectMany( p => p.AllIndices ).Distinct() );
 	}
 
-	public T? Get<T>() where T : ShaderBundleBase => _bundles.TryGetValue( typeof( T ), out ShaderBundleBase? bundle ) ? bundle as T : null;
-	public ShaderBundleBase? Get( Type type ) => _bundles.TryGetValue( type, out ShaderBundleBase? bundle ) ? bundle : null;
-	public ShaderBundleBase? Get( string identity ) => _bundleTypeFromIdentity.TryGetValue( identity, out Type? type ) ? Get( type ) : null;
+	public T? Get<T>() where T : ShaderBundleBase => this._bundles.TryGetValue( typeof( T ), out ShaderBundleBase? bundle ) ? bundle as T : null;
+	public ShaderBundleBase? Get( Type type ) => this._bundles.TryGetValue( type, out ShaderBundleBase? bundle ) ? bundle : null;
+	public ShaderBundleBase? Get( string identity ) => this._bundleTypeFromIdentity.TryGetValue( identity, out Type? type ) ? Get( type ) : null;
 
-	public IReadOnlyList<string> AllShaderIndices => _allIndices;
+	public IReadOnlyList<string> AllShaderIndices => this._allIndices;
 
 }

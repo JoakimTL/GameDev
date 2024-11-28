@@ -1,6 +1,7 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Domain;
 using Engine.Module.Render.Ogl.OOP;
+using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using OpenGL;
@@ -18,16 +19,16 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 	internal WindowSettings WindowSettings { get; }
 
 	public Context( WindowSettings settings ) {
-		InstanceProvider = InstanceManagement.CreateProvider();
-		_serviceProviderUpdater = InstanceProvider.CreateUpdater();
-		_serviceProviderInitializer = InstanceProvider.CreateInitializer();
-		_pipelineExecuterExtension = new( InstanceProvider );
-		InstanceProvider.Inject( this, false );
-		WindowSettings = settings;
+		this.InstanceProvider = InstanceManagement.CreateProvider();
+		this._serviceProviderUpdater = this.InstanceProvider.CreateUpdater();
+		this._serviceProviderInitializer = this.InstanceProvider.CreateInitializer();
+		this._pipelineExecuterExtension = new( this.InstanceProvider );
+		this.InstanceProvider.Inject( this, false );
+		this.WindowSettings = settings;
 	}
 
 	public void Initialize() {
-		InstanceProvider.Get<WindowService>().CreateWindow();
+		this.InstanceProvider.Get<WindowService>().CreateWindow();
 		Bind();
 		Gl.BindAPI();
 		Log.Line( "Using OpenGL version: " + Gl.GetString( StringName.Version ), Log.Level.NORMAL, ConsoleColor.Blue );
@@ -41,16 +42,16 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 		Log.Line( $"Max uniform spec: Bindings: {maxBindings}, Locations: {maxLocations}, Block size: {maxBlockSize}B", Log.Level.NORMAL, ConsoleColor.Blue );
 		Gl.GetInteger( GetPName.MaxShaderStorageBufferBindings, out maxBindings );
 		Log.Line( $"Max shader storage spec: Bindings: {maxBindings}", Log.Level.NORMAL, ConsoleColor.Blue );
-		InstanceProvider.Catalog.Host<UserInputService>();
+		this.InstanceProvider.Catalog.Host<UserInputService>();
 	}
 
 	public void Update( double time, double deltaTime ) {
-		if (Disposed) {
+		if (this.Disposed) {
 			this.LogWarning( "Context has been disposed!" );
 			return;
 		}
 
-		OglWindow window = InstanceProvider.Get<WindowService>().Window;
+		OglWindow window = this.InstanceProvider.Get<WindowService>().Window;
 
 		if (window.ShouldClose) {
 			window.Title = "Closing!";
@@ -61,10 +62,13 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 		Bind();
 		window.CheckResize();
 
-		_serviceProviderInitializer.Update( time, deltaTime );
-		_serviceProviderUpdater.Update( time, deltaTime );
-		_pipelineExecuterExtension.PrepareRendering( time, deltaTime );
-		_pipelineExecuterExtension.DrawToScreen();
+		this._serviceProviderInitializer.Update( time, deltaTime );
+		this._serviceProviderUpdater.Update( time, deltaTime );
+		this._pipelineExecuterExtension.PrepareRendering( time, deltaTime );
+
+		InstanceProvider.Get<ViewportStateService>().Set( 0, window.Size );
+
+		this._pipelineExecuterExtension.DrawToScreen();
 
 		window.SwapBuffer();
 
@@ -91,12 +95,12 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 	}
 
 	private void Bind() {
-		ContextUtilities.MakeContextCurrent( InstanceProvider.Get<WindowService>().Window.Handle );
-		_contextThread = Thread.CurrentThread;
+		ContextUtilities.MakeContextCurrent( this.InstanceProvider.Get<WindowService>().Window.Handle );
+		this._contextThread = Thread.CurrentThread;
 	}
 
 	protected override bool InternalDispose() {
-		InstanceProvider.Dispose();
+		this.InstanceProvider.Dispose();
 		return true;
 	}
 }

@@ -21,7 +21,7 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 
 	public RenderEntityContainer( EntityContainer container ) {
 		this._container = container;
-		this._renderEntityContainerDependentBehaviourManager = new(this);
+		this._renderEntityContainerDependentBehaviourManager = new( this );
 		this._renderEntitiesByEntityId = [];
 		this._renderEntitiesToAddQueue = [];
 		this._renderEntitiesToRemoveQueue = [];

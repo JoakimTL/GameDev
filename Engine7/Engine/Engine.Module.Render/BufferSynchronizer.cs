@@ -8,27 +8,27 @@ public sealed class BufferSynchronizer<TSource, TDestination> where TSource : IR
 	private readonly Queue<(uint, uint)> _changedSegments;
 
 	public BufferSynchronizer( TSource systemBuffer, TDestination gpuBuffer ) {
-		_sourceBuffer = systemBuffer;
-		_destinationBuffer = gpuBuffer;
-		_changedSegments = [];
+		this._sourceBuffer = systemBuffer;
+		this._destinationBuffer = gpuBuffer;
+		this._changedSegments = [];
 		systemBuffer.OnBufferWrittenTo += OnSystemBufferWrittenTo;
 	}
 
 	private void OnSystemBufferWrittenTo( ulong offsetBytes, ulong lengthBytes ) {
-		_changedSegments.Enqueue( ((uint) offsetBytes, (uint) lengthBytes) );
+		this._changedSegments.Enqueue( ((uint) offsetBytes, (uint) lengthBytes) );
 	}
 
 	public void Synchronize() {
-		while (_changedSegments.TryDequeue(out (uint, uint) segment))
+		while (this._changedSegments.TryDequeue(out (uint, uint) segment))
 			WriteSegment( segment );
 	}
 
 	private void WriteSegment( (uint Offset, uint Length) segment ) {
 		Span<byte> data = stackalloc byte[ (int) segment.Length ];
-		if (!_sourceBuffer.ReadRange( data, segment.Offset )) {
+		if (!this._sourceBuffer.ReadRange( data, segment.Offset )) {
 			this.LogWarning( "Failed to read data from source buffer." );
 			return;
 		}
-		_destinationBuffer.WriteRange( data, segment.Offset );
+		this._destinationBuffer.WriteRange( data, segment.Offset );
 	}
 }

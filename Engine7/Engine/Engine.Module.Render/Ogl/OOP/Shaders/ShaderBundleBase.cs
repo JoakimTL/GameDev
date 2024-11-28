@@ -11,18 +11,18 @@ public abstract class ShaderBundleBase : Identifiable {
 	private readonly Dictionary<string, OglShaderPipelineBase> _pipelines;
 
 	protected ShaderBundleBase() {
-		BundleID = GetNextUniqueId();
-		_pipelines = new();
+		this.BundleID = GetNextUniqueId();
+		this._pipelines = new();
 	}
 
 	internal void CreateBundle( ShaderPipelineService pipelineService ) => AddPipelines( pipelineService );
 
 	protected abstract void AddPipelines( ShaderPipelineService pipelineService );
 
-	protected void AddPipeline( string index, OglShaderPipelineBase pipeline ) => _pipelines.Add( index, pipeline );
+	protected void AddPipeline( string index, OglShaderPipelineBase pipeline ) => this._pipelines.Add( index, pipeline );
 
-	public OglShaderPipelineBase? Get( string index ) => _pipelines.TryGetValue( index, out OglShaderPipelineBase? r ) ? r : null;
+	public OglShaderPipelineBase? Get( string index ) => this._pipelines.TryGetValue( index, out OglShaderPipelineBase? r ) ? r : null;
 
-	public IEnumerable<string> AllIndices => _pipelines.Keys;
+	public IEnumerable<string> AllIndices => this._pipelines.Keys;
 
 }

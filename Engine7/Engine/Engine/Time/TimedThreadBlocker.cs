@@ -32,7 +32,7 @@ public sealed class TimedThreadBlocker<TTickSupplier> : DisposableIdentifiable, 
 	public TimedBlockerState Block() {
 		if (this.Cancelled || this.Disposed)
 			return TimedBlockerState.Cancelled;
-		if (PeriodMs == 0)
+		if (this.PeriodMs == 0)
 			return TimedBlockerState.NonBlocking;
 
 		long currentTick = TTickSupplier.Ticks;

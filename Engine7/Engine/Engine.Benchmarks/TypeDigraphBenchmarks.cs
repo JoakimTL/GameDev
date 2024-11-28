@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using Engine.Processing;
 using Engine.Structures;
 
 namespace Engine.Benchmarks;
@@ -10,27 +11,27 @@ public class TypeDigraphBenchmarks {
 	private sealed class Smelting;
 	private sealed class Mining;
 	private sealed class Log;
-	[Do.After<Log, Crafting>]
+	[Do<Crafting>.After<Log>]
 	private sealed class Plank;
-	[Do.After<Plank, Crafting>]
+	[Do<Crafting>.After<Plank>]
 	private sealed class Stick;
-	[Do.After<Plank, Crafting>]
-	[Do.After<Stick, Crafting>]
+	[Do<Crafting>.After<Plank>]
+	[Do<Crafting>.After<Stick>]
 	private sealed class WoodenPickaxe;
-	[Do.After<WoodenPickaxe, Mining>]
+	[Do<Mining>.After<WoodenPickaxe>]
 	private sealed class Cobblestone;
-	[Do.After<Cobblestone, Crafting>]
-	[Do.After<Stick, Crafting>]
+	[Do<Crafting>.After<Cobblestone>]
+	[Do<Crafting>.After<Stick>]
 	private sealed class StonePickaxe;
-	[Do.After<StonePickaxe, Mining>]
+	[Do<Mining>.After<StonePickaxe>]
 	private sealed class IronOre;
-	[Do.After<Cobblestone, Crafting>]
+	[Do<Crafting>.After<Cobblestone>]
 	private sealed class Furnace;
-	[Do.After<IronOre, Smelting>]
-	[Do.After<Furnace, Smelting>]
+	[Do<Smelting>.After<IronOre>]
+	[Do<Smelting>.After<Furnace>]
 	private sealed class IronIngot;
-	[Do.After<IronIngot, Crafting>]
-	[Do.After<Stick, Crafting>]
+	[Do<Crafting>.After<IronIngot>]
+	[Do<Crafting>.After<Stick>]
 	private sealed class IronPickaxe;
 
 	private IEnumerable<Type>? _currentTree;

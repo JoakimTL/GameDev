@@ -45,7 +45,7 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	}
 
 	public void Stop() {
-		if (!Running)
+		if (!this.Running)
 			return;
 		this.Running = false;
 		this.LogLine( "Shutdown was requested." );

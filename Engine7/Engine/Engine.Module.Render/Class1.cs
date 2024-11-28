@@ -1,4 +1,6 @@
-﻿namespace Engine.Module.Render;
+﻿using OpenGL;
+
+namespace Engine.Module.Render;
 
 public class Class1 {
 
