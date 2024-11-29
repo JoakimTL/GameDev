@@ -84,7 +84,7 @@ public class RenderEntityContainerTests {
 		motion.Velocity = new Vector3<double>( 1, 2, 3 );
 		entity.AddComponent<RenderComponent>();
 
-		RenderEntityContainer renderContainer = new( container );
+		RenderEntityContainer renderContainer = new( container, null );
 
 		Assert.That( renderContainer.PendingEntitiesToAdd, Is.EqualTo( 1 ) );
 		container.SystemManager.Update( 0, 0);

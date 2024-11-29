@@ -7,6 +7,7 @@ namespace Engine.Module.Entities.Render;
 
 public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable {
 	private readonly EntityContainer _container;
+	private readonly SceneInstanceProvider _sceneInstanceProvider;
 	private readonly EntityContainerListChangeEventHandler _handler;
 
 	private readonly Dictionary<Guid, RenderEntity> _renderEntitiesByEntityId;
@@ -19,8 +20,9 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 	public event Action<RenderEntity>? OnRenderEntityAdded;
 	public event Action<RenderEntity>? OnRenderEntityRemoved;
 
-	public RenderEntityContainer( EntityContainer container ) {
+	public RenderEntityContainer( EntityContainer container, SceneInstanceProvider sceneInstanceProvider ) {
 		this._container = container;
+		this._sceneInstanceProvider = sceneInstanceProvider;
 		this._renderEntityContainerDependentBehaviourManager = new( this );
 		this._renderEntitiesByEntityId = [];
 		this._renderEntitiesToAddQueue = [];
@@ -81,7 +83,7 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 	private void AddRenderEntity( Entity entity ) {
 		if (this._renderEntitiesByEntityId.ContainsKey( entity.EntityId ))
 			return;
-		RenderEntity renderEntity = new( entity );
+		RenderEntity renderEntity = new( entity, _sceneInstanceProvider );
 		this._renderEntitiesByEntityId.Add( entity.EntityId, renderEntity );
 		foreach (ArchetypeBase archetype in entity.CurrentArchetypes)
 			renderEntity.AddDependenciesOnArchetype( archetype );

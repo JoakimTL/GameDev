@@ -92,6 +92,9 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 		OnInstanceDataSegmentChanged?.Invoke( this, oldSegment );
 	}
 
+	protected abstract void Initialize();
+	internal void Setup() => Initialize();
+
 	protected bool Write<TInstanceData>( TInstanceData data ) where TInstanceData : unmanaged => InstanceDataSegment?.Write<ulong, TInstanceData>( 0, data ) ?? false;
 	protected bool TryRead<TInstanceData>( out TInstanceData data ) where TInstanceData : unmanaged {
 		data = default;
@@ -105,5 +108,13 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	protected override bool InternalDispose() {
 		InstanceDataSegment?.Dispose();
 		return true;
+	}
+}
+
+public class SceneInstance<TVertexData, TInstanceData>() : SceneInstanceBase( typeof( TInstanceData ) )
+	where TVertexData : unmanaged
+	where TInstanceData : unmanaged {
+	protected override void Initialize() {
+
 	}
 }

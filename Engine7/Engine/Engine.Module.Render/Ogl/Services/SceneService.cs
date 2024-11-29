@@ -1,6 +1,6 @@
-﻿using Engine.Module.Render.Ogl.Services;
+﻿using Engine.Module.Render.Ogl.Scenes;
 
-namespace Engine.Module.Render.Ogl.Scenes;
+namespace Engine.Module.Render.Ogl.Services;
 
 public sealed class SceneService( BufferService bufferService ) {
 	private readonly Dictionary<string, Scene> _scenesByName = [];

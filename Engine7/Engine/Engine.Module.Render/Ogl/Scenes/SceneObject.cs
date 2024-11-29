@@ -16,7 +16,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	public ulong BindIndex { get; }
 	public uint RenderLayer { get; }
 	private readonly HashSet<SceneInstanceBase> _unmeshedSceneInstances;
-	private readonly Dictionary<IMesh, Dictionary<Type, List<SceneInstanceCollection>>> _sceneInstanceCollectionsByMeshByInstanceDataType;
+	private readonly Dictionary<(IMesh, Type), List<SceneInstanceCollection>> _sceneInstanceCollectionsByMeshByInstanceDataType;
 	private readonly BufferService _bufferService;
 
 	public event Action<SceneInstanceBase>? OnInstanceRemoved;
@@ -33,22 +33,13 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		this._bufferService = bufferService;
 	}
 
-	public uint GetCommandCount() {
-		uint count = 0;
-		foreach (KeyValuePair<IMesh, Dictionary<Type, List<SceneInstanceCollection>>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType)
-			foreach (List<SceneInstanceCollection> collectionList in kvp.Value.Values)
-				count += (uint) collectionList.Count;
-		return count;
-	}
-
 	public void AddIndirectCommands( List<IndirectCommand> commandList ) {
-		foreach (KeyValuePair<IMesh, Dictionary<Type, List<SceneInstanceCollection>>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType) {
+		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType) {
 			if (kvp.Value.Count == 0)
 				continue;
-			IMesh mesh = kvp.Key;
-			foreach (KeyValuePair<Type, List<SceneInstanceCollection>> collectionsByInstanceDataType in kvp.Value)
-				foreach (SceneInstanceCollection collection in collectionsByInstanceDataType.Value)
-					commandList.Add( new( mesh.ElementCount, collection.InstanceCount, mesh.ElementOffset, mesh.VertexOffset, collection.BaseInstance ) );
+			IMesh mesh = kvp.Key.Item1;
+			foreach (SceneInstanceCollection collection in kvp.Value)
+				commandList.Add( new( mesh.ElementCount, collection.InstanceCount, mesh.ElementOffset, mesh.VertexOffset, collection.BaseInstance ) );
 		}
 	}
 
@@ -81,10 +72,8 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	private void AddSceneInstanceIntoCollection( SceneInstanceBase sceneInstance ) {
 		IMesh mesh = sceneInstance.Mesh ?? throw new InvalidOperationException( "Instance mesh is null" );
 
-		if (!_sceneInstanceCollectionsByMeshByInstanceDataType.TryGetValue( mesh, out Dictionary<Type, List<SceneInstanceCollection>>? collectionByInstanceDataType ))
-			_sceneInstanceCollectionsByMeshByInstanceDataType.Add( mesh, collectionByInstanceDataType = [] );
-		if (!collectionByInstanceDataType.TryGetValue( sceneInstance.InstanceDataType, out List<SceneInstanceCollection>? collectionList ))
-			collectionByInstanceDataType.Add( sceneInstance.InstanceDataType, collectionList = [] );
+		if (!_sceneInstanceCollectionsByMeshByInstanceDataType.TryGetValue( (mesh, sceneInstance.InstanceDataType), out List<SceneInstanceCollection>? collectionList ))
+			_sceneInstanceCollectionsByMeshByInstanceDataType.Add( (mesh, sceneInstance.InstanceDataType), collectionList = [] );
 
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
@@ -175,13 +164,12 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	}
 
 	private void PruneEmptyCollections() {
-		foreach (KeyValuePair<IMesh, Dictionary<Type, List<SceneInstanceCollection>>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType)
-			foreach (List<SceneInstanceCollection> collectionList in kvp.Value.Values)
-				for (int i = collectionList.Count - 1; i >= 0; i--)
-					if (collectionList[ i ].InstanceCount == 0) {
-						collectionList[ i ].Dispose();
-						collectionList.RemoveAt( i );
-					}
+		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType)
+			for (int i = kvp.Value.Count - 1; i >= 0; i--)
+				if (kvp.Value[ i ].InstanceCount == 0) {
+					kvp.Value[ i ].Dispose();
+					kvp.Value.RemoveAt( i );
+				}
 	}
 
 	private void OnInstanceDisposed( IListenableDisposable disposable ) => RemoveInstance( (SceneInstanceBase) disposable );
@@ -195,10 +183,9 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	private void OnBindIndexChanged( SceneInstanceBase changedInstance, ulong? oldBindIndex ) => RemoveInstance( changedInstance );
 
 	protected override bool InternalDispose() {
-		foreach (KeyValuePair<IMesh, Dictionary<Type, List<SceneInstanceCollection>>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType)
-			foreach (List<SceneInstanceCollection> collectionList in kvp.Value.Values)
-				foreach (SceneInstanceCollection collection in collectionList)
-					collection.Dispose();
+		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType)
+			foreach (SceneInstanceCollection collection in kvp.Value)
+				collection.Dispose();
 		return true;
 	}
 }
