@@ -10,7 +10,7 @@ public abstract class DisposableIdentifiable : Identifiable, IListenableDisposab
 	/// <summary>
 	/// Invoked after diposal is complete.
 	/// </summary>
-	public event Action? OnDisposed;
+	public event DisposalHandler? OnDisposed;
 
 	~DisposableIdentifiable() {
 		if (!this.Disposed)
@@ -24,7 +24,7 @@ public abstract class DisposableIdentifiable : Identifiable, IListenableDisposab
 		}
 		if (InternalDispose()) {
 			this.Disposed = true;
-			OnDisposed?.Invoke();
+			OnDisposed?.Invoke(this);
 		}
 		GC.SuppressFinalize( this );
 	}

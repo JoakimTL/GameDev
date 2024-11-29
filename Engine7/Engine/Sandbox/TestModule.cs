@@ -33,7 +33,7 @@ internal class SandboxRenderModule : RenderModuleBase {
 
 	protected override void ContextAdded( Context context ) {
 		context.InstanceProvider.Catalog.Host<ContextTest>();
-		context.InstanceProvider.Catalog.Host<TestPipelineNoMesh>();
+		context.InstanceProvider.Catalog.Host<TestPipeline>();
 	}
 
 }
@@ -76,11 +76,11 @@ public sealed class ContextTest : DisposableIdentifiable, IInitializable, IUpdat
 
 [Identity( nameof( Vertex2 ) )]
 [VAO.Setup( 0, 0, 0 ), StructLayout( LayoutKind.Explicit, Pack = 1 )]
-public struct Vertex2 {
+public struct Vertex2( Vector2<float> translation, Vector4<byte> color ) {
 	[VAO.Data( VertexAttribType.Float, 2 ), FieldOffset( 0 )]
-	public Vector2<float> Translation;
+	public Vector2<float> Translation = translation;
 	[VAO.Data( VertexAttribType.UnsignedByte, 4, normalized: true ), FieldOffset( 8 )]
-	public Vector4<byte> Color;
+	public Vector4<byte> Color = color;
 }
 
 //[Identity( nameof( Entity3SceneData ) )]

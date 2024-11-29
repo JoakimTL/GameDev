@@ -1,4 +1,5 @@
-﻿namespace Engine.Modularity;
+﻿
+namespace Engine.Modularity;
 
 public static class MessageBus {
 	private static readonly List<MessageBusStop> _managers = [];
@@ -12,7 +13,7 @@ public static class MessageBus {
 		return receiver;
 	}
 
-	private static void ReceiverDisposed() {
+	private static void ReceiverDisposed( IListenableDisposable disposable ) {
 		lock (_lock)
 			_managers.RemoveAll( p => p.Disposed );
 	}

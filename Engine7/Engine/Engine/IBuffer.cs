@@ -12,6 +12,9 @@ public interface IObservableBuffer<TScalar> : IBuffer<TScalar> where TScalar : u
 
 public interface IBufferSegment<TScalar> : IBuffer<TScalar> where TScalar : unmanaged, IBinaryInteger<TScalar>, IUnsignedNumber<TScalar> {
 	TScalar OffsetBytes { get; }
+}
+
+public interface IRelocatingBufferSegment<TScalar> : IBufferSegment<TScalar> where TScalar : unmanaged, IBinaryInteger<TScalar>, IUnsignedNumber<TScalar> {
 	event Action<IBufferSegment<TScalar>>? OffsetChanged;
 }
 

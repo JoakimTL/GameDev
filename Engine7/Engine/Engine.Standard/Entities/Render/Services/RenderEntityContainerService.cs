@@ -17,7 +17,7 @@ public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpda
 		entityContainer.OnDisposed += OnContainerDisposed;
 	}
 
-	private void OnContainerDisposed() {
+	private void OnContainerDisposed( IListenableDisposable disposable ) {
 		List<EntityContainer> containersToRemove = this._containerPairs.Keys.Where( p => p.Disposed ).ToList();
 
 		foreach (EntityContainer container in containersToRemove)

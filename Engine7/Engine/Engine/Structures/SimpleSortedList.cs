@@ -28,6 +28,8 @@ public class SimpleSortedList<T>() where T : IComparable<T> {
 		set => this._underlying[ index ] = value;
 	}
 
+	public IReadOnlyList<T> AsReadOnly() => this._underlying.AsReadOnly();
+
 	public void Add( T item ) {
 		if (this.Count == 0) {
 			this._underlying.Add( item );

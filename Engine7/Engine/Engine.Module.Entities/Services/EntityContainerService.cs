@@ -28,7 +28,7 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 		return container;
 	}
 
-	private void OnContainerDisposed() {
+	private void OnContainerDisposed( IListenableDisposable disposable ) {
 		List<EntityContainer> containersToRemove = this._containers.Where( p => p.Disposed ).ToList();
 		foreach (EntityContainer container in containersToRemove)
 			this._containers.Remove( container );
