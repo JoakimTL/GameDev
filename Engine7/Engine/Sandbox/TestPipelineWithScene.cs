@@ -9,7 +9,7 @@ using OpenGL;
 
 namespace Sandbox;
 
-public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleService, BufferService bufferService, CompositeVertexArrayObjectService compositeVertexArrayObjectService, DataBlockService dataBlockService, OglBufferService oglBufferService, MeshService meshService, SceneService sceneService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
+public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleService, CompositeVertexArrayObjectService compositeVertexArrayObjectService, DataBlockService dataBlockService, MeshService meshService, SceneService sceneService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
 	private readonly ShaderBundleService _shaderBundleService = shaderBundleService;
 	private readonly CompositeVertexArrayObjectService _compositeVertexArrayObjectService = compositeVertexArrayObjectService;
 	private readonly DataBlockService _dataBlockService = dataBlockService;
@@ -73,7 +73,6 @@ public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleServi
 		_sceneInstance1.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( -(float) time * 2 ) } );
 		_sceneInstance2.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( (float) time * 2 ) } );
 		_sceneInstance3.Write( new Entity2SceneData { ModelMatrix = Matrix4x4<float>.MultiplicativeIdentity } );
-		//new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( (float) time * 2 ) } ], 0 );
 		_testUniforms.Buffer.WriteRange( [ MathF.Cos( (float) time ) / 2 ], 0 );
 		_testShaderStorage.Buffer.WriteRange( [ MathF.Sin( (float) time ) / 2 ], 0 );
 
@@ -82,15 +81,6 @@ public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleServi
 	public void DrawToScreen() {
 		Gl.Clear( ClearBufferMask.ColorBufferBit );
 		_scene.Render( "default", _dataBlocks, _ => { }, PrimitiveType.Triangles );
-		//var shaderPipeline = this._shaderBundle.Get( "default" )!;
-		//Gl.BindBuffer( BufferTarget.DrawIndirectBuffer, _oglBufferService.Get( typeof( IndirectCommand ) ).BufferId );
-		//shaderPipeline.Bind();
-		//this._testVertexArrayObject.Bind();
-		//this._dataBlocks.BindShader( shaderPipeline );
-		//Gl.MultiDrawElementsIndirect( PrimitiveType.Triangles, DrawElementsType.UnsignedInt, nint.Zero, 1, 0 );
-		//this._dataBlocks.UnbindBuffers();
-		//OglShaderPipelineBase.Unbind();
-		//OglVertexArrayObjectBase.Unbind();
 	}
 
 	protected override bool InternalDispose() {

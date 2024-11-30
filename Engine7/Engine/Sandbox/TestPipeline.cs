@@ -77,3 +77,12 @@ public sealed class TestRenderBehaviour : DependentRenderBehaviourBase<RenderArc
 		return true;
 	}
 }
+
+//TODO: Add transforms
+//TODO: Add render pipeline
+//TODO: Add camera
+public sealed class Transform2Component : ComponentBase {
+	public Vector2<double> Translation { get; set; }
+	public float Rotation { get; set; }
+	public Vector2<double> Scale { get; set; }
+}
