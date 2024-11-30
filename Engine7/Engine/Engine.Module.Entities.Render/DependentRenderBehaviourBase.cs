@@ -14,5 +14,8 @@ public abstract class DependentRenderBehaviourBase<TArchetype> : RenderBehaviour
 		OnArchetypeSet();
 	}
 
-	protected abstract void OnArchetypeSet();
+	/// <summary>
+	/// RenderEntity is not set yet during this call.
+	/// </summary>
+	protected virtual void OnArchetypeSet() { }
 }

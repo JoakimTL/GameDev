@@ -9,10 +9,10 @@ namespace Engine.Standard.Entities.Render.Services;
 public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpdateable {
 
 	private readonly Dictionary<EntityContainer, RenderEntityContainer> _containerPairs = [];
-	private readonly SceneInstanceProvider _sceneInstanceProvider;
+	private readonly RenderEntityServiceAccess _renderEntityServiceAccess;
 
-	public RenderEntityContainerService( SceneService sceneService ) {
-		this._sceneInstanceProvider = new( sceneService );
+	public RenderEntityContainerService( RenderEntityServiceAccess renderEntityServiceAccess ) {
+		this._renderEntityServiceAccess = renderEntityServiceAccess;
 	}
 
 	internal void RegisterEntityContainer( EntityContainer entityContainer ) {
@@ -20,7 +20,7 @@ public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpda
 			this.LogLine( $"{entityContainer} already registered.", Log.Level.VERBOSE );
 			return;
 		}
-		this._containerPairs.Add( entityContainer, new RenderEntityContainer( entityContainer, _sceneInstanceProvider ) );
+		this._containerPairs.Add( entityContainer, new RenderEntityContainer( entityContainer, _renderEntityServiceAccess ) );
 		entityContainer.OnDisposed += OnContainerDisposed;
 	}
 

@@ -8,7 +8,10 @@ public abstract class RenderBehaviourBase : DisposableIdentifiable, IUpdateable 
 		if (this._renderEntity is not null)
 			throw new InvalidOperationException( "Behaviour owner can't be changed." );
 		this._renderEntity = renderEntity;
+		OnRenderEntitySet();
 	}
+
+	protected virtual void OnRenderEntitySet() { }
 
 	public abstract void Update( double time, double deltaTime );
 }

@@ -1,5 +1,7 @@
 ﻿using Engine.Logging;
 using Engine.Module.Entities.Container;
+using Engine.Module.Render.Ogl.OOP.Shaders;
+using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
 using System.Diagnostics.CodeAnalysis;
 
@@ -7,23 +9,35 @@ namespace Engine.Module.Entities.Render;
 
 public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 	private readonly Entity _entity;
-	private readonly SceneInstanceProvider _sceneInstanceProvider;
+	private readonly RenderEntityServiceAccess _serviceAccess;
 
 	private readonly List<SceneInstanceBase> _sceneInstances;
 	private readonly Dictionary<Type, RenderBehaviourBase> _behaviours;
 
-	internal RenderEntity( Entity entity, SceneInstanceProvider sceneInstanceProvider ) {
+	internal RenderEntity( Entity entity, RenderEntityServiceAccess serviceAccess ) {
 		this._entity = entity;
-		this._sceneInstanceProvider = sceneInstanceProvider;
+		this._serviceAccess = serviceAccess;
 		this._behaviours = [];
 		_sceneInstances = [];
 	}
 
-	public T RequestSceneInstance<T>(string sceneName, uint layer ) where T : SceneInstanceBase, new() {
-		T instance = this._sceneInstanceProvider.RequestSceneInstance<T>( sceneName, layer );
+	public T RequestSceneInstance<T>( string sceneName, uint layer ) where T : SceneInstanceBase, new() {
+		T instance = this._serviceAccess.SceneInstanceProvider.RequestSceneInstance<T>( sceneName, layer );
 		_sceneInstances.Add( instance );
 		return instance;
 	}
+
+	public T? RequestShaderBundle<T>() where T : ShaderBundleBase
+		=> this._serviceAccess.ShaderBundleProvider.GetShaderBundle<T>() as T;
+
+	public OglVertexArrayObjectBase? RequestCompositeVertexArray<TVertexData, TSceneInstanceData>() where TVertexData : unmanaged where TSceneInstanceData : unmanaged
+		=> this._serviceAccess.CompositeVertexArrayProvider.GetVertexArray<TVertexData, TSceneInstanceData>();
+
+	public VertexMesh<TVertex> RequestNewEmptyMesh<TVertex>( uint vertexCount, uint elementCount ) where TVertex : unmanaged
+		=> this._serviceAccess.MeshProvider.CreateEmptyMesh<TVertex>( vertexCount, elementCount );
+
+	public VertexMesh<TVertex> RequestNewMesh<TVertex>( Span<TVertex> vertices, Span<uint> elements ) where TVertex : unmanaged
+		=> this._serviceAccess.MeshProvider.CreateMesh( vertices, elements );
 
 	public void SendMessageToEntity( object message ) => this._entity.AddMessage( message );
 

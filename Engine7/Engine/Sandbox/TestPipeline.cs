@@ -1,5 +1,6 @@
 ﻿using Engine;
 using Engine.Buffers;
+using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
 using Engine.Module.Render.Domain;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
@@ -7,6 +8,7 @@ using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
+using Engine.Standard.Entities.Render.Services;
 using OpenGL;
 
 namespace Sandbox;
@@ -46,14 +48,29 @@ public sealed class TestPipeline( DataBlockService dataBlockService, SceneServic
 		return true;
 	}
 }
-public sealed class TestRenderBehaviour : RenderBehaviourBase {
+
+public sealed class RenderArchetype : ArchetypeBase {
+	public RenderComponent RenderComponent { get; set; } = null!;
+}
+public sealed class TestRenderBehaviour : DependentRenderBehaviourBase<RenderArchetype> {
 
 	private SceneInstance<Entity2SceneData>? _sceneInstance;
 
+	protected override void OnRenderEntitySet() {
+		base.OnRenderEntitySet();
+		_sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
+		_sceneInstance.SetShaderBundle( this.RenderEntity.RequestShaderBundle<TestShaderBundle>() );
+		_sceneInstance.SetVertexArrayObject( this.RenderEntity.RequestCompositeVertexArray<Vertex2, Entity2SceneData>() );
+		_sceneInstance.SetMesh( this.RenderEntity.RequestNewMesh(
+			[ new Vertex2( (-.5f, -.5f), (255, 255, 0, 255) ),
+			new Vertex2( (-.5f, .5f), (255, 0, 255, 255) ),
+			new Vertex2( (.5f, .5f), (0, 255, 255, 255) ),
+			new Vertex2( (.5f, -.5f), (255, 0, 0, 255) ) ],
+			[ 2, 1, 0, 0, 3, 2 ] ) );
+	}
+
 	public override void Update( double time, double deltaTime ) {
-		if (_sceneInstance is null)
-			_sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
-		_sceneInstance.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( -(float) time * 2 ) } );
+		_sceneInstance?.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( -(float) time * 2 ) } );
 	}
 
 	protected override bool InternalDispose() {

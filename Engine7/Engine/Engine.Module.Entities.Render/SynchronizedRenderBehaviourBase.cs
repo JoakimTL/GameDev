@@ -11,6 +11,7 @@ public abstract class SynchronizedRenderBehaviourBase<TArchetype> : DependentRen
 	private bool _synchronized = false;
 
 	protected override void OnArchetypeSet() {
+		base.OnArchetypeSet();
 		this.Archetype.SubscribeToComponentChanges( InternalOnComponentChanged );
 		Initialize();
 	}

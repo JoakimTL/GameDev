@@ -15,10 +15,10 @@ public class RenderBehaviourEntityContainerEventReceiverService : DisposableIden
 		this._messageBusStop.Publish( new EntityContainerListRequest() );
 	}
 
-	private void OnMessageReceived( object obj ) {
-		if (obj is EntityContainerCreatedEvent entityContainerCreatedEvent)
+	private void OnMessageReceived( Message obj ) {
+		if (obj.Content is EntityContainerCreatedEvent entityContainerCreatedEvent)
 			this._renderEntityContainerService.RegisterEntityContainer( entityContainerCreatedEvent.EntityContainer );
-		if (obj is EntityContainerRequestResponse entityContainerRequestResponse)
+		if (obj.Content is EntityContainerRequestResponse entityContainerRequestResponse)
 			this._renderEntityContainerService.RegisterEntityContainer( entityContainerRequestResponse.EntityContainer );
 	}
 
