@@ -6,6 +6,7 @@ using Engine.Module.Render.Ogl.OOP.DataBlocks;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Entities.Components;
+using Engine.Standard.Render;
 using Engine.Transforms.Camera;
 using OpenGL;
 using System.Runtime.InteropServices;
@@ -36,7 +37,7 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 			Translation = new( 1, 0, 3 )
 		};
 		//_view.Rotation = Rotor3.FromAxisAngle(Vector3<float>.UnitY, 0);
-		_projection = new( windowService.Window, 90 );
+		_projection = new( _windowService.Window, 90 );
 		_camera = new( _view, _projection );
 		_scene = _sceneService.GetScene( "test" );
 	}
@@ -107,25 +108,9 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 	}
 }
 
-[StructLayout( LayoutKind.Explicit )]
-public struct SceneCameraBlock {
-	[FieldOffset( 0 )]
-	public Matrix4x4<float> VPMatrix;
-	[FieldOffset( 64 )]
-	public Vector3<float> ViewUp;
-	[FieldOffset( 80 )]
-	public Vector3<float> ViewRight;
-
-	public SceneCameraBlock( Matrix4x4<float> vpMat, Vector3<float> vUp, Vector3<float> vRight ) {
-		this.VPMatrix = vpMat;
-		this.ViewUp = vUp;
-		this.ViewRight = vRight;
-	}
-}
-
 //TODO: Add camera (done?)
 //TODO: Add render pipeline
-//TODO: Add input
+//TODO: Add input (done?)
 //TODO: Add sound (https://github.com/naudio/NAudio ?)
 //TODO: Partial icosphere
 //TODO: Add text rendering

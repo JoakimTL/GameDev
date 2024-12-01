@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Engine;
 
@@ -13,5 +14,13 @@ public static class DataUtilities {
 		nuint dstOffsetBytesAsIntPtr = nuint.CreateSaturating( dstOffsetBytes );
 		nuint bytesToCopyAsIntPtr = nuint.CreateSaturating( lengthBytes );
 		Buffer.MemoryCopy( srcPtr + srcOffsetBytesAsIntPtr, dstPtr + dstOffsetBytesAsIntPtr, bytesToCopyAsIntPtr, bytesToCopyAsIntPtr );
+	}
+	public static unsafe string ToStringNullStop( this nint pointer, Encoding encoding, int maxLen = 1024 ) {
+		sbyte* ptr = (sbyte*) pointer.ToPointer();
+		int len = 0;
+		while (ptr[ len ] != 0 && len < maxLen)
+			len++;
+
+		return new string( ptr, 0, len, encoding );
 	}
 }

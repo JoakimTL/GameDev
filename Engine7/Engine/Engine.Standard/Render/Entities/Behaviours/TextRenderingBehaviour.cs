@@ -40,8 +40,6 @@ public sealed class TextRenderingBehaviour : DependentRenderBehaviourBase<TextRe
 				return;
 			_subscribedTransformBehaviour.OnSynchronized += OnTransformSynchronized;
 		}
-
-		base.Update( time, deltaTime );
 	}
 
 	private void OnTransformSynchronized( RenderBehaviourBase @base ) {

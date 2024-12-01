@@ -31,7 +31,7 @@ public abstract class ModuleBase : DisposableIdentifiable {
 		this._instanceInitializerExtension = this.InstanceProvider.CreateInitializer();
 		this.Important = important;
 		this.ExecutionFrequency = frequency;
-		this.ModuleClock = new( 1 );
+		this.ModuleClock = Clock<double, StopwatchTickSupplier>.ReferenceClock;
 		this.Running = true;
 	}
 

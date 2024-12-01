@@ -1,6 +1,7 @@
 ﻿using Engine.Logging;
 using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
+using Engine.Module.Render.Input;
 
 namespace Engine.Standard.Render.Entities.Services;
 
@@ -8,9 +9,12 @@ public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpda
 
 	private readonly Dictionary<EntityContainer, RenderEntityContainer> _containerPairs = [];
 	private readonly RenderEntityServiceAccess _renderEntityServiceAccess;
+	private readonly UserInputEventService _userInput;
 
-	public RenderEntityContainerService( RenderEntityServiceAccess renderEntityServiceAccess ) {
+	public RenderEntityContainerService( RenderEntityServiceAccess renderEntityServiceAccess, UserInputEventService userInput ) {
 		this._renderEntityServiceAccess = renderEntityServiceAccess;
+		this._userInput = userInput;
+		userInput.OnCharacter += (e) => this.LogLine( $"Character input received {e.Character} {e.KeyCode} {e.ModifierKeys} {e.Time}", Log.Level.VERBOSE );
 	}
 
 	internal void RegisterEntityContainer( EntityContainer entityContainer ) {

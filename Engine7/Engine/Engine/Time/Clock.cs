@@ -10,22 +10,34 @@ public sealed class Clock<TPrecision, TTickSupplier>
 	where TTickSupplier :
 		ITickSupplier {
 
+	public static Clock<double, StopwatchTickSupplier> ReferenceClock { get; } = new( 1, true, true );
+
 	private static readonly TPrecision _invFreq = TPrecision.One / TPrecision.CreateSaturating( TTickSupplier.Frequency );
+
+	public Clock<TPrecisionNew, TTickSupplierNew> CreateNewFrom<TPrecisionNew, TTickSupplierNew>( TPrecisionNew timeDilation, bool startRunning = true, bool locked = false )
+		where TPrecisionNew :
+			unmanaged, IFloatingPointIeee754<TPrecisionNew>
+		where TTickSupplierNew :
+			ITickSupplier => new( this._createdTick, timeDilation, startRunning, @locked );
 
 	private readonly long _createdTick;
 	private long _sessionStartTick;
 	private TPrecision _talliedTime;
 	private TPrecision _dilation;
 	private bool _running;
+	private readonly bool _locked;
 
-	/// <param name="timeDilation">How many seconds go by for this clock during a realtime second.</param>
-	public Clock( TPrecision timeDilation, bool startRunning = true ) {
-		this._createdTick = TTickSupplier.Ticks;
+	private Clock( long startTick, TPrecision timeDilation, bool startRunning = true, bool locked = false ) {
+		this._createdTick = startTick;
 		this._sessionStartTick = this._createdTick;
 		this._talliedTime = TPrecision.Zero;
 		this._dilation = timeDilation;
 		this._running = startRunning;
+		this._locked = locked;
 	}
+
+	/// <param name="timeDilation">How many seconds go by for this clock during a realtime second.</param>
+	public Clock( TPrecision timeDilation, bool startRunning = true, bool locked = false ) : this( TTickSupplier.Ticks, timeDilation, startRunning, locked ) { }
 
 	/// <summary>
 	/// The dialted time this clock has spent running since creation. If dilation deviate from 1, this will not be the same as the real time.
@@ -70,6 +82,8 @@ public sealed class Clock<TPrecision, TTickSupplier>
 	/// </summary>
 	/// <param name="value">How many seconds the clock tallies per real-time seconds.</param>
 	private void SetSpeed( TPrecision value ) {
+		if (this._locked)
+			return;
 		NewSession( this._running );
 		this._dilation = value;
 	}
@@ -86,6 +100,8 @@ public sealed class Clock<TPrecision, TTickSupplier>
 	/// </summary>
 	/// <param name="value">True means the clock continues running, false means the clock will be paused.</param>
 	private void SetRunningState( bool value ) {
+		if (this._locked)
+			return;
 		if (value == this._running)
 			return;
 		NewSession( !value ); //Tally time when pausing, but not when unpausing. We don't want to tally the time spent paused.
