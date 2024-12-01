@@ -1,7 +1,6 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Ogl.OOP;
 using OpenGL;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Module.Render.Ogl.Services;
 

@@ -1,6 +1,5 @@
 ﻿using Engine.Logging;
 using OpenGL;
-using System.Numerics;
 
 namespace Engine.Module.Render.Ogl.OOP.Buffers;
 

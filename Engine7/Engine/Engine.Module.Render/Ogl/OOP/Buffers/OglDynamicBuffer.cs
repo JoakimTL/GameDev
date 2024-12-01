@@ -1,5 +1,4 @@
 ﻿using Engine.Logging;
-using Engine.Module.Render.Domain;
 using OpenGL;
 
 namespace Engine.Module.Render.Ogl.OOP.Buffers;

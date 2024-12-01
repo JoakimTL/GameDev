@@ -1,8 +1,8 @@
 ﻿using Engine.Modularity;
 using Engine.Module.Render;
-using Engine.Standard.Entities.Render.Services;
+using Engine.Standard.Render.Entities.Services;
 
-namespace Engine.Standard.Entities.Render;
+namespace Engine.Standard.Render.Entities;
 
 public sealed class EntityRenderModification : IModuleModification {
 	public void ModifyModule( ModuleBase module ) {

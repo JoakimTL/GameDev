@@ -7,31 +7,8 @@ public static partial class Matrix {
 		public static Matrix4x4<T> Translation<T>( T translationX, T translationY ) where T : unmanaged, INumber<T>
 			=> Translation( new Vector2<T>( translationX, translationY ) );
 
-		public static Matrix4x4<T> Translation<T>( in Vector2<T> translation ) where T : unmanaged, INumber<T> {
-			T m00 = T.One;
-			T m01 = T.Zero;
-			T m02 = T.Zero;
-			T m03 = translation.X;
-			T m10 = T.Zero;
-			T m11 = T.One;
-			T m12 = T.Zero;
-			T m13 = translation.Y;
-			T m20 = T.Zero;
-			T m21 = T.Zero;
-			T m22 = T.One;
-			T m23 = T.Zero;
-			T m30 = T.Zero;
-			T m31 = T.Zero;
-			T m32 = T.Zero;
-			T m33 = T.One;
-
-			return new(
-				m00, m01, m02, m03,
-				m10, m11, m12, m13,
-				m20, m21, m22, m23,
-				m30, m31, m32, m33
-			);
-		}
+		public static Matrix4x4<T> Translation<T>( in Vector2<T> translation ) where T : unmanaged, INumber<T>
+			=> Translation( translation.X, translation.Y, T.Zero );
 
 		public static Matrix4x4<T> Translation<T>( T translationX, T translationY, T translationZ ) where T : unmanaged, INumber<T>
 			=> Translation( new Vector3<T>( translationX, translationY, translationZ ) );
@@ -40,18 +17,18 @@ public static partial class Matrix {
 			T m00 = T.One;
 			T m01 = T.Zero;
 			T m02 = T.Zero;
-			T m03 = translation.X;
+			T m03 = T.Zero;
 			T m10 = T.Zero;
 			T m11 = T.One;
 			T m12 = T.Zero;
-			T m13 = translation.Y;
+			T m13 = T.Zero;
 			T m20 = T.Zero;
 			T m21 = T.Zero;
 			T m22 = T.One;
-			T m23 = translation.Z;
-			T m30 = T.Zero;
-			T m31 = T.Zero;
-			T m32 = T.Zero;
+			T m23 = T.Zero;
+			T m30 = translation.X;
+			T m31 = translation.Y;
+			T m32 = translation.Z;
 			T m33 = T.One;
 
 			return new(
@@ -107,9 +84,9 @@ public static partial class Matrix {
 			T m02 = T.Zero;
 			T m10 = T.Zero;
 			T m11 = cos;
-			T m12 = -sin;
+			T m12 = sin;
 			T m20 = T.Zero;
-			T m21 = sin;
+			T m21 = -sin;
 			T m22 = cos;
 
 			return new(
@@ -125,11 +102,11 @@ public static partial class Matrix {
 
 			T m00 = cos;
 			T m01 = T.Zero;
-			T m02 = sin;
+			T m02 = -sin;
 			T m10 = T.Zero;
 			T m11 = T.One;
 			T m12 = T.Zero;
-			T m20 = -sin;
+			T m20 = sin;
 			T m21 = T.Zero;
 			T m22 = cos;
 
@@ -145,8 +122,8 @@ public static partial class Matrix {
 			T sin = T.Sin( radians );
 
 			T m00 = cos;
-			T m01 = -sin;
-			T m10 = sin;
+			T m01 = sin;
+			T m10 = -sin;
 			T m11 = cos;
 
 			return new(
@@ -224,10 +201,33 @@ public static partial class Matrix {
 				throw new ArgumentException( $"{nameof( aspectRatio )} must be greater than zero" );
 
 			T two = T.One + T.One;
-			T top = near / T.Tan( fovRadians / two );
-			T right = top * aspectRatio;
+			T leftHandedFactor = leftHanded ? T.NegativeOne : T.One;
+			T yScale = T.One / T.Tan( fovRadians / two );
+			T xScale = yScale / aspectRatio;
 
-			return Perspective( -right, top, right, -top, near, far, leftHanded );
+			T m00 = xScale;
+			T m01 = T.Zero;
+			T m02 = T.Zero;
+			T m03 = T.Zero;
+			T m10 = T.Zero;
+			T m11 = yScale;
+			T m12 = T.Zero;
+			T m13 = T.Zero;
+			T m20 = T.Zero;
+			T m21 = T.Zero;
+			T m22 = far / (far - near) * leftHandedFactor;
+			T m23 = leftHandedFactor;
+			T m30 = T.Zero;
+			T m31 = T.Zero;
+			T m32 = near * far / (far - near) * leftHandedFactor;
+			T m33 = T.Zero;
+
+			return new(
+				m00, m01, m02, m03,
+				m10, m11, m12, m13,
+				m20, m21, m22, m23,
+				m30, m31, m32, m33
+			);
 		}
 
 		public static Matrix4x4<T> Perspective<T>( T left, T top, T right, T bottom, T near, T far, bool leftHanded = false ) where T : unmanaged, INumber<T> {
@@ -288,18 +288,18 @@ public static partial class Matrix {
 			T m00 = two * horInv;
 			T m01 = T.Zero;
 			T m02 = T.Zero;
-			T m03 = -(right + left) * horInv;
+			T m03 = T.Zero;
 			T m10 = T.Zero;
 			T m11 = two * verInv;
 			T m12 = T.Zero;
-			T m13 = -(top + bottom) * verInv;
+			T m13 = T.Zero;
 			T m20 = T.Zero;
 			T m21 = T.Zero;
 			T m22 = (leftHanded ? -two : two) * depInv;
-			T m23 = -(far + near) * depInv;
-			T m30 = T.Zero;
-			T m31 = T.Zero;
-			T m32 = T.Zero;
+			T m23 = T.Zero;
+			T m30 = -(right + left) * horInv;
+			T m31 = -(top + bottom) * verInv;
+			T m32 = -near * depInv;
 			T m33 = T.One;
 
 			return new(

@@ -1,10 +1,8 @@
 ﻿using Engine.Logging;
 using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
-using Engine.Module.Render.Ogl.Scenes;
-using Engine.Module.Render.Ogl.Services;
 
-namespace Engine.Standard.Entities.Render.Services;
+namespace Engine.Standard.Render.Entities.Services;
 
 public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpdateable {
 

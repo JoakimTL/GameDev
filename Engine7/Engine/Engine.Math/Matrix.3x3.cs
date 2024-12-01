@@ -49,9 +49,9 @@ public static partial class Matrix {
 			T m02 = T.Zero;
 			T m10 = T.Zero;
 			T m11 = cos;
-			T m12 = -sin;
+			T m12 = sin;
 			T m20 = T.Zero;
-			T m21 = sin;
+			T m21 = -sin;
 			T m22 = cos;
 
 			return new(
@@ -67,11 +67,11 @@ public static partial class Matrix {
 
 			T m00 = cos;
 			T m01 = T.Zero;
-			T m02 = sin;
+			T m02 = -sin;
 			T m10 = T.Zero;
 			T m11 = T.One;
 			T m12 = T.Zero;
-			T m20 = -sin;
+			T m20 = sin;
 			T m21 = T.Zero;
 			T m22 = cos;
 
@@ -87,8 +87,8 @@ public static partial class Matrix {
 			T sin = T.Sin( radians );
 
 			T m00 = cos;
-			T m01 = -sin;
-			T m10 = sin;
+			T m01 = sin;
+			T m10 = -sin;
 			T m11 = cos;
 
 			return new(

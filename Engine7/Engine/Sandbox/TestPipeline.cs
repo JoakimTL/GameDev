@@ -1,20 +1,19 @@
 ﻿using Engine;
-using Engine.Buffers;
 using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
 using Engine.Module.Render.Domain;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
-using Engine.Module.Render.Ogl.OOP.Shaders;
-using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
-using Engine.Standard.Entities.Render.Services;
+using Engine.Standard.Entities.Components;
+using Engine.Transforms.Camera;
 using OpenGL;
+using System.Runtime.InteropServices;
 
 namespace Sandbox;
 
-public sealed class TestPipeline( DataBlockService dataBlockService, SceneService sceneService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
-
+public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
+	private readonly WindowService _windowService = windowService;
 	private readonly DataBlockService _dataBlockService = dataBlockService;
 	private readonly SceneService _sceneService = sceneService;
 
@@ -22,20 +21,32 @@ public sealed class TestPipeline( DataBlockService dataBlockService, SceneServic
 	private ShaderStorageBlock _testShaderStorage = null!;
 	private DataBlockCollection _dataBlocks = null!;
 	private Scene _scene = null!;
+	private View3? _view;
+	private Perspective.Dynamic? _projection;
+	private Camera? _camera;
 
 	public void Initialize() {
-		if (!_dataBlockService.CreateUniformBlock( "testUniformBlock", 256, [ ShaderType.VertexShader ], out _testUniforms! ))
+		if (!_dataBlockService.CreateUniformBlock( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ], out _testUniforms! ))
 			throw new InvalidOperationException( "Couldn't create uniform block." );
 		if (!_dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out _testShaderStorage! ))
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
 		_dataBlocks = new DataBlockCollection( _testUniforms, _testShaderStorage );
 
+		_view = new() {
+			Translation = new( 1, 0, 3 )
+		};
+		//_view.Rotation = Rotor3.FromAxisAngle(Vector3<float>.UnitY, 0);
+		_projection = new( windowService.Window, 90 );
+		_camera = new( _view, _projection );
 		_scene = _sceneService.GetScene( "test" );
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
-		_testUniforms.Buffer.WriteRange( [ MathF.Cos( (float) time ) / 2 ], 0 );
-		_testShaderStorage.Buffer.WriteRange( [ MathF.Sin( (float) time ) / 2 ], 0 );
+		//_view.Translation;
+		if (_camera is null || _view is null || _projection is null)
+			return;
+		_view.Translation = new( MathF.Sin( (float) time ) * 3, 0, MathF.Cos( (float) time ) * 3 + 5 );
+		_testUniforms.Buffer.Write<uint, SceneCameraBlock>( 0, new SceneCameraBlock( _camera.Matrix, _view.Rotation.Up, -_view.Rotation.Left ) );
 
 	}
 
@@ -51,10 +62,15 @@ public sealed class TestPipeline( DataBlockService dataBlockService, SceneServic
 
 public sealed class RenderArchetype : ArchetypeBase {
 	public RenderComponent RenderComponent { get; set; } = null!;
+	public Transform2Component Transform2Component { get; set; } = null!;
 }
-public sealed class TestRenderBehaviour : DependentRenderBehaviourBase<RenderArchetype> {
+
+public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<RenderArchetype> {
 
 	private SceneInstance<Entity2SceneData>? _sceneInstance;
+
+	private Matrix4x4<float> _preparedTransformMatrix = Matrix4x4<float>.MultiplicativeIdentity;
+	private Matrix4x4<float> _transformMatrix = Matrix4x4<float>.MultiplicativeIdentity;
 
 	protected override void OnRenderEntitySet() {
 		base.OnRenderEntitySet();
@@ -70,7 +86,20 @@ public sealed class TestRenderBehaviour : DependentRenderBehaviourBase<RenderArc
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		_sceneInstance?.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( -(float) time * 2 ) } );
+		base.Update( time, deltaTime );
+		_sceneInstance?.Write( new Entity2SceneData { ModelMatrix = _transformMatrix } );
+	}
+
+	protected override bool PrepareSynchronization( ComponentBase component ) {
+		if (component is Transform2Component t2c) {
+			_preparedTransformMatrix = t2c.Transform.Matrix.CastSaturating<double, float>();
+			return true;
+		}
+		return false;
+	}
+
+	protected override void Synchronize() {
+		_transformMatrix = _preparedTransformMatrix;
 	}
 
 	protected override bool InternalDispose() {
@@ -78,11 +107,46 @@ public sealed class TestRenderBehaviour : DependentRenderBehaviourBase<RenderArc
 	}
 }
 
-//TODO: Add transforms
-//TODO: Add render pipeline
-//TODO: Add camera
-public sealed class Transform2Component : ComponentBase {
-	public Vector2<double> Translation { get; set; }
-	public float Rotation { get; set; }
-	public Vector2<double> Scale { get; set; }
+[StructLayout( LayoutKind.Explicit )]
+public struct SceneCameraBlock {
+	[FieldOffset( 0 )]
+	public Matrix4x4<float> VPMatrix;
+	[FieldOffset( 64 )]
+	public Vector3<float> ViewUp;
+	[FieldOffset( 80 )]
+	public Vector3<float> ViewRight;
+
+	public SceneCameraBlock( Matrix4x4<float> vpMat, Vector3<float> vUp, Vector3<float> vRight ) {
+		this.VPMatrix = vpMat;
+		this.ViewUp = vUp;
+		this.ViewRight = vRight;
+	}
 }
+
+//TODO: Add camera (done?)
+//TODO: Add render pipeline
+//TODO: Add input
+//TODO: Add sound (https://github.com/naudio/NAudio ?)
+//TODO: Partial icosphere
+//TODO: Add text rendering
+//TODO: Add GUI?
+
+//Game stuff:
+//TODO: Add world entity and render the partial icosphere
+//TODO: Add tiles
+//TODO: Add players
+//TODO: Add items
+//TODO: Add population and needs
+//TODO: Add structures
+//TODO: Add resources
+//TODO: Add trade
+//TODO: Add tech tree/research
+//TODO: Add culture / religion
+//TODO: Add politics
+//TODO: Add spheres of influence
+
+//TODO: Add armies
+//TODO: Add combat
+
+//TODO: Add diplomacy
+

@@ -1,5 +1,4 @@
-﻿using Engine.Logging;
-using OpenGL;
+﻿using OpenGL;
 using System.Runtime.CompilerServices;
 
 namespace Engine.Module.Render.Ogl.Services;
@@ -35,6 +34,8 @@ public sealed class ViewportStateService : Identifiable {
 	/// Sets both the location and size at the same time, reducing the number of viewport calls
 	/// </summary>
 	public void Set( Vector2<int> location, Vector2<int> size ) {
+		if (size == 0)
+			size = 1;
 		if (size.IsNegativeOrZero())
 			throw new ArgumentOutOfRangeException( nameof( size ), size, "Viewport size must be positive" );
 		if (location == this._location && size == this._size)

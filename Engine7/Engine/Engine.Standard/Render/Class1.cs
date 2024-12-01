@@ -1,4 +1,5 @@
 ﻿using Engine.Module.Render.Domain;
+using Engine.Module.Render.Ogl.Services;
 
 namespace Engine.Standard.Render;
 internal class Class1 {
@@ -12,10 +13,8 @@ public sealed class RenderSceneManager {
 /// Does some actual rendering during the update loop.
 /// </summary>
 public sealed class RenderPipelineService : IRenderPipeline {
-	private readonly RenderSceneManager _renderSceneManager;
 
-	public RenderPipelineService( RenderSceneManager renderSceneManager ) {
-		this._renderSceneManager = renderSceneManager;
+	public RenderPipelineService( SceneService sceneService ) {
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {

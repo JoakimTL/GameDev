@@ -1,7 +1,6 @@
 ﻿using Engine.Buffers;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Module.Render.Ogl.Scenes;
 

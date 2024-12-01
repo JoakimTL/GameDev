@@ -1,7 +1,7 @@
 ﻿using Engine.Modularity;
 using Engine.Module.Entities.Messages;
 
-namespace Engine.Standard.Entities.Render.Services;
+namespace Engine.Standard.Render.Entities.Services;
 
 public class RenderBehaviourEntityContainerEventReceiverService : DisposableIdentifiable, IUpdateable {
 

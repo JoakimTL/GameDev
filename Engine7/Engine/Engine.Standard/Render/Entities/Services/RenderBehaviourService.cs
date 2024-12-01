@@ -1,7 +1,7 @@
 ﻿using Engine.Module.Render.Ogl;
 using Engine.Module.Render;
 
-namespace Engine.Standard.Entities.Render.Services;
+namespace Engine.Standard.Render.Entities.Services;
 
 public class RenderBehaviourService : IInitializable {
 	private readonly ContextManagementService _contextManagementService;

@@ -1,6 +1,6 @@
 ﻿using Engine.Module.Entities.Render;
 
-namespace Engine.Standard.Entities.Render.Behaviours;
+namespace Engine.Standard.Render.Entities.Behaviours;
 public sealed class MaterialRenderBehaviour : RenderBehaviourBase {
 
 	private string _materialName;

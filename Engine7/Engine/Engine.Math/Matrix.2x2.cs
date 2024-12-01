@@ -24,8 +24,8 @@ public static partial class Matrix {
 			T sin = T.Sin( radians );
 
 			T m00 = cos;
-			T m01 = -sin;
-			T m10 = sin;
+			T m01 = sin;
+			T m10 = -sin;
 			T m11 = cos;
 
 			return new(

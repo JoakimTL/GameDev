@@ -1,7 +1,6 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Domain;
 using Engine.Module.Render.Ogl.OOP;
-using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using OpenGL;

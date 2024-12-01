@@ -1,16 +1,15 @@
 ﻿using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using OpenGL;
-using System.Numerics;
 
 namespace Engine.Module.Render.Ogl.OOP;
 
-public sealed class OglWindow : DisposableIdentifiable {
+public sealed class OglWindow : DisposableIdentifiable, IResizableSurface<int, float> {
 	private readonly FramebufferStateService _framebufferState;
 	private readonly ViewportStateService _viewport;
 	private string _title;
 
-	public event Action<OglWindow>? Resized;
+	public event Action<IResizableSurface<int, float>>? OnResized;
 
 	internal OglWindow( FramebufferStateService framebufferState, ViewportStateService viewport, nint handle ) {
 		this._framebufferState = framebufferState;
@@ -22,7 +21,7 @@ public sealed class OglWindow : DisposableIdentifiable {
 
 	internal nint Handle { get; }
 	public Vector2<int> Size { get; private set; }
-	public Vector2 AspectRatioVector { get; private set; }
+	public Vector2<float> AspectRatioVector { get; private set; }
 	public float AspectRatio { get; private set; }
 	public string Title { get => this._title; set => SetTitle( value ); }
 	public bool ShouldClose => WindowUtilities.ShouldWindowClose( this.Handle );
@@ -44,14 +43,14 @@ public sealed class OglWindow : DisposableIdentifiable {
 		if (this.Size.X != w || this.Size.Y != h) {
 			this.Size = (w, h);
 			UpdateAspectRatio();
-			Resized?.Invoke( this );
+			OnResized?.Invoke( this );
 		}
 	}
 	private void UpdateAspectRatio() {
 		this.AspectRatio = (float) this.Size.X / this.Size.Y;
 		float aspectRatioX = this.Size.X > this.Size.Y ? (float) this.Size.X / this.Size.Y : 1;
 		float aspectRatioY = this.Size.Y > this.Size.X ? (float) this.Size.Y / this.Size.X : 1;
-		this.AspectRatioVector = new Vector2( aspectRatioX, aspectRatioY );
+		this.AspectRatioVector = new( aspectRatioX, aspectRatioY );
 	}
 
 	internal void SwapBuffer() => WindowUtilities.SwapBuffer( this.Handle );

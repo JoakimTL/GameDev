@@ -6,23 +6,33 @@ using Engine.Module.Entities.Render;
 using Engine.Module.Entities.Services;
 using Engine.Module.Render;
 using Engine.Module.Render.Ogl;
-using Engine.Module.Render.Ogl.OOP.Buffers;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
+using Engine.Standard.Entities.Components;
 
 namespace Sandbox;
 
 internal sealed class GameLogicModule : ModuleBase {
 
-	public GameLogicModule() : base( false, 50 ) {
+	private Entity? _entity;
+
+	public GameLogicModule() : base( false, 120 ) {
 		OnInitialize += Init;
+		OnUpdate += Update;
+	}
+
+	private void Update( double time, double deltaTime ) {
+		if (_entity?.TryGetComponent(out Transform2Component? t2c) ?? false) {
+			t2c.Transform.Translation = new Vector2<double>( Math.Sin( time ) * 0.5f, Math.Cos( time ) * 0.5f );
+		}
 	}
 
 	private void Init() {
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
-		Entity entity = container.CreateEntity();
-		entity.AddComponent<RenderComponent>();
+		_entity = container.CreateEntity();
+		_entity.AddComponent<RenderComponent>();
+		_entity.AddComponent<Transform2Component>();
 	}
 }
 
@@ -88,7 +98,7 @@ public sealed class TestShaderPipeline : OglShaderPipelineBase {
 }
 
 public sealed class TestVertexShaderProgram : OglShaderProgramBase {
-	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "test.vert" ) );
+	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "geometry3.vert" ) );
 }
 public sealed class TestFragmentShaderProgram : OglShaderProgramBase {
 	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "test.frag" ) );

@@ -10,10 +10,12 @@ public abstract class SynchronizedRenderBehaviourBase<TArchetype> : DependentRen
 
 	private bool _synchronized = false;
 
+	public event Action<RenderBehaviourBase>? OnSynchronized;
+
 	protected override void OnArchetypeSet() {
 		base.OnArchetypeSet();
 		this.Archetype.SubscribeToComponentChanges( InternalOnComponentChanged );
-		Initialize();
+		this._synchronized = false;
 	}
 
 	private void InternalOnComponentChanged( ComponentBase component ) {
@@ -26,6 +28,7 @@ public abstract class SynchronizedRenderBehaviourBase<TArchetype> : DependentRen
 			return;
 		this._synchronized = true;
 		Synchronize();
+		OnSynchronized?.Invoke( this );
 	}
 
 	protected override bool InternalDispose() {
@@ -33,7 +36,6 @@ public abstract class SynchronizedRenderBehaviourBase<TArchetype> : DependentRen
 		return true;
 	}
 
-	protected abstract void Initialize();
 	/// <summary>
 	/// Happens on the logic thread. No render logic should take place here, this step is for preparing the synchronization. An example would be copying over a transformation matrix to an intermediary buffer, so that the render thread can copy it over to be used. The reason for this complexity is because of the multithreaded nature of the engine. If you read data while it's being written to you can get corrupted data.
 	/// </summary>
