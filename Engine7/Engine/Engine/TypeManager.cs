@@ -22,10 +22,10 @@ public static class TypeManager {
 		MethodInfo methodBaseInvoke = typeof( MethodBase ).GetMethod( nameof( MethodBase.Invoke ), [ typeof( object ), typeof( object[] ) ] ) ?? throw new InvalidOperationException( "MethodBase.Invoke method not found." );
 
 		// Define the input parameter for the delegate: Type
-		var typeParameter = Expression.Parameter( typeof( Type ), "type" );
+		ParameterExpression typeParameter = Expression.Parameter( typeof( Type ), "type" );
 
 		// Create the call to MethodInfo.MakeGenericMethod(type)
-		var makeGenericMethodCall = Expression.Call(
+		MethodCallExpression makeGenericMethodCall = Expression.Call(
 			Expression.Constant( genericMethodInfo ),
 			nameof( MethodInfo.MakeGenericMethod ),
 			null,
@@ -33,7 +33,7 @@ public static class TypeManager {
 		);
 
 		// Create the call to Invoke(null, null) to invoke the generic method
-		var invokeMethodCall = Expression.Call(
+		MethodCallExpression invokeMethodCall = Expression.Call(
 			makeGenericMethodCall,
 			methodBaseInvoke,
 			Expression.Constant( null ),         // No instance for static methods
@@ -41,10 +41,10 @@ public static class TypeManager {
 		);
 
 		// Convert the result of Invoke (object) to int
-		var castResult = Expression.Convert( invokeMethodCall, typeof( int ) );
+		UnaryExpression castResult = Expression.Convert( invokeMethodCall, typeof( int ) );
 
 		// Compile the expression into a delegate
-		var lambda = Expression.Lambda<Func<Type, int>>( castResult, typeParameter );
+		Expression<Func<Type, int>> lambda = Expression.Lambda<Func<Type, int>>( castResult, typeParameter );
 		return lambda.Compile();
 	}
 
@@ -75,7 +75,7 @@ public static class TypeManager {
 	public static int? SizeOf( Type t ) {
 		if (!t.IsValueType)
 			return null;
-		var size = _sizeOfFunc( t );
+		int size = _sizeOfFunc( t );
 		return size;
 	}
 

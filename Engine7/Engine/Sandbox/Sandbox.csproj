@@ -9,11 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="assets\fonts\calibri.ttf" />
     <None Remove="test.frag" />
     <None Remove="test.vert" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="assets\fonts\calibri.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="assets\shaders\geometry3.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

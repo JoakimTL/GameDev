@@ -39,7 +39,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 	public VertexMesh<TVertex> RequestNewMesh<TVertex>( Span<TVertex> vertices, Span<uint> elements ) where TVertex : unmanaged
 		=> this._serviceAccess.MeshProvider.CreateMesh( vertices, elements );
 
-	public void ListenToEvents<T>( Action<T> action ) => this._entity.ListenToEvents( action );
+	//TODO: public void ListenToEvents<T>( Action<T> action ) => this._entity.ListenToEvents( action );
 
 	public void SendMessageToEntity( object message ) => this._entity.AddMessage( message );
 

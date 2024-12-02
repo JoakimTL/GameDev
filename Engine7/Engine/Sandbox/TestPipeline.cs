@@ -7,17 +7,18 @@ using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Render;
+using Engine.Standard.Render.Text;
 using Engine.Transforms.Camera;
 using OpenGL;
 using System.Runtime.InteropServices;
 
 namespace Sandbox;
 
-public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
+public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, FontService fontService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
 	private readonly WindowService _windowService = windowService;
 	private readonly DataBlockService _dataBlockService = dataBlockService;
 	private readonly SceneService _sceneService = sceneService;
-
+	private readonly FontService _fontService = fontService;
 	private UniformBlock _testUniforms = null!;
 	private ShaderStorageBlock _testShaderStorage = null!;
 	private DataBlockCollection _dataBlocks = null!;
@@ -25,8 +26,11 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 	private View3? _view;
 	private Perspective.Dynamic? _projection;
 	private Camera? _camera;
+	private Font? _font;
 
 	public void Initialize() {
+		_font = _fontService.Get( "JetBrainsMono-Bold" );
+
 		if (!_dataBlockService.CreateUniformBlock( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ], out _testUniforms! ))
 			throw new InvalidOperationException( "Couldn't create uniform block." );
 		if (!_dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out _testShaderStorage! ))
@@ -111,6 +115,7 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 //TODO: Add camera (done?)
 //TODO: Add render pipeline
 //TODO: Add input (done?)
+//TODO: Add input to RenderEntity
 //TODO: Add sound (https://github.com/naudio/NAudio ?)
 //TODO: Partial icosphere
 //TODO: Add text rendering

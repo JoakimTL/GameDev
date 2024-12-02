@@ -72,7 +72,7 @@ public sealed class TestPipelineNoScene( ShaderBundleService shaderBundleService
 
 	public void DrawToScreen() {
 		Gl.Clear( ClearBufferMask.ColorBufferBit );
-		var shaderPipeline = this._shaderBundle.Get( "default" )!;
+		OglShaderPipelineBase shaderPipeline = this._shaderBundle.Get( "default" )!;
 		Gl.BindBuffer( BufferTarget.DrawIndirectBuffer, _oglBufferService.Get( typeof( IndirectCommand ) ).BufferId );
 		shaderPipeline.Bind();
 		this._testVertexArrayObject.Bind();
