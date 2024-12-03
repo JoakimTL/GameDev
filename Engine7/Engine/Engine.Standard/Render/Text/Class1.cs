@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Engine.Algorithms.Triangulation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -50,7 +51,7 @@ public sealed class Font {
 	private ushort _numBytesPerLocationLookup;
 	private FontOffsetSubtable _fontOffsetSubtable;
 	private Dictionary<uint, FontTable> _tables = [];
-	private List<FontGlyph> _glyphs = [];
+	private Dictionary<char, FontGlyph> _glyphs = [];
 
 	internal unsafe Font( string path ) {
 		// Load font
@@ -62,6 +63,8 @@ public sealed class Font {
 		}
 
 	}
+
+	public FontGlyph this[ char c ] => _glyphs[ c ];
 
 	private unsafe void ReadFontData( byte* srcPtr, int length ) {
 		nint offset = 0;
@@ -91,9 +94,12 @@ public sealed class Font {
 
 		GlyphMap[] mappings = GetUnicodeToGlyphIndexMappings( srcPtr, _tables[ Tag_Cmap ] );
 
-		for (int i = 0; i < mappings.Length; i++)
-			_glyphs.Add( ReadGlyph( srcPtr, glyphLocations, mappings[ i ] ) );
-	
+		for (int i = 0; i < mappings.Length; i++) {
+			var glyph = ReadGlyph( srcPtr, glyphLocations, mappings[ i ] );
+			if (glyph is not null)
+				_glyphs.Add( (char) glyph.Unicode, glyph );
+		}
+
 	}
 	//https://www.youtube.com/watch?v=SO83KQuuZvg
 
@@ -383,6 +389,48 @@ public sealed class FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector
 	private readonly byte[] _instructions = instructions;
 	private readonly byte[] _flags = flags;
 	private readonly (Vector2<short> coordinate, bool onCurve)[] _points = points;
+
+	public (Triangle2<float>, bool filled)[] CreateMeshTriangles(float scale) {
+		Span<Vector2<decimal>> points = stackalloc Vector2<decimal>[ _points.Length ];
+		for (int i = 0; i < _points.Length; i++)
+			points[ i ] = _points[ i ].coordinate.CastSaturating<short, decimal>();
+		var a = Delaunay.Triangulate( points ).ToArray();
+		//var a = EarClipping.Triangulate( points ).ToArray();
+
+		//https://learn.microsoft.com/en-us/typography/opentype/spec/ttch01#outlines
+		//The points that make up a curve must be numbered in consecutive order. It makes a difference whether the order is increasing or decreasing in determining the fill pattern of the shapes that make up the glyph. The direction of the curves has to be such that, if the curve is followed in the direction of increasing point numbers, the black space (the filled area) will always be to the right.
+
+		//So let's retian triangles where the triangle has any points is on a filling contour and remove the triangle if it only has points on a non-filling contour.
+		Span<bool> displayTriangleA = stackalloc bool[ a.Length ];
+		displayTriangleA.Fill( true );
+		for (int i = 0; i < _endPointsOfContours.Length; i++) {
+			SetDisplayedTriangles( a, points, displayTriangleA, i );
+		}
+
+		List<(Triangle2<float>, bool filled)> result = [];
+
+		for (int i = 0; i < displayTriangleA.Length; i++) {
+			if (displayTriangleA[ i ])
+				result.Add( (new Triangle2<float>(a[ i ].A.CastSaturating<decimal, float>() * scale, a[i].B.CastSaturating<decimal, float>() * scale, a[i].C.CastSaturating<decimal, float>() * scale ), true) );
+		}
+
+		return result.ToArray();
+	}
+
+	private void SetDisplayedTriangles( Triangle2<decimal>[] triangles, Span<Vector2<decimal>> points, Span<bool> displayed, int contourIndex ) {
+		uint contourStart = contourIndex > 0 ? _endPointsOfContours[ contourIndex - 1 ] : 0u;
+		uint contourEnd = _endPointsOfContours[ contourIndex ];
+
+		Span<Vector2<decimal>> pointInContour = points.Slice( (int) contourStart, (int) (contourEnd - contourStart) );
+
+		if (PolygonExtensions.GetSignedArea( pointInContour ) < 0)
+			return;
+
+		for (int i = 0; i < triangles.Length; i++) {
+			if (triangles[ i ].AllPointsIn( pointInContour ))
+				displayed[ i ] = false;
+		}
+	}
 }
 
 public readonly struct FontGlyphHeader( short numberOfContours, short xMin, short yMin, short xMax, short yMax ) {

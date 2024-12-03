@@ -15,7 +15,7 @@ public static class NumberExtensions {
 	/// <param name="frequency">The frequency of the oscilation in Hz.</param>
 	/// <returns>Returns the oscilation period of input <paramref name="frequency"/> in milliseconds. If the period is lower than 1ms it will return 1ms.</returns>
 	/// <exception cref="Exception">If the <paramref name="frequency"/> is less than <see cref="IFloatingPointIeee754{T}.Epsilon"/>.</exception>"
-	public static uint ToPeriodMs<T>( this T frequency, uint lowestPossiblePeriodMs = 0, uint highestPossiblePeriodMs = uint.MaxValue)
+	public static uint ToPeriodMs<T>( this T frequency, uint lowestPossiblePeriodMs = 0, uint highestPossiblePeriodMs = uint.MaxValue )
 		where T :
 			unmanaged, IFloatingPointIeee754<T>
 		=> frequency > T.Epsilon
@@ -45,4 +45,19 @@ public static class NumberExtensions {
 		=> periodMs > 0
 			? T.CreateSaturating( T.CreateSaturating( 1000 ) / T.CreateSaturating( periodMs ) )
 			: throw new ArgumentException( "Period must be greater than zero." );
+}
+
+public static class PolygonExtensions {
+
+	public static TScalar GetSignedArea<TScalar>( Span<Vector2<TScalar>> pointsInOrder ) where TScalar : unmanaged, INumber<TScalar> {
+		TScalar sum = TScalar.Zero;
+		Vector2<TScalar> p2 = pointsInOrder[ ^1 ];
+		for (int i = 0; i < pointsInOrder.Length; i++) {
+			Vector2<TScalar> p1 = pointsInOrder[ i ];
+			//sum += (p2.X - p1.X) * (p2.Y + p1.Y);
+			sum += (p1.X * p2.Y) - (p1.Y * p2.X);
+			p2 = p1;
+		}
+		return sum / TScalar.CreateSaturating( 2 );
+	}
 }

@@ -31,7 +31,7 @@ internal sealed class GameLogicModule : ModuleBase {
 	private void Init() {
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
 		_entity = container.CreateEntity();
-		_entity.AddComponent<RenderComponent>();
+		//_entity.AddComponent<RenderComponent>();
 		_entity.AddComponent<Transform2Component>();
 	}
 }
@@ -40,7 +40,7 @@ internal class SandboxRenderModule : RenderModuleBase {
 
 	protected override void ContextAdded( Context context ) {
 		context.InstanceProvider.Catalog.Host<ContextTest>();
-		context.InstanceProvider.Catalog.Host<TestPipeline>();
+		context.InstanceProvider.Catalog.Host<TestPipelineWithScene2>();
 	}
 
 }
@@ -98,7 +98,7 @@ public sealed class TestShaderPipeline : OglShaderPipelineBase {
 }
 
 public sealed class TestVertexShaderProgram : OglShaderProgramBase {
-	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "geometry3.vert" ) );
+	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "test.vert" ) );
 }
 public sealed class TestFragmentShaderProgram : OglShaderProgramBase {
 	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "test.frag" ) );

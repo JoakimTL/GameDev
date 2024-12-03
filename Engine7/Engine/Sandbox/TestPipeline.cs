@@ -1,4 +1,5 @@
 ﻿using Engine;
+using Engine.Algorithms.Triangulation;
 using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
 using Engine.Module.Render.Domain;
@@ -29,7 +30,10 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 	private Font? _font;
 
 	public void Initialize() {
-		_font = _fontService.Get( "JetBrainsMono-Bold" );
+		//_font = _fontService.Get( "JetBrainsMono-Bold" );
+
+		//var g = _font[ 'A' ];
+		//g.CreateMeshTriangles();
 
 		if (!_dataBlockService.CreateUniformBlock( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ], out _testUniforms! ))
 			throw new InvalidOperationException( "Couldn't create uniform block." );
