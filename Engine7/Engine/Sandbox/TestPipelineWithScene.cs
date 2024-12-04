@@ -104,6 +104,8 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 	private Scene _scene = null!;
 	private SceneInstance<Entity2SceneData> _sceneInstance1 = null!;
 	private SceneInstance<Entity2SceneData> _sceneInstance2 = null!;
+	private SceneInstance<Entity2SceneData> _sceneInstance3 = null!;
+	private SceneInstance<Entity2SceneData>[] _letters = [];
 
 	public void Initialize() {
 		if (!_dataBlockService.CreateUniformBlock( "testUniformBlock", 256, [ ShaderType.VertexShader ], out _testUniforms! ))
@@ -120,32 +122,44 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 
 		Span<Vector2<float>> points =
 		[
-			new( 2, 2 ),
-			new( 2, -2 ),
-			new( -2, -2 ),
-			new( -2, 2 ),
+			//new( 2, 2 ),
+			//new( 2, -2 ),
+			//new( -2, -2 ),
+			//new( -2, 2 ),
 			new( 1, 1 ),
 			new( 1, -1 ),
 			new( -1, -1 ),
 			new( -1, 1 ),
 		];
 
-		var a = Delaunay.Triangulate( points );
+		var a = Delaunay.ConstrainedTriangulate<float, float>( points, [ new Edge2<float>( points[ 0 ], points[ 1 ] ) ] );
 
 		_scene = _sceneService.GetScene( "test" );
-		_sceneInstance1 = _scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
-		_sceneInstance1.SetMesh( CreateMesh( a.ToArray() ) );
-		_sceneInstance1.SetVertexArrayObject( _testVertexArrayObject );
-		_sceneInstance1.SetShaderBundle( _shaderBundle );
+		//_sceneInstance1 = _scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
+		//_sceneInstance1.SetMesh( CreateMesh( a.ToArray() ) );
+		//_sceneInstance1.SetVertexArrayObject( _testVertexArrayObject );
+		//_sceneInstance1.SetShaderBundle( _shaderBundle );
+
+		//Font font = fontService.Get( "JetBrainsMono-Bold" );
+		////Font font = fontService.Get( "calibri" );
+		//var b = font[ '2' ];
+		//var bm = b.CreateMeshTriangles( 0.025f );
+
+
+		//_sceneInstance2 = _scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
+		//_sceneInstance2.SetMesh( CreateMesh( bm.Select( p => p.Item1 ).ToArray() ) );
+		//_sceneInstance2.SetVertexArrayObject( _testVertexArrayObject );
+		//_sceneInstance2.SetShaderBundle( _shaderBundle );
+
+		//var bpic = b.GetPointsInContours();
+
+		//_sceneInstance3 = _scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
+		//_sceneInstance3.SetMesh( CreateContourIndexMesh( bpic.Select( p => (p.Item1 * 0.025f, p.indexInContour) ).ToArray() ) );
+		//_sceneInstance3.SetVertexArrayObject( _testVertexArrayObject );
+		//_sceneInstance3.SetShaderBundle( _shaderBundle );
 
 		Font font = fontService.Get( "JetBrainsMono-Bold" );
-		var b = font[ 'B' ];
-		var bm = b.CreateMeshTriangles(0.005f);
-
-		_sceneInstance2 = _scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
-		_sceneInstance2.SetMesh( CreateMesh( bm.Select( p => p.Item1 ).ToArray() ) );
-		_sceneInstance2.SetVertexArrayObject( _testVertexArrayObject );
-		_sceneInstance2.SetShaderBundle( _shaderBundle );
+		CreateText( font, "Hello world!" );
 
 		//_sceneInstance3 = _scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
 		//_sceneInstance3.SetMesh( this._meshService.CreateMesh( [
@@ -156,6 +170,24 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 		//_sceneInstance3.SetVertexArrayObject( _testVertexArrayObject );
 		//_sceneInstance3.SetShaderBundle( _shaderBundle );
 
+	}
+
+	private void CreateText( Font font, string v ) {
+		foreach (SceneInstance<Entity2SceneData> letter in _letters) {
+			letter.Dispose();
+		}
+		_letters = new SceneInstance<Entity2SceneData>[ v.Where(p => p != ' ').Count() ];
+		int i = 0;
+		foreach (var c in v) {
+			if (c == ' ') {
+				continue;
+			}
+			_letters[ i ] = _scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
+			_letters[ i ].SetMesh( CreateMesh( font[ c ].CreateMeshTriangles( 0.0025f ).Select( p => p.Item1 ).ToArray() ) );
+			_letters[ i ].SetVertexArrayObject( _testVertexArrayObject );
+			_letters[ i ].SetShaderBundle( _shaderBundle );
+			i++;
+		}
 	}
 
 	private VertexMesh<Vertex2> CreateMesh( Triangle2<float>[] triangles ) {
@@ -194,9 +226,45 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 		return this._meshService.CreateMesh<Vertex2>( vertices.ToArray(), indices.ToArray() );
 	}
 
+	public VertexMesh<Vertex2> CreateContourIndexMesh( (Vector2<float>, uint)[] pointsInContour ) {
+		List<Vertex2> vertices = [];
+		List<uint> indices = [];
+		//Create a small box around each point with alternating colours to indicate the order of the points
+		Vector4<byte>[] colors = [
+			(255, 0, 0, 255),
+			(0, 255, 0, 255),
+			(0, 0, 255, 255),
+		];
+		for (int i = 0; i < pointsInContour.Length; i++) {
+			uint index = (uint) vertices.Count;
+			Vector4<byte> color = pointsInContour[ i ].Item2 == 0 ? (255, 255, 255, 255) : colors[ pointsInContour[ i ].Item2 % colors.Length ];
+			float size = 0.1f;
+			vertices.Add( new( pointsInContour[ i ].Item1 + new Vector2<float>( -size, -size ), color ) );
+			vertices.Add( new( pointsInContour[ i ].Item1 + new Vector2<float>( size, -size ), color ) );
+			vertices.Add( new( pointsInContour[ i ].Item1 + new Vector2<float>( size, size ), color ) );
+			vertices.Add( new( pointsInContour[ i ].Item1 + new Vector2<float>( -size, size ), color ) );
+			indices.Add( index );
+			indices.Add( index + 1 );
+			indices.Add( index + 2 );
+			indices.Add( index );
+			indices.Add( index + 2 );
+			indices.Add( index + 3 );
+		}
+
+		return this._meshService.CreateMesh<Vertex2>( vertices.ToArray(), indices.ToArray() );
+	}
+
 	public void PrepareRendering( double time, double deltaTime ) {
-		_sceneInstance1.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( 0.1f, 0.1f ) * Matrix.Create4x4.Translation( -.5f, 0f ) } );
-		_sceneInstance2.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( 0.1f, 0.1f ) * Matrix.Create4x4.Translation( .25f, -.25f ) } );
+		//_sceneInstance1.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( 0.1f, 0.1f ) * Matrix.Create4x4.Translation( -.7f, 0f ) } );
+		//_sceneInstance2.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( 0.1f, 0.1f ) * Matrix.Create4x4.Translation( -.4f, -.9f ) } );
+		//_sceneInstance3.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( 0.1f, 0.1f ) * Matrix.Create4x4.Translation( -.4f, -.9f ) } );
+
+		float x = -0.7f;
+		float scale = 0.01f;
+		for (int i = 0; i < _letters.Length; i++) {
+			_letters[ i ].Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( scale, scale ) * Matrix.Create4x4.Translation( x, -.9f ) } );
+			x += 0.1f * 1.5f;
+		}
 		//_sceneInstance3.Write( new Entity2SceneData { ModelMatrix = Matrix4x4<float>.MultiplicativeIdentity } );
 
 	}

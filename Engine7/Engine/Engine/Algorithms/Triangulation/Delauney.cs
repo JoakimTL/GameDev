@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
 using System.Formats.Tar;
 using System.Linq;
 using System.Numerics;
@@ -8,8 +11,123 @@ using System.Threading.Tasks;
 
 namespace Engine.Algorithms.Triangulation;
 public static class Delaunay {
+	public static IEnumerable<Triangle2<TScalar>> ConstrainedTriangulate<TScalar, TFloatingScalar>( Span<Vector2<TScalar>> points, List<Edge2<TScalar>> enforcedEdges )
+		where TScalar : unmanaged, INumber<TScalar>
+		where TFloatingScalar : unmanaged, IFloatingPointIeee754<TFloatingScalar> {
+		List<Triangle2<TScalar>> triangles = Triangulate<TScalar, TFloatingScalar>( points ).ToList();
 
-	public static IEnumerable<Triangle2<TScalar>> Triangulate<TScalar>( Span<Vector2<TScalar>> points ) where TScalar : unmanaged, INumber<TScalar> {
+		foreach (var edge in enforcedEdges)
+			EnforceConstraint( triangles, edge, enforcedEdges );
+
+		return triangles;
+	}
+
+	private static void EnforceConstraint<TScalar>( List<Triangle2<TScalar>> triangles, Edge2<TScalar> constraintEdge, List<Edge2<TScalar>> enforcedEdges ) where TScalar : unmanaged, INumber<TScalar> {
+		Span<Edge2<TScalar>> edges = stackalloc Edge2<TScalar>[ 3 ];
+		Span<Vector2<TScalar>> vertices = stackalloc Vector2<TScalar>[ 3 ];
+
+		var intersectingTriangles = new List<Triangle2<TScalar>>();
+		foreach (var triangle in triangles) {
+			triangle.FillWithEdges( edges );
+			foreach (Edge2<TScalar> edge in edges) {
+				if (!constraintEdge.Equals( edge ) && constraintEdge.Intersects( edge )) {
+					intersectingTriangles.Add( triangle );
+					break;
+				}
+			}
+		}
+
+		if (intersectingTriangles.Count == 0)
+			return;
+
+		// Step 1: Remove intersecting triangles.
+		foreach (var triangle in intersectingTriangles) {
+			triangles.Remove( triangle );
+		}
+
+		HashSet<Vector2<TScalar>> newPoints = [ constraintEdge.A, constraintEdge.B ];
+
+		foreach (var triangle in intersectingTriangles) {
+			triangle.FillWithVerticies( vertices );
+			foreach (var vertex in vertices) {
+				if (!newPoints.Contains( vertex )) {
+					newPoints.Add( vertex );
+				}
+			}
+		}
+
+		Retriangulate( constraintEdge, newPoints, triangles );
+	}
+
+	private static void Retriangulate<TScalar>( Edge2<TScalar> constraintEdge, HashSet<Vector2<TScalar>> points, List<Triangle2<TScalar>> triangles ) where TScalar : unmanaged, INumber<TScalar> {
+		var sortedPoints = points.OrderBy( p => GetEdgeParameter( constraintEdge, p ) ).ToList();
+
+		for (int i = 0; i < sortedPoints.Count - 1; i++) {
+			var edge = new Edge2<TScalar>( sortedPoints[ i ], sortedPoints[ i + 1 ] );
+			foreach (var otherPoint in points) {
+				if (!edge.HasVertex( otherPoint )) {
+					var newTriangle = new Triangle2<TScalar>( edge.A, edge.B, otherPoint );
+
+					// Ensure the new triangle is valid.
+					if (IsValidTriangle( newTriangle, constraintEdge, triangles )) {
+						triangles.Add( newTriangle );
+					}
+				}
+			}
+		}
+	}
+	private static void CreateTrianglesForEdge<TScalar>( Edge2<TScalar> edge, IEnumerable<Triangle2<TScalar>> intersectingTriangles, List<Triangle2<TScalar>> triangles, Edge2<TScalar> constraintEdge ) where TScalar : unmanaged, INumber<TScalar> {
+		Span<Vector2<TScalar>> currentTriangleVertices = stackalloc Vector2<TScalar>[ 3 ];
+		HashSet<Vector2<TScalar>> vertices = [];
+		foreach (var triangle in intersectingTriangles) {
+			triangle.FillWithVerticies( currentTriangleVertices );
+			foreach (var vertex in currentTriangleVertices) {
+				if (!edge.HasVertex( vertex )) {
+					vertices.Add( vertex );
+				}
+			}
+		}
+
+		foreach (var vertex in vertices) {
+			var newTriangle = new Triangle2<TScalar>( edge.A, edge.B, vertex );
+			if (IsValidTriangle( newTriangle, constraintEdge, triangles )) {
+				triangles.Add( newTriangle );
+			}
+		}
+	}
+	private static bool IsValidTriangle<TScalar>( Triangle2<TScalar> triangle, Edge2<TScalar> constraintEdge, List<Triangle2<TScalar>> triangles ) where TScalar : unmanaged, INumber<TScalar> {
+		Span<Edge2<TScalar>> edges = stackalloc Edge2<TScalar>[ 3 ];
+		Span<Edge2<TScalar>> edgesOther = stackalloc Edge2<TScalar>[ 3 ];
+		triangle.FillWithEdges( edges );
+		foreach (var edge in edges)
+			if (!edge.Equals( constraintEdge ) && constraintEdge.Intersects( edge ))
+				return false;
+		foreach (var otherTriangle in triangles) {
+			otherTriangle.FillWithEdges( edgesOther );
+			foreach (var edgeA in edges)
+				foreach (var edgeB in edgesOther)
+					if (!edgeA.Equals( edgeB ) && edgeA.Intersects( edgeB ))
+						return false;
+		}
+		return true;
+	}
+
+	private static double GetEdgeParameter<TScalar>( Edge2<TScalar> edge, Vector2<TScalar> point ) where TScalar : unmanaged, INumber<TScalar> {
+		if (edge.A.X == edge.B.X) {
+			// Edge is vertical; use the y-coordinate for parameterization.
+			if (edge.A.Y == edge.B.Y)
+				throw new InvalidOperationException( "Degenerate edge with zero length." );
+
+			return double.CreateSaturating( point.Y - edge.A.Y ) / double.CreateSaturating( edge.B.Y - edge.A.Y );
+		} else {
+			// Edge is not vertical; use the x-coordinate for parameterization.
+			return double.CreateSaturating( point.X - edge.A.X ) / double.CreateSaturating( edge.B.X - edge.A.X );
+		}
+	}
+
+	public static IEnumerable<Triangle2<TScalar>> Triangulate<TScalar, TFloatingScalar>( Span<Vector2<TScalar>> points )
+		where TScalar : unmanaged, INumber<TScalar>
+		where TFloatingScalar : unmanaged, IFloatingPointIeee754<TFloatingScalar> {
 		if (points.Length < 3)
 			return Enumerable.Empty<Triangle2<TScalar>>();
 
@@ -20,15 +138,15 @@ public static class Delaunay {
 		List<Triangle2<TScalar>> badTriangles = [];
 		List<Edge2<TScalar>> polygonEdge = [];
 
-		Triangle2<TScalar> superTriangle = new( bounds.Minima - span * TScalar.CreateSaturating(4),
-			bounds.Maxima + new Vector2<TScalar>( -span.X, span.Y ) * TScalar.CreateSaturating( 4 ), //Should really be sqrt 2, but pi works too.
-			bounds.Maxima + new Vector2<TScalar>( span.X, -span.Y ) * TScalar.CreateSaturating( 4 ) );
+		Triangle2<TScalar> superTriangle = new( bounds.Minima - (span * TScalar.CreateSaturating( 2 )),
+			bounds.Maxima + (new Vector2<TScalar>( span.X, -span.Y ) * TScalar.CreateSaturating( 2 )), //Should really be sqrt 2, but pi works too.
+			bounds.Maxima + (new Vector2<TScalar>( -span.X, span.Y ) * TScalar.CreateSaturating( 2 )) );
 		triangles.Add( superTriangle );
 
 		for (int i = 0; i < points.Length; i++) {
 			badTriangles.Clear();
 			foreach (var triangle in triangles)
-				if (triangle.PointInCircumcircle( points[ i ] ))
+				if (triangle.PointInCircumcircle<TFloatingScalar>( points[ i ] ))
 					badTriangles.Add( triangle );
 			polygonEdge.Clear();
 			foreach (var triangle in badTriangles) {

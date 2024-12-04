@@ -44,20 +44,26 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 
 	public bool Inside( Vector2<TScalar> p ) => GetBarycentric( p ) >= Vector3<TScalar>.Zero;
 
-	public bool PointInCircumcircle( Vector2<TScalar> p ) {
-		var pa = A - p;
-		var pb = B - p;
-		var pc = C - p;
+	public bool PointInCircumcircle<TFloatingScalar>( Vector2<TScalar> p )
+		where TFloatingScalar : unmanaged, IFloatingPointIeee754<TFloatingScalar> {
+		var fA = A.CastSaturating<TScalar, TFloatingScalar>();
+		var fB = B.CastSaturating<TScalar, TFloatingScalar>();
+		var fC = C.CastSaturating<TScalar, TFloatingScalar>();
+		var fp = p.CastSaturating<TScalar, TFloatingScalar>();
+
+		var pa = fA - fp;
+		var pb = fB - fp;
+		var pc = fC - fp;
 
 		var paSq = pa.MagnitudeSquared();
 		var pbSq = pb.MagnitudeSquared();
 		var pcSq = pc.MagnitudeSquared();
 
 		var det = Matrix.Create3x3.TransposedBasis(
-			new Vector3<TScalar>( pa.X, pa.Y, paSq ),
-			new Vector3<TScalar>( pb.X, pb.Y, pbSq ),
-			new Vector3<TScalar>( pc.X, pc.Y, pcSq ) )
-			.GetDeterminant() * (WindsClockwise() ? -TScalar.One : TScalar.One);
+			new Vector3<TFloatingScalar>( pa.X, pa.Y, paSq ),
+			new Vector3<TFloatingScalar>( pb.X, pb.Y, pbSq ),
+			new Vector3<TFloatingScalar>( pc.X, pc.Y, pcSq ) )
+			.GetDeterminant();// * (WindsClockwise() ? TFloatingScalar.NegativeOne : TFloatingScalar.One);
 
 		//bool inProperCircle = false;
 		//var circumcircle = GetCircumcircle();
@@ -71,7 +77,7 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 		//	}
 		//}
 
-		return det > TScalar.Zero;
+		return det > TFloatingScalar.Zero;
 	}
 
 	public bool HasVertex( Vector2<TScalar> p ) => A == p || B == p || C == p;
@@ -118,6 +124,18 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 	public bool WindsClockwise() {
 		var v0 = B - A;
 		var v1 = C - A;
-		return v0.X * v1.Y - v0.Y * v1.X < TScalar.Zero;
+		return (v0.X * v1.Y) - (v0.Y * v1.X) < TScalar.Zero;
+	}
+
+	internal void FillWithEdges( Span<Edge2<TScalar>> edges ) {
+		edges[ 0 ] = new( A, B );
+		edges[ 1 ] = new( B, C );
+		edges[ 2 ] = new( C, A );
+	}
+
+	internal void FillWithVerticies( Span<Vector2<TScalar>> vertices ) {
+		vertices[ 0 ] = A;
+		vertices[ 1 ] = B;
+		vertices[ 2 ] = C;
 	}
 }

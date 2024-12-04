@@ -51,12 +51,12 @@ public static class PolygonExtensions {
 
 	public static TScalar GetSignedArea<TScalar>( Span<Vector2<TScalar>> pointsInOrder ) where TScalar : unmanaged, INumber<TScalar> {
 		TScalar sum = TScalar.Zero;
-		Vector2<TScalar> p2 = pointsInOrder[ ^1 ];
+		Vector2<TScalar> p1 = pointsInOrder[ ^1 ];
 		for (int i = 0; i < pointsInOrder.Length; i++) {
-			Vector2<TScalar> p1 = pointsInOrder[ i ];
+			Vector2<TScalar> p2 = pointsInOrder[ i ];
 			//sum += (p2.X - p1.X) * (p2.Y + p1.Y);
 			sum += (p1.X * p2.Y) - (p1.Y * p2.X);
-			p2 = p1;
+			p1 = p2;
 		}
 		return sum / TScalar.CreateSaturating( 2 );
 	}

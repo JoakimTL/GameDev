@@ -45,7 +45,7 @@ public class SimpleSortedList<T>() where T : IComparable<T> {
 		T valueAtIndex;
 		int order;
 		while (true) {
-			middle = start + (end - start) / 2;
+			middle = start + ((end - start) / 2);
 			valueAtIndex = this._underlying[ middle ];
 			order = item.CompareTo( valueAtIndex );
 			if (order == 0)
