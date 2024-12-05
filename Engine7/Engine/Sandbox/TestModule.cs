@@ -58,7 +58,7 @@ public sealed class ContextTest : DisposableIdentifiable, IInitializable, IUpdat
 	}
 
 	public void Update( double time, double deltaTime ) {
-		this._windowService.Window.Title = $"Time: {time:#,##0.###}s, DeltaTime: {deltaTime:#,##0.###}s, FPS: {(1 / deltaTime):#,##0.###}f/s";
+		//this._windowService.Window.Title = $"Time: {time:#,##0.###}s, DeltaTime: {deltaTime:#,##0.###}s, FPS: {(1 / deltaTime):#,##0.###}f/s";
 	}
 
 	protected override bool InternalDispose() {

@@ -15,6 +15,7 @@ public sealed class Font {
 	private FontOffsetSubtable _fontOffsetSubtable;
 	private Dictionary<uint, FontTable> _tables = [];
 	private Dictionary<char, FontGlyph> _glyphs = [];
+	private FontGlyph _missingGlyph;
 
 	internal unsafe Font( string path ) {
 		// Load font
@@ -27,7 +28,7 @@ public sealed class Font {
 
 	}
 
-	public FontGlyph this[ char c ] => _glyphs[ c ];
+	public FontGlyph this[ char c ] => _glyphs.TryGetValue( c, out FontGlyph glyph ) ? glyph : _missingGlyph;
 
 	private unsafe void ReadFontData( byte* srcPtr, int length ) {
 		nint offset = 0;
@@ -58,9 +59,12 @@ public sealed class Font {
 		GlyphMap[] mappings = GetUnicodeToGlyphIndexMappings( srcPtr, _tables[ Tag_Cmap ] );
 
 		for (int i = 0; i < mappings.Length; i++) {
-			var glyph = ReadGlyph( srcPtr, glyphLocations, mappings[ i ] );
-			if (glyph is not null)
+			FontGlyph? glyph = ReadGlyph( srcPtr, glyphLocations, mappings[ i ] );
+			if (glyph is not null) {
 				_glyphs.Add( (char) glyph.Unicode, glyph );
+				if (glyph.GlyphIndex == 0)
+					_missingGlyph = glyph;
+			}
 		}
 
 	}
@@ -80,16 +84,16 @@ public sealed class Font {
 	}
 
 	private static unsafe FontGlyph ReadSingleGlyph( byte* srcPtr, nint offset, FontGlyphHeader header, GlyphMap mapping ) {
-		var endPointsOfContours = new ushort[ header.NumberOfContours ];
+		ushort[] endPointsOfContours = new ushort[ header.NumberOfContours ];
 		for (int i = 0; i < header.NumberOfContours; i++)
 			endPointsOfContours[ i ] = FontUtilities.Read<ushort>( srcPtr, ref offset ).FromBigEndian();
 
 		int instructionLength = FontUtilities.Read<short>( srcPtr, ref offset ).FromBigEndian();
-		var instructions = new byte[ instructionLength ];
+		byte[] instructions = new byte[ instructionLength ];
 		for (int i = 0; i < instructionLength; i++)
 			instructions[ i ] = FontUtilities.Read<byte>( srcPtr, ref offset );
 		int numPoints = endPointsOfContours[ ^1 ] + 1;
-		var flags = new byte[ numPoints ];
+		byte[] flags = new byte[ numPoints ];
 		for (int i = 0; i < numPoints; i++) {
 			byte flag = FontUtilities.Read<byte>( srcPtr, ref offset );
 			flags[ i ] = flag;
@@ -104,7 +108,7 @@ public sealed class Font {
 
 		int[] xCoordinates = ReadCoordinates( srcPtr, ref offset, flags, true );
 		int[] yCoordinates = ReadCoordinates( srcPtr, ref offset, flags, false );
-		var points = new (Vector2<int> coordinate, bool onCurve)[ xCoordinates.Length ];
+		(Vector2<int> coordinate, bool onCurve)[] points = new (Vector2<int> coordinate, bool onCurve)[ xCoordinates.Length ];
 		for (int i = 0; i < xCoordinates.Length; i++)
 			points[ i ] = (new Vector2<int>( xCoordinates[ i ], yCoordinates[ i ] ), ReadFlagBit( flags[ i ], 0 ));
 

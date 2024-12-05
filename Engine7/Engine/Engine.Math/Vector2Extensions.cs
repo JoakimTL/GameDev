@@ -146,7 +146,7 @@ public static class Vector2Extensions {
 				int i3 = (i + j) % workingVertices.Length;
 				Vector2<TScalar> c = workingVertices[ i3 ];
 
-				var det = b.DeterminantWithOrigin( a, c );
+				TScalar det = b.DeterminantWithOrigin( a, c );
 				if (det < TScalar.Zero) {
 					i2 = i3;
 					b = c;

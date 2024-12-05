@@ -14,7 +14,7 @@ public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpda
 	public RenderEntityContainerService( RenderEntityServiceAccess renderEntityServiceAccess, UserInputEventService userInput ) {
 		this._renderEntityServiceAccess = renderEntityServiceAccess;
 		this._userInput = userInput;
-		userInput.OnCharacter += (e) => this.LogLine( $"Character input received {e.Character} {e.KeyCode} {e.ModifierKeys} {e.Time}", Log.Level.VERBOSE );
+		userInput.OnCharacter += (e) => this.LogLine( $"Character input received {e.Character} {e.KeyCode} {e.Modifiers} {e.Time}", Log.Level.VERBOSE );
 	}
 
 	internal void RegisterEntityContainer( EntityContainer entityContainer ) {

@@ -26,19 +26,19 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 	//}
 
 	public Vector3<TScalar> GetBarycentric( Vector2<TScalar> p ) {
-		var ab = B - A;
-		var ac = C - A;
-		var bc = C - B;
+		Vector2<TScalar> ab = B - A;
+		Vector2<TScalar> ac = C - A;
+		Vector2<TScalar> bc = C - B;
 
-		var cp = p - C;
-		var ap = p - A;
+		Vector2<TScalar> cp = p - C;
+		Vector2<TScalar> ap = p - A;
 
-		var det = Matrix.Create2x2.TransposedBasis( ac, bc ).GetDeterminant();
-		var v = Matrix.Create2x2.TransposedBasis( bc, cp ).GetDeterminant() / det;
+		TScalar det = Matrix.Create2x2.TransposedBasis( ac, bc ).GetDeterminant();
+		TScalar v = Matrix.Create2x2.TransposedBasis( bc, cp ).GetDeterminant() / det;
 		//var vT = ((p.X - C.X) * (B.Y - C.Y) - (B.X - C.X) * (p.Y - C.Y)) / det;
-		var w = Matrix.Create2x2.TransposedBasis( ap, ac ).GetDeterminant() / det;
+		TScalar w = Matrix.Create2x2.TransposedBasis( ap, ac ).GetDeterminant() / det;
 		//var wT = ((p.X - A.X) * (C.Y - A.Y) - (C.X - A.X) * (p.Y - A.Y)) / det;
-		var u = TScalar.One - v - w;
+		TScalar u = TScalar.One - v - w;
 		return new Vector3<TScalar>( u, v, w );
 	}
 
@@ -46,20 +46,20 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 
 	public bool PointInCircumcircle<TFloatingScalar>( Vector2<TScalar> p )
 		where TFloatingScalar : unmanaged, IFloatingPointIeee754<TFloatingScalar> {
-		var fA = A.CastSaturating<TScalar, TFloatingScalar>();
-		var fB = B.CastSaturating<TScalar, TFloatingScalar>();
-		var fC = C.CastSaturating<TScalar, TFloatingScalar>();
-		var fp = p.CastSaturating<TScalar, TFloatingScalar>();
+		Vector2<TFloatingScalar> fA = A.CastSaturating<TScalar, TFloatingScalar>();
+		Vector2<TFloatingScalar> fB = B.CastSaturating<TScalar, TFloatingScalar>();
+		Vector2<TFloatingScalar> fC = C.CastSaturating<TScalar, TFloatingScalar>();
+		Vector2<TFloatingScalar> fp = p.CastSaturating<TScalar, TFloatingScalar>();
 
-		var pa = fA - fp;
-		var pb = fB - fp;
-		var pc = fC - fp;
+		Vector2<TFloatingScalar> pa = fA - fp;
+		Vector2<TFloatingScalar> pb = fB - fp;
+		Vector2<TFloatingScalar> pc = fC - fp;
 
-		var paSq = pa.MagnitudeSquared();
-		var pbSq = pb.MagnitudeSquared();
-		var pcSq = pc.MagnitudeSquared();
+		TFloatingScalar paSq = pa.MagnitudeSquared();
+		TFloatingScalar pbSq = pb.MagnitudeSquared();
+		TFloatingScalar pcSq = pc.MagnitudeSquared();
 
-		var det = Matrix.Create3x3.TransposedBasis(
+		TFloatingScalar det = Matrix.Create3x3.TransposedBasis(
 			new Vector3<TFloatingScalar>( pa.X, pa.Y, paSq ),
 			new Vector3<TFloatingScalar>( pb.X, pb.Y, pbSq ),
 			new Vector3<TFloatingScalar>( pc.X, pc.Y, pcSq ) )
@@ -97,7 +97,7 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 	public override bool Equals( [NotNullWhen( true )] object? obj ) {
 		if (obj is Triangle2<TScalar> triangle)
 			return Equals( this, triangle );
-		return base.Equals( obj );
+		return false;
 	}
 
 	public bool Equals( Triangle2<TScalar> x, Triangle2<TScalar> y ) => x.HasVertex( y.A ) && x.HasVertex( y.B ) && x.HasVertex( y.C );
@@ -122,8 +122,8 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 	}
 
 	public bool WindsClockwise() {
-		var v0 = B - A;
-		var v1 = C - A;
+		Vector2<TScalar> v0 = B - A;
+		Vector2<TScalar> v1 = C - A;
 		return (v0.X * v1.Y) - (v0.Y * v1.X) < TScalar.Zero;
 	}
 

@@ -31,7 +31,7 @@ public sealed class FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector
 	private readonly byte[] _flags = flags;
 	private readonly (Vector2<int> coordinate, bool onCurve)[] _points = points;
 
-	public (Triangle2<float>, bool filled)[] CreateMeshTriangles( float scale ) {
+	public (Triangle2<float>, bool filled)[] CreateMeshTriangles( float scale, bool useConstraints ) {
 		Span<Vector2<int>> points = stackalloc Vector2<int>[ _points.Length ];
 		for (int i = 0; i < _points.Length; i++) {
 			points[ i ] = _points[ i ].coordinate;
@@ -40,27 +40,45 @@ public sealed class FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector
 		List<Edge2<int>> enforcedEdges = [];
 		AddEnforcedEdges( enforcedEdges );
 
-		var a = Delaunay.ConstrainedTriangulate<int, double>( points, enforcedEdges ).ToArray();
-		//var a = EarClipping.Triangulate( points ).ToArray();
+		Delaunator<int, double> triangulation = new( points, false, $"{Unicode} {((char) Unicode)}" );
+		while (!triangulation.Process())
+			;
+
+		TriangulationConstrainer<int, double> constrainer = triangulation.CreateConstrainer( enforcedEdges.ToArray() );
+		if (useConstraints)
+			while (!constrainer.Process())
+				;
 
 		//https://learn.microsoft.com/en-us/typography/opentype/spec/ttch01#outlines
 		//The points that make up a curve must be numbered in consecutive order. It makes a difference whether the order is increasing or decreasing in determining the fill pattern of the shapes that make up the glyph. The direction of the curves has to be such that, if the curve is followed in the direction of increasing point numbers, the black space (the filled area) will always be to the right.
 
-		//So let's retian triangles where the triangle has any points is on a filling contour and remove the triangle if it only has points on a non-filling contour.
-		Span<bool> displayTriangleA = stackalloc bool[ a.Length ];
+		//So let's retain triangles where the triangle has any points is on a filling contour and remove the triangle if it only has points on a non-filling contour.
+		Span<bool> displayTriangleA = stackalloc bool[ constrainer.Triangles.Count ];
 		displayTriangleA.Fill( true );
 		for (int i = 0; i < _endPointsOfContours.Length; i++) {
-			SetDisplayedTriangles( a, points, displayTriangleA, i );
+			SetDisplayedTriangles( constrainer.Triangles, points, displayTriangleA, i );
 		}
 
 		List<(Triangle2<float>, bool filled)> result = [];
 
 		for (int i = 0; i < displayTriangleA.Length; i++) {
 			if (displayTriangleA[ i ])
-				result.Add( (new Triangle2<float>( a[ i ].A.CastSaturating<int, float>() * scale, a[ i ].B.CastSaturating<int, float>() * scale, a[ i ].C.CastSaturating<int, float>() * scale ), true) );
+				result.Add( (new Triangle2<float>( constrainer.Triangles[ i ].A.CastSaturating<int, float>() * scale, constrainer.Triangles[ i ].B.CastSaturating<int, float>() * scale, constrainer.Triangles[ i ].C.CastSaturating<int, float>() * scale ), IsFilled( constrainer.Triangles[ i ] )) );
 		}
 
 		return result.ToArray();
+	}
+
+	private bool IsFilled( Triangle2<int> triangle ) {
+		return IsFilled( triangle.A ) || IsFilled( triangle.B ) || IsFilled( triangle.C );
+	}
+
+	public bool IsFilled( Vector2<int> point ) {
+		for (int i = 0; i < _points.Length; i++) {
+			if (_points[ i ].coordinate == point)
+				return _points[ i ].onCurve;
+		}
+		return false;
 	}
 
 	public void AddEnforcedEdges( List<Edge2<int>> edges ) {
@@ -70,6 +88,8 @@ public sealed class FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector
 			Vector2<int> p2 = _points[ contourEnd ].coordinate;
 			for (uint j = contourStart; j <= contourEnd; j++) {
 				Vector2<int> p1 = _points[ j ].coordinate;
+				if (p1 == p2)
+					continue;
 				edges.Add( new( p1, p2 ) );
 				p2 = p1;
 			}
@@ -90,8 +110,8 @@ public sealed class FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector
 		return result.ToArray();
 	}
 
-	private void SetDisplayedTriangles( Triangle2<int>[] triangles, Span<Vector2<int>> points, Span<bool> displayed, int contourIndex ) {
-		uint contourStart = contourIndex > 0 ? _endPointsOfContours[ contourIndex - 1 ] : 0u;
+	private void SetDisplayedTriangles( IReadOnlyList<Triangle2<int>> triangles, Span<Vector2<int>> points, Span<bool> displayed, int contourIndex ) {
+		uint contourStart = contourIndex > 0 ? _endPointsOfContours[ contourIndex - 1 ] + 1u : 0u;
 		uint contourEnd = _endPointsOfContours[ contourIndex ];
 
 		Span<Vector2<int>> pointInContour = points.Slice( (int) contourStart, (int) (contourEnd - contourStart + 1) );
@@ -99,7 +119,7 @@ public sealed class FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector
 		if (PolygonExtensions.GetSignedArea( pointInContour ) < 0) {
 			Span<int> indicesInTriangle = stackalloc int[ 3 ];
 			Span<Vector2<int>> tempTriangle = stackalloc Vector2<int>[ 3 ];
-			for (int i = 0; i < triangles.Length; i++) {
+			for (int i = 0; i < triangles.Count; i++) {
 				indicesInTriangle[ 0 ] = IndexOf( pointInContour, triangles[ i ].A );
 				indicesInTriangle[ 1 ] = IndexOf( pointInContour, triangles[ i ].B );
 				indicesInTriangle[ 2 ] = IndexOf( pointInContour, triangles[ i ].C );
@@ -116,7 +136,7 @@ public sealed class FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector
 			return;
 		}
 
-		for (int i = 0; i < triangles.Length; i++) {
+		for (int i = 0; i < triangles.Count; i++) {
 			if (triangles[ i ].AllPointsIn( pointInContour ))
 				displayed[ i ] = false;
 		}

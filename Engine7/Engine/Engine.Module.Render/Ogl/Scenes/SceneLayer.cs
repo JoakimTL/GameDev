@@ -54,7 +54,7 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 		ShaderBundleBase? shaderBundle = sceneInstance.ShaderBundle ?? throw new ArgumentException( "SceneInstance does not have a ShaderBundle" );
 
 		if (!_sceneObjectsByBindIndex.TryGetValue( bindIndex, out SceneObject? sceneObject )) {
-			_sceneObjectsByBindIndex.Add( bindIndex, sceneObject = new( RenderLayer, _bufferService, vertexArrayObject, shaderBundle, 2048 ) );
+			_sceneObjectsByBindIndex.Add( bindIndex, sceneObject = new( RenderLayer, _bufferService, vertexArrayObject, shaderBundle, 256 ) );
 			_sceneObjects.Add( sceneObject );
 			sceneObject.OnChanged += OnSceneObjectChanged;
 		}
