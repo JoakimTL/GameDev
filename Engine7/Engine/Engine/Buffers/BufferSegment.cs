@@ -6,7 +6,7 @@ public sealed class BufferSegment : DisposableIdentifiable, IRelocatingBufferSeg
 	private readonly SegmentedSystemBuffer _buffer;
 
 #if DEBUG
-	public Memory<byte> DebugData => _buffer.GetDebugSlice( this );
+	public Memory<byte> DebugData => this._buffer.GetDebugSlice( this );
 #endif
 
 	public ulong OffsetBytes { get; private set; }
@@ -77,7 +77,7 @@ public sealed class SubBufferManager<TBuffer>( TBuffer hostBuffer ) where TBuffe
 	private readonly ICopyableBuffer<ulong>? _copyableHostBuffer = hostBuffer as ICopyableBuffer<ulong>;
 	private readonly List<SubBuffer<TBuffer>> _subBuffers = [];
 	private ulong _currentOffsetCaret = 0;
-	public uint Count => (uint) _subBuffers.Count;
+	public uint Count => (uint) this._subBuffers.Count;
 
 	public bool TryAllocate( ulong lengthBytes, [NotNullWhen( true )] out SubBuffer<TBuffer>? subBuffer ) {
 		subBuffer = null;
@@ -95,12 +95,12 @@ public sealed class SubBufferManager<TBuffer>( TBuffer hostBuffer ) where TBuffe
 		if (indexOf == this._subBuffers.Count)
 			return;
 		ulong moveStart = this._subBuffers[indexOf].OffsetBytes;
-		ulong moveLength = _currentOffsetCaret;
-		_currentOffsetCaret -= subBuffer.LengthBytes;
-		if (_copyableHostBuffer is not null) {
-			_copyableHostBuffer.CopyTo( _hostBuffer, moveStart, moveStart - subBuffer.LengthBytes, moveLength );
+		ulong moveLength = this._currentOffsetCaret;
+		this._currentOffsetCaret -= subBuffer.LengthBytes;
+		if (this._copyableHostBuffer is not null) {
+			this._copyableHostBuffer.CopyTo( this._hostBuffer, moveStart, moveStart - subBuffer.LengthBytes, moveLength );
 		} else {
-			_hostBuffer.CopyTo( _hostBuffer, moveStart, moveStart - subBuffer.LengthBytes, (int) moveLength );
+			this._hostBuffer.CopyTo( this._hostBuffer, moveStart, moveStart - subBuffer.LengthBytes, (int) moveLength );
 		}
 		for (int i = indexOf; i < this._subBuffers.Count; i++) {
 			SubBuffer<TBuffer> current = this._subBuffers[ i ];

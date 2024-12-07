@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Engine.Shapes;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Engine.Algorithms.Triangulation;
@@ -14,69 +15,69 @@ public sealed class TriangulationConstrainer<TScalar, TFloatingScalar>
 	private readonly HashSet<Vector2<TScalar>> _newPoints;
 	private bool _isFinished;
 
-	public IReadOnlyList<Triangle2<TScalar>> Triangles => _triangles;
-	public bool Finished => _isFinished;
+	public IReadOnlyList<Triangle2<TScalar>> Triangles => this._triangles;
+	public bool Finished => this._isFinished;
 
 	public TriangulationConstrainer( Span<Triangle2<TScalar>> triangles, Span<Edge2<TScalar>> constrainingEdges ) {
-		_triangles = [];
-		_triangles.AddRange( triangles );
-		_constrainingEdges = [];
-		_constrainingEdgesQueue = [];
-		_intersectingTriangles = [];
-		_newPoints = [];
+		this._triangles = [];
+		this._triangles.AddRange( triangles );
+		this._constrainingEdges = [];
+		this._constrainingEdgesQueue = [];
+		this._intersectingTriangles = [];
+		this._newPoints = [];
 
 		foreach (Edge2<TScalar> edge in constrainingEdges) {
-			if (_constrainingEdges.Contains( edge ))
+			if (this._constrainingEdges.Contains( edge ))
 				throw new InvalidOperationException( "Duplicate constraining edge." );
-			_constrainingEdges.Add( edge );
-			_constrainingEdgesQueue.Enqueue( edge );
+			this._constrainingEdges.Add( edge );
+			this._constrainingEdgesQueue.Enqueue( edge );
 		}
 	}
 
 	public TriangulationConstrainer( Delaunator<TScalar, TFloatingScalar> delaunator, Span<Edge2<TScalar>> constrainingEdges ) : this( [], constrainingEdges ) {
 		if (!delaunator.Finished)
 			throw new InvalidOperationException( "Delaunator must be finished before constraining." );
-		_triangles.AddRange( delaunator.Triangles );
+		this._triangles.AddRange( delaunator.Triangles );
 	}
 
 	/// <returns>True if the constriction is finished.</returns>
 	public bool Process() {
-		if (_isFinished)
+		if (this._isFinished)
 			return true;
-		if (!_constrainingEdgesQueue.TryDequeue( out Edge2<TScalar> constraintEdge )) {
-			_isFinished = true;
+		if (!this._constrainingEdgesQueue.TryDequeue( out Edge2<TScalar> constraintEdge )) {
+			this._isFinished = true;
 			return true;
 		}
 		Span<Edge2<TScalar>> edges = stackalloc Edge2<TScalar>[ 3 ];
 		Span<Vector2<TScalar>> vertices = stackalloc Vector2<TScalar>[ 3 ];
 
-		_intersectingTriangles.Clear();
-		foreach (Triangle2<TScalar> triangle in _triangles) {
+		this._intersectingTriangles.Clear();
+		foreach (Triangle2<TScalar> triangle in this._triangles) {
 			triangle.FillWithEdges( edges );
 			foreach (Edge2<TScalar> edge in edges) {
 				if (HasIntersectionAndNoCommonVertices( edge, constraintEdge )) {
-					_intersectingTriangles.Add( triangle );
+					this._intersectingTriangles.Add( triangle );
 					break;
 				}
 			}
 		}
 
-		if (_intersectingTriangles.Count == 0)
+		if (this._intersectingTriangles.Count == 0)
 			return false;
 
 		// Step 1: Remove intersecting triangles.
-		foreach (Triangle2<TScalar> triangle in _intersectingTriangles)
-			_triangles.Remove( triangle );
+		foreach (Triangle2<TScalar> triangle in this._intersectingTriangles)
+			this._triangles.Remove( triangle );
 
-		_newPoints.Clear();
-		_newPoints.Add( constraintEdge.A );
-		_newPoints.Add( constraintEdge.B );
+		this._newPoints.Clear();
+		this._newPoints.Add( constraintEdge.A );
+		this._newPoints.Add( constraintEdge.B );
 
-		foreach (Triangle2<TScalar> triangle in _intersectingTriangles) {
-			triangle.FillWithVerticies( vertices );
+		foreach (Triangle2<TScalar> triangle in this._intersectingTriangles) {
+			triangle.FillWithVertices( vertices );
 			foreach (Vector2<TScalar> vertex in vertices) {
-				if (!_newPoints.Contains( vertex )) {
-					_newPoints.Add( vertex );
+				if (!this._newPoints.Contains( vertex )) {
+					this._newPoints.Add( vertex );
 				}
 			}
 		}
@@ -87,16 +88,16 @@ public sealed class TriangulationConstrainer<TScalar, TFloatingScalar>
 	}
 
 	private void Retriangulate( Edge2<TScalar> constraintEdge ) {
-		List<Vector2<TScalar>> sortedPoints = [ .. _newPoints.OrderBy( p => GetEdgeParameter( constraintEdge, p ) ) ];
+		List<Vector2<TScalar>> sortedPoints = [ .. this._newPoints.OrderBy( p => GetEdgeParameter( constraintEdge, p ) ) ];
 
 		for (int i = 0; i < sortedPoints.Count; i++) {
-			foreach (Vector2<TScalar> otherPoint in _newPoints) {
+			foreach (Vector2<TScalar> otherPoint in this._newPoints) {
 				if (!constraintEdge.HasVertex( otherPoint )) {
 					Triangle2<TScalar> newTriangle = new( constraintEdge.A, constraintEdge.B, otherPoint );
 
 					// Ensure the new triangle is valid.
 					if (IsValidTriangle( newTriangle, constraintEdge ))
-						_triangles.Add( newTriangle );
+						this._triangles.Add( newTriangle );
 				}
 			}
 		}
@@ -104,13 +105,13 @@ public sealed class TriangulationConstrainer<TScalar, TFloatingScalar>
 		for (int i = 0; i < sortedPoints.Count; i++)
 			for (int j = i + 1; j < sortedPoints.Count; j++) {
 				Edge2<TScalar> edge = new( sortedPoints[ i ], sortedPoints[ j ] );
-				foreach (Vector2<TScalar> otherPoint in _newPoints) {
+				foreach (Vector2<TScalar> otherPoint in this._newPoints) {
 					if (!edge.HasVertex( otherPoint )) {
 						Triangle2<TScalar> newTriangle = new( edge.A, edge.B, otherPoint );
 
 						// Ensure the new triangle is valid.
 						if (IsValidTriangle( newTriangle, constraintEdge ))
-							_triangles.Add( newTriangle );
+							this._triangles.Add( newTriangle );
 					}
 				}
 			}
@@ -123,7 +124,7 @@ public sealed class TriangulationConstrainer<TScalar, TFloatingScalar>
 		foreach (Edge2<TScalar> edge in edges)
 			if (HasIntersectionAndNoCommonVertices( edge, constraintEdge ))
 				return false;
-		foreach (Triangle2<TScalar> otherTriangle in _triangles) {
+		foreach (Triangle2<TScalar> otherTriangle in this._triangles) {
 			if (otherTriangle.Equals( triangle ))
 				return false;
 			otherTriangle.FillWithEdges( edgesOther );

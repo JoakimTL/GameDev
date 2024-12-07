@@ -7,5 +7,5 @@ public readonly struct FontOffsetSubtable( uint scalerType, ushort numTables, us
 	public readonly ushort SearchRange = searchRange;
 	public readonly ushort EntrySelector = entrySelector;
 	public readonly ushort RangeShift = rangeShift;
-	public FontOffsetSubtable ProperEndianness => new( ScalerType.FromBigEndian(), NumTables.FromBigEndian(), SearchRange.FromBigEndian(), EntrySelector.FromBigEndian(), RangeShift.FromBigEndian() );
+	public FontOffsetSubtable ProperEndianness => new( this.ScalerType.FromBigEndian(), this.NumTables.FromBigEndian(), this.SearchRange.FromBigEndian(), this.EntrySelector.FromBigEndian(), this.RangeShift.FromBigEndian() );
 }

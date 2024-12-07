@@ -29,25 +29,25 @@ public sealed class Font {
 		}
 	}
 
-	public IGlyph this[ char c ] => _glyphs.TryGetValue( c, out IGlyph? glyph ) ? glyph : _missingGlyph;
+	public IGlyph this[ char c ] => this._glyphs.TryGetValue( c, out IGlyph? glyph ) ? glyph : this._missingGlyph;
 
 	private unsafe void ReadFontData( byte* srcPtr, int length ) {
 		nint offset = 0;
-		_fontOffsetSubtable = FontUtilities.Read<FontOffsetSubtable>( srcPtr, ref offset ).ProperEndianness;
+		this._fontOffsetSubtable = FontUtilities.Read<FontOffsetSubtable>( srcPtr, ref offset ).ProperEndianness;
 
-		for (int i = 0; i < _fontOffsetSubtable.NumTables; i++) {
+		for (int i = 0; i < this._fontOffsetSubtable.NumTables; i++) {
 			FontTable table = FontUtilities.Read<FontTable>( srcPtr, ref offset ).ProperEndianness;
-			_tables.Add( table.Tag, table );
+			this._tables.Add( table.Tag, table );
 		}
 
-		FontTable headTable = _tables[ Tag_Head ];
-		FontTable maxpTable = _tables[ Tag_Maxp ];
-		FontTable locaTable = _tables[ Tag_Loca ];
-		FontTable glyfTable = _tables[ Tag_Glyf ];
+		FontTable headTable = this._tables[ Tag_Head ];
+		FontTable maxpTable = this._tables[ Tag_Maxp ];
+		FontTable locaTable = this._tables[ Tag_Loca ];
+		FontTable glyfTable = this._tables[ Tag_Glyf ];
 
 		//Head table
 		offset = (nint) headTable.Offset + 18;
-		_unitsPerEm = FontUtilities.Read<ushort>( srcPtr, ref offset ).FromBigEndian();
+		this._unitsPerEm = FontUtilities.Read<ushort>( srcPtr, ref offset ).FromBigEndian();
 		offset += 30;
 		ushort numBytesPerLocationLookup = (ushort) (FontUtilities.Read<ushort>( srcPtr, ref offset ).FromBigEndian() == 0 ? 2u : 4u);
 
@@ -57,14 +57,14 @@ public sealed class Font {
 		Span<uint> glyphLocations = stackalloc uint[ numGlyphs ];
 		GetAllGlyphLocations( srcPtr, glyphLocations, numBytesPerLocationLookup, locaTable.Offset, glyfTable.Offset );
 
-		GlyphMap[] mappings = GetUnicodeToGlyphIndexMappings( srcPtr, _tables[ Tag_Cmap ] ).ToArray();
+		GlyphMap[] mappings = GetUnicodeToGlyphIndexMappings( srcPtr, this._tables[ Tag_Cmap ] ).ToArray();
 
 		for (int i = 0; i < mappings.Length; i++) {
 			IGlyph? glyph = ReadGlyph( srcPtr, glyphLocations, mappings[ i ], mappings );
 			if (glyph is not null) {
-				_glyphs.Add( (char) glyph.Mapping.Unicode, glyph );
+				this._glyphs.Add( (char) glyph.Mapping.Unicode, glyph );
 				if (glyph.Mapping.GlyphIndex == 0)
-					_missingGlyph = glyph;
+					this._missingGlyph = glyph;
 			}
 		}
 

@@ -1,4 +1,5 @@
 ﻿using Engine.Algorithms.Triangulation;
+using Engine.Shapes;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,8 +33,8 @@ public sealed class FontGlyph : IGlyph {
 	private readonly List<Contour> _contours;
 	private readonly List<ContourPoint> _allPoints;
 
-	public IReadOnlyList<ushort> EndPointsOfContours => _originalEndPointsOfContours;
-	public IReadOnlyList<(Vector2<int> coordinate, bool onCurve)> Points => _originalPoints;
+	public IReadOnlyList<ushort> EndPointsOfContours => this._originalEndPointsOfContours;
+	public IReadOnlyList<(Vector2<int> coordinate, bool onCurve)> Points => this._originalPoints;
 
 	public FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector2<int> coordinate, bool onCurve)[] points, ushort[] endPointsOfContours ) {
 		this.Header = header;
@@ -41,7 +42,7 @@ public sealed class FontGlyph : IGlyph {
 		this._originalEndPointsOfContours = endPointsOfContours;
 		this._originalPoints = points;
 
-		_contours = CreateContours( endPointsOfContours, points, out _allPoints );
+		this._contours = CreateContours( endPointsOfContours, points, out this._allPoints );
 	}
 
 	private List<Contour> CreateContours( ushort[] endPointsOfContours, (Vector2<int> coordinate, bool onCurve)[] points, out List<ContourPoint> allPoints ) {
@@ -70,6 +71,12 @@ public sealed class FontGlyph : IGlyph {
 				}
 			}
 			result.Add( new Contour( contourStart, contourPoints.ToArray() ) );
+		}
+
+		for (int i = 0; i < result.Count; i++) {
+			for (int j = i + 1; j < result.Count; j++) {
+				result[ i ].CheckContainment( result[ j ] );
+			}
 		}
 		return result;
 	}
@@ -129,7 +136,7 @@ public sealed class FontGlyph : IGlyph {
 
 
 	private void AddOffCurveTriangles( List<(Triangle2<float>, bool filled, bool flipped)> result, float scale ) {
-		foreach (Contour contour in _contours) {
+		foreach (Contour contour in this._contours) {
 			for (int i = 0; i < contour.OffCurvePoints.Count; i++) {
 				//Off curve points must be after an on curve point and followed by an on curve point.
 				ContourPoint offCurvePoint = contour.OffCurvePoints[ i ];
@@ -148,7 +155,7 @@ public sealed class FontGlyph : IGlyph {
 
 	public List<Vector2<int>> GetAllPoints() {
 		List<Vector2<int>> pointList = [];
-		foreach (Contour contour in _contours) {
+		foreach (Contour contour in this._contours) {
 			for (int i = 0; i < contour.Points.Count; i++) {
 				var p = contour.Points[ i ];
 				if (p.OnCurve) {
@@ -173,7 +180,7 @@ public sealed class FontGlyph : IGlyph {
 
 	public List<Edge2<int>> CreateEnforcedEdges() {
 		List<Edge2<int>> edges = [];
-		foreach (Contour contour in _contours) {
+		foreach (Contour contour in this._contours) {
 			if (contour.Points.Count < 3)
 				continue;
 			for (int i = 0; i < contour.Points.Count; i++) {
@@ -212,7 +219,7 @@ public sealed class FontGlyph : IGlyph {
 
 	public (Vector2<float>, uint indexInContour, bool onCurve)[] GetPointsInContours() {
 		List<(Vector2<float>, uint, bool)> result = [];
-		foreach (Contour contour in _contours)
+		foreach (Contour contour in this._contours)
 			for (int i = 0; i < contour.Points.Count; i++)
 				result.Add( (contour.Points[ i ].Coordinate.CastSaturating<int, float>(), (uint) i, contour.Points[ i ].OnCurve) );
 		return result.ToArray();
@@ -253,7 +260,7 @@ public sealed class FontGlyph : IGlyph {
 
 	private bool ShouldDisplayTriangle( Triangle2<int> triangle ) {
 		ContourPoint[] points = [ GetPoint( triangle.A ), GetPoint( triangle.B ), GetPoint( triangle.C ) ];
-		Contour[] contours = points.Select( p => p.ContourIndex ).Distinct().Select( p => _contours[ p ] ).ToArray();
+		Contour[] contours = points.Select( p => p.ContourIndex ).Distinct().Select( p => this._contours[ p ] ).ToArray();
 		int windingSum = 0;
 		for (int i = 0; i < contours.Length; i++)
 			windingSum += contours[ i ].ContourWindsClockWise ? 1 : -1;
@@ -280,15 +287,34 @@ public sealed class FontGlyph : IGlyph {
 						return false;
 					if (windingSum == -2)
 						return true;
-					return true;
+
 					//We'll not deal with 3.2. Let's hope this case doesn't happen when we don't have compound glyphs in one big glyph.
 					//What if we find an edge on the hole, and check if the edge on the fill is on the "right" side compared to the edge on the hole?
 
+					//var contours
 					//var popularContour = points.GroupBy( p => p.ContourIndex ).OrderByDescending( p => p.Count() ).First().Key;
 					//var lonePoint = points.First( p => p.ContourIndex != popularContour );
 					//var firstPoint = points.Where( p => p.ContourIndex == popularContour ).OrderBy( p => p.PointIndexInContour ).First();
 					//var secondPoint = points.Where( p => p.ContourIndex == popularContour ).OrderBy( p => p.PointIndexInContour ).Last();
 					//var contour = _contours[ popularContour ];
+					//var otherContour 
+					Contour containingContour;
+					Contour containedContour;
+					if (contours[ 0 ].ContainedWithin.Contains( contours[1] )) {
+						containedContour = contours[ 0 ];
+						containingContour = contours[ 1 ];
+					} else if (contours[ 1 ].ContainedWithin.Contains( contours[ 0 ] )) {
+						containedContour = contours[ 1 ];
+						containingContour = contours[ 0 ];
+					} else {
+						throw new InvalidOperationException( "We have a hole, but it's not contained within another contour." );
+					}
+
+					if (containingContour.ContourWindsClockWise) {
+						return true;
+					} else {
+						return false;
+					}
 					//if (contour.ContourWindsClockWise)
 					//	//This is the filling contour. If the triangle is winding counter clockwise, it's filled.
 					//	return Orientation( firstPoint.Coordinate, secondPoint.Coordinate, lonePoint.Coordinate ) > 0;
@@ -334,17 +360,17 @@ public sealed class FontGlyph : IGlyph {
 	}
 
 	public ContourPoint GetPoint( Vector2<int> point ) {
-		foreach (ContourPoint p in _allPoints)
+		foreach (ContourPoint p in this._allPoints)
 			if (p.Coordinate == point)
 				return p;
 		throw new InvalidOperationException( "Point not found" );
 	}
 
 	internal void Transform( double offsetX, double offsetY, double iHat_x, double iHat_y, double jHat_x, double jHat_y ) {
-		for (int i = 0; i < _allPoints.Count; i++) {
-			(double xPrime, double yPrime) = TransformPoint( _allPoints[ i ].Coordinate.X, _allPoints[ i ].Coordinate.Y );
+		for (int i = 0; i < this._allPoints.Count; i++) {
+			(double xPrime, double yPrime) = TransformPoint( this._allPoints[ i ].Coordinate.X, this._allPoints[ i ].Coordinate.Y );
 			//_originalPoints[ i ].coordinate = new( (int) xPrime, (int) yPrime );
-			_allPoints[ i ].Coordinate = new( (int) xPrime, (int) yPrime );
+			this._allPoints[ i ].Coordinate = new( (int) xPrime, (int) yPrime );
 		}
 
 		(double xPrime, double yPrime) TransformPoint( double x, double y ) {
@@ -369,19 +395,19 @@ public sealed class FontCompoundGlyph : IGlyph {
 	}
 
 	public void AddGlyph( IGlyph glyph ) {
-		_glyphs.Add( glyph );
+		this._glyphs.Add( glyph );
 	}
 
 	public (Triangle2<float>, bool filled, bool flipped)[] CreateMeshTriangles( float scale, bool useConstraints ) {
 		List<(Triangle2<float>, bool filled, bool flipped)> result = [];
-		foreach (IGlyph glyph in _glyphs)
+		foreach (IGlyph glyph in this._glyphs)
 			result.AddRange( glyph.CreateMeshTriangles( scale, useConstraints ) );
 		return result.ToArray();
 	}
 
 	public (Vector2<float>, uint indexInContour, bool onCurve)[] GetPointsInContours() {
 		List<(Vector2<float>, uint, bool)> result = [];
-		foreach (IGlyph glyph in _glyphs)
+		foreach (IGlyph glyph in this._glyphs)
 			result.AddRange( glyph.GetPointsInContours() );
 		return result.ToArray();
 	}
@@ -401,7 +427,20 @@ public sealed class Contour( ushort startIndex, ContourPoint[] points ) {
 	public IReadOnlyList<ContourPoint> RealPoints { get; } = points.Where( p => !p.Implied ).ToList().AsReadOnly();
 	public IReadOnlyList<ContourPoint> OnCurvePoints { get; } = points.Where( p => p.OnCurve ).ToList().AsReadOnly();
 	public IReadOnlyList<ContourPoint> OffCurvePoints { get; } = points.Where( p => !p.OnCurve ).ToList().AsReadOnly();
-	public bool ContourWindsClockWise => PolygonExtensions.GetSignedArea( Points.Select( p => p.Coordinate ).ToArray().AsSpan() ) < 0;
+	public bool ContourWindsClockWise => PolygonExtensions.GetSignedArea( this.Points.Select( p => p.Coordinate ).ToArray().AsSpan() ) < 0;
+	public IReadOnlyList<Contour> ContainedWithin => this._containedWithin.AsReadOnly();
+
+	private readonly List<Contour> _containedWithin = [];
+
+	/// <summary>
+	/// Checks if a contour contains another. If they intersect there is no containment. If all the points of the other contour are inside this contour, the other contour is contained within this contour.
+	/// If there is containment add this contour to the other contour's list of contained within.
+	/// </summary>
+	public void CheckContainment(Contour other) {
+		if (other.Points[ 0 ].Coordinate.PointInPolygon( Points.Select( p => p.Coordinate ).Distinct().ToArray() )){
+			other._containedWithin.Add( this );
+		}
+	}
 }
 
 public sealed class ContourPoint( Vector2<int> coordinate, bool onCurve, bool implied, int contourIndex, int pointIndexInContour ) {

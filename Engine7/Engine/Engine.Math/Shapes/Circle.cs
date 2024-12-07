@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Engine.Algorithms.Triangulation;
+namespace Engine.Shapes;
 
 public readonly struct Circle<TScalar>( Vector2<TScalar> center, TScalar radius )
 	where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {

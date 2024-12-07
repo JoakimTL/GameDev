@@ -65,31 +65,31 @@ public sealed class WindowEventService {
 	public event WindowEventHandler? Closing;
 
 	public WindowEventService( WindowService windowService ) {
-		_window = windowService.Window;
-		_fileDropCallback = OnFileDrop;
-		_focusCallback = OnFocusChange;
-		_contentScaleCallback = OnContentScaleChange;
-		_maximizedCallback = OnMaximized;
-		_positionCallback = OnPositionChange;
-		_sizeCallback = OnSizeChange;
-		_framebufferCallback = OnFramebufferChange;
-		_closeCallback = OnClosing;
-		_windowRefreshCallback = OnRefresh;
+		this._window = windowService.Window;
+		this._fileDropCallback = OnFileDrop;
+		this._focusCallback = OnFocusChange;
+		this._contentScaleCallback = OnContentScaleChange;
+		this._maximizedCallback = OnMaximized;
+		this._positionCallback = OnPositionChange;
+		this._sizeCallback = OnSizeChange;
+		this._framebufferCallback = OnFramebufferChange;
+		this._closeCallback = OnClosing;
+		this._windowRefreshCallback = OnRefresh;
 
-		EventUtilities.SetDropCallback( _window.Handle, _fileDropCallback );
-		EventUtilities.SetWindowFocusCallback( _window.Handle, _focusCallback );
-		EventUtilities.SetWindowContentScaleCallback( _window.Handle, _contentScaleCallback );
-		EventUtilities.SetWindowMaximizeCallback( _window.Handle, _maximizedCallback );
-		EventUtilities.SetWindowPositionCallback( _window.Handle, _positionCallback );
-		EventUtilities.SetWindowSizeCallback( _window.Handle, _sizeCallback );
-		EventUtilities.SetFramebufferSizeCallback( _window.Handle, _framebufferCallback );
-		EventUtilities.SetCloseCallback( _window.Handle, _closeCallback );
-		EventUtilities.SetWindowRefreshCallback( _window.Handle, _windowRefreshCallback );
+		EventUtilities.SetDropCallback( this._window.Handle, this._fileDropCallback );
+		EventUtilities.SetWindowFocusCallback( this._window.Handle, this._focusCallback );
+		EventUtilities.SetWindowContentScaleCallback( this._window.Handle, this._contentScaleCallback );
+		EventUtilities.SetWindowMaximizeCallback( this._window.Handle, this._maximizedCallback );
+		EventUtilities.SetWindowPositionCallback( this._window.Handle, this._positionCallback );
+		EventUtilities.SetWindowSizeCallback( this._window.Handle, this._sizeCallback );
+		EventUtilities.SetFramebufferSizeCallback( this._window.Handle, this._framebufferCallback );
+		EventUtilities.SetCloseCallback( this._window.Handle, this._closeCallback );
+		EventUtilities.SetWindowRefreshCallback( this._window.Handle, this._windowRefreshCallback );
 	}
 
 	private void OnFileDrop( nint winPtr, int count, nint pointer ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnFileDrop )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnFileDrop )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -102,8 +102,8 @@ public sealed class WindowEventService {
 	}
 
 	private void OnFocusChange( nint winPtr, bool focusing ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnFocusChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnFocusChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -111,8 +111,8 @@ public sealed class WindowEventService {
 	}
 
 	private void OnContentScaleChange( nint winPtr, float xScale, float yScale ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnContentScaleChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnContentScaleChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -120,8 +120,8 @@ public sealed class WindowEventService {
 	}
 
 	private void OnMaximized( nint winPtr, bool maximized ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnMaximized )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnMaximized )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -129,8 +129,8 @@ public sealed class WindowEventService {
 	}
 
 	private void OnPositionChange( nint winPtr, double x, double y ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnPositionChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnPositionChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -138,8 +138,8 @@ public sealed class WindowEventService {
 	}
 
 	private void OnSizeChange( nint winPtr, int width, int height ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnSizeChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnSizeChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -147,8 +147,8 @@ public sealed class WindowEventService {
 	}
 
 	private void OnFramebufferChange( nint winPtr, int width, int height ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnFramebufferChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnFramebufferChange )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -156,8 +156,8 @@ public sealed class WindowEventService {
 	}
 
 	private void OnRefresh( nint winPtr ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnRefresh )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnRefresh )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -165,8 +165,8 @@ public sealed class WindowEventService {
 	}
 
 	private void OnClosing( nint winPtr ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnClosing )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnClosing )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 

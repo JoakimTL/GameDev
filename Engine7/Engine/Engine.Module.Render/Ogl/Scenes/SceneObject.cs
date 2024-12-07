@@ -23,18 +23,18 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	public event Action? OnChanged;
 
 	public SceneObject( uint layer, BufferService bufferService, OglVertexArrayObjectBase vertexArrayObject, ShaderBundleBase shaderBundle, uint instanceCount ) {
-		_sceneInstanceCollectionsByMeshByInstanceDataType = [];
-		_unmeshedSceneInstances = [];
-		VertexArrayObject = vertexArrayObject;
-		ShaderBundle = shaderBundle;
+		this._sceneInstanceCollectionsByMeshByInstanceDataType = [];
+		this._unmeshedSceneInstances = [];
+		this.VertexArrayObject = vertexArrayObject;
+		this.ShaderBundle = shaderBundle;
 		this._instanceCount = instanceCount;
-		BindIndex = VertexArrayObject.GetBindIndexWith( ShaderBundle ) ?? throw new ArgumentException( "Unable to establish bind index" );
-		RenderLayer = layer;
+		this.BindIndex = this.VertexArrayObject.GetBindIndexWith( this.ShaderBundle ) ?? throw new ArgumentException( "Unable to establish bind index" );
+		this.RenderLayer = layer;
 		this._bufferService = bufferService;
 	}
 
 	public void AddIndirectCommands( List<IndirectCommand> commandList ) {
-		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType) {
+		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType) {
 			if (kvp.Value.Count == 0)
 				continue;
 			IMesh mesh = kvp.Key.Item1;
@@ -46,22 +46,22 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	public int CompareTo( SceneObject? other ) {
 		if (other is null)
 			return 1;
-		return BindIndex.CompareTo( other.BindIndex );
+		return this.BindIndex.CompareTo( other.BindIndex );
 	}
 
 	public void AddSceneInstance( SceneInstanceBase sceneInstance ) {
 		if (sceneInstance.Disposed)
 			throw new ArgumentException( "SceneInstance is disposed" );
-		if (sceneInstance.BindIndex != BindIndex)
+		if (sceneInstance.BindIndex != this.BindIndex)
 			throw new ArgumentException( "SceneInstance is not compatible with this SceneObject" );
-		if (sceneInstance.RenderLayer != RenderLayer)
+		if (sceneInstance.RenderLayer != this.RenderLayer)
 			throw new ArgumentException( "SceneInstance is not compatible with this SceneObject" );
 		if (sceneInstance.Mesh is not null) {
 			AddSceneInstanceIntoCollection( sceneInstance );
 			return;
 		}
 
-		if (!_unmeshedSceneInstances.Add( sceneInstance ))
+		if (!this._unmeshedSceneInstances.Add( sceneInstance ))
 			return;
 		sceneInstance.OnBindIndexChanged += OnBindIndexChanged;
 		sceneInstance.OnLayerChanged += OnLayerChanged;
@@ -72,8 +72,8 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	private void AddSceneInstanceIntoCollection( SceneInstanceBase sceneInstance ) {
 		IMesh mesh = sceneInstance.Mesh ?? throw new InvalidOperationException( "Instance mesh is null" );
 
-		if (!_sceneInstanceCollectionsByMeshByInstanceDataType.TryGetValue( (mesh, sceneInstance.InstanceDataType), out List<SceneInstanceCollection>? collectionList ))
-			_sceneInstanceCollectionsByMeshByInstanceDataType.Add( (mesh, sceneInstance.InstanceDataType), collectionList = [] );
+		if (!this._sceneInstanceCollectionsByMeshByInstanceDataType.TryGetValue( (mesh, sceneInstance.InstanceDataType), out List<SceneInstanceCollection>? collectionList ))
+			this._sceneInstanceCollectionsByMeshByInstanceDataType.Add( (mesh, sceneInstance.InstanceDataType), collectionList = [] );
 
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
@@ -84,7 +84,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 			return;
 
 		uint sizePerInstanceBytes = (uint) (TypeManager.SizeOf( sceneInstance.InstanceDataType ) ?? throw new ArgumentException( "Instance data type must be unmanaged" ));
-		if (!_bufferService.Get( sceneInstance.InstanceDataType ).TryAllocate( sizePerInstanceBytes * _instanceCount, out BufferSegment? segment ))
+		if (!this._bufferService.Get( sceneInstance.InstanceDataType ).TryAllocate( sizePerInstanceBytes * this._instanceCount, out BufferSegment? segment ))
 			throw new InvalidOperationException( "Failed to allocate instance data segment" );
 		SceneInstanceCollection newCollection = new( segment, sizePerInstanceBytes );
 		newCollection.OnChanged += OnSceneCollectionChanged;
@@ -125,7 +125,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 
 	private void RemoveInstance( SceneInstanceBase sceneInstance ) {
 		//We're only here because the scene instance is not meshed, but has changed other properties that does not match the scene object.
-		_unmeshedSceneInstances.Remove( sceneInstance );
+		this._unmeshedSceneInstances.Remove( sceneInstance );
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
 		sceneInstance.OnMeshChanged -= OnMeshChanged;
@@ -138,12 +138,12 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	private void OnMeshChanged( SceneInstanceBase changedInstance, IMesh? oldMesh ) {
 		if (changedInstance.Mesh is null)
 			throw new InvalidOperationException( "Instance mesh is null when it shouldn't be. We're listening to events we shouldn't." );
-		if (_unmeshedSceneInstances.Remove( changedInstance ))
+		if (this._unmeshedSceneInstances.Remove( changedInstance ))
 			AddSceneInstanceIntoCollection( changedInstance );
 	}
 
 	private void OnInstanceRemovedFromCollection( SceneInstanceBase sceneInstance ) {
-		if (sceneInstance.Disposed || sceneInstance.BindIndex != BindIndex || sceneInstance.RenderLayer != RenderLayer) {
+		if (sceneInstance.Disposed || sceneInstance.BindIndex != this.BindIndex || sceneInstance.RenderLayer != this.RenderLayer) {
 			//Make sure the container is not empty, if it is we should dispose it.
 			PruneEmptyCollections();
 			OnInstanceRemoved?.Invoke( sceneInstance );
@@ -151,7 +151,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		}
 		//The only reason we're here is if the mesh has changed.
 		if (sceneInstance.Mesh is null) {
-			if (!_unmeshedSceneInstances.Add( sceneInstance ))
+			if (!this._unmeshedSceneInstances.Add( sceneInstance ))
 				throw new InvalidOperationException( "Failed to add instance back to unmeshed collection" );
 			sceneInstance.OnBindIndexChanged += OnBindIndexChanged;
 			sceneInstance.OnLayerChanged += OnLayerChanged;
@@ -164,7 +164,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	}
 
 	private void PruneEmptyCollections() {
-		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType)
+		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType)
 			for (int i = kvp.Value.Count - 1; i >= 0; i--)
 				if (kvp.Value[ i ].InstanceCount == 0) {
 					kvp.Value[ i ].Dispose();
@@ -183,7 +183,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	private void OnBindIndexChanged( SceneInstanceBase changedInstance, ulong? oldBindIndex ) => RemoveInstance( changedInstance );
 
 	protected override bool InternalDispose() {
-		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in _sceneInstanceCollectionsByMeshByInstanceDataType)
+		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType)
 			foreach (SceneInstanceCollection collection in kvp.Value)
 				collection.Dispose();
 		return true;

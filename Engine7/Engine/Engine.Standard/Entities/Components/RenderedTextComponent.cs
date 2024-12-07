@@ -10,8 +10,8 @@ public sealed class Transform2Component : ComponentBase {
 	public Transform2<double> Transform { get; }
 
 	public Transform2Component() {
-		Transform = new();
-		Transform.MatrixChanged += OnMatrixChanged;
+		this.Transform = new();
+		this.Transform.MatrixChanged += OnMatrixChanged;
 	}
 
 	private void OnMatrixChanged( IMatrixProvider<double> provider ) => this.InvokeComponentChanged();

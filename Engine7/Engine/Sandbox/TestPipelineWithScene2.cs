@@ -8,6 +8,7 @@ using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
+using Engine.Shapes;
 using Engine.Standard.Render.Text;
 using OpenGL;
 
@@ -34,36 +35,36 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 	private bool _showWithConstraint = false;
 
 	public void Initialize() {
-		if (!_dataBlockService.CreateUniformBlock( "testUniformBlock", 256, [ ShaderType.VertexShader ], out _testUniforms! ))
+		if (!this._dataBlockService.CreateUniformBlock( "testUniformBlock", 256, [ ShaderType.VertexShader ], out this._testUniforms! ))
 			throw new InvalidOperationException( "Couldn't create uniform block." );
-		if (!_dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out _testShaderStorage! ))
+		if (!this._dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out this._testShaderStorage! ))
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
-		_dataBlocks = new DataBlockCollection( _testUniforms, _testShaderStorage );
+		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
-		this._testVertexArrayObject = _compositeVertexArrayObjectService.Get( typeof( LetterVertex ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
+		this._testVertexArrayObject = this._compositeVertexArrayObjectService.Get( typeof( LetterVertex ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
 		this._shaderBundle = this._shaderBundleService.Get<TestShaderBundle>() ?? throw new NullReferenceException( "ShaderBundle not found." );
 
 		userInputEventService.OnCharacter += OnCharacterTyped;
 		userInputEventService.OnKey += OnKey;
 
-		_scene = _sceneService.GetScene( "test" );
+		this._scene = this._sceneService.GetScene( "test" );
 
-		_showWithConstraint = true;
+		this._showWithConstraint = true;
 
 		Font font = fontService.Get( "JetBrainsMono-Bold" );
-		CreateText( font, "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå", _showWithConstraint );
+		CreateText( font, "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå", this._showWithConstraint );
 
-		windowService.Window.Title = $"With constraints: {_showWithConstraint}";
+		windowService.Window.Title = $"With constraints: {this._showWithConstraint}";
 	}
 
 	private void OnKey( KeyboardEvent @event ) {
 		if (@event.InputType == TactileInputType.Press && @event.Key == Keys.Space) {
 			Font font = fontService.Get( "JetBrainsMono-Bold" );
-			CreateText( font, "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå", _showWithConstraint );
+			CreateText( font, "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå", this._showWithConstraint );
 		}
 		if (@event.InputType == TactileInputType.Press && @event.Key == Keys.F1) {
-			_showWithConstraint = !_showWithConstraint;
-			windowService.Window.Title = $"With constraints: {_showWithConstraint}";
+			this._showWithConstraint = !this._showWithConstraint;
+			windowService.Window.Title = $"With constraints: {this._showWithConstraint}";
 		}
 	}
 
@@ -71,31 +72,31 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 		if (@event.Character == ' ')
 			return;
 		Font font = fontService.Get( "JetBrainsMono-Bold" );
-		CreateText( font, @event.Character.ToString(), _showWithConstraint );
+		CreateText( font, @event.Character.ToString(), this._showWithConstraint );
 	}
 
 	private void CreateText( Font font, string v, bool showWithConstraint ) {
-		foreach (SceneInstance<Entity2SceneData> letter in _letters) {
+		foreach (SceneInstance<Entity2SceneData> letter in this._letters) {
 			letter.Dispose();
 		}
-		foreach (SceneInstance<Entity2SceneData> letterVertices in _letterVertices) {
+		foreach (SceneInstance<Entity2SceneData> letterVertices in this._letterVertices) {
 			letterVertices.Dispose();
 		}
-		_letters = new SceneInstance<Entity2SceneData>[ v.Where( p => p != ' ' ).Count() ];
-		_letterVertices = new SceneInstance<Entity2SceneData>[ _letters.Length ];
+		this._letters = new SceneInstance<Entity2SceneData>[ v.Where( p => p != ' ' ).Count() ];
+		this._letterVertices = new SceneInstance<Entity2SceneData>[ this._letters.Length ];
 		int i = 0;
 		foreach (char c in v) {
 			if (c == ' ') {
 				continue;
 			}
-			_letters[ i ] = _scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
-			_letters[ i ].SetMesh( CreateMesh( font[ c ].CreateMeshTriangles( 0.0025f, showWithConstraint ).ToArray() ) );
-			_letters[ i ].SetVertexArrayObject( _testVertexArrayObject );
-			_letters[ i ].SetShaderBundle( _shaderBundle );
-			_letterVertices[ i ] = _scene.CreateInstance<SceneInstance<Entity2SceneData>>( 1 );
-			_letterVertices[ i ].SetMesh( CreateContourIndexMesh( font[ c ].GetPointsInContours(), 0.0025f ) );
-			_letterVertices[ i ].SetVertexArrayObject( _testVertexArrayObject );
-			_letterVertices[ i ].SetShaderBundle( _shaderBundle );
+			this._letters[ i ] = this._scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
+			this._letters[ i ].SetMesh( CreateMesh( font[ c ].CreateMeshTriangles( 0.0025f, showWithConstraint ).ToArray() ) );
+			this._letters[ i ].SetVertexArrayObject( this._testVertexArrayObject );
+			this._letters[ i ].SetShaderBundle( this._shaderBundle );
+			this._letterVertices[ i ] = this._scene.CreateInstance<SceneInstance<Entity2SceneData>>( 1 );
+			this._letterVertices[ i ].SetMesh( CreateContourIndexMesh( font[ c ].GetPointsInContours(), 0.0025f ) );
+			this._letterVertices[ i ].SetVertexArrayObject( this._testVertexArrayObject );
+			this._letterVertices[ i ].SetShaderBundle( this._shaderBundle );
 			i++;
 		}
 	}
@@ -171,12 +172,12 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
-		float scale = MathF.Min( MathF.Max( 0.8f / _letters.Length, 0.12f ), 0.8F );
-		float x = _letters.Length > 1 ? -1f : -0.4f;
-		float y = _letters.Length > 1 ? 0.75f : -.9f;
-		for (int i = 0; i < _letters.Length; i++) {
-			_letters[ i ].Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( scale, scale ) * Matrix.Create4x4.Translation( x, y ) } );
-			_letterVertices[ i ].Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( scale, scale ) * Matrix.Create4x4.Translation( x, y ) } );
+		float scale = MathF.Min( MathF.Max( 0.8f / this._letters.Length, 0.12f ), 0.8F );
+		float x = this._letters.Length > 1 ? -1f : -0.4f;
+		float y = this._letters.Length > 1 ? 0.75f : -.9f;
+		for (int i = 0; i < this._letters.Length; i++) {
+			this._letters[ i ].Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( scale, scale ) * Matrix.Create4x4.Translation( x, y ) } );
+			this._letterVertices[ i ].Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( scale, scale ) * Matrix.Create4x4.Translation( x, y ) } );
 			x += scale * 1.5f;
 			if (x > 0.825f) {
 				x = -0.98f;
@@ -189,7 +190,7 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 		Gl.Clear( ClearBufferMask.ColorBufferBit );
 		Gl.Enable( EnableCap.CullFace );
 		Gl.CullFace( CullFaceMode.Back );
-		_scene.Render( "default", _dataBlocks, _ => { }, PrimitiveType.Triangles );
+		this._scene.Render( "default", this._dataBlocks, _ => { }, PrimitiveType.Triangles );
 	}
 
 	protected override bool InternalDispose() {

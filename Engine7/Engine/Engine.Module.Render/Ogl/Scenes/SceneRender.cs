@@ -12,32 +12,32 @@ public sealed class SceneRender : DisposableIdentifiable, ISceneRender {
 	private readonly List<RenderStage> _stages;
 
 	public SceneRender() {
-		_commandBuffer = new( BufferUsage.DynamicDraw, (uint) Unsafe.SizeOf<IndirectCommand>() * 4096 );
-		_indirectCommands = [];
-		_stages = [];
+		this._commandBuffer = new( BufferUsage.DynamicDraw, (uint) Unsafe.SizeOf<IndirectCommand>() * 4096 );
+		this._indirectCommands = [];
+		this._stages = [];
 	}
 
 	public void PrepareForRender( IReadOnlyList<SceneLayer> layers ) {
-		_indirectCommands.Clear();
-		_stages.Clear();
+		this._indirectCommands.Clear();
+		this._stages.Clear();
 		foreach (SceneLayer layer in layers)
 			foreach (SceneObject sceneObject in layer.SceneObjects) {
-				uint countBeforeAddition = (uint) _indirectCommands.Count;
-				sceneObject.AddIndirectCommands( _indirectCommands );
-				_stages.Add( new( sceneObject.VertexArrayObject, sceneObject.ShaderBundle, countBeforeAddition, _indirectCommands.Count - (int) countBeforeAddition ) );
+				uint countBeforeAddition = (uint) this._indirectCommands.Count;
+				sceneObject.AddIndirectCommands( this._indirectCommands );
+				this._stages.Add( new( sceneObject.VertexArrayObject, sceneObject.ShaderBundle, countBeforeAddition, this._indirectCommands.Count - (int) countBeforeAddition ) );
 			}
 		unsafe {
-			Span<IndirectCommand> commands = stackalloc IndirectCommand[ _indirectCommands.Count ];
-			_indirectCommands.CopyTo( commands );
+			Span<IndirectCommand> commands = stackalloc IndirectCommand[ this._indirectCommands.Count ];
+			this._indirectCommands.CopyTo( commands );
 			fixed (IndirectCommand* srcPtr = commands) {
-				_commandBuffer.WriteRange( srcPtr, (uint) (commands.Length * sizeof( IndirectCommand )), 0 );
+				this._commandBuffer.WriteRange( srcPtr, (uint) (commands.Length * sizeof( IndirectCommand )), 0 );
 			}
 		}
 	}
 
 	public void Render( string shaderIndex, IDataBlockCollection? dataBlocks, Action<bool>? blendActivationFunction, PrimitiveType primitiveType ) {
-		Gl.BindBuffer( BufferTarget.DrawIndirectBuffer, _commandBuffer.BufferId );
-		foreach (RenderStage stage in _stages) {
+		Gl.BindBuffer( BufferTarget.DrawIndirectBuffer, this._commandBuffer.BufferId );
+		foreach (RenderStage stage in this._stages) {
 			OglShaderPipelineBase? shader = stage.ShaderBundle.Get( shaderIndex );
 			if (shader is null)
 				continue;
@@ -52,7 +52,7 @@ public sealed class SceneRender : DisposableIdentifiable, ISceneRender {
 	}
 
 	protected override bool InternalDispose() {
-		_commandBuffer.Dispose();
+		this._commandBuffer.Dispose();
 		return true;
 	}
 }

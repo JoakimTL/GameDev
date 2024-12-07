@@ -6,10 +6,10 @@ namespace Engine.Module.Entities.Render;
 
 public sealed class ShaderBundleProvider( ShaderBundleService shaderBundleService ) {
 	private readonly ShaderBundleService _shaderBundleService = shaderBundleService;
-	internal ShaderBundleBase? GetShaderBundle<TShaderBundle>() where TShaderBundle : ShaderBundleBase => _shaderBundleService.Get( typeof( TShaderBundle ) );
+	internal ShaderBundleBase? GetShaderBundle<TShaderBundle>() where TShaderBundle : ShaderBundleBase => this._shaderBundleService.Get( typeof( TShaderBundle ) );
 }
 public sealed class MeshProvider( MeshService meshService ) {
 	private readonly MeshService _meshService = meshService;
-	internal VertexMesh<TVertex> CreateEmptyMesh<TVertex>( uint vertexCount, uint indexCount ) where TVertex : unmanaged => _meshService.CreateEmptyMesh<TVertex>( vertexCount, indexCount );
-	internal VertexMesh<TVertex> CreateMesh<TVertex>( Span<TVertex> vertices, Span<uint> indices ) where TVertex : unmanaged => _meshService.CreateMesh( vertices, indices );
+	internal VertexMesh<TVertex> CreateEmptyMesh<TVertex>( uint vertexCount, uint indexCount ) where TVertex : unmanaged => this._meshService.CreateEmptyMesh<TVertex>( vertexCount, indexCount );
+	internal VertexMesh<TVertex> CreateMesh<TVertex>( Span<TVertex> vertices, Span<uint> indices ) where TVertex : unmanaged => this._meshService.CreateMesh( vertices, indices );
 }

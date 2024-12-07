@@ -40,10 +40,10 @@ public readonly struct IndirectCommand {
 	/// <param name="baseVertex">A constant offset added to the vertex index. This uses vertex stride.</param>
 	/// <param name="baseInstance">The starting instance number, to get the correct instance data from the data buffer.</param>
 	public IndirectCommand( uint count, uint instanceCount, uint firstIndex, uint baseVertex, uint baseInstance ) {
-		Count = count;
-		InstanceCount = instanceCount;
-		FirstIndex = firstIndex;
-		BaseVertex = baseVertex;
-		BaseInstance = baseInstance;
+		this.Count = count;
+		this.InstanceCount = instanceCount;
+		this.FirstIndex = firstIndex;
+		this.BaseVertex = baseVertex;
+		this.BaseInstance = baseInstance;
 	}
 }

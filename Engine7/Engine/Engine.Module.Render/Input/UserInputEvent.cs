@@ -76,13 +76,13 @@ public sealed class UserInputEventService {
 public sealed class EventChain<T>( uint eventCount ) where T : unmanaged {
 	private readonly T[] _items = new T[ eventCount ];
 	private int _currentIndex = 0;
-	public IReadOnlyList<T> Chain => _items[ ^_currentIndex.._currentIndex ];
+	public IReadOnlyList<T> Chain => this._items[ ^this._currentIndex..this._currentIndex ];
 
 	public void Add( T item ) {
-		_items[ _currentIndex ] = item;
-		_currentIndex++;
-		if (_currentIndex >= _items.Length)
-			_currentIndex = 0;
+		this._items[ this._currentIndex ] = item;
+		this._currentIndex++;
+		if (this._currentIndex >= this._items.Length)
+			this._currentIndex = 0;
 	}
 }
 
@@ -95,7 +95,7 @@ public readonly struct KeyboardCharacterEvent( double time, uint keyCode, Modifi
 	public readonly double Time = time;
 	public readonly uint KeyCode = keyCode;
 	public readonly ModifierKeys Modifiers = modifierKeys;
-	public readonly char Character => (char) KeyCode;
+	public readonly char Character => (char) this.KeyCode;
 }
 
 public readonly struct KeyboardEvent( double time, Keys key, int scanCode, ModifierKeys modifiers, TactileInputType inputType ) {
@@ -163,22 +163,22 @@ public sealed class UserMouseInputEventService {
 	public event MouseEnterHandler? MouseEnter;
 
 	public UserMouseInputEventService( WindowService windowService ) {
-		_window = windowService.Window;
+		this._window = windowService.Window;
 
-		_enterCallback = OnEnter;
-		_buttonCallback = OnButton;
-		_cursorCallback = OnCursor;
-		_scrollCallback = OnScroll;
+		this._enterCallback = OnEnter;
+		this._buttonCallback = OnButton;
+		this._cursorCallback = OnCursor;
+		this._scrollCallback = OnScroll;
 
-		EventUtilities.SetCursorEnterCallback( _window.Handle, _enterCallback );
-		EventUtilities.SetMouseButtonCallback( _window.Handle, _buttonCallback );
-		EventUtilities.SetCursorPositionCallback( _window.Handle, _cursorCallback );
-		EventUtilities.SetScrollCallback( _window.Handle, _scrollCallback );
+		EventUtilities.SetCursorEnterCallback( this._window.Handle, this._enterCallback );
+		EventUtilities.SetMouseButtonCallback( this._window.Handle, this._buttonCallback );
+		EventUtilities.SetCursorPositionCallback( this._window.Handle, this._cursorCallback );
+		EventUtilities.SetScrollCallback( this._window.Handle, this._scrollCallback );
 	}
 
 	private void OnEnter( nint winPtr, bool enter ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnEnter )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnEnter )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -186,8 +186,8 @@ public sealed class UserMouseInputEventService {
 	}
 
 	private void OnButton( nint winPtr, MouseButton button, InputState state, ModifierKeys modifiers ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnButton )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnButton )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -205,8 +205,8 @@ public sealed class UserMouseInputEventService {
 	}
 
 	private void OnCursor( nint winPtr, double x, double y ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnCursor )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnCursor )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -214,8 +214,8 @@ public sealed class UserMouseInputEventService {
 	}
 
 	private void OnScroll( nint winPtr, double x, double y ) {
-		if (_window.Handle != winPtr) {
-			this.LogWarning( $"{nameof( OnScroll )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			this.LogWarning( $"{nameof( OnScroll )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -249,21 +249,21 @@ public sealed class UserKeyboardInputEventService {
 	public event KeyboardHandler? KeyRepeated;
 
 	public UserKeyboardInputEventService( WindowService windowService ) {
-		_window = windowService.Window;
+		this._window = windowService.Window;
 
-		_keyCallback = OnKey;
-		_characterCallback = OnCharacter;
+		this._keyCallback = OnKey;
+		this._characterCallback = OnCharacter;
 
-		EventUtilities.SetKeyCallback( _window.Handle, _keyCallback );
-		EventUtilities.SetCharModsCallback( _window.Handle, _characterCallback );
+		EventUtilities.SetKeyCallback( this._window.Handle, this._keyCallback );
+		EventUtilities.SetCharModsCallback( this._window.Handle, this._characterCallback );
 	}
 
 	private void OnKey( nint winPtr, Keys key, int scanCode, InputState state, ModifierKeys mods ) {
 		if (key == Keys.Unknown)
 			return;
 
-		if (_window.Handle != winPtr) {
-			Log.Warning( $"{nameof( OnKey )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			Log.Warning( $"{nameof( OnKey )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 
@@ -281,8 +281,8 @@ public sealed class UserKeyboardInputEventService {
 	}
 
 	private void OnCharacter( nint winPtr, uint codePoint, ModifierKeys mods ) {
-		if (_window.Handle != winPtr) {
-			Log.Warning( $"{nameof( OnCharacter )} {nameof( winPtr )} parameter [{winPtr}] does not match [{_window.Handle}]!" );
+		if (this._window.Handle != winPtr) {
+			Log.Warning( $"{nameof( OnCharacter )} {nameof( winPtr )} parameter [{winPtr}] does not match [{this._window.Handle}]!" );
 			return;
 		}
 

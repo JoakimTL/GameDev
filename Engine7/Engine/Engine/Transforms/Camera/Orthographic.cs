@@ -10,46 +10,46 @@ public class Orthographic : MatrixProviderBase<float> {
 			throw new ArgumentOutOfRangeException( nameof( size ) );
 		if (zFar <= zNear)
 			throw new ArgumentOutOfRangeException( $"{nameof( zNear )} cannot be greater than or equal to {nameof( zFar )}!" );
-		_size = size;
-		_zNear = zNear;
-		_zFar = zFar;
+		this._size = size;
+		this._zNear = zNear;
+		this._zFar = zFar;
 		SetChanged();
 	}
 
-	protected override void MatrixAccessed() => Matrix = Engine.Matrix.Create4x4.Orthographic( -_size.X, -_size.Y, _size.X, _size.Y, _zNear, _zFar );
+	protected override void MatrixAccessed() => this.Matrix = Engine.Matrix.Create4x4.Orthographic( -this._size.X, -this._size.Y, this._size.X, this._size.Y, this._zNear, this._zFar );
 
 	public Vector2<float> Size {
-		get => _size;
+		get => this._size;
 		set {
-			if (_size == value)
+			if (this._size == value)
 				return;
 			if (value.X <= 0 || value.Y <= 0)
 				return;
-			_size = value;
+			this._size = value;
 			SetChanged();
 		}
 	}
 
 	public float ZNear {
-		get => _zNear;
+		get => this._zNear;
 		set {
-			if (_zNear == value)
+			if (this._zNear == value)
 				return;
-			if (_zFar <= value)
+			if (this._zFar <= value)
 				return;
-			_zNear = value;
+			this._zNear = value;
 			SetChanged();
 		}
 	}
 
 	public float ZFar {
-		get => _zFar;
+		get => this._zFar;
 		set {
-			if (_zFar == value)
+			if (this._zFar == value)
 				return;
-			if (value <= _zNear)
+			if (value <= this._zNear)
 				return;
-			_zFar = value;
+			this._zFar = value;
 			SetChanged();
 		}
 	}
@@ -60,27 +60,27 @@ public class Orthographic : MatrixProviderBase<float> {
 		private Vector2<float> _scale;
 
 		public Dynamic( IResizableSurface<int, float> surface, Vector2<float> scale, float zNear, float zFar ) : base( surface.AspectRatioVector.MultiplyEntrywise( scale ), zNear, zFar ) {
-			_surface = surface;
-			_scale = scale;
-			_surface.OnResized += WindowResized;
+			this._surface = surface;
+			this._scale = scale;
+			this._surface.OnResized += WindowResized;
 		}
 
-		private void WindowResized( IResizableSurface<int, float> surface ) => Size = _surface.AspectRatioVector.MultiplyEntrywise( _scale );
+		private void WindowResized( IResizableSurface<int, float> surface ) => this.Size = this._surface.AspectRatioVector.MultiplyEntrywise( this._scale );
 
 		public void Dispose() {
-			_surface.OnResized -= WindowResized;
+			this._surface.OnResized -= WindowResized;
 			GC.SuppressFinalize( this );
 		}
 
 		public Vector2<float> Scale {
-			get => _scale;
+			get => this._scale;
 			set {
-				if (_scale == value)
+				if (this._scale == value)
 					return;
 				if (value.X <= 0 || value.Y <= 0)
 					return;
-				_scale = value;
-				Size = _surface.AspectRatioVector.MultiplyEntrywise( _scale );
+				this._scale = value;
+				this.Size = this._surface.AspectRatioVector.MultiplyEntrywise( this._scale );
 			}
 		}
 	}

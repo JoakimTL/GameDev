@@ -41,7 +41,7 @@ public sealed class CameraComponent : ComponentBase {
 	}
 
 	public void SetFov( float fov ) {
-		if (fov == Fov)
+		if (fov == this.Fov)
 			return;
 		if (fov <= 0 || fov >= 180)
 			throw new ArgumentOutOfRangeException( "FOV must be greater than 0 and less than 180!" );
@@ -50,7 +50,7 @@ public sealed class CameraComponent : ComponentBase {
 	}
 
 	public void SetFar( float far ) {
-		if (far == Far)
+		if (far == this.Far)
 			return;
 		if (far <= this.Near)
 			throw new ArgumentOutOfRangeException( "Far cannot be less than or equal to Near!" );
@@ -59,7 +59,7 @@ public sealed class CameraComponent : ComponentBase {
 	}
 
 	public void SetNear( float near ) {
-		if (near == Near)
+		if (near == this.Near)
 			return;
 		if (near >= this.Far)
 			throw new ArgumentOutOfRangeException( "Near cannot be greater than or equal to Far!" );

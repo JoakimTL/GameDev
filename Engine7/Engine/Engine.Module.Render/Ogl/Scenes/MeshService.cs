@@ -19,7 +19,7 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 		if (!bufferService.ElementBuffer.TryAllocate( elementCount * IMesh.ElementSizeBytes, out BufferSegment? elementSegment ))
 			throw new InvalidOperationException( "Failed to allocate element buffer" );
 		VertexMesh<TVertex> mesh = new( vertexSegment, elementSegment );
-		_meshes.Add( mesh );
+		this._meshes.Add( mesh );
 		return mesh;
 	}
 
@@ -31,12 +31,12 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 		VertexMesh<TVertex> mesh = new( vertexSegment, elementSegment );
 		mesh.VertexBufferSegment.WriteRange( vertices, 0 );
 		mesh.ElementBufferSegment.WriteRange( elements, 0 );
-		_meshes.Add( mesh );
+		this._meshes.Add( mesh );
 		return mesh;
 	}
 
 	protected override bool InternalDispose() {
-		foreach (IMesh mesh in _meshes)
+		foreach (IMesh mesh in this._meshes)
 			mesh.Dispose();
 		return true;
 	}

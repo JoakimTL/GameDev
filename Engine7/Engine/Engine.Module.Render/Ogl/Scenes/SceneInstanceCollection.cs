@@ -22,8 +22,8 @@ public sealed class SceneInstanceCollection : DisposableIdentifiable {
 		this._maxInstanceCount = (uint) segment.LengthBytes / sizePerInstanceBytes;
 	}
 
-	public uint BaseInstance => (uint) (_segment.OffsetBytes / _sizePerInstanceBytes);
-	public uint InstanceCount => (uint) _instances.Count;
+	public uint BaseInstance => (uint) (this._segment.OffsetBytes / this._sizePerInstanceBytes);
+	public uint InstanceCount => (uint) this._instances.Count;
 
 	public event Action<SceneInstanceBase>? OnInstanceRemoved;
 
@@ -32,12 +32,12 @@ public sealed class SceneInstanceCollection : DisposableIdentifiable {
 			this.LogWarning( "Instance already has a data segment." );
 			return false;
 		}
-		if (_instances.Count >= _maxInstanceCount)
+		if (this._instances.Count >= this._maxInstanceCount)
 			return false;
-		if (!_instances.Add( sceneInstance ))
+		if (!this._instances.Add( sceneInstance ))
 			return false;
-		if (!_subBufferManager.TryAllocate( _sizePerInstanceBytes, out SubBuffer<BufferSegment>? subBuffer )) {
-			_instances.Remove( sceneInstance );
+		if (!this._subBufferManager.TryAllocate( this._sizePerInstanceBytes, out SubBuffer<BufferSegment>? subBuffer )) {
+			this._instances.Remove( sceneInstance );
 			this.LogWarning( "Failed to allocate a subbuffer." );
 			return false;
 		}
@@ -51,13 +51,13 @@ public sealed class SceneInstanceCollection : DisposableIdentifiable {
 	}
 
 	public bool Remove( SceneInstanceBase sceneInstance ) {
-		if (!_instances.Remove( sceneInstance )) {
+		if (!this._instances.Remove( sceneInstance )) {
 			this.LogWarning( "Instance was not found in the collection." );
 			return false;
 		}
 		SubBuffer<BufferSegment>? dataSegment = sceneInstance.InstanceDataSegment;
 		if (dataSegment is not null)
-			_subBufferManager.Remove( dataSegment );
+			this._subBufferManager.Remove( dataSegment );
 		sceneInstance.AssignDataSegment( null );
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
@@ -83,7 +83,7 @@ public sealed class SceneInstanceCollection : DisposableIdentifiable {
 	private void OnLayerChanged( SceneInstanceBase changedInstance, uint oldValue ) => Remove( changedInstance );
 
 	protected override bool InternalDispose() {
-		_segment.Dispose();
+		this._segment.Dispose();
 		return true;
 	}
 }

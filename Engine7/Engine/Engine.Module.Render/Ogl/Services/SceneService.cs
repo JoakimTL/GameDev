@@ -7,8 +7,8 @@ public sealed class SceneService( BufferService bufferService ) {
 	private readonly BufferService _bufferService = bufferService;
 
 	public Scene GetScene( string sceneName ) {
-		if (!_scenesByName.TryGetValue( sceneName, out Scene? scene ))
-			_scenesByName.Add( sceneName, scene = new( sceneName, _bufferService ) );
+		if (!this._scenesByName.TryGetValue( sceneName, out Scene? scene ))
+			this._scenesByName.Add( sceneName, scene = new( sceneName, this._bufferService ) );
 		return scene;
 	}
 }

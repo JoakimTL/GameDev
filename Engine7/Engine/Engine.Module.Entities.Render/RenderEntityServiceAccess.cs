@@ -9,9 +9,9 @@ public sealed class RenderEntityServiceAccess( SceneInstanceProvider sceneInstan
 	private readonly MeshProvider _meshProvider = meshProvider;
 	private readonly UserInputEventService _userInputEventService = userInputEventService;
 
-	internal SceneInstanceProvider SceneInstanceProvider => _sceneInstanceProvider;
-	internal CompositeVertexArrayProvider CompositeVertexArrayProvider => _compositeVertexArrayProvider;
-	internal ShaderBundleProvider ShaderBundleProvider => _shaderBundleProvider;
-	internal MeshProvider MeshProvider => _meshProvider;
-	internal UserInputEventService UserInputEventService => _userInputEventService;
+	internal SceneInstanceProvider SceneInstanceProvider => this._sceneInstanceProvider;
+	internal CompositeVertexArrayProvider CompositeVertexArrayProvider => this._compositeVertexArrayProvider;
+	internal ShaderBundleProvider ShaderBundleProvider => this._shaderBundleProvider;
+	internal MeshProvider MeshProvider => this._meshProvider;
+	internal UserInputEventService UserInputEventService => this._userInputEventService;
 }

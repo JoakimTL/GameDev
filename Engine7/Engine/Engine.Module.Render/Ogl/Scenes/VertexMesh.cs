@@ -18,10 +18,10 @@ public class VertexMesh<TVertex> : DisposableIdentifiable, IMesh where TVertex :
 	internal VertexMesh( BufferSegment vertexBufferSegment, BufferSegment elementBufferSegment ) {
 		this.VertexBufferSegment = vertexBufferSegment;
 		this.ElementBufferSegment = elementBufferSegment;
-		VertexType = typeof( TVertex );
-		ElementCount = (uint) elementBufferSegment.LengthBytes / IMesh.ElementSizeBytes;
-		ElementOffset = (uint) elementBufferSegment.OffsetBytes / IMesh.ElementSizeBytes;
-		VertexOffset = (uint) vertexBufferSegment.OffsetBytes / (uint) Marshal.SizeOf<TVertex>();
+		this.VertexType = typeof( TVertex );
+		this.ElementCount = (uint) elementBufferSegment.LengthBytes / IMesh.ElementSizeBytes;
+		this.ElementOffset = (uint) elementBufferSegment.OffsetBytes / IMesh.ElementSizeBytes;
+		this.VertexOffset = (uint) vertexBufferSegment.OffsetBytes / (uint) Marshal.SizeOf<TVertex>();
 
 		vertexBufferSegment.OffsetChanged += OnOffsetChanged;
 		elementBufferSegment.OffsetChanged += OnOffsetChanged;
@@ -30,8 +30,8 @@ public class VertexMesh<TVertex> : DisposableIdentifiable, IMesh where TVertex :
 	private void OnOffsetChanged( IBufferSegment<ulong> segment ) => Changed?.Invoke();
 
 	protected override bool InternalDispose() {
-		VertexBufferSegment.Dispose();
-		ElementBufferSegment.Dispose();
+		this.VertexBufferSegment.Dispose();
+		this.ElementBufferSegment.Dispose();
 		return true;
 	}
 }

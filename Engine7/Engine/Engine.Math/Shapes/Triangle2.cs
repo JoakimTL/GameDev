@@ -1,14 +1,14 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
-namespace Engine.Algorithms.Triangulation;
+namespace Engine.Shapes;
 
-public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector2<TScalar> c ) : IEqualityComparer<Triangle2<TScalar>>
+public readonly struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector2<TScalar> c ) : IEqualityComparer<Triangle2<TScalar>>
 	where TScalar : unmanaged, INumber<TScalar> {
 
-	public Vector2<TScalar> A = a;
-	public Vector2<TScalar> B = b;
-	public Vector2<TScalar> C = c;
+	public readonly Vector2<TScalar> A = a;
+	public readonly Vector2<TScalar> B = b;
+	public readonly Vector2<TScalar> C = c;
 
 	//public Circle<TScalar>? GetCircumcircle() {
 	//	var two = TScalar.One + TScalar.One;
@@ -25,13 +25,13 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 	//	return new Circle<TScalar>( center, radius );
 	//}
 
-	public Vector3<TScalar> GetBarycentric( Vector2<TScalar> p ) {
-		Vector2<TScalar> ab = B - A;
-		Vector2<TScalar> ac = C - A;
-		Vector2<TScalar> bc = C - B;
+	public readonly Vector3<TScalar> GetBarycentric( Vector2<TScalar> p ) {
+		Vector2<TScalar> ab = this.B - this.A;
+		Vector2<TScalar> ac = this.C - this.A;
+		Vector2<TScalar> bc = this.C - this.B;
 
-		Vector2<TScalar> cp = p - C;
-		Vector2<TScalar> ap = p - A;
+		Vector2<TScalar> cp = p - this.C;
+		Vector2<TScalar> ap = p - this.A;
 
 		TScalar det = Matrix.Create2x2.TransposedBasis( ac, bc ).GetDeterminant();
 		TScalar v = Matrix.Create2x2.TransposedBasis( bc, cp ).GetDeterminant() / det;
@@ -46,9 +46,9 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 
 	public bool PointInCircumcircle<TFloatingScalar>( Vector2<TScalar> p )
 		where TFloatingScalar : unmanaged, IFloatingPointIeee754<TFloatingScalar> {
-		Vector2<TFloatingScalar> fA = A.CastSaturating<TScalar, TFloatingScalar>();
-		Vector2<TFloatingScalar> fB = B.CastSaturating<TScalar, TFloatingScalar>();
-		Vector2<TFloatingScalar> fC = C.CastSaturating<TScalar, TFloatingScalar>();
+		Vector2<TFloatingScalar> fA = this.A.CastSaturating<TScalar, TFloatingScalar>();
+		Vector2<TFloatingScalar> fB = this.B.CastSaturating<TScalar, TFloatingScalar>();
+		Vector2<TFloatingScalar> fC = this.C.CastSaturating<TScalar, TFloatingScalar>();
 		Vector2<TFloatingScalar> fp = p.CastSaturating<TScalar, TFloatingScalar>();
 
 		Vector2<TFloatingScalar> pa = fA - fp;
@@ -80,7 +80,7 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 		return det > TFloatingScalar.Zero;
 	}
 
-	public bool HasVertex( Vector2<TScalar> p ) => A == p || B == p || C == p;
+	public readonly bool HasVertex( Vector2<TScalar> p ) => this.A == p || this.B == p || this.C == p;
 
 	//private static bool TryFindIntersection( Vector2<TScalar> midAB, Vector2<TScalar> dirAB, Vector2<TScalar> midAC, Vector2<TScalar> dirAC, out Vector2<TScalar> intersection ) {
 	//	intersection = default;
@@ -96,46 +96,52 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 
 	public override bool Equals( [NotNullWhen( true )] object? obj ) {
 		if (obj is Triangle2<TScalar> triangle)
-			return Equals( this, triangle );
-		return false;
+			return HasVertex( triangle.A ) && HasVertex( triangle.B ) && HasVertex( triangle.C );
+		return base.Equals( obj );
 	}
 
-	public bool Equals( Triangle2<TScalar> x, Triangle2<TScalar> y ) => x.HasVertex( y.A ) && x.HasVertex( y.B ) && x.HasVertex( y.C );
+	public override readonly int GetHashCode() => HashCode.Combine( this.A, this.B, this.C );
 
-	public override string ToString() => $"[{A} -> {B} -> {C}]";
+	public readonly bool Equals( Triangle2<TScalar> x, Triangle2<TScalar> y ) => x.Equals( y );
 
-	public int GetHashCode( [DisallowNull] Triangle2<TScalar> obj ) => HashCode.Combine( obj.A, obj.B, obj.C );
+	public readonly int GetHashCode( [DisallowNull] Triangle2<TScalar> obj ) => obj.GetHashCode();
 
-	public bool AllPointsIn( Span<Vector2<TScalar>> points ) {
+	public override readonly string ToString() => $"[{this.A} -> {this.B} -> {this.C}]";
+
+	public readonly bool AllPointsIn( Span<Vector2<TScalar>> points ) {
 		bool hasA = false;
 		bool hasB = false;
 		bool hasC = false;
 		for (int i = 0; i < points.Length; i++) {
-			if (A == points[ i ])
+			if (this.A == points[ i ])
 				hasA = true;
-			if (B == points[ i ])
+			if (this.B == points[ i ])
 				hasB = true;
-			if (C == points[ i ])
+			if (this.C == points[ i ])
 				hasC = true;
 		}
 		return hasA && hasB && hasC;
 	}
 
-	public bool WindsClockwise() {
-		Vector2<TScalar> v0 = B - A;
-		Vector2<TScalar> v1 = C - A;
-		return (v0.X * v1.Y) - (v0.Y * v1.X) < TScalar.Zero;
+	public readonly bool WindsClockwise() {
+		Vector2<TScalar> v0 = this.B - this.A;
+		Vector2<TScalar> v1 = this.C - this.A;
+		return v0.X * v1.Y - v0.Y * v1.X < TScalar.Zero;
 	}
 
-	internal void FillWithEdges( Span<Edge2<TScalar>> edges ) {
-		edges[ 0 ] = new( A, B );
-		edges[ 1 ] = new( B, C );
-		edges[ 2 ] = new( C, A );
+	public readonly void FillWithEdges( Span<Edge2<TScalar>> edges ) {
+		edges[ 0 ] = new( this.A, this.B );
+		edges[ 1 ] = new( this.B, this.C );
+		edges[ 2 ] = new( this.C, this.A );
 	}
 
-	internal void FillWithVerticies( Span<Vector2<TScalar>> vertices ) {
-		vertices[ 0 ] = A;
-		vertices[ 1 ] = B;
-		vertices[ 2 ] = C;
+	public readonly void FillWithVertices( Span<Vector2<TScalar>> vertices ) {
+		vertices[ 0 ] = this.A;
+		vertices[ 1 ] = this.B;
+		vertices[ 2 ] = this.C;
 	}
+
+	public static bool operator ==( Triangle2<TScalar> left, Triangle2<TScalar> right ) => left.Equals( right );
+
+	public static bool operator !=( Triangle2<TScalar> left, Triangle2<TScalar> right ) => !(left == right);
 }

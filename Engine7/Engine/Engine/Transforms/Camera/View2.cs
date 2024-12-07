@@ -6,27 +6,27 @@ public class View2 : MatrixProviderBase<float> {
 	private float _rotation;
 
 	public View2() {
-		_translation = Vector2<float>.Zero;
-		_rotation = 0;
+		this._translation = Vector2<float>.Zero;
+		this._rotation = 0;
 		SetChanged();
 	}
 
 	public Vector2<float> Translation {
-		get => _translation;
+		get => this._translation;
 		set {
-			_translation = value;
+			this._translation = value;
 			SetChanged();
 		}
 	}
 
 	public float Rotation {
-		get => _rotation;
+		get => this._rotation;
 		set {
-			_rotation = value;
+			this._rotation = value;
 			SetChanged();
 		}
 	}
 
-	protected override void MatrixAccessed() => Matrix = Engine.Matrix.Create4x4.Translation( new Vector3<float>( -_translation.X, -_translation.Y, 0 ) ) * Engine.Matrix.Create4x4.RotationZ( -_rotation );
+	protected override void MatrixAccessed() => this.Matrix = Engine.Matrix.Create4x4.Translation( new Vector3<float>( -this._translation.X, -this._translation.Y, 0 ) ) * Engine.Matrix.Create4x4.RotationZ( -this._rotation );
 
 }

@@ -19,9 +19,9 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 	public Scene( string name, BufferService bufferService ) {
 		this._bufferService = bufferService;
 		this.SceneName = name;
-		_sceneLayersByLayer = [];
-		_sortedLayers = new();
-		_sortedLayersReadOnly = _sortedLayers.AsReadOnly();
+		this._sceneLayersByLayer = [];
+		this._sortedLayers = new();
+		this._sortedLayersReadOnly = this._sortedLayers.AsReadOnly();
 	}
 
 
@@ -30,33 +30,33 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 		instance.Setup();
 		if (overrideSetupLayer || instance.RenderLayer == 0)
 			instance.SetLayer( renderLayer );
-		if (!_sceneLayersByLayer.TryGetValue( renderLayer, out SceneLayer? layer )) {
-			_sceneLayersByLayer.Add( renderLayer, layer = new( renderLayer, _bufferService ) );
-			_sortedLayers.Add( layer );
+		if (!this._sceneLayersByLayer.TryGetValue( renderLayer, out SceneLayer? layer )) {
+			this._sceneLayersByLayer.Add( renderLayer, layer = new( renderLayer, this._bufferService ) );
+			this._sortedLayers.Add( layer );
 			layer.OnChanged += OnLayerChanged;
 		}
 		layer.AddSceneInstance( instance );
 		return instance;
 	}
 
-	private void OnLayerChanged() => _needsUpdate = true;
+	private void OnLayerChanged() => this._needsUpdate = true;
 
 	public void Render( string shaderIndex, IDataBlockCollection? dataBlocks, Action<bool>? blendActivationFunction, PrimitiveType primitiveType ) {
-		if (_sceneRender is null)
-			_sceneRender = new();
-		if (_needsUpdate)
-			_sceneRender.PrepareForRender( _sortedLayersReadOnly );
-		_needsUpdate = false;
-		_sceneRender.Render( shaderIndex, dataBlocks, blendActivationFunction, primitiveType );
+		if (this._sceneRender is null)
+			this._sceneRender = new();
+		if (this._needsUpdate)
+			this._sceneRender.PrepareForRender( this._sortedLayersReadOnly );
+		this._needsUpdate = false;
+		this._sceneRender.Render( shaderIndex, dataBlocks, blendActivationFunction, primitiveType );
 	}
 
 	protected override bool InternalDispose() {
 
-		foreach (SceneLayer layer in _sortedLayersReadOnly)
+		foreach (SceneLayer layer in this._sortedLayersReadOnly)
 			layer.Dispose();
-		_sortedLayers.Clear();
-		_sceneLayersByLayer.Clear();
-		_sceneRender?.Dispose();
+		this._sortedLayers.Clear();
+		this._sceneLayersByLayer.Clear();
+		this._sceneRender?.Dispose();
 		return true;
 	}
 }

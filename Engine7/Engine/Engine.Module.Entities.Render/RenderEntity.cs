@@ -18,12 +18,12 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 		this._entity = entity;
 		this._serviceAccess = serviceAccess;
 		this._behaviours = [];
-		_sceneInstances = [];
+		this._sceneInstances = [];
 	}
 
 	public T RequestSceneInstance<T>( string sceneName, uint layer ) where T : SceneInstanceBase, new() {
 		T instance = this._serviceAccess.SceneInstanceProvider.RequestSceneInstance<T>( sceneName, layer );
-		_sceneInstances.Add( instance );
+		this._sceneInstances.Add( instance );
 		return instance;
 	}
 

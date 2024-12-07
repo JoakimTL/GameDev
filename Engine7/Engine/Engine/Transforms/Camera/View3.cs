@@ -6,27 +6,27 @@ public class View3 : MatrixProviderBase<float> {
 	private Rotor3<float> _rotation;
 
 	public View3() {
-		_translation = Vector3<float>.Zero;
-		_rotation = Rotor3<float>.MultiplicativeIdentity;
+		this._translation = Vector3<float>.Zero;
+		this._rotation = Rotor3<float>.MultiplicativeIdentity;
 		SetChanged();
 	}
 
 	public Vector3<float> Translation {
-		get => _translation;
+		get => this._translation;
 		set {
-			_translation = value;
+			this._translation = value;
 			SetChanged();
 		}
 	}
 
 	public Rotor3<float> Rotation {
-		get => _rotation;
+		get => this._rotation;
 		set {
-			_rotation = value;
+			this._rotation = value;
 			SetChanged();
 		}
 	}
 
-	protected override void MatrixAccessed() => Matrix = Engine.Matrix.Create4x4.Translation( -_translation ) * Engine.Matrix.Create4x4.RotationFromRotor( _rotation.Conjugate() );
+	protected override void MatrixAccessed() => this.Matrix = Engine.Matrix.Create4x4.Translation( -this._translation ) * Engine.Matrix.Create4x4.RotationFromRotor( this._rotation.Conjugate() );
 
 }

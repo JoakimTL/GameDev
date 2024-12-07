@@ -82,7 +82,7 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 	private void AddRenderEntity( Entity entity ) {
 		if (this._renderEntitiesByEntityId.ContainsKey( entity.EntityId ))
 			return;
-		RenderEntity renderEntity = new( entity, _serviceAccess );
+		RenderEntity renderEntity = new( entity, this._serviceAccess );
 		this._renderEntitiesByEntityId.Add( entity.EntityId, renderEntity );
 		foreach (ArchetypeBase archetype in entity.CurrentArchetypes)
 			renderEntity.AddDependenciesOnArchetype( archetype );

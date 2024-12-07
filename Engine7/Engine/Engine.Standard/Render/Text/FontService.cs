@@ -10,15 +10,15 @@ public sealed class FontService {
 	/// </summary>
 	/// <exception cref="FileNotFoundException"></exception>
 	public Font Get( string fontName ) {
-		if (_fonts.TryGetValue( fontName, out Font? font ))
+		if (this._fonts.TryGetValue( fontName, out Font? font ))
 			return font;
 
-		string path = Path.Combine( FontBasePath, $"{fontName}.ttf" );
+		string path = Path.Combine( this.FontBasePath, $"{fontName}.ttf" );
 		if (!File.Exists( path ))
 			throw new FileNotFoundException( "Font file not found.", path );
 
 		font = new Font( path );
-		_fonts.Add( fontName, font );
+		this._fonts.Add( fontName, font );
 		return font;
 	}
 }

@@ -8,9 +8,9 @@ public sealed class ShaderStorageBlock( OglBufferSegment bufferSegment, string b
 	protected override BufferTarget Target => BufferTarget.ShaderStorageBuffer;
 
 	public override void Bind( OglShaderProgramBase program ) {
-		if (!program.GetShaderStorageBlockIndex( BlockName, out uint index ))
+		if (!program.GetShaderStorageBlockIndex( this.BlockName, out uint index ))
 			return;
 		BindBuffer( index );
-		program.SetShaderStorageBinding( BoundIndex, BoundIndex );
+		program.SetShaderStorageBinding( this.BoundIndex, this.BoundIndex );
 	}
 }

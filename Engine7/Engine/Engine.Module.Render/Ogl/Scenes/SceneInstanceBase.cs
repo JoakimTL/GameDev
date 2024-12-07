@@ -44,49 +44,49 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	public event SceneInstancePropertyChangeHandler<uint>? OnLayerChanged;
 
 	protected void SetVertexArrayObject( OglVertexArrayObjectBase? vertexArrayObject ) {
-		if (VertexArrayObject == vertexArrayObject)
+		if (this.VertexArrayObject == vertexArrayObject)
 			return;
-		VertexArrayObject = vertexArrayObject;
-		ulong? oldBindIndex = BindIndex;
+		this.VertexArrayObject = vertexArrayObject;
+		ulong? oldBindIndex = this.BindIndex;
 		UpdateValidity();
-		BindIndex = ShaderBundle is not null ? VertexArrayObject?.GetBindIndexWith( ShaderBundle ) : null;
-		if (oldBindIndex != BindIndex)
+		this.BindIndex = this.ShaderBundle is not null ? this.VertexArrayObject?.GetBindIndexWith( this.ShaderBundle ) : null;
+		if (oldBindIndex != this.BindIndex)
 			OnBindIndexChanged?.Invoke( this, oldBindIndex );
 	}
 
 	protected void SetShaderBundle( ShaderBundleBase? shaderBundle ) {
-		if (ShaderBundle == shaderBundle)
+		if (this.ShaderBundle == shaderBundle)
 			return;
-		ShaderBundle = shaderBundle;
-		ulong? oldBindIndex = BindIndex;
+		this.ShaderBundle = shaderBundle;
+		ulong? oldBindIndex = this.BindIndex;
 		UpdateValidity();
-		BindIndex = VertexArrayObject is not null ? ShaderBundle?.GetBindIndexWith( VertexArrayObject ) : null;
-		if (oldBindIndex != BindIndex)
+		this.BindIndex = this.VertexArrayObject is not null ? this.ShaderBundle?.GetBindIndexWith( this.VertexArrayObject ) : null;
+		if (oldBindIndex != this.BindIndex)
 			OnBindIndexChanged?.Invoke( this, oldBindIndex );
 	}
 
 	protected void SetMesh( IMesh? mesh ) {
-		if (Mesh == mesh)
+		if (this.Mesh == mesh)
 			return;
-		IMesh? oldMesh = Mesh;
-		Mesh = mesh;
+		IMesh? oldMesh = this.Mesh;
+		this.Mesh = mesh;
 		UpdateValidity();
 		OnMeshChanged?.Invoke( this, oldMesh );
 	}
 
 	protected internal void SetLayer( uint layer ) {
-		if (RenderLayer == layer)
+		if (this.RenderLayer == layer)
 			return;
-		uint oldLayer = RenderLayer;
-		RenderLayer = layer;
+		uint oldLayer = this.RenderLayer;
+		this.RenderLayer = layer;
 		OnLayerChanged?.Invoke( this, oldLayer );
 	}
 
 	internal void AssignDataSegment( SubBuffer<BufferSegment>? segment ) {
-		if (InstanceDataSegment == segment)
+		if (this.InstanceDataSegment == segment)
 			return;
-		SubBuffer<BufferSegment>? oldSegment = InstanceDataSegment;
-		InstanceDataSegment = segment;
+		SubBuffer<BufferSegment>? oldSegment = this.InstanceDataSegment;
+		this.InstanceDataSegment = segment;
 		UpdateValidity();
 		OnInstanceDataSegmentChanged?.Invoke( this, oldSegment );
 	}
@@ -94,18 +94,18 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	protected abstract void Initialize();
 	internal void Setup() => Initialize();
 
-	protected bool Write<TInstanceData>( TInstanceData data ) where TInstanceData : unmanaged => InstanceDataSegment?.Write<ulong, TInstanceData>( 0, data ) ?? false;
+	protected bool Write<TInstanceData>( TInstanceData data ) where TInstanceData : unmanaged => this.InstanceDataSegment?.Write<ulong, TInstanceData>( 0, data ) ?? false;
 	protected bool TryRead<TInstanceData>( out TInstanceData data ) where TInstanceData : unmanaged {
 		data = default;
-		return InstanceDataSegment?.Read<ulong, TInstanceData>( 0, out data ) ?? false;
+		return this.InstanceDataSegment?.Read<ulong, TInstanceData>( 0, out data ) ?? false;
 	}
 
-	public bool MissingDataSegment => VertexArrayObject is not null && ShaderBundle is not null && Mesh is not null && InstanceDataSegment is null;
+	public bool MissingDataSegment => this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is null;
 
-	private void UpdateValidity() => Valid = VertexArrayObject is not null && ShaderBundle is not null && Mesh is not null && InstanceDataSegment is not null;
+	private void UpdateValidity() => this.Valid = this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is not null;
 
 	protected override bool InternalDispose() {
-		InstanceDataSegment?.Dispose();
+		this.InstanceDataSegment?.Dispose();
 		return true;
 	}
 }

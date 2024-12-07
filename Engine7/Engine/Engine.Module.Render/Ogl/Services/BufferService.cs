@@ -39,7 +39,7 @@ public sealed class BufferService : DisposableIdentifiable, IInitializable, IUpd
 		if (this._buffers.TryGetValue( t, out SegmentedSystemBuffer? buffer ))
 			return buffer;
 		buffer = new SegmentedSystemBuffer( 131_072, BufferAutoResizeMode.DOUBLE ) { Nickname = t.Name };
-		_synchronizers[ t ] = new( buffer, (OglDynamicBuffer) this._oglBufferService.Get( t ) );
+		this._synchronizers[ t ] = new( buffer, (OglDynamicBuffer) this._oglBufferService.Get( t ) );
 		this._buffers[ t ] = buffer;
 		return buffer;
 	}

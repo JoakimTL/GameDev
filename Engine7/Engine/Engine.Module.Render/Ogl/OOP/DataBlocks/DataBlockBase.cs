@@ -27,10 +27,10 @@ public abstract unsafe class DataBlockBase : DisposableIdentifiable {
 	}
 
 	protected void BindBuffer( uint index ) {
-		BoundIndex = index;
-		Gl.BindBufferRange( Target, BoundIndex, _bufferSegment.BufferId, (nint) _bufferSegment.OffsetBytes,  _bufferSegment.LengthBytes );
+		this.BoundIndex = index;
+		Gl.BindBufferRange( this.Target, this.BoundIndex, this._bufferSegment.BufferId, (nint) this._bufferSegment.OffsetBytes, this._bufferSegment.LengthBytes );
 	}
-	public void UnbindBuffer() => Gl.BindBufferRange( Target, BoundIndex, 0, nint.Zero, 0 );
+	public void UnbindBuffer() => Gl.BindBufferRange( this.Target, this.BoundIndex, 0, nint.Zero, 0 );
 
 	public abstract void Bind( OglShaderProgramBase program );
 	protected abstract BufferTarget Target { get; }

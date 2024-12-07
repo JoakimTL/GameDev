@@ -7,5 +7,5 @@ public readonly struct FontGlyphHeader( short numberOfContours, short xMin, shor
 	public readonly short YMin = yMin;
 	public readonly short XMax = xMax;
 	public readonly short YMax = yMax;
-	public FontGlyphHeader ProperEndianness => new( NumberOfContours.FromBigEndian(), XMin.FromBigEndian(), YMin.FromBigEndian(), XMax.FromBigEndian(), YMax.FromBigEndian() );
+	public FontGlyphHeader ProperEndianness => new( this.NumberOfContours.FromBigEndian(), this.XMin.FromBigEndian(), this.YMin.FromBigEndian(), this.XMax.FromBigEndian(), this.YMax.FromBigEndian() );
 }

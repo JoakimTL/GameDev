@@ -20,14 +20,14 @@ public sealed class Transform2Behaviour : SynchronizedRenderBehaviourBase<Transf
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
 		if (component is Transform2Component t2c) {
-			_unsynchronizedMatrix = t2c.Transform.Matrix.CastSaturating<double, float>();
+			this._unsynchronizedMatrix = t2c.Transform.Matrix.CastSaturating<double, float>();
 			return true;
 		}
 		return false;
 	}
 
 	protected override void Synchronize() {
-		SynchronizedMatrix = _unsynchronizedMatrix;
+		this.SynchronizedMatrix = this._unsynchronizedMatrix;
 	}
 }
 
@@ -35,10 +35,10 @@ public sealed class TextRenderingBehaviour : DependentRenderBehaviourBase<TextRe
 	private Transform2Behaviour? _subscribedTransformBehaviour;
 
 	public override void Update( double time, double deltaTime ) {
-		if (_subscribedTransformBehaviour is null) {
-			if (!RenderEntity.TryGetBehaviour( out _subscribedTransformBehaviour ))
+		if (this._subscribedTransformBehaviour is null) {
+			if (!this.RenderEntity.TryGetBehaviour( out this._subscribedTransformBehaviour ))
 				return;
-			_subscribedTransformBehaviour.OnSynchronized += OnTransformSynchronized;
+			this._subscribedTransformBehaviour.OnSynchronized += OnTransformSynchronized;
 		}
 	}
 
@@ -47,7 +47,7 @@ public sealed class TextRenderingBehaviour : DependentRenderBehaviourBase<TextRe
 	}
 
 	protected override bool InternalDispose() {
-		_subscribedTransformBehaviour?.Dispose();
+		this._subscribedTransformBehaviour?.Dispose();
 		return true;
 	}
 }

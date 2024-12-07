@@ -65,7 +65,7 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 		this._serviceProviderUpdater.Update( time, deltaTime );
 		this._pipelineExecuterExtension.PrepareRendering( time, deltaTime );
 
-		InstanceProvider.Get<ViewportStateService>().Set( 0, window.Size );
+		this.InstanceProvider.Get<ViewportStateService>().Set( 0, window.Size );
 
 		this._pipelineExecuterExtension.DrawToScreen();
 

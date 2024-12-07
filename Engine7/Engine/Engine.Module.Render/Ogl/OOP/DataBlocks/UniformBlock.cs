@@ -8,9 +8,9 @@ public sealed class UniformBlock( OglBufferSegment bufferSegment, string blockNa
 	protected override BufferTarget Target => BufferTarget.UniformBuffer;
 
 	public override void Bind( OglShaderProgramBase program ) {
-		if (!program.GetUniformBlockIndex( BlockName, out uint index ))
+		if (!program.GetUniformBlockIndex( this.BlockName, out uint index ))
 			return;
 		BindBuffer( index );
-		program.SetUniformBinding( BoundIndex, BoundIndex );
+		program.SetUniformBinding( this.BoundIndex, this.BoundIndex );
 	}
 }

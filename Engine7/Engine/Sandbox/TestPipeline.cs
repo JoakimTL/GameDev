@@ -35,33 +35,33 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		//var g = _font[ 'A' ];
 		//g.CreateMeshTriangles();
 
-		if (!_dataBlockService.CreateUniformBlock( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ], out _testUniforms! ))
+		if (!this._dataBlockService.CreateUniformBlock( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ], out this._testUniforms! ))
 			throw new InvalidOperationException( "Couldn't create uniform block." );
-		if (!_dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out _testShaderStorage! ))
+		if (!this._dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out this._testShaderStorage! ))
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
-		_dataBlocks = new DataBlockCollection( _testUniforms, _testShaderStorage );
+		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
-		_view = new() {
+		this._view = new() {
 			Translation = new( 1, 0, 3 )
 		};
 		//_view.Rotation = Rotor3.FromAxisAngle(Vector3<float>.UnitY, 0);
-		_projection = new( _windowService.Window, 90 );
-		_camera = new( _view, _projection );
-		_scene = _sceneService.GetScene( "test" );
+		this._projection = new( this._windowService.Window, 90 );
+		this._camera = new( this._view, this._projection );
+		this._scene = this._sceneService.GetScene( "test" );
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
 		//_view.Translation;
-		if (_camera is null || _view is null || _projection is null)
+		if (this._camera is null || this._view is null || this._projection is null)
 			return;
-		_view.Translation = new( MathF.Sin( (float) time ) * 3, 0, MathF.Cos( (float) time ) * 3 + 5 );
-		_testUniforms.Buffer.Write<uint, SceneCameraBlock>( 0, new SceneCameraBlock( _camera.Matrix, _view.Rotation.Up, -_view.Rotation.Left ) );
+		this._view.Translation = new( MathF.Sin( (float) time ) * 3, 0, MathF.Cos( (float) time ) * 3 + 5 );
+		this._testUniforms.Buffer.Write<uint, SceneCameraBlock>( 0, new SceneCameraBlock( this._camera.Matrix, this._view.Rotation.Up, -this._view.Rotation.Left ) );
 
 	}
 
 	public void DrawToScreen() {
 		Gl.Clear( ClearBufferMask.ColorBufferBit );
-		_scene.Render( "default", _dataBlocks, _ => { }, PrimitiveType.Triangles );
+		this._scene.Render( "default", this._dataBlocks, _ => { }, PrimitiveType.Triangles );
 	}
 
 	protected override bool InternalDispose() {
@@ -83,10 +83,10 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 
 	protected override void OnRenderEntitySet() {
 		base.OnRenderEntitySet();
-		_sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
-		_sceneInstance.SetShaderBundle( this.RenderEntity.RequestShaderBundle<TestShaderBundle>() );
-		_sceneInstance.SetVertexArrayObject( this.RenderEntity.RequestCompositeVertexArray<Vertex2, Entity2SceneData>() );
-		_sceneInstance.SetMesh( this.RenderEntity.RequestNewMesh(
+		this._sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
+		this._sceneInstance.SetShaderBundle( this.RenderEntity.RequestShaderBundle<TestShaderBundle>() );
+		this._sceneInstance.SetVertexArrayObject( this.RenderEntity.RequestCompositeVertexArray<Vertex2, Entity2SceneData>() );
+		this._sceneInstance.SetMesh( this.RenderEntity.RequestNewMesh(
 			[ new Vertex2( (-.5f, -.5f), (255, 255, 0, 255) ),
 			new Vertex2( (-.5f, .5f), (255, 0, 255, 255) ),
 			new Vertex2( (.5f, .5f), (0, 255, 255, 255) ),
@@ -96,19 +96,19 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 
 	public override void Update( double time, double deltaTime ) {
 		base.Update( time, deltaTime );
-		_sceneInstance?.Write( new Entity2SceneData { ModelMatrix = _transformMatrix } );
+		this._sceneInstance?.Write( new Entity2SceneData { ModelMatrix = this._transformMatrix } );
 	}
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
 		if (component is Transform2Component t2c) {
-			_preparedTransformMatrix = t2c.Transform.Matrix.CastSaturating<double, float>();
+			this._preparedTransformMatrix = t2c.Transform.Matrix.CastSaturating<double, float>();
 			return true;
 		}
 		return false;
 	}
 
 	protected override void Synchronize() {
-		_transformMatrix = _preparedTransformMatrix;
+		this._transformMatrix = this._preparedTransformMatrix;
 	}
 
 	protected override bool InternalDispose() {

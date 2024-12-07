@@ -23,16 +23,16 @@ internal sealed class GameLogicModule : ModuleBase {
 	}
 
 	private void Update( double time, double deltaTime ) {
-		if (_entity?.TryGetComponent(out Transform2Component? t2c) ?? false) {
+		if (this._entity?.TryGetComponent(out Transform2Component? t2c) ?? false) {
 			t2c.Transform.Translation = new Vector2<double>( Math.Sin( time ) * 0.5f, Math.Cos( time ) * 0.5f );
 		}
 	}
 
 	private void Init() {
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
-		_entity = container.CreateEntity();
+		this._entity = container.CreateEntity();
 		//_entity.AddComponent<RenderComponent>();
-		_entity.AddComponent<Transform2Component>();
+		this._entity.AddComponent<Transform2Component>();
 	}
 }
 

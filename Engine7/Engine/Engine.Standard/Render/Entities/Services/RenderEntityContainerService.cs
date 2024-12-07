@@ -22,7 +22,7 @@ public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpda
 			this.LogLine( $"{entityContainer} already registered.", Log.Level.VERBOSE );
 			return;
 		}
-		this._containerPairs.Add( entityContainer, new RenderEntityContainer( entityContainer, _renderEntityServiceAccess ) );
+		this._containerPairs.Add( entityContainer, new RenderEntityContainer( entityContainer, this._renderEntityServiceAccess ) );
 		entityContainer.OnDisposed += OnContainerDisposed;
 	}
 

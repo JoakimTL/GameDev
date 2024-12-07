@@ -12,20 +12,20 @@ public sealed class DataBlockService( OglBufferService oglBufferService ) : Disp
 	private uint _alignment;
 
 	public void Initialize() {
-		Gl.GetInteger( GetPName.UniformBufferOffsetAlignment, out _alignment );
-		Gl.GetInteger( GetPName.MaxUniformBlockSize, out _blockMaxSize );
+		Gl.GetInteger( GetPName.UniformBufferOffsetAlignment, out this._alignment );
+		Gl.GetInteger( GetPName.MaxUniformBlockSize, out this._blockMaxSize );
 	}
 
 	public bool CreateUniformBlock( string blockName, uint size, Span<ShaderType> shaderTypes, [NotNullWhen(true)] out UniformBlock? block ) {
 		block = null;
-		if (size % _alignment != 0)
+		if (size % this._alignment != 0)
 			return false;
-		if (size > _blockMaxSize)
+		if (size > this._blockMaxSize)
 			return false;
 		if (!oglBufferService.UniformBuffer.TryAllocate( size, out OglBufferSegment? segment ))
 			return false;
 		block = new( segment, blockName, shaderTypes );
-		_dataBlocks.Add( new( block ) );
+		this._dataBlocks.Add( new( block ) );
 		return true;
 	}
 
@@ -34,12 +34,12 @@ public sealed class DataBlockService( OglBufferService oglBufferService ) : Disp
 		if (!oglBufferService.ShaderStorage.TryAllocate( size, out OglBufferSegment? segment ))
 			return false;
 		block = new( segment, blockName, shaderTypes );
-		_dataBlocks.Add( new( block ) );
+		this._dataBlocks.Add( new( block ) );
 		return true;
 	}
 
 	protected override bool InternalDispose() {
-		foreach (WeakReference<DataBlockBase> dataBlockRef in _dataBlocks) {
+		foreach (WeakReference<DataBlockBase> dataBlockRef in this._dataBlocks) {
 			if (dataBlockRef.TryGetTarget( out DataBlockBase? dataBlock ))
 				dataBlock.Dispose();
 		}

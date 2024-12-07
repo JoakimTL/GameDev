@@ -19,19 +19,19 @@ public class Perspective : MatrixProviderBase<float> {
 			throw new ArgumentOutOfRangeException( nameof( aspectRatio ) );
 		if (fov <= 0 || fov >= 180)
 			throw new ArgumentOutOfRangeException( nameof( fov ) );
-		_fov = fov;
-		_aspectRatio = aspectRatio;
-		_zNear = zNear;
-		_zFar = zFar;
+		this._fov = fov;
+		this._aspectRatio = aspectRatio;
+		this._zNear = zNear;
+		this._zFar = zFar;
 		SetChanged();
 	}
 
-	protected override void MatrixAccessed() => Matrix = Engine.Matrix.Create4x4.PerspectiveFieldOfView( _fov / 180 * MathF.PI, _aspectRatio, _zNear, _zFar, true );
+	protected override void MatrixAccessed() => this.Matrix = Engine.Matrix.Create4x4.PerspectiveFieldOfView( this._fov / 180 * MathF.PI, this._aspectRatio, this._zNear, this._zFar, true );
 
 	public float FOV {
-		get => _fov;
+		get => this._fov;
 		set {
-			if (_fov == value)
+			if (this._fov == value)
 				return;
 			if (value > 180) {
 				this.LogWarning( $"FOV cannot be greater than 180 degrees! (Value: {value})" );
@@ -41,49 +41,49 @@ public class Perspective : MatrixProviderBase<float> {
 				this.LogWarning( $"FOV cannot be less than or equal to 0 degrees! (Value: {value})" );
 				return;
 			}
-			_fov = value;
+			this._fov = value;
 			SetChanged();
 		}
 	}
 
 	public float AspectRatio {
-		get => _aspectRatio;
+		get => this._aspectRatio;
 		set {
-			if (_aspectRatio == value)
+			if (this._aspectRatio == value)
 				return;
 			if (value <= 0) {
 				this.LogWarning( $"Aspect ratio cannot be less than or equal to 0! (Value: {value})" );
 				return;
 			}
-			_aspectRatio = value;
+			this._aspectRatio = value;
 			SetChanged();
 		}
 	}
 
 	public float ZNear {
-		get => _zNear;
+		get => this._zNear;
 		set {
-			if (_zNear == value)
+			if (this._zNear == value)
 				return;
-			if (_zFar <= value) {
-				this.LogWarning( $"ZNear cannot be greater than or equal to ZFar! (ZNear: {value}, ZFar: {_zFar})" );
+			if (this._zFar <= value) {
+				this.LogWarning( $"ZNear cannot be greater than or equal to ZFar! (ZNear: {value}, ZFar: {this._zFar})" );
 				return;
 			}
-			_zNear = value;
+			this._zNear = value;
 			SetChanged();
 		}
 	}
 
 	public float ZFar {
-		get => _zFar;
+		get => this._zFar;
 		set {
-			if (_zFar == value)
+			if (this._zFar == value)
 				return;
-			if (value <= _zNear) {
-				this.LogWarning( $"ZFar cannot be less than or equal to ZNear! (ZNear: {_zNear}, ZFar: {value})" );
+			if (value <= this._zNear) {
+				this.LogWarning( $"ZFar cannot be less than or equal to ZNear! (ZNear: {this._zNear}, ZFar: {value})" );
 				return;
 			}
-			_zFar = value;
+			this._zFar = value;
 			SetChanged();
 		}
 	}
@@ -92,15 +92,15 @@ public class Perspective : MatrixProviderBase<float> {
 		private readonly IResizableSurface<int, float> _surface;
 
 		public Dynamic( IResizableSurface<int, float> surface, float fov, float zNear = DEFAULT_NEAR, float zFar = DEFAULT_FAR ) : base( fov, surface.AspectRatio, zNear, zFar ) {
-			_surface = surface;
-			_surface.OnResized += WindowResized;
+			this._surface = surface;
+			this._surface.OnResized += WindowResized;
 		}
 
 		public void Dispose() {
-			_surface.OnResized -= WindowResized;
+			this._surface.OnResized -= WindowResized;
 			GC.SuppressFinalize( this );
 		}
 
-		private void WindowResized( IResizableSurface<int, float> surface ) => AspectRatio = surface.AspectRatio;
+		private void WindowResized( IResizableSurface<int, float> surface ) => this.AspectRatio = surface.AspectRatio;
 	}
 }

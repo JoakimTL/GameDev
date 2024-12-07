@@ -30,28 +30,28 @@ public sealed class TestPipelineNoScene( ShaderBundleService shaderBundleService
 	private VertexMesh<Vertex2> _vertexMesh = null!;
 
 	public void Initialize() {
-		if (!_dataBlockService.CreateUniformBlock( "testUniformBlock", 256, [ ShaderType.VertexShader ], out _testUniforms! ))
+		if (!this._dataBlockService.CreateUniformBlock( "testUniformBlock", 256, [ ShaderType.VertexShader ], out this._testUniforms! ))
 			throw new InvalidOperationException( "Couldn't create uniform block." );
-		if (!_dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out _testShaderStorage! ))
+		if (!this._dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out this._testShaderStorage! ))
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
-		_dataBlocks = new DataBlockCollection( _testUniforms, _testShaderStorage );
+		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
 		this._sceneDataBuffer = this._bufferService.Get( typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexBuffer not found." );
 		unsafe {
-			if (!this._sceneDataBuffer.TryAllocate( 2 * (ulong) sizeof( Entity2SceneData ), out _sceneDataBufferSegment! ))
+			if (!this._sceneDataBuffer.TryAllocate( 2 * (ulong) sizeof( Entity2SceneData ), out this._sceneDataBufferSegment! ))
 				throw new InvalidOperationException( "Couldn't allocate vertex buffer segment." );
 		}
 
-		_vertexMesh = this._meshService.CreateEmptyMesh<Vertex2>( 3, 3 ) ?? throw new NullReferenceException( "Mesh not found." );
-		_vertexMesh.ElementBufferSegment.WriteRange( [ 0, 1, 2 ], 0 );
+		this._vertexMesh = this._meshService.CreateEmptyMesh<Vertex2>( 3, 3 ) ?? throw new NullReferenceException( "Mesh not found." );
+		this._vertexMesh.ElementBufferSegment.WriteRange( [ 0, 1, 2 ], 0 );
 
-		_commandBuffer = this._bufferService.Get( typeof( IndirectCommand ) );
+		this._commandBuffer = this._bufferService.Get( typeof( IndirectCommand ) );
 		unsafe {
-			if (!_commandBuffer.TryAllocate( 1 * (ulong) sizeof( IndirectCommand ), out _commandBufferSegment! ))
+			if (!this._commandBuffer.TryAllocate( 1 * (ulong) sizeof( IndirectCommand ), out this._commandBufferSegment! ))
 				throw new InvalidOperationException( "Couldn't allocate command buffer segment." );
 		}
 
-		this._testVertexArrayObject = _compositeVertexArrayObjectService.Get( typeof( Vertex2 ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
+		this._testVertexArrayObject = this._compositeVertexArrayObjectService.Get( typeof( Vertex2 ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
 		this._shaderBundle = this._shaderBundleService.Get<TestShaderBundle>() ?? throw new NullReferenceException( "ShaderBundle not found." );
 	}
 
@@ -63,17 +63,17 @@ public sealed class TestPipelineNoScene( ShaderBundleService shaderBundleService
 		this._sceneDataBufferSegment.WriteRange( [
 			new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( -(float) time * 2 ) },
 			new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( (float) time * 2 ) } ], 0 );
-		_testUniforms.Buffer.WriteRange( [ MathF.Cos( (float) time ) / 2 ], 0 );
-		_testShaderStorage.Buffer.WriteRange( [ MathF.Sin( (float) time ) / 2 ], 0 );
+		this._testUniforms.Buffer.WriteRange( [ MathF.Cos( (float) time ) / 2 ], 0 );
+		this._testShaderStorage.Buffer.WriteRange( [ MathF.Sin( (float) time ) / 2 ], 0 );
 
-		IndirectCommand command = new( _vertexMesh.ElementCount, 2, _vertexMesh.ElementOffset, _vertexMesh.VertexOffset, 0 );
-		_commandBufferSegment.WriteRange( [ command ], 0 );
+		IndirectCommand command = new( this._vertexMesh.ElementCount, 2, this._vertexMesh.ElementOffset, this._vertexMesh.VertexOffset, 0 );
+		this._commandBufferSegment.WriteRange( [ command ], 0 );
 	}
 
 	public void DrawToScreen() {
 		Gl.Clear( ClearBufferMask.ColorBufferBit );
 		OglShaderPipelineBase shaderPipeline = this._shaderBundle.Get( "default" )!;
-		Gl.BindBuffer( BufferTarget.DrawIndirectBuffer, _oglBufferService.Get( typeof( IndirectCommand ) ).BufferId );
+		Gl.BindBuffer( BufferTarget.DrawIndirectBuffer, this._oglBufferService.Get( typeof( IndirectCommand ) ).BufferId );
 		shaderPipeline.Bind();
 		this._testVertexArrayObject.Bind();
 		this._dataBlocks.BindShader( shaderPipeline );
