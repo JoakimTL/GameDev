@@ -1,4 +1,6 @@
-﻿namespace Engine.Standard.Render.Text;
+﻿using System.Reflection.PortableExecutable;
+
+namespace Engine.Standard.Render.Text;
 
 public sealed class Font {
 	public const uint Tag_Cmap = 1885433187;
@@ -14,8 +16,8 @@ public sealed class Font {
 	private ushort _numBytesPerLocationLookup;
 	private FontOffsetSubtable _fontOffsetSubtable;
 	private Dictionary<uint, FontTable> _tables = [];
-	private Dictionary<char, FontGlyph> _glyphs = [];
-	private FontGlyph _missingGlyph;
+	private Dictionary<char, IGlyph> _glyphs = [];
+	private IGlyph _missingGlyph;
 
 	internal unsafe Font( string path ) {
 		// Load font
@@ -25,10 +27,9 @@ public sealed class Font {
 		fixed (byte* ptr = fontData) {
 			ReadFontData( ptr, fontData.Length );
 		}
-
 	}
 
-	public FontGlyph this[ char c ] => _glyphs.TryGetValue( c, out FontGlyph glyph ) ? glyph : _missingGlyph;
+	public IGlyph this[ char c ] => _glyphs.TryGetValue( c, out IGlyph? glyph ) ? glyph : _missingGlyph;
 
 	private unsafe void ReadFontData( byte* srcPtr, int length ) {
 		nint offset = 0;
@@ -56,13 +57,13 @@ public sealed class Font {
 		Span<uint> glyphLocations = stackalloc uint[ numGlyphs ];
 		GetAllGlyphLocations( srcPtr, glyphLocations, numBytesPerLocationLookup, locaTable.Offset, glyfTable.Offset );
 
-		GlyphMap[] mappings = GetUnicodeToGlyphIndexMappings( srcPtr, _tables[ Tag_Cmap ] );
+		GlyphMap[] mappings = GetUnicodeToGlyphIndexMappings( srcPtr, _tables[ Tag_Cmap ] ).ToArray();
 
 		for (int i = 0; i < mappings.Length; i++) {
-			FontGlyph? glyph = ReadGlyph( srcPtr, glyphLocations, mappings[ i ] );
+			IGlyph? glyph = ReadGlyph( srcPtr, glyphLocations, mappings[ i ], mappings );
 			if (glyph is not null) {
-				_glyphs.Add( (char) glyph.Unicode, glyph );
-				if (glyph.GlyphIndex == 0)
+				_glyphs.Add( (char) glyph.Mapping.Unicode, glyph );
+				if (glyph.Mapping.GlyphIndex == 0)
 					_missingGlyph = glyph;
 			}
 		}
@@ -70,7 +71,7 @@ public sealed class Font {
 	}
 	//https://www.youtube.com/watch?v=SO83KQuuZvg
 
-	private static unsafe FontGlyph ReadGlyph( byte* srcPtr, Span<uint> glyphLocations, GlyphMap mapping ) {
+	private static unsafe IGlyph ReadGlyph( byte* srcPtr, Span<uint> glyphLocations, GlyphMap mapping, GlyphMap[] mappings ) {
 		nint loc = (nint) glyphLocations[ (int) mapping.GlyphIndex ];
 
 		FontGlyphHeader header = FontUtilities.Read<FontGlyphHeader>( srcPtr, ref loc ).ProperEndianness;
@@ -78,12 +79,94 @@ public sealed class Font {
 		bool compoundGlyph = header.NumberOfContours < 0;
 
 		return compoundGlyph
-			? null//ReadCompoundGlyph( srcPtr, loc, header, mapping )
+			? ReadCompoundGlyph( srcPtr, glyphLocations, loc, header, mapping, mappings )
 			: ReadSingleGlyph( srcPtr, loc, header, mapping );
 
 	}
 
+	private static unsafe FontCompoundGlyph ReadCompoundGlyph( byte* srcPtr, Span<uint> glyphLocations, nint loc, FontGlyphHeader header, GlyphMap mapping, GlyphMap[] mappings ) {
+		FontCompoundGlyph compoundGlyph = new( header, mapping );
+
+		while (true) {
+			(IGlyph? componentGlyph, bool hasMoreGlyphs) = ReadNextComponentGlyph( srcPtr, glyphLocations, ref loc, mapping, mappings );
+
+			// Add all contour end indices from the simple glyph component to the compound glyph's data
+			// Note: indices must be offset to account for previously-added component glyphs
+			if (componentGlyph is null)
+				break;
+
+			compoundGlyph.AddGlyph( componentGlyph );
+			//foreach (ushort endIndex in componentGlyph.EndPointsOfContours) {
+			//	allContourEndIndices.Add( (ushort) (endIndex + allPoints.Count) );
+			//}
+			//allPoints.AddRange( componentGlyph.Points );
+			if (!hasMoreGlyphs)
+				break;
+		}
+
+		return compoundGlyph;
+	}
+
+	private static unsafe (IGlyph? componentGlyph, bool hasMoreGlyphs) ReadNextComponentGlyph( byte* srcPtr, Span<uint> glyphLocations, ref nint loc, GlyphMap mapping, GlyphMap[] mappings ) {
+		ushort flag = FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian();
+		ushort glyphIndex = FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian();
+
+		uint componentGlyphLocation = glyphLocations[ glyphIndex ];
+
+		if (componentGlyphLocation == glyphLocations[ (int) mapping.GlyphIndex ])
+			return (null, false);
+
+		bool argsAre2Bytes = ReadFlagBit( flag, 0 );
+		bool argsAreXYValues = ReadFlagBit( flag, 1 );
+		bool roundXYToGrid = ReadFlagBit( flag, 2 );
+		bool isSingleScaleValue = ReadFlagBit( flag, 3 );
+		bool isMoreComponentsAfterThis = ReadFlagBit( flag, 5 );
+		bool isXAndYScale = ReadFlagBit( flag, 6 );
+		bool is2x2Matrix = ReadFlagBit( flag, 7 );
+		bool hasInstructions = ReadFlagBit( flag, 8 );
+		bool useThisComponentMetrics = ReadFlagBit( flag, 9 );
+		bool componentsOverlap = ReadFlagBit( flag, 10 );
+
+		int arg1 = argsAre2Bytes ? FontUtilities.Read<short>( srcPtr, ref loc ).FromBigEndian() : FontUtilities.Read<sbyte>( srcPtr, ref loc );
+		int arg2 = argsAre2Bytes ? FontUtilities.Read<short>( srcPtr, ref loc ).FromBigEndian() : FontUtilities.Read<sbyte>( srcPtr, ref loc );
+
+		if (!argsAreXYValues)
+			throw new Exception( "Font compound glyph component uses point indices as arguments (TODO)" );
+
+		double offsetX = arg1;
+		double offsetY = arg2;
+
+		double iHat_x = 1;
+		double iHat_y = 0;
+		double jHat_x = 0;
+		double jHat_y = 1;
+
+		if (isSingleScaleValue) {
+			iHat_x = jHat_y = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
+		} else if (isXAndYScale) {
+			iHat_x = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
+			jHat_y = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
+		} else if (is2x2Matrix) {
+			iHat_x = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
+			iHat_y = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
+			jHat_x = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
+			jHat_y = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
+		}
+
+		IGlyph componentGlyph = ReadGlyph( srcPtr, glyphLocations, new( glyphIndex, 65535 ), mappings );
+		if (componentGlyph is FontGlyph simpleGlyph)
+			simpleGlyph.Transform( offsetX, offsetY, iHat_x, iHat_y, jHat_x, jHat_y );
+
+		return (componentGlyph, isMoreComponentsAfterThis);
+	}
+
+	public static double UInt16ToFixedPoint2Dot14( ushort raw ) {
+		return (short) (raw) / (double) (1 << 14);
+	}
+
 	private static unsafe FontGlyph ReadSingleGlyph( byte* srcPtr, nint offset, FontGlyphHeader header, GlyphMap mapping ) {
+		if (header.NumberOfContours < 0)
+			throw new Exception( "Expected simple glyph, but found compound glyph instead" );
 		ushort[] endPointsOfContours = new ushort[ header.NumberOfContours ];
 		for (int i = 0; i < header.NumberOfContours; i++)
 			endPointsOfContours[ i ] = FontUtilities.Read<ushort>( srcPtr, ref offset ).FromBigEndian();
@@ -112,7 +195,7 @@ public sealed class Font {
 		for (int i = 0; i < xCoordinates.Length; i++)
 			points[ i ] = (new Vector2<int>( xCoordinates[ i ], yCoordinates[ i ] ), ReadFlagBit( flags[ i ], 0 ));
 
-		return new FontGlyph( header, mapping, points, endPointsOfContours, instructions, flags );
+		return new FontGlyph( header, mapping, points, endPointsOfContours );
 
 		int[] ReadCoordinates( byte* srcPtr, ref nint offset, byte[] flags, bool readingX ) {
 			int offsetSizeFlagBit = readingX ? 1 : 2;
@@ -171,6 +254,7 @@ public sealed class Font {
 	//}
 
 	private static bool ReadFlagBit( byte flag, int bit ) => ((flag >> bit) & 1) == 1;
+	private static bool ReadFlagBit( ushort flag, int bit ) => ((flag >> bit) & 1) == 1;
 
 	private static unsafe void GetAllGlyphLocations( byte* srcPtr, Span<uint> glyphLocations, ushort numBytesPerLocationLookup, uint locaTableLocation, uint glyfTableLocation ) {
 		bool isTwoByteEntry = numBytesPerLocationLookup == 2;

@@ -40,7 +40,7 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
 		_dataBlocks = new DataBlockCollection( _testUniforms, _testShaderStorage );
 
-		this._testVertexArrayObject = _compositeVertexArrayObjectService.Get( typeof( Vertex2 ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
+		this._testVertexArrayObject = _compositeVertexArrayObjectService.Get( typeof( LetterVertex ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
 		this._shaderBundle = this._shaderBundleService.Get<TestShaderBundle>() ?? throw new NullReferenceException( "ShaderBundle not found." );
 
 		userInputEventService.OnCharacter += OnCharacterTyped;
@@ -100,8 +100,8 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 		}
 	}
 
-	private VertexMesh<Vertex2> CreateMesh( (Triangle2<float>, bool filled)[] triangles ) {
-		List<Vertex2> vertices = [];
+	private VertexMesh<LetterVertex> CreateMesh( (Triangle2<float>, bool filled, bool flipped)[] triangles ) {
+		List<LetterVertex> vertices = [];
 		List<uint> indices = [];
 		Vector4<byte>[] colors = [
 			(255, 0, 0, 255),
@@ -120,21 +120,29 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 			(122, 122, 122, 255),
 		];
 		int i = 0;
-		foreach ((Triangle2<float> triangle, bool filled) t in triangles) {
+		foreach ((Triangle2<float> triangle, bool filled, bool flipped) t in triangles) {
 			uint index = (uint) vertices.Count;
-			Vector4<byte> color = t.filled ? new Vector4<byte>(255, 0, 0, 255) : (255, 255, 255, 255);
-			vertices.Add( new( t.triangle.A, color ) );
-			vertices.Add( new( t.triangle.B, color ) );
-			vertices.Add( new( t.triangle.C, color ) );
+			Vector4<byte> color = t.filled
+				? new Vector4<byte>( 255, 255, 255, 255 )
+				: new Vector4<byte>( 255, 0, 0, 255 );
+			vertices.Add( new( t.triangle.A, 0, colors[ i++ ], t.filled, t.flipped ) );
+			if (i >= colors.Length)
+				i = 0;
+			vertices.Add( new( t.triangle.B, (0.5f, 0), colors[ i++ ], t.filled, t.flipped ) );
+			if (i >= colors.Length)
+				i = 0;
+			vertices.Add( new( t.triangle.C, 1, colors[ i++ ], t.filled, t.flipped ) );
+			if (i >= colors.Length)
+				i = 0;
 			indices.Add( index );
 			indices.Add( index + 1 );
 			indices.Add( index + 2 );
 		}
-		return this._meshService.CreateMesh<Vertex2>( vertices.ToArray(), indices.ToArray() );
+		return this._meshService.CreateMesh<LetterVertex>( vertices.ToArray(), indices.ToArray() );
 	}
 
-	public VertexMesh<Vertex2> CreateContourIndexMesh( (Vector2<float>, uint)[] pointsInContour, float scale ) {
-		List<Vertex2> vertices = [];
+	public VertexMesh<LetterVertex> CreateContourIndexMesh( (Vector2<float>, uint, bool)[] pointsInContour, float scale ) {
+		List<LetterVertex> vertices = [];
 		List<uint> indices = [];
 		//Create a small box around each point with alternating colours to indicate the order of the points
 		Vector4<byte>[] colors = [
@@ -144,12 +152,13 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 		];
 		for (int i = 0; i < pointsInContour.Length; i++) {
 			uint index = (uint) vertices.Count;
-			Vector4<byte> color = pointsInContour[ i ].Item2 == 0 ? (255, 255, 255, 255) : colors[ pointsInContour[ i ].Item2 % colors.Length ];
-			float size = 0.025f;
-			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( -size, -size ), color ) );
-			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( size, -size ), color ) );
-			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( size, size ), color ) );
-			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( -size, size ), color ) );
+			Vector4<byte> color = pointsInContour[ i ].Item2 == 0 ? (0, 0, 0, 255) : colors[ pointsInContour[ i ].Item2 % colors.Length ];
+			Vector4<byte> otherColor = pointsInContour[ i ].Item3 ? (255, 255, 255, 255) : color;
+			float size = 0.005f;
+			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( -size, -size ), 0, otherColor, true, false ) );
+			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( size, -size ), 0, otherColor, true, false ) );
+			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( size, size ), 0, color, true, false ) );
+			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( -size, size ), 0, color, true, false ) );
 			indices.Add( index );
 			indices.Add( index + 1 );
 			indices.Add( index + 2 );
@@ -158,12 +167,12 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 			indices.Add( index + 3 );
 		}
 
-		return this._meshService.CreateMesh<Vertex2>( vertices.ToArray(), indices.ToArray() );
+		return this._meshService.CreateMesh<LetterVertex>( vertices.ToArray(), indices.ToArray() );
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
-		float scale = MathF.Max( 1f / _letters.Length, 0.13f );
-		float x = -1f;
+		float scale = MathF.Min( MathF.Max( 0.8f / _letters.Length, 0.12f ), 0.8F );
+		float x = _letters.Length > 1 ? -1f : -0.4f;
 		float y = _letters.Length > 1 ? 0.75f : -.9f;
 		for (int i = 0; i < _letters.Length; i++) {
 			_letters[ i ].Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.Scaling( scale, scale ) * Matrix.Create4x4.Translation( x, y ) } );
@@ -178,6 +187,8 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 
 	public void DrawToScreen() {
 		Gl.Clear( ClearBufferMask.ColorBufferBit );
+		Gl.Enable( EnableCap.CullFace );
+		Gl.CullFace( CullFaceMode.Back );
 		_scene.Render( "default", _dataBlocks, _ => { }, PrimitiveType.Triangles );
 	}
 

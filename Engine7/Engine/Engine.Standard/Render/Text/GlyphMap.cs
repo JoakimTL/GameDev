@@ -17,4 +17,6 @@
 public readonly struct GlyphMap( uint index, uint unicode ) {
 	public readonly uint GlyphIndex = index;
 	public readonly uint Unicode = unicode;
+
+	public override string ToString() => $"{GlyphIndex}->{Unicode}/{(char)Unicode}";
 }

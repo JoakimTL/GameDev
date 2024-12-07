@@ -63,7 +63,7 @@ public struct Triangle2<TScalar>( Vector2<TScalar> a, Vector2<TScalar> b, Vector
 			new Vector3<TFloatingScalar>( pa.X, pa.Y, paSq ),
 			new Vector3<TFloatingScalar>( pb.X, pb.Y, pbSq ),
 			new Vector3<TFloatingScalar>( pc.X, pc.Y, pcSq ) )
-			.GetDeterminant();// * (WindsClockwise() ? TFloatingScalar.NegativeOne : TFloatingScalar.One);
+			.GetDeterminant() * (WindsClockwise() ? TFloatingScalar.NegativeOne : TFloatingScalar.One);
 
 		//bool inProperCircle = false;
 		//var circumcircle = GetCircumcircle();
