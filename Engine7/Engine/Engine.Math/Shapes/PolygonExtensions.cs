@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Shapes;
 
@@ -16,13 +17,17 @@ public static class PolygonExtensions {
 		return sum / TScalar.CreateSaturating( 2 );
 	}
 
-	public static bool PointInPolygon<TScalar>( this Vector2<TScalar> point, Span<Vector2<TScalar>> orderedPolygonPoints ) where TScalar : unmanaged, INumber<TScalar> {
-		Vector2<TScalar> rayDirection = new( TScalar.CreateSaturating( 1 ), TScalar.CreateSaturating( 0 ) );
+	public static bool PointInPolygon<TScalar>( this Vector2<TScalar> point, Span<Vector2<TScalar>> orderedPolygonPoints, Vector2<TScalar> rayDirection ) where TScalar : unmanaged, INumber<TScalar> {
 		int intersections = 0;
+		int skippedEdges = 0;
 
 		Vector2<TScalar> p2 = orderedPolygonPoints[ ^1 ];
 		for (int i = 0; i < orderedPolygonPoints.Length; i++) {
 			Vector2<TScalar> p1 = orderedPolygonPoints[ i ];
+			if (p1 == p2) {
+				skippedEdges++;
+				continue;
+			}
 			Edge2<TScalar> edge = new( p1, p2 );
 			IntersectionResult intersectionResult = edge.IntersectsRay( point, rayDirection );
 			if (intersectionResult == IntersectionResult.OnVertex) {
@@ -33,6 +38,17 @@ public static class PolygonExtensions {
 			p2 = p1;
 		}
 
+		if (skippedEdges > 0)
+			Console.WriteLine( $"Skipped {skippedEdges} edges.");
+
 		return (intersections / 2) % 2 == 1;
+	}
+
+	/// <summary>
+	/// Checks the orientation of the point relative to the edge. Returns -1 if the point is to the left of the edge, 0 if the point is on the edge, and 1 if the point is to the right of the edge.
+	/// </summary>
+	public static int Orientation<TScalar>( this Edge2<TScalar> edge, Vector2<TScalar> p ) where TScalar : unmanaged, INumber<TScalar> {
+		Vector2<TScalar> perp = (edge.B - edge.A) * -Bivector2<TScalar>.One;
+		return TScalar.Sign( perp.Dot( p - edge.A ) );
 	}
 }

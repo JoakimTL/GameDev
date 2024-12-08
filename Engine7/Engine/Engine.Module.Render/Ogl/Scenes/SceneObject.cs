@@ -10,35 +10,38 @@ namespace Engine.Module.Render.Ogl.Scenes;
 /// </summary>
 public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObject> {
 
-	private readonly uint _instanceCount;
+	/// <summary>
+	/// The number of instances that are expected to be in each collection if there are only one collection. If another collection is added, this number is multiplied by the number of collections + 1.
+	/// </summary>
+	private readonly uint _baseInstanceCount;
 	public OglVertexArrayObjectBase VertexArrayObject { get; }
 	public ShaderBundleBase ShaderBundle { get; }
 	public ulong BindIndex { get; }
 	public uint RenderLayer { get; }
 	private readonly HashSet<SceneInstanceBase> _unmeshedSceneInstances;
-	private readonly Dictionary<(IMesh, Type), List<SceneInstanceCollection>> _sceneInstanceCollectionsByMeshByInstanceDataType;
+	private readonly Dictionary<(IMesh, Type), List<SceneObjectSceneInstanceCollection>> _sceneInstanceCollectionsByMeshByInstanceDataType;
 	private readonly BufferService _bufferService;
 
 	public event Action<SceneInstanceBase>? OnInstanceRemoved;
 	public event Action? OnChanged;
 
-	public SceneObject( uint layer, BufferService bufferService, OglVertexArrayObjectBase vertexArrayObject, ShaderBundleBase shaderBundle, uint instanceCount ) {
+	public SceneObject( uint layer, BufferService bufferService, OglVertexArrayObjectBase vertexArrayObject, ShaderBundleBase shaderBundle, uint baseInstanceCount ) {
 		this._sceneInstanceCollectionsByMeshByInstanceDataType = [];
 		this._unmeshedSceneInstances = [];
 		this.VertexArrayObject = vertexArrayObject;
 		this.ShaderBundle = shaderBundle;
-		this._instanceCount = instanceCount;
+		this._baseInstanceCount = baseInstanceCount;
 		this.BindIndex = this.VertexArrayObject.GetBindIndexWith( this.ShaderBundle ) ?? throw new ArgumentException( "Unable to establish bind index" );
 		this.RenderLayer = layer;
 		this._bufferService = bufferService;
 	}
 
 	public void AddIndirectCommands( List<IndirectCommand> commandList ) {
-		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType) {
+		foreach (KeyValuePair<(IMesh, Type), List<SceneObjectSceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType) {
 			if (kvp.Value.Count == 0)
 				continue;
 			IMesh mesh = kvp.Key.Item1;
-			foreach (SceneInstanceCollection collection in kvp.Value)
+			foreach (SceneObjectSceneInstanceCollection collection in kvp.Value)
 				commandList.Add( new( mesh.ElementCount, collection.InstanceCount, mesh.ElementOffset, mesh.VertexOffset, collection.BaseInstance ) );
 		}
 	}
@@ -72,7 +75,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	private void AddSceneInstanceIntoCollection( SceneInstanceBase sceneInstance ) {
 		IMesh mesh = sceneInstance.Mesh ?? throw new InvalidOperationException( "Instance mesh is null" );
 
-		if (!this._sceneInstanceCollectionsByMeshByInstanceDataType.TryGetValue( (mesh, sceneInstance.InstanceDataType), out List<SceneInstanceCollection>? collectionList ))
+		if (!this._sceneInstanceCollectionsByMeshByInstanceDataType.TryGetValue( (mesh, sceneInstance.InstanceDataType), out List<SceneObjectSceneInstanceCollection>? collectionList ))
 			this._sceneInstanceCollectionsByMeshByInstanceDataType.Add( (mesh, sceneInstance.InstanceDataType), collectionList = [] );
 
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
@@ -84,9 +87,9 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 			return;
 
 		uint sizePerInstanceBytes = (uint) (TypeManager.SizeOf( sceneInstance.InstanceDataType ) ?? throw new ArgumentException( "Instance data type must be unmanaged" ));
-		if (!this._bufferService.Get( sceneInstance.InstanceDataType ).TryAllocate( sizePerInstanceBytes * this._instanceCount, out BufferSegment? segment ))
+		if (!this._bufferService.Get( sceneInstance.InstanceDataType ).TryAllocate( sizePerInstanceBytes * this._baseInstanceCount * (uint) (collectionList.Count + 1), out BufferSegment? segment ))
 			throw new InvalidOperationException( "Failed to allocate instance data segment" );
-		SceneInstanceCollection newCollection = new( segment, sizePerInstanceBytes );
+		SceneObjectSceneInstanceCollection newCollection = new( segment, sizePerInstanceBytes );
 		newCollection.OnChanged += OnSceneCollectionChanged;
 
 		if (!newCollection.TryAdd( sceneInstance )) {
@@ -97,8 +100,8 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		collectionList.Add( newCollection );
 	}
 
-	private bool TryAddingToCollection( List<SceneInstanceCollection> collectionList, SceneInstanceBase instance ) {
-		foreach (SceneInstanceCollection collection in collectionList)
+	private bool TryAddingToCollection( List<SceneObjectSceneInstanceCollection> collectionList, SceneInstanceBase instance ) {
+		foreach (SceneObjectSceneInstanceCollection collection in collectionList)
 			if (collection.TryAdd( instance ))
 				return true;
 		return false;
@@ -164,7 +167,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	}
 
 	private void PruneEmptyCollections() {
-		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType)
+		foreach (KeyValuePair<(IMesh, Type), List<SceneObjectSceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType)
 			for (int i = kvp.Value.Count - 1; i >= 0; i--)
 				if (kvp.Value[ i ].InstanceCount == 0) {
 					kvp.Value[ i ].Dispose();
@@ -183,8 +186,8 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	private void OnBindIndexChanged( SceneInstanceBase changedInstance, ulong? oldBindIndex ) => RemoveInstance( changedInstance );
 
 	protected override bool InternalDispose() {
-		foreach (KeyValuePair<(IMesh, Type), List<SceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType)
-			foreach (SceneInstanceCollection collection in kvp.Value)
+		foreach (KeyValuePair<(IMesh, Type), List<SceneObjectSceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType)
+			foreach (SceneObjectSceneInstanceCollection collection in kvp.Value)
 				collection.Dispose();
 		return true;
 	}

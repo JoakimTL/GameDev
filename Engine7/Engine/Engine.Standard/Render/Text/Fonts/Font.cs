@@ -1,6 +1,6 @@
 ﻿using System.Reflection.PortableExecutable;
 
-namespace Engine.Standard.Render.Text;
+namespace Engine.Standard.Render.Text.Fonts;
 
 public sealed class Font {
 	public const uint Tag_Cmap = 1885433187;
@@ -141,9 +141,9 @@ public sealed class Font {
 		double jHat_x = 0;
 		double jHat_y = 1;
 
-		if (isSingleScaleValue) {
+		if (isSingleScaleValue)
 			iHat_x = jHat_y = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
-		} else if (isXAndYScale) {
+		else if (isXAndYScale) {
 			iHat_x = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
 			jHat_y = UInt16ToFixedPoint2Dot14( FontUtilities.Read<ushort>( srcPtr, ref loc ).FromBigEndian() );
 		} else if (is2x2Matrix) {
@@ -161,7 +161,7 @@ public sealed class Font {
 	}
 
 	public static double UInt16ToFixedPoint2Dot14( ushort raw ) {
-		return (short) (raw) / (double) (1 << 14);
+		return (short) raw / (double) (1 << 14);
 	}
 
 	private static unsafe FontGlyph ReadSingleGlyph( byte* srcPtr, nint offset, FontGlyphHeader header, GlyphMap mapping ) {
@@ -205,11 +205,10 @@ public sealed class Font {
 				int currentCoordinate = coordinates[ Math.Max( 0, i - 1 ) ];
 				byte flag = flags[ i ];
 
-				if (ReadFlagBit( flag, offsetSizeFlagBit )) {
+				if (ReadFlagBit( flag, offsetSizeFlagBit ))
 					currentCoordinate += FontUtilities.Read<byte>( srcPtr, ref offset ) * (ReadFlagBit( flag, offsetSignOrSkipBit ) ? 1 : -1);
-				} else if (!ReadFlagBit( flag, offsetSignOrSkipBit )) {
+				else if (!ReadFlagBit( flag, offsetSignOrSkipBit ))
 					currentCoordinate += FontUtilities.Read<short>( srcPtr, ref offset ).FromBigEndian();
-				}
 				coordinates[ i ] = currentCoordinate;
 			}
 			return coordinates;
@@ -253,8 +252,8 @@ public sealed class Font {
 	//	return new FontGlyph( header, mapping, points, endPointsOfContours, instructions, flags );
 	//}
 
-	private static bool ReadFlagBit( byte flag, int bit ) => ((flag >> bit) & 1) == 1;
-	private static bool ReadFlagBit( ushort flag, int bit ) => ((flag >> bit) & 1) == 1;
+	private static bool ReadFlagBit( byte flag, int bit ) => (flag >> bit & 1) == 1;
+	private static bool ReadFlagBit( ushort flag, int bit ) => (flag >> bit & 1) == 1;
 
 	private static unsafe void GetAllGlyphLocations( byte* srcPtr, Span<uint> glyphLocations, ushort numBytesPerLocationLookup, uint locaTableLocation, uint glyfTableLocation ) {
 		bool isTwoByteEntry = numBytesPerLocationLookup == 2;
@@ -282,19 +281,15 @@ public sealed class Font {
 			ushort platformSpecificID = FontUtilities.Read<ushort>( srcPtr, ref offset ).FromBigEndian();
 			uint subtableOffset = FontUtilities.Read<uint>( srcPtr, ref offset ).FromBigEndian();
 			// Unicode encoding
-			if (platformID == 0) {
-				// Use highest supported unicode version
+			if (platformID == 0)                // Use highest supported unicode version
 				if (platformSpecificID is 0 or 1 or 3 or 4 && platformSpecificID > selectedUnicodeVersionID) {
 					cmapSubtableOffset = subtableOffset;
 					selectedUnicodeVersionID = platformSpecificID;
 				}
-			}
 			// Microsoft Encoding
-			else if (platformID == 3 && selectedUnicodeVersionID == -1) {
-				if (platformSpecificID is 1 or 10) {
+			else if (platformID == 3 && selectedUnicodeVersionID == -1)
+				if (platformSpecificID is 1 or 10)
 					cmapSubtableOffset = subtableOffset;
-				}
-			}
 		}
 
 		if (cmapSubtableOffset == 0)
@@ -348,17 +343,16 @@ public sealed class Font {
 
 				while (currentCode <= endCode) {
 					uint glyphIndex;
-					if (idRangeOffset[ i ].offset == 0) {
+					if (idRangeOffset[ i ].offset == 0)
 						glyphIndex = (uint) ((currentCode + idDeltas[ i ]) % 65536);
-					} else {
+					else {
 						nint currentOffset = offset;
 						uint rangeOffsetLocation = idRangeOffset[ i ].readLoc + idRangeOffset[ i ].offset;
 						nint glyphIndexArrayLocation = (nint) (2u * (currentCode - startCodes[ i ]) + rangeOffsetLocation);
 
 						glyphIndex = FontUtilities.Read<ushort>( srcPtr, ref glyphIndexArrayLocation ).FromBigEndian();
-						if (glyphIndex != 0) {
+						if (glyphIndex != 0)
 							glyphIndex += idDeltas[ i ];
-						}
 						offset = currentOffset;
 					}
 					glyphMaps.Add( new GlyphMap( glyphIndex, currentCode ) );

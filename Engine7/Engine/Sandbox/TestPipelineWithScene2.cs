@@ -10,6 +10,7 @@ using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Shapes;
 using Engine.Standard.Render.Text;
+using Engine.Standard.Render.Text.Fonts;
 using OpenGL;
 
 namespace Sandbox;
@@ -33,6 +34,7 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 	private SceneInstance<Entity2SceneData>[] _letters = [];
 	private SceneInstance<Entity2SceneData>[] _letterVertices = [];
 	private bool _showWithConstraint = false;
+	private bool _showTriangles = false;
 
 	public void Initialize() {
 		if (!this._dataBlockService.CreateUniformBlock( "testUniformBlock", 256, [ ShaderType.VertexShader ], out this._testUniforms! ))
@@ -51,27 +53,31 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 
 		this._showWithConstraint = true;
 
-		Font font = fontService.Get( "JetBrainsMono-Bold" );
+		Font font = fontService.Get( "calibri" );
 		CreateText( font, "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå", this._showWithConstraint );
 
-		windowService.Window.Title = $"With constraints: {this._showWithConstraint}";
+		windowService.Window.Title = $"With constraints: {this._showWithConstraint} | Show triangles: {_showTriangles}";
 	}
 
 	private void OnKey( KeyboardEvent @event ) {
 		if (@event.InputType == TactileInputType.Press && @event.Key == Keys.Space) {
-			Font font = fontService.Get( "JetBrainsMono-Bold" );
+			Font font = fontService.Get( "calibri" );
 			CreateText( font, "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅabcdefghijklmnopqrstuvwxyzæøå", this._showWithConstraint );
 		}
 		if (@event.InputType == TactileInputType.Press && @event.Key == Keys.F1) {
 			this._showWithConstraint = !this._showWithConstraint;
 			windowService.Window.Title = $"With constraints: {this._showWithConstraint}";
 		}
+		if (@event.InputType == TactileInputType.Press && @event.Key == Keys.F2) {
+			this._showTriangles = !this._showTriangles;
+			windowService.Window.Title = $"Show triangles: {this._showTriangles}";
+		}
 	}
 
 	private void OnCharacterTyped( KeyboardCharacterEvent @event ) {
 		if (@event.Character == ' ')
 			return;
-		Font font = fontService.Get( "JetBrainsMono-Bold" );
+		Font font = fontService.Get( "calibri" );
 		CreateText( font, @event.Character.ToString(), this._showWithConstraint );
 	}
 
@@ -90,11 +96,11 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 				continue;
 			}
 			this._letters[ i ] = this._scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
-			this._letters[ i ].SetMesh( CreateMesh( font[ c ].CreateMeshTriangles( 0.0025f, showWithConstraint ).ToArray() ) );
+			this._letters[ i ].SetMesh( CreateMesh( font[ c ].CreateMeshTriangles( 0.001f, showWithConstraint ).ToArray() ) );
 			this._letters[ i ].SetVertexArrayObject( this._testVertexArrayObject );
 			this._letters[ i ].SetShaderBundle( this._shaderBundle );
 			this._letterVertices[ i ] = this._scene.CreateInstance<SceneInstance<Entity2SceneData>>( 1 );
-			this._letterVertices[ i ].SetMesh( CreateContourIndexMesh( font[ c ].GetPointsInContours(), 0.0025f ) );
+			this._letterVertices[ i ].SetMesh( CreateContourIndexMesh( font[ c ].GetPointsInContours(), 0.001f ) );
 			this._letterVertices[ i ].SetVertexArrayObject( this._testVertexArrayObject );
 			this._letterVertices[ i ].SetShaderBundle( this._shaderBundle );
 			i++;
@@ -123,18 +129,21 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 		int i = 0;
 		foreach ((Triangle2<float> triangle, bool filled, bool flipped) t in triangles) {
 			uint index = (uint) vertices.Count;
-			Vector4<byte> color = t.filled
-				? new Vector4<byte>( 255, 255, 255, 255 )
-				: new Vector4<byte>( 255, 0, 0, 255 );
-			vertices.Add( new( t.triangle.A, 0, colors[ i++ ], t.filled, t.flipped ) );
-			if (i >= colors.Length)
-				i = 0;
-			vertices.Add( new( t.triangle.B, (0.5f, 0), colors[ i++ ], t.filled, t.flipped ) );
-			if (i >= colors.Length)
-				i = 0;
-			vertices.Add( new( t.triangle.C, 1, colors[ i++ ], t.filled, t.flipped ) );
-			if (i >= colors.Length)
-				i = 0;
+			if (_showTriangles) {
+				vertices.Add( new( t.triangle.A, 0, colors[ i++ ], t.filled, t.flipped ) );
+				if (i >= colors.Length)
+					i = 0;
+				vertices.Add( new( t.triangle.B, (0.5f, 0), colors[ i++ ], t.filled, t.flipped ) );
+				if (i >= colors.Length)
+					i = 0;
+				vertices.Add( new( t.triangle.C, 1, colors[ i++ ], t.filled, t.flipped ) );
+				if (i >= colors.Length)
+					i = 0;
+			} else {
+				vertices.Add( new( t.triangle.A, 0, 255, t.filled, t.flipped ) );
+				vertices.Add( new( t.triangle.B, (0.5f, 0), 255, t.filled, t.flipped ) );
+				vertices.Add( new( t.triangle.C, 1, 255, t.filled, t.flipped ) );
+			}
 			indices.Add( index );
 			indices.Add( index + 1 );
 			indices.Add( index + 2 );
@@ -155,7 +164,7 @@ public sealed class TestPipelineWithScene2( ShaderBundleService shaderBundleServ
 			uint index = (uint) vertices.Count;
 			Vector4<byte> color = pointsInContour[ i ].Item2 == 0 ? (0, 0, 0, 255) : colors[ pointsInContour[ i ].Item2 % colors.Length ];
 			Vector4<byte> otherColor = pointsInContour[ i ].Item3 ? (255, 255, 255, 255) : color;
-			float size = 0.005f;
+			float size = 0.025f;
 			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( -size, -size ), 0, otherColor, true, false ) );
 			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( size, -size ), 0, otherColor, true, false ) );
 			vertices.Add( new( pointsInContour[ i ].Item1 * scale + new Vector2<float>( size, size ), 0, color, true, false ) );

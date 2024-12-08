@@ -1,4 +1,4 @@
-﻿namespace Engine.Standard.Render.Text;
+﻿namespace Engine.Standard.Render.Text.Fonts;
 
 //static uint[] GetAllGlyphLocations( FontReader reader, int numGlyphs, int bytesPerEntry, uint locaTableLocation, uint glyfTableLocation ) {
 //	uint[] allGlyphLocations = new uint[ numGlyphs ];

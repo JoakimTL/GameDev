@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace Engine.Standard.Render.Text;
+namespace Engine.Standard.Render.Text.Fonts;
 
 public static class FontUtilities {
 

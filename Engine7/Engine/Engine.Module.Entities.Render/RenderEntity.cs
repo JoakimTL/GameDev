@@ -9,35 +9,44 @@ namespace Engine.Module.Entities.Render;
 
 public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 	private readonly Entity _entity;
-	private readonly RenderEntityServiceAccess _serviceAccess;
-
-	private readonly List<SceneInstanceBase> _sceneInstances;
+	private readonly List<IDisposable> _disposables;
 	private readonly Dictionary<Type, RenderBehaviourBase> _behaviours;
+
+	public RenderEntityServiceAccess ServiceAccess { get; }
 
 	internal RenderEntity( Entity entity, RenderEntityServiceAccess serviceAccess ) {
 		this._entity = entity;
-		this._serviceAccess = serviceAccess;
+		this.ServiceAccess = serviceAccess;
 		this._behaviours = [];
-		this._sceneInstances = [];
+		this._disposables = [];
 	}
 
 	public T RequestSceneInstance<T>( string sceneName, uint layer ) where T : SceneInstanceBase, new() {
-		T instance = this._serviceAccess.SceneInstanceProvider.RequestSceneInstance<T>( sceneName, layer );
-		this._sceneInstances.Add( instance );
+		T instance = this.ServiceAccess.SceneInstanceProvider.RequestSceneInstance<T>( sceneName, layer );
+		this._disposables.Add( instance );
 		return instance;
 	}
 
-	public T? RequestShaderBundle<T>() where T : ShaderBundleBase
-		=> this._serviceAccess.ShaderBundleProvider.GetShaderBundle<T>() as T;
+	public SceneInstanceCollection<TVertexData, TInstanceData> RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( string sceneName, uint layer ) 
+		where TVertexData : unmanaged
+		where TInstanceData : unmanaged
+		where TShaderBundle : ShaderBundleBase {
+		SceneInstanceCollection<TVertexData, TInstanceData> collection = this.ServiceAccess.SceneInstanceProvider.RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( sceneName, layer );
+		this._disposables.Add( collection );
+		return collection;
+	}
 
-	public OglVertexArrayObjectBase? RequestCompositeVertexArray<TVertexData, TSceneInstanceData>() where TVertexData : unmanaged where TSceneInstanceData : unmanaged
-		=> this._serviceAccess.CompositeVertexArrayProvider.GetVertexArray<TVertexData, TSceneInstanceData>();
+	//public T? RequestShaderBundle<T>() where T : ShaderBundleBase
+	//	=> this._serviceAccess.ShaderBundleProvider.GetShaderBundle<T>() as T;
 
-	public VertexMesh<TVertex> RequestNewEmptyMesh<TVertex>( uint vertexCount, uint elementCount ) where TVertex : unmanaged
-		=> this._serviceAccess.MeshProvider.CreateEmptyMesh<TVertex>( vertexCount, elementCount );
+	//public OglVertexArrayObjectBase? RequestCompositeVertexArray<TVertexData, TSceneInstanceData>() where TVertexData : unmanaged where TSceneInstanceData : unmanaged
+	//	=> this._serviceAccess.CompositeVertexArrayProvider.GetVertexArray<TVertexData, TSceneInstanceData>();
 
-	public VertexMesh<TVertex> RequestNewMesh<TVertex>( Span<TVertex> vertices, Span<uint> elements ) where TVertex : unmanaged
-		=> this._serviceAccess.MeshProvider.CreateMesh( vertices, elements );
+	//public VertexMesh<TVertex> RequestNewEmptyMesh<TVertex>( uint vertexCount, uint elementCount ) where TVertex : unmanaged
+	//	=> this._serviceAccess.MeshProvider.CreateEmptyMesh<TVertex>( vertexCount, elementCount );
+
+	//public VertexMesh<TVertex> RequestNewMesh<TVertex>( Span<TVertex> vertices, Span<uint> elements ) where TVertex : unmanaged
+	//	=> this._serviceAccess.MeshProvider.CreateMesh( vertices, elements );
 
 	//TODO: public void ListenToEvents<T>( Action<T> action ) => this._entity.ListenToEvents( action );
 
@@ -66,6 +75,9 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 		foreach (RenderBehaviourBase behaviour in this._behaviours.Values)
 			behaviour.Dispose();
 		this._behaviours.Clear();
+		foreach (IDisposable disposable in this._disposables)
+			disposable.Dispose();
+		this._disposables.Clear();
 		return true;
 	}
 }

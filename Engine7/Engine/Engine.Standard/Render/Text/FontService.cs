@@ -1,4 +1,6 @@
-﻿namespace Engine.Standard.Render.Text;
+﻿using Engine.Standard.Render.Text.Fonts;
+
+namespace Engine.Standard.Render.Text;
 
 public sealed class FontService {
 

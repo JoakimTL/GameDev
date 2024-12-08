@@ -9,6 +9,7 @@ using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Render;
 using Engine.Standard.Render.Text;
+using Engine.Standard.Render.Text.Fonts;
 using Engine.Transforms.Camera;
 using OpenGL;
 using System.Runtime.InteropServices;
@@ -84,9 +85,9 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 	protected override void OnRenderEntitySet() {
 		base.OnRenderEntitySet();
 		this._sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
-		this._sceneInstance.SetShaderBundle( this.RenderEntity.RequestShaderBundle<TestShaderBundle>() );
-		this._sceneInstance.SetVertexArrayObject( this.RenderEntity.RequestCompositeVertexArray<Vertex2, Entity2SceneData>() );
-		this._sceneInstance.SetMesh( this.RenderEntity.RequestNewMesh(
+		this._sceneInstance.SetShaderBundle( this.RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>() );
+		this._sceneInstance.SetVertexArrayObject( this.RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2SceneData>() );
+		this._sceneInstance.SetMesh( this.RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
 			[ new Vertex2( (-.5f, -.5f), (255, 255, 0, 255) ),
 			new Vertex2( (-.5f, .5f), (255, 0, 255, 255) ),
 			new Vertex2( (.5f, .5f), (0, 255, 255, 255) ),
@@ -115,32 +116,4 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 		return true;
 	}
 }
-
-//TODO: Add camera (done?)
-//TODO: Add render pipeline
-//TODO: Add input (done?)
-//TODO: Add input to RenderEntity
-//TODO: Add sound (https://github.com/naudio/NAudio ?)
-//TODO: Partial icosphere
-//TODO: Add text rendering
-//TODO: Add GUI?
-
-//Game stuff:
-//TODO: Add world entity and render the partial icosphere
-//TODO: Add tiles
-//TODO: Add players
-//TODO: Add items
-//TODO: Add population and needs
-//TODO: Add structures
-//TODO: Add resources
-//TODO: Add trade
-//TODO: Add tech tree/research
-//TODO: Add culture / religion
-//TODO: Add politics
-//TODO: Add spheres of influence
-
-//TODO: Add armies
-//TODO: Add combat
-
-//TODO: Add diplomacy
 

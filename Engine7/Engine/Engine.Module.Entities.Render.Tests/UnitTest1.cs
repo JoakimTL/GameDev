@@ -48,12 +48,12 @@ public class RenderEntityContainerTests {
 		public Vector3<float> CurrentTranslation { get; private set; }
 		public Vector3<float> CurrentVelocity { get; private set; }
 
-		protected override void Initialize() {
-			this._newTranslation = this.Archetype.Translation.Translation;
-			this._newVelocity = this.Archetype.Motion.Velocity;
-			this.CurrentTranslation = this._newTranslation.CastSaturating<double, float>();
-			this.CurrentVelocity = this._newVelocity.CastSaturating<double, float>();
-		}
+		//protected override void Initialize() {
+		//	this._newTranslation = this.Archetype.Translation.Translation;
+		//	this._newVelocity = this.Archetype.Motion.Velocity;
+		//	this.CurrentTranslation = this._newTranslation.CastSaturating<double, float>();
+		//	this.CurrentVelocity = this._newVelocity.CastSaturating<double, float>();
+		//}
 
 		protected override bool PrepareSynchronization( ComponentBase component ) {
 			if (component is Translation3Component translation) {

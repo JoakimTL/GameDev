@@ -1,4 +1,5 @@
-﻿using Engine.Module.Render.Input;
+﻿using Engine.Module.Render.Entities.Providers;
+using Engine.Module.Render.Input;
 
 namespace Engine.Module.Entities.Render;
 
@@ -10,8 +11,9 @@ public sealed class RenderEntityServiceAccess( SceneInstanceProvider sceneInstan
 	private readonly UserInputEventService _userInputEventService = userInputEventService;
 
 	internal SceneInstanceProvider SceneInstanceProvider => this._sceneInstanceProvider;
-	internal CompositeVertexArrayProvider CompositeVertexArrayProvider => this._compositeVertexArrayProvider;
-	internal ShaderBundleProvider ShaderBundleProvider => this._shaderBundleProvider;
-	internal MeshProvider MeshProvider => this._meshProvider;
-	internal UserInputEventService UserInputEventService => this._userInputEventService;
+	public CompositeVertexArrayProvider CompositeVertexArrayProvider => this._compositeVertexArrayProvider;
+	public ShaderBundleProvider ShaderBundleProvider => this._shaderBundleProvider;
+	public MeshProvider MeshProvider => this._meshProvider;
+	//TODO Make provider or handle differently!
+	public UserInputEventService UserInputEventService => this._userInputEventService;
 }

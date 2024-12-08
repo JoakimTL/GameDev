@@ -1,4 +1,6 @@
-﻿using Engine.Module.Render.Ogl.Services;
+﻿using Engine.Module.Render.Ogl.OOP.Shaders;
+using Engine.Module.Render.Ogl.OOP.VertexArrays;
+using Engine.Module.Render.Ogl.Services;
 using Engine.Structures;
 using OpenGL;
 
@@ -24,7 +26,6 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 		this._sortedLayersReadOnly = this._sortedLayers.AsReadOnly();
 	}
 
-
 	public T CreateInstance<T>( uint renderLayer = 0, bool overrideSetupLayer = true ) where T : SceneInstanceBase, new() {
 		T instance = new();
 		instance.Setup();
@@ -37,6 +38,12 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 		}
 		layer.AddSceneInstance( instance );
 		return instance;
+	}
+
+	public SceneInstanceCollection<TVertexData, TInstanceData> CreateInstanceCollection<TVertexData, TInstanceData>( uint layer, OglVertexArrayObjectBase vertexArrayObject, ShaderBundleBase shaderBundle )
+		where TVertexData : unmanaged
+		where TInstanceData : unmanaged {
+		return new( this, layer, vertexArrayObject, shaderBundle );
 	}
 
 	private void OnLayerChanged() => this._needsUpdate = true;

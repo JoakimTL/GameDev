@@ -109,11 +109,3 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 		return true;
 	}
 }
-
-public class SceneInstance<TVertexData, TInstanceData>() : SceneInstanceBase( typeof( TInstanceData ) )
-	where TVertexData : unmanaged
-	where TInstanceData : unmanaged {
-	protected override void Initialize() {
-
-	}
-}

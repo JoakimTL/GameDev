@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Engine.Standard.Render.Text;
+namespace Engine.Standard.Render.Text.Fonts;
 
 public readonly struct FontTable( uint tag, uint checksum, uint offset, uint length ) {
 	//https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6.html

@@ -7,7 +7,7 @@ namespace Engine.Module.Render.Ogl.Scenes;
 /// Instances here have a matching bind index, renderlayer and mesh. If any of these changes the instance should be kicked out.
 /// </summary>
 /// <typeparam name="TInstanceData"></typeparam>
-public sealed class SceneInstanceCollection : DisposableIdentifiable {
+public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable {
 	private readonly HashSet<SceneInstanceBase> _instances = [];
 	private readonly SubBufferManager<BufferSegment> _subBufferManager;
 	private readonly BufferSegment _segment;
@@ -15,7 +15,7 @@ public sealed class SceneInstanceCollection : DisposableIdentifiable {
 	private readonly uint _sizePerInstanceBytes;
 	public event Action? OnChanged;
 
-	public SceneInstanceCollection( BufferSegment segment, uint sizePerInstanceBytes ) {
+	public SceneObjectSceneInstanceCollection( BufferSegment segment, uint sizePerInstanceBytes ) {
 		this._subBufferManager = new( segment );
 		this._segment = segment;
 		this._sizePerInstanceBytes = sizePerInstanceBytes;

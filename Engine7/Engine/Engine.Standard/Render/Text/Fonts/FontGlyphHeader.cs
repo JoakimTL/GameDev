@@ -1,4 +1,4 @@
-﻿namespace Engine.Standard.Render.Text;
+﻿namespace Engine.Standard.Render.Text.Fonts;
 
 public readonly struct FontGlyphHeader( short numberOfContours, short xMin, short yMin, short xMax, short yMax ) {
 	//https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6glyf.html
