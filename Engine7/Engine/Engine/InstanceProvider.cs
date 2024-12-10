@@ -21,6 +21,9 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 		=> Get( type );
 
 	public object Get( Type t ) {
+		if (t == typeof( IInstanceProvider ) || t.IsAssignableTo( typeof( IInstanceProvider ) ))
+			return this;
+
 		Type implementationType = this._instanceCatalog.TryResolve( t, out Type? type ) ? type : throw new InvalidOperationException( $"No implementation found for {t.Name}" );
 
 		if (this._instances.TryGetValue( implementationType, out object? instance ))

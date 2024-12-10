@@ -1,18 +1,25 @@
 ﻿using Engine.Module.Entities.Container;
-using Engine.Transforms.Models;
-using Engine.Transforms;
 
 namespace Engine.Standard.Entities.Components;
 public sealed class RenderedTextComponent : ComponentBase {
-}
 
-public sealed class Transform2Component : ComponentBase {
-	public Transform2<double> Transform { get; }
+	private string _text = string.Empty;
+	public string Text { get => this._text; set => SetText(value); }
 
-	public Transform2Component() {
-		this.Transform = new();
-		this.Transform.MatrixChanged += OnMatrixChanged;
+	private string _fontName = string.Empty;
+	public string FontName { get => this._fontName; set => SetFontName( value ); }
+
+	private void SetText( string value ) {
+		if (this._text == value)
+			return;
+		this._text = value;
+		this.InvokeComponentChanged();
 	}
 
-	private void OnMatrixChanged( IMatrixProvider<double> provider ) => this.InvokeComponentChanged();
+	private void SetFontName( string value ) {
+		if (this._fontName == value)
+			return;
+		this._fontName = value;
+		this.InvokeComponentChanged();
+	}
 }

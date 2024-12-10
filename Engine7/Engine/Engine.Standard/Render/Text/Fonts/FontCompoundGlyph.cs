@@ -19,17 +19,10 @@ public sealed class FontCompoundGlyph : IGlyph {
 		this._glyphs.Add( glyph );
 	}
 
-	public (Triangle2<float>, bool filled, bool flipped)[] CreateMeshTriangles( float scale, bool useConstraints ) {
-		List<(Triangle2<float>, bool filled, bool flipped)> result = [];
+	public GlyphTriangle[] TriangulateGlyph() {
+		List<GlyphTriangle> result = [];
 		foreach (IGlyph glyph in this._glyphs)
-			result.AddRange( glyph.CreateMeshTriangles( scale, useConstraints ) );
-		return result.ToArray();
-	}
-
-	public (Vector2<float>, uint indexInContour, bool onCurve)[] GetPointsInContours() {
-		List<(Vector2<float>, uint, bool)> result = [];
-		foreach (IGlyph glyph in this._glyphs)
-			result.AddRange( glyph.GetPointsInContours() );
+			result.AddRange( glyph.TriangulateGlyph() );
 		return result.ToArray();
 	}
 }

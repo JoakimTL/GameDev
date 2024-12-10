@@ -24,4 +24,13 @@ public static class Do<TProcessType> {
 		public Type ProcessType { get; } = typeof( TProcessType );
 	}
 
+	/// <summary>
+	/// Attempts to place this type at the end of the processing order. Does not override <see cref="BeforeAttribute{TBeforeType}"/> nor <see cref="AfterAttribute{TAfterType}"/>.
+	/// </summary>
+	/// <typeparam name="TProcessType">The process type we order for. Example would be <see cref="IUpdateable"/>, which would order this type after the <see cref="TBeforeType"/> in processing whenever <see cref="IUpdateable.Update(double, double)"/> should be executed.</typeparam>
+	[AttributeUsage( AttributeTargets.Class, AllowMultiple = false, Inherited = true )]
+	public class LastAttribute() : Attribute, IProcessLast {
+		public Type ProcessType { get; } = typeof( TProcessType );
+	}
+
 }

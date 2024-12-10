@@ -13,7 +13,7 @@ public class VertexMesh<TVertex> : DisposableIdentifiable, IMesh where TVertex :
 	public uint ElementOffset { get; }
 	public uint VertexOffset { get; }
 
-	public event Action? Changed;
+	public event Action? OnChanged;
 
 	internal VertexMesh( BufferSegment vertexBufferSegment, BufferSegment elementBufferSegment ) {
 		this.VertexBufferSegment = vertexBufferSegment;
@@ -27,7 +27,7 @@ public class VertexMesh<TVertex> : DisposableIdentifiable, IMesh where TVertex :
 		elementBufferSegment.OffsetChanged += OnOffsetChanged;
 	}
 
-	private void OnOffsetChanged( IBufferSegment<ulong> segment ) => Changed?.Invoke();
+	private void OnOffsetChanged( IBufferSegment<ulong> segment ) => OnChanged?.Invoke();
 
 	protected override bool InternalDispose() {
 		this.VertexBufferSegment.Dispose();

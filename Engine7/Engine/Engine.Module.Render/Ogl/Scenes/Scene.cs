@@ -46,7 +46,9 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 		return new( this, layer, vertexArrayObject, shaderBundle );
 	}
 
-	private void OnLayerChanged() => this._needsUpdate = true;
+	private void OnLayerChanged() {
+		this._needsUpdate = true;
+	}
 
 	public void Render( string shaderIndex, IDataBlockCollection? dataBlocks, Action<bool>? blendActivationFunction, PrimitiveType primitiveType ) {
 		if (this._sceneRender is null)

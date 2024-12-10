@@ -5,6 +5,7 @@ using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
+using Engine.Standard.Render;
 using OpenGL;
 
 namespace Sandbox;
@@ -70,9 +71,9 @@ public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleServi
 			new Vertex2 { Translation = (0.0f, 0.5f), Color = ((byte) (MathF.Sin((float) time) * 100 + 100), 255, 0, 255) },
 			new Vertex2 { Translation = (-0.5f, -0.5f), Color = (255, 0, 0, 255) },
 			new Vertex2 { Translation = (0.5f, -0.5f), Color = (255, 0, (byte) (MathF.Cos((float) time) * 100 + 100), 255) } ], 0 );
-		this._sceneInstance1.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( -(float) time * 2 ) } );
-		this._sceneInstance2.Write( new Entity2SceneData { ModelMatrix = Matrix.Create4x4.RotationZ( (float) time * 2 ) } );
-		this._sceneInstance3.Write( new Entity2SceneData { ModelMatrix = Matrix4x4<float>.MultiplicativeIdentity } );
+		this._sceneInstance1.Write( new Entity2SceneData( Matrix.Create4x4.RotationZ( -(float) time * 2 ) ) );
+		this._sceneInstance2.Write( new Entity2SceneData( Matrix.Create4x4.RotationZ( (float) time * 2 ) ) );
+		this._sceneInstance3.Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity ) );
 		this._testUniforms.Buffer.WriteRange( [ MathF.Cos( (float) time ) / 2 ], 0 );
 		this._testShaderStorage.Buffer.WriteRange( [ MathF.Sin( (float) time ) / 2 ], 0 );
 	}

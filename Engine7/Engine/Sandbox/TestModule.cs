@@ -2,9 +2,9 @@
 using Engine.Logging;
 using Engine.Modularity;
 using Engine.Module.Entities.Container;
-using Engine.Module.Entities.Render;
 using Engine.Module.Entities.Services;
 using Engine.Module.Render;
+using Engine.Module.Render.Entities.Components;
 using Engine.Module.Render.Ogl;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
@@ -15,15 +15,16 @@ namespace Sandbox;
 
 internal sealed class GameLogicModule : ModuleBase {
 
+	private Entity? _textEntity;
 	private Entity? _entity;
 
-	public GameLogicModule() : base( false, 120 ) {
+	public GameLogicModule() : base( false, 10 ) {
 		OnInitialize += Init;
 		OnUpdate += Update;
 	}
 
 	private void Update( double time, double deltaTime ) {
-		if (this._entity?.TryGetComponent(out Transform2Component? t2c) ?? false) {
+		if (this._entity?.TryGetComponent( out Transform2Component? t2c ) ?? false) {
 			t2c.Transform.Translation = new Vector2<double>( Math.Sin( time ) * 0.5f, Math.Cos( time ) * 0.5f );
 		}
 	}
@@ -31,8 +32,39 @@ internal sealed class GameLogicModule : ModuleBase {
 	private void Init() {
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
 		this._entity = container.CreateEntity();
-		//_entity.AddComponent<RenderComponent>();
-		this._entity.AddComponent<Transform2Component>();
+		_entity.AddComponent<RenderComponent>();
+		Transform2Component t2c1 = this._entity.AddComponent<Transform2Component>();
+		t2c1.Transform.Translation = (0, 0.5f);
+		RenderedTextComponent text1 = _entity.AddComponent<RenderedTextComponent>();
+		text1.Text = "Hello, World!";
+		text1.FontName = "JetBrainsMono-Bold";
+		_entity.AddComponent<TextJumblerComponent>();
+		_entity.AddComponent<TestRenderComponent>();
+		this._textEntity = container.CreateEntity();
+		_textEntity.AddComponent<RenderComponent>();
+		Transform2Component t2c = _textEntity.AddComponent<Transform2Component>();
+		t2c.Transform.Scale = new Vector2<double>( 0.75, 0.75 );
+		RenderedTextComponent text = _textEntity.AddComponent<RenderedTextComponent>();
+		text.Text = "Hello, World!";
+		text.FontName = "JetBrainsMono-Bold";
+		TextJumblerComponent aa = _textEntity.AddComponent<TextJumblerComponent>();
+		aa.Offset = 1;
+	}
+}
+
+public sealed class TextJumblerComponent : ComponentBase {
+	public int Offset { get; set; } = 0;
+}
+
+public sealed class TextJumblerArchetype : ArchetypeBase {
+	public TextJumblerComponent TextJumblerComponent { get; set; }
+	public RenderedTextComponent RenderedTextComponent { get; set; }
+}
+
+public sealed class TextJumblerSystem : SystemBase<TextJumblerArchetype> {
+
+	protected override void ProcessEntity( TextJumblerArchetype archetype, double time, double deltaTime ) {
+		archetype.RenderedTextComponent.Text = time.ToString("n5");
 	}
 }
 
@@ -40,7 +72,7 @@ internal class SandboxRenderModule : RenderModuleBase {
 
 	protected override void ContextAdded( Context context ) {
 		context.InstanceProvider.Catalog.Host<ContextTest>();
-		context.InstanceProvider.Catalog.Host<TestPipelineWithScene2>();
+		context.InstanceProvider.Catalog.Host<TestPipeline>();
 	}
 
 }
@@ -98,8 +130,9 @@ public sealed class TestShaderPipeline : OglShaderPipelineBase {
 }
 
 public sealed class TestVertexShaderProgram : OglShaderProgramBase {
-	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "test.vert" ) );
+	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "geometry3.vert" ) );
 }
 public sealed class TestFragmentShaderProgram : OglShaderProgramBase {
 	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "test.frag" ) );
 }
+

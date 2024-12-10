@@ -1,4 +1,5 @@
 ﻿using Engine.Buffers;
+using Engine.Logging;
 
 namespace Engine.Module.Render.Ogl.OOP.Buffers;
 
@@ -19,6 +20,7 @@ public class HostClientSynchronizedBufferPair<THostBuffer> : DisposableIdentifia
 		this._clientBuffer = clientBuffer;
 		this._changeTracker = new BufferChangeTracker<THostBuffer, ulong>( this.HostBuffer, 8192 );
 		this._currentChanges = [];
+		Nickname = $"{hostBuffer} -> {clientBuffer}";
 	}
 
 	private void OnHostBufferResized( IBuffer<ulong> buffer ) => this._hostResized = true;

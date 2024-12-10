@@ -18,12 +18,23 @@ public static class PolygonExtensions {
 	}
 
 	public static bool PointInPolygon<TScalar>( this Vector2<TScalar> point, Span<Vector2<TScalar>> orderedPolygonPoints, Vector2<TScalar> rayDirection ) where TScalar : unmanaged, INumber<TScalar> {
+		//https://stackoverflow.com/questions/47004208/should-point-on-the-edge-of-polygon-be-inside-polygon
 		int intersections = 0;
 		int skippedEdges = 0;
 
-		Vector2<TScalar> p2 = orderedPolygonPoints[ ^1 ];
-		for (int i = 0; i < orderedPolygonPoints.Length; i++) {
-			Vector2<TScalar> p1 = orderedPolygonPoints[ i ];
+		Span<Vector2<TScalar>> postDegeneratePoints = stackalloc Vector2<TScalar>[ orderedPolygonPoints.Length ];
+		Edge2<TScalar> conceptualRay = new( point, point + rayDirection );
+		for (int i = 0; i < postDegeneratePoints.Length; i++) {
+			if (Orientation( conceptualRay, orderedPolygonPoints[ i ] ) == 0) {
+				postDegeneratePoints[ i ] = (orderedPolygonPoints[ i ] * TScalar.CreateSaturating( 98 ) + orderedPolygonPoints[ (i + 1) % orderedPolygonPoints.Length ] + orderedPolygonPoints[ (i - 1 + orderedPolygonPoints.Length) % orderedPolygonPoints.Length ]) / TScalar.CreateSaturating( 100 );
+			} else {
+				postDegeneratePoints[ i ] = orderedPolygonPoints[ i ];
+			}
+		}
+
+		Vector2<TScalar> p2 = postDegeneratePoints[ ^1 ];
+		for (int i = 0; i < postDegeneratePoints.Length; i++) {
+			Vector2<TScalar> p1 = postDegeneratePoints[ i ];
 			if (p1 == p2) {
 				skippedEdges++;
 				continue;
@@ -39,7 +50,7 @@ public static class PolygonExtensions {
 		}
 
 		if (skippedEdges > 0)
-			Console.WriteLine( $"Skipped {skippedEdges} edges.");
+			Console.WriteLine( $"Skipped {skippedEdges} edges." );
 
 		return (intersections / 2) % 2 == 1;
 	}

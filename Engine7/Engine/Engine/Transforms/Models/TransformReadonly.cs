@@ -12,8 +12,10 @@ public class TransformReadonly<TScalar, TTranslation, TRotation, TScale> : IMatr
 
 	public TransformReadonly( TransformBase<TScalar, TTranslation, TRotation, TScale> transform ) {
 		this._transform = transform ?? throw new ArgumentNullException( nameof( transform ) );
-		MatrixChanged += ParentChanged;
+		_transform.OnMatrixChanged += TransformChangedPropagation;
 	}
+
+	private void TransformChangedPropagation( IMatrixProvider<TScalar> provider ) => OnMatrixChanged?.Invoke( provider );
 
 	public TransformReadonly<TScalar, TTranslation, TRotation, TScale>? Parent => this._transform.Parent?.Readonly;
 	public TTranslation Translation => this._transform.Translation;
@@ -27,7 +29,5 @@ public class TransformReadonly<TScalar, TTranslation, TRotation, TScale> : IMatr
 
 	public Matrix4x4<TScalar> InverseMatrix => this._transform.InverseMatrix;
 
-	public event Action<IMatrixProvider<TScalar>> MatrixChanged;
-
-	private void ParentChanged( IMatrixProvider<TScalar> obj ) => MatrixChanged?.Invoke( obj );
+	public event Action<IMatrixProvider<TScalar>>? OnMatrixChanged;
 }

@@ -27,6 +27,8 @@ public sealed class FontGlyph : IGlyph {
 	//https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6glyf.html
 	public FontGlyphHeader Header { get; }
 	public GlyphMap Mapping { get; }
+	public ushort UnitsPerEm { get; }
+	public float Scale { get; }
 
 	private readonly ushort[] _originalEndPointsOfContours;
 	private readonly (Vector2<int> coordinate, bool onCurve)[] _originalPoints;
@@ -37,10 +39,12 @@ public sealed class FontGlyph : IGlyph {
 	public IReadOnlyList<ushort> EndPointsOfContours => this._originalEndPointsOfContours;
 	public IReadOnlyList<(Vector2<int> coordinate, bool onCurve)> Points => this._originalPoints;
 
-	public FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector2<int> coordinate, bool onCurve)[] points, ushort[] endPointsOfContours ) {
+	public FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector2<int> coordinate, bool onCurve)[] points, ushort[] endPointsOfContours, ushort unitsPerEm ) {
 		this.Header = header;
 		this.Mapping = mapping;
 		this._originalEndPointsOfContours = endPointsOfContours;
+		this.UnitsPerEm = unitsPerEm;
+		this.Scale = 1f / unitsPerEm;
 		this._originalPoints = points;
 
 		this._contours = CreateContours( endPointsOfContours, points, out this._allPoints );
@@ -69,7 +73,7 @@ public sealed class FontGlyph : IGlyph {
 					contourPoints.Add( impliedPoint );
 					allPoints.Add( impliedPoint );
 				}
-
+				
 				{
 					ContourPoint point = new( points[ j ].coordinate, points[ j ].onCurve, false, i, pointIndex++ );
 					contourPoints.Add( point );
@@ -79,6 +83,8 @@ public sealed class FontGlyph : IGlyph {
 			result.Add( new Contour( contourStart, contourPoints.ToArray() ) );
 		}
 
+		//if (Mapping.Unicode == 48)
+		//	this.Breakpoint();
 		for (int i = 0; i < result.Count; i++)
 			for (int j = 0; j < result.Count; j++)
 				if (i != j)
@@ -89,7 +95,7 @@ public sealed class FontGlyph : IGlyph {
 		return result;
 	}
 
-	public (Triangle2<float>, bool filled, bool flipped)[] CreateMeshTriangles( float scale, bool useConstraints ) {
+	public GlyphTriangle[] TriangulateGlyph() {
 		List<Vector2<int>> pointList = GetAllPoints();
 		Span<Vector2<int>> points = stackalloc Vector2<int>[ pointList.Count ];
 		for (int i = 0; i < pointList.Count; i++)
@@ -102,9 +108,8 @@ public sealed class FontGlyph : IGlyph {
 			;
 
 		TriangulationConstrainer<int, double> constrainer = triangulation.CreateConstrainer( enforcedEdges.ToArray() );
-		if (useConstraints)
-			while (!constrainer.Process())
-				;
+		while (!constrainer.Process())
+			;
 
 		//https://learn.microsoft.com/en-us/typography/opentype/spec/ttch01#outlines
 
@@ -112,34 +117,34 @@ public sealed class FontGlyph : IGlyph {
 		for (int i = 0; i < constrainer.Triangles.Count; i++)
 			triangleDisplay[ i ] = ShouldDisplayTriangle( constrainer.Triangles[ i ] );
 
-		List<(Triangle2<float>, bool filled, bool flipped)> result = [];
+		List<GlyphTriangle> result = [];
 
 		for (int i = 0; i < triangleDisplay.Length; i++)
 			if (triangleDisplay[ i ])
-				result.Add( (CreateTriangle( constrainer.Triangles[ i ].A, constrainer.Triangles[ i ].B, constrainer.Triangles[ i ].C, scale, out _ ), true, false) );
+				result.Add( new( CreateTriangle( constrainer.Triangles[ i ].A, constrainer.Triangles[ i ].B, constrainer.Triangles[ i ].C, out _ ), true, false ) );
 
-		AddOffCurveTriangles( result, scale );
+		AddOffCurveTriangles( result );
 
 		return result.ToArray();
 	}
 
-	private Triangle2<float> CreateTriangle( Vector2<int> a, Vector2<int> b, Vector2<int> c, float scale, out bool flipped ) {
+	private Triangle2<float> CreateTriangle( Vector2<int> a, Vector2<int> b, Vector2<int> c, out bool flipped ) {
 		flipped = new Edge2<int>( a, b ).Orientation( c ) > 0;
 		if (flipped)
-			return new( c.CastSaturating<int, float>() * scale, b.CastSaturating<int, float>() * scale, a.CastSaturating<int, float>() * scale );
-		return new( a.CastSaturating<int, float>() * scale, b.CastSaturating<int, float>() * scale, c.CastSaturating<int, float>() * scale );
+			return new( c.CastSaturating<int, float>() * Scale, b.CastSaturating<int, float>() * Scale, a.CastSaturating<int, float>() * Scale );
+		return new( a.CastSaturating<int, float>() * Scale, b.CastSaturating<int, float>() * Scale, c.CastSaturating<int, float>() * Scale );
 	}
 
 
-	private void AddOffCurveTriangles( List<(Triangle2<float>, bool filled, bool flipped)> result, float scale ) {
+	private void AddOffCurveTriangles( List<GlyphTriangle> result ) {
 		foreach (Contour contour in this._contours)
 			for (int i = 0; i < contour.OffCurvePoints.Count; i++) {
 				//Off curve points must be after an on curve point and followed by an on curve point.
 				ContourPoint offCurvePoint = contour.OffCurvePoints[ i ];
 				ContourPoint onCurvePointBefore = contour.Points[ offCurvePoint.PointIndexInContour == 0 ? contour.Points.Count - 1 : offCurvePoint.PointIndexInContour - 1 ];
 				ContourPoint onCurvePointAfter = contour.Points[ offCurvePoint.PointIndexInContour == contour.Points.Count - 1 ? 0 : offCurvePoint.PointIndexInContour + 1 ];
-				Triangle2<float> triangle = CreateTriangle( onCurvePointBefore.Coordinate, offCurvePoint.Coordinate, onCurvePointAfter.Coordinate, scale, out bool flipped );
-				result.Add( (triangle, false, flipped) );
+				Triangle2<float> triangle = CreateTriangle( onCurvePointBefore.Coordinate, offCurvePoint.Coordinate, onCurvePointAfter.Coordinate, out bool flipped );
+				result.Add( new( triangle, false, flipped ) );
 			}
 	}
 

@@ -20,7 +20,7 @@ public sealed class SceneInstanceCollection<TVertexData, TInstanceData>( Scene s
 	public ShaderBundleBase ShaderBundle { get; } = shaderBundle;
 	public uint RenderLayer { get; } = renderLayer;
 
-	private readonly List<InstanceBase> _sceneInstances = [];
+	private readonly DisposableList _disposableList = new();
 	private readonly Scene _scene = scene;
 
 	public T Create<T>() where T : InstanceBase, new() {
@@ -28,25 +28,18 @@ public sealed class SceneInstanceCollection<TVertexData, TInstanceData>( Scene s
 		T instance = _scene.CreateInstance<T>( RenderLayer );
 		instance.SetVertexArrayObject( this.VertexArrayObject );
 		instance.SetShaderBundle( this.ShaderBundle );
-		this._sceneInstances.Add( instance );
-		instance.OnDisposed += OnInstanceDisposed;
+		_disposableList.Add( instance );
 		return instance;
 	}
 
-	private void OnInstanceDisposed( IListenableDisposable disposable ) {
-		if (disposable is InstanceBase sceneInstance)
-			this._sceneInstances.Remove( sceneInstance );
-	}
 
 	public void Clear() {
 		ObjectDisposedException.ThrowIf( this.Disposed, this );
-		foreach (InstanceBase sceneInstance in this._sceneInstances)
-			sceneInstance.Dispose();
-		this._sceneInstances.Clear();
+		_disposableList.Clear(true);
 	}
 
 	protected override bool InternalDispose() {
-		Clear();
+		_disposableList.Dispose();
 		return true;
 	}
 

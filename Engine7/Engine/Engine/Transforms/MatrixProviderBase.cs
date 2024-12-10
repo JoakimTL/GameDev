@@ -8,7 +8,7 @@ public abstract class MatrixProviderBase<TScalar> : Identifiable, IMatrixProvide
 	private Matrix4x4<TScalar> _matrix;
 	private Matrix4x4<TScalar> _inverseMatrix;
 	private bool _changed;
-	public event Action<IMatrixProvider<TScalar>>? MatrixChanged;
+	public event Action<IMatrixProvider<TScalar>>? OnMatrixChanged;
 
 	protected MatrixProviderBase() {
 		this._matrix = Matrix4x4<TScalar>.MultiplicativeIdentity;
@@ -17,7 +17,7 @@ public abstract class MatrixProviderBase<TScalar> : Identifiable, IMatrixProvide
 
 	protected void SetChanged() {
 		this._changed = true;
-		MatrixChanged?.Invoke( this );
+		OnMatrixChanged?.Invoke( this );
 	}
 
 	protected abstract void MatrixAccessed();

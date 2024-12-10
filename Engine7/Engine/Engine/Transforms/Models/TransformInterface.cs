@@ -12,7 +12,7 @@ public class TransformInterface<TScalar, TTranslation, TRotation, TScale> : IMat
 
 	public TransformInterface( TransformBase<TScalar, TTranslation, TRotation, TScale> transform ) {
 		this._transform = transform ?? throw new ArgumentNullException( nameof( transform ) );
-		MatrixChanged += ParentChanged;
+		OnMatrixChanged += ParentChanged;
 	}
 
 	public TransformReadonly<TScalar, TTranslation, TRotation, TScale>? Parent => this._transform.Parent?.Readonly;
@@ -36,7 +36,7 @@ public class TransformInterface<TScalar, TTranslation, TRotation, TScale> : IMat
 
 	public Matrix4x4<TScalar> InverseMatrix => this._transform.InverseMatrix;
 
-	public event Action<IMatrixProvider<TScalar>> MatrixChanged;
+	public event Action<IMatrixProvider<TScalar>> OnMatrixChanged;
 
-	private void ParentChanged( IMatrixProvider<TScalar> obj ) => MatrixChanged?.Invoke( obj );
+	private void ParentChanged( IMatrixProvider<TScalar> obj ) => OnMatrixChanged?.Invoke( obj );
 }

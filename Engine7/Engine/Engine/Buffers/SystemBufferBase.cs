@@ -1,4 +1,5 @@
 ﻿using Engine.Logging;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -14,6 +15,7 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 	public event BufferDataChanged<TScalar>? OnBufferWrittenTo;
 
 	protected bool ReadRange<T>( Span<T> destination, TScalar sourceOffsetBytes ) where T : unmanaged {
+		ObjectDisposedException.ThrowIf( Disposed, this );
 		if (destination.Length == 0)
 			return true;
 		TScalar bytesToCopy = TScalar.CreateSaturating( (ulong) destination.Length * (uint) sizeof( T ) );
@@ -25,6 +27,7 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 	}
 
 	protected bool ReadRange( void* dstPtr, TScalar dstLengthBytes, TScalar sourceOffsetBytes ) {
+		ObjectDisposedException.ThrowIf( Disposed, this );
 		if (dstLengthBytes == TScalar.Zero)
 			return true;
 		if (sourceOffsetBytes + dstLengthBytes > this.LengthBytes)
@@ -34,6 +37,7 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 	}
 
 	protected bool WriteRange<T>( Span<T> source, TScalar destinationOffsetBytes ) where T : unmanaged {
+		ObjectDisposedException.ThrowIf( Disposed, this );
 		if (source.Length == 0)
 			return true;
 		TScalar bytesToCopy = TScalar.CreateSaturating( (ulong) source.Length * (uint) sizeof( T ) );
@@ -46,6 +50,7 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 	}
 
 	protected bool WriteRange( void* srcPtr, TScalar srcLengthBytes, TScalar destinationOffsetBytes ) {
+		ObjectDisposedException.ThrowIf( Disposed, this );
 		if (srcLengthBytes == TScalar.Zero)
 			return true;
 		if (destinationOffsetBytes + srcLengthBytes > this.LengthBytes)
@@ -60,21 +65,24 @@ public abstract unsafe class SystemBufferBase<TScalar>( TScalar initialLengthByt
 		OnBufferWrittenTo?.Invoke( dstOffsetBytes, lengthBytes );
 	}
 
-	protected bool CopyTo<TRecepientScalar>( IWritableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar dstOffsetBytes, TRecepientScalar bytesToCopy )
+	protected bool CopyTo<TRecepientScalar>( IWritableBuffer<TRecepientScalar> recipient, TScalar srcOffsetBytes, TRecepientScalar dstOffsetBytes, TRecepientScalar bytesToCopy )
 		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar> {
+		ObjectDisposedException.ThrowIf( Disposed, this );
 		if (srcOffsetBytes + TScalar.CreateSaturating( bytesToCopy ) > this.LengthBytes)
 			return false;
-		return recepient.WriteRange( this._dataPointer + nint.CreateSaturating( srcOffsetBytes ), bytesToCopy, dstOffsetBytes );
+		return recipient.WriteRange( this._dataPointer + nint.CreateSaturating( srcOffsetBytes ), bytesToCopy, dstOffsetBytes );
 	}
 
-	protected bool Overwrite<TRecepientScalar>( IWriteResizableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar bytesToCopy )
+	protected bool Overwrite<TRecepientScalar>( IWriteResizableBuffer<TRecepientScalar> recipient, TScalar srcOffsetBytes, TRecepientScalar bytesToCopy )
 		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar> {
+		ObjectDisposedException.ThrowIf( Disposed, this );
 		if (srcOffsetBytes + TScalar.CreateSaturating( bytesToCopy ) > this.LengthBytes)
 			return false;
-		return recepient.ResizeWrite( (nint) (this._dataPointer + nint.CreateSaturating( srcOffsetBytes )), bytesToCopy );
+		return recipient.ResizeWrite( (nint) (this._dataPointer + nint.CreateSaturating( srcOffsetBytes )), bytesToCopy );
 	}
 
 	protected void Extend( TScalar numBytes ) {
+		ObjectDisposedException.ThrowIf( Disposed, this );
 		if (numBytes == TScalar.Zero)
 			return;
 		this.LengthBytes += numBytes;

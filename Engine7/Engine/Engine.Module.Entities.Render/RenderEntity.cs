@@ -3,22 +3,24 @@ using Engine.Module.Entities.Container;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Module.Entities.Render;
 
 public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 	private readonly Entity _entity;
-	private readonly List<IDisposable> _disposables;
+	private readonly DisposableList _disposables;
 	private readonly Dictionary<Type, RenderBehaviourBase> _behaviours;
 
+	public event Action<RenderBehaviourBase>? OnBehaviourRemoved;
 	public RenderEntityServiceAccess ServiceAccess { get; }
 
 	internal RenderEntity( Entity entity, RenderEntityServiceAccess serviceAccess ) {
 		this._entity = entity;
 		this.ServiceAccess = serviceAccess;
 		this._behaviours = [];
-		this._disposables = [];
+		this._disposables = new();
 	}
 
 	public T RequestSceneInstance<T>( string sceneName, uint layer ) where T : SceneInstanceBase, new() {
@@ -52,32 +54,46 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 
 	public void SendMessageToEntity( object message ) => this._entity.AddMessage( message );
 
-	public bool AddBehaviour( RenderBehaviourBase behaviour ) {
-		if (!this._behaviours.TryAdd( behaviour.GetType(), behaviour ))
-			return this.LogWarningThenReturn( $"Behaviour of type {behaviour.GetType().Name} already exists.", false );
+	public bool AddBehaviour( RenderBehaviourBase renderBehaviour ) {
+		if (!this._behaviours.TryAdd( renderBehaviour.GetType(), renderBehaviour ))
+			return this.LogWarningThenReturn( $"Behaviour of type {renderBehaviour.GetType().Name} already exists.", false );
+		_disposables.Add( renderBehaviour );
+		renderBehaviour.OnDisposed += OnRenderBehaviourDisposed;
 		return true;
 	}
 
 	public void RemoveBehaviour( Type behaviourType ) {
-		if (!this._behaviours.Remove( behaviourType ))
+		if (!this._behaviours.Remove( behaviourType, out RenderBehaviourBase? renderBehaviour )) {
 			this.LogWarning( $"Couldn't find behaviour of type {behaviourType.Name}." );
+			return;
+		}
+		renderBehaviour.OnDisposed -= OnRenderBehaviourDisposed;
+		OnBehaviourRemoved?.Invoke( renderBehaviour );
+		renderBehaviour.Dispose();
 	}
 
-	public bool TryGetBehaviour<T>( [NotNullWhen( true )] out T? behaviour ) where T : RenderBehaviourBase
-		=> (behaviour = null) is null && this._behaviours.TryGetValue( typeof( T ), out RenderBehaviourBase? baseBehaviour ) && (behaviour = baseBehaviour as T) is not null;
+	private void OnRenderBehaviourDisposed( IListenableDisposable disposable ) {
+		if (!this._behaviours.Remove( disposable.GetType(), out RenderBehaviourBase? renderBehaviour )) {
+			this.LogWarning( $"Couldn't find behaviour of type {disposable.GetType().Name}." );
+			return;
+		}
+		renderBehaviour.OnDisposed -= OnRenderBehaviourDisposed;
+		OnBehaviourRemoved?.Invoke( renderBehaviour );
+	}
+
+	public bool TryGetBehaviour<T>( [NotNullWhen( true )] out T? renderBehaviour ) where T : RenderBehaviourBase
+		=> (renderBehaviour = null) is null && this._behaviours.TryGetValue( typeof( T ), out RenderBehaviourBase? baseBehaviour ) && (renderBehaviour = baseBehaviour as T) is not null;
 
 	public void Update( double time, double deltaTime ) {
-		foreach (RenderBehaviourBase behaviour in this._behaviours.Values)
-			behaviour.Update( time, deltaTime );
+		foreach (RenderBehaviourBase renderBehaviour in this._behaviours.Values)
+			renderBehaviour.Update( time, deltaTime );
 	}
 
 	protected override bool InternalDispose() {
-		foreach (RenderBehaviourBase behaviour in this._behaviours.Values)
-			behaviour.Dispose();
+		foreach (RenderBehaviourBase renderBehaviour in this._behaviours.Values)
+			renderBehaviour.Dispose();
 		this._behaviours.Clear();
-		foreach (IDisposable disposable in this._disposables)
-			disposable.Dispose();
-		this._disposables.Clear();
+		_disposables.Dispose();
 		return true;
 	}
 }

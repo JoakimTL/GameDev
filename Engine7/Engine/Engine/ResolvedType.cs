@@ -5,6 +5,7 @@ namespace Engine;
 public sealed class ResolvedType {
 
 	public Type Type { get; }
+	public string? Identity { get; }
 	public bool HasParameterlessConstructor { get; }
 	public int ConstructorCount { get; }
 	public IReadOnlyList<Attribute> Attributes { get; }
@@ -18,6 +19,7 @@ public sealed class ResolvedType {
 		this.ConstructorCount = type.GetConstructors().Length;
 		this.Attributes = type.GetCustomAttributes( true ).OfType<Attribute>().ToArray();
 		this._instanceFactory = new TypeInstanceFactory( type );
+		this.Identity = Attributes.OfType<IdentityAttribute>().FirstOrDefault()?.Identity;
 	}
 
 	public IReadOnlyList<T> GetAttributes<T>() {

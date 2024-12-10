@@ -13,7 +13,7 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	public ShaderBundleBase? ShaderBundle { get; private set; }
 	public ulong? BindIndex { get; private set; }
 
-	protected internal SubBuffer<BufferSegment>? InstanceDataSegment { get; private set; }
+	protected internal BufferSlice<BufferSegment>? InstanceDataSegment { get; private set; }
 	public IMesh? Mesh { get; private set; }
 	/// <summary>
 	/// The layers control when a sceneobject is rendered. Layers are rendered lowest to highest. Beware of utilizing too many layers for no reason, each layer causes a DrawCall per unique sceneobject.
@@ -37,7 +37,7 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	/// <summary>
 	/// Called when the instance data segment changes.
 	/// </summary>
-	public event SceneInstancePropertyChangeHandler<SubBuffer<BufferSegment>>? OnInstanceDataSegmentChanged;
+	public event SceneInstancePropertyChangeHandler<BufferSlice<BufferSegment>>? OnInstanceDataSegmentChanged;
 	/// <summary>
 	/// Called when the instance layer changes.
 	/// </summary>
@@ -82,10 +82,10 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 		OnLayerChanged?.Invoke( this, oldLayer );
 	}
 
-	internal void AssignDataSegment( SubBuffer<BufferSegment>? segment ) {
+	internal void AssignDataSegment( BufferSlice<BufferSegment>? segment ) {
 		if (this.InstanceDataSegment == segment)
 			return;
-		SubBuffer<BufferSegment>? oldSegment = this.InstanceDataSegment;
+		BufferSlice<BufferSegment>? oldSegment = this.InstanceDataSegment;
 		this.InstanceDataSegment = segment;
 		UpdateValidity();
 		OnInstanceDataSegmentChanged?.Invoke( this, oldSegment );
@@ -105,7 +105,6 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	private void UpdateValidity() => this.Valid = this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is not null;
 
 	protected override bool InternalDispose() {
-		this.InstanceDataSegment?.Dispose();
 		return true;
 	}
 }

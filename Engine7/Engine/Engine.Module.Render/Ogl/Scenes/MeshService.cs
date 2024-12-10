@@ -35,6 +35,23 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 		return mesh;
 	}
 
+
+	public VertexMesh<TVertex> CreateMesh<TVertex>( TVertex[] vertices, uint[] elements ) where TVertex : unmanaged {
+		if (!bufferService.Get( typeof( TVertex ) ).TryAllocate( (uint) vertices.Length * (uint) Marshal.SizeOf<TVertex>(), out BufferSegment? vertexSegment ))
+			throw new InvalidOperationException( "Failed to allocate vertex buffer" );
+		if (!bufferService.ElementBuffer.TryAllocate( (uint) elements.Length * IMesh.ElementSizeBytes, out BufferSegment? elementSegment ))
+			throw new InvalidOperationException( "Failed to allocate element buffer" );
+		VertexMesh<TVertex> mesh = new( vertexSegment, elementSegment );
+		unsafe {
+			fixed (TVertex* srcPtr = vertices)
+				mesh.VertexBufferSegment.WriteRange( srcPtr, (ulong) (vertices.Length * sizeof( TVertex )), 0 );
+			fixed (uint* srcPtr = elements)
+				mesh.ElementBufferSegment.WriteRange( srcPtr, (ulong) (elements.Length * sizeof( uint )), 0 );
+		}
+		this._meshes.Add( mesh );
+		return mesh;
+	}
+
 	protected override bool InternalDispose() {
 		foreach (IMesh mesh in this._meshes)
 			mesh.Dispose();

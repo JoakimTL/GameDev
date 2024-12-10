@@ -1,4 +1,5 @@
 ﻿using Engine.Buffers;
+using Engine.Logging;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Services;
@@ -42,7 +43,8 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 				continue;
 			IMesh mesh = kvp.Key.Item1;
 			foreach (SceneObjectSceneInstanceCollection collection in kvp.Value)
-				commandList.Add( new( mesh.ElementCount, collection.InstanceCount, mesh.ElementOffset, mesh.VertexOffset, collection.BaseInstance ) );
+				if (collection.InstanceCount > 0) 
+					commandList.Add( new( mesh.ElementCount, collection.InstanceCount, mesh.ElementOffset, mesh.VertexOffset, collection.BaseInstance ) );
 		}
 	}
 
@@ -148,7 +150,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	private void OnInstanceRemovedFromCollection( SceneInstanceBase sceneInstance ) {
 		if (sceneInstance.Disposed || sceneInstance.BindIndex != this.BindIndex || sceneInstance.RenderLayer != this.RenderLayer) {
 			//Make sure the container is not empty, if it is we should dispose it.
-			PruneEmptyCollections();
+			//PruneEmptyCollections();
 			OnInstanceRemoved?.Invoke( sceneInstance );
 			return;
 		}

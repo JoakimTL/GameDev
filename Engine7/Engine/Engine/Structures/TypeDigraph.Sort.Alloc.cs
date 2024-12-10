@@ -8,10 +8,11 @@ public sealed partial class TypeDigraph {
 		/// Allocates memory, but is faster when the number of types is large.
 		/// </summary>
 		public static class Alloc {
-			private class Node( ResolvedType resolvedType ) {
-				public ResolvedType ResolvedType = resolvedType;
-				public HashSet<Type> Children = [];
-				public HashSet<Type> Parents = [];
+			private sealed class Node( ResolvedType resolvedType ) {
+				public readonly ResolvedType ResolvedType = resolvedType;
+				public readonly HashSet<Type> Children = [];
+				public readonly HashSet<Type> Parents = [];
+				public bool PlaceLast;
 
 				public NodeState State;
 				public enum NodeState { Unvisited, Visiting, Processed }
@@ -23,7 +24,7 @@ public sealed partial class TypeDigraph {
 				Dictionary<Type, Node> nodes = unorderedTypes.Select( p => new Node( p ) ).ToDictionary( p => p.ResolvedType.Type );
 
 				foreach (Node? node in nodes.Values) {
-					IEnumerable<IProcessDirection> relevantAttributes = node.ResolvedType.GetAttributes<IProcessDirection>().Where( p => p.ProcessType == processType );
+					List<IProcessDirection> relevantAttributes = node.ResolvedType.GetAttributes<IProcessDirection>().Where( p => p.ProcessType == processType ).ToList();
 					foreach (IProcessBefore beforeAttribute in relevantAttributes.OfType<IProcessBefore>()) {
 						if (!nodes.TryGetValue( beforeAttribute.BeforeType, out Node? beforeNode ))
 							continue;
@@ -36,6 +37,8 @@ public sealed partial class TypeDigraph {
 						node.Parents.Add( afterNode.ResolvedType.Type );
 						afterNode.Children.Add( node.ResolvedType.Type );
 					}
+					if (relevantAttributes.OfType<IProcessLast>().Any())
+						node.PlaceLast = true;
 				}
 
 				foreach (Node? node in nodes.Values) {
@@ -47,7 +50,27 @@ public sealed partial class TypeDigraph {
 
 				orderedTypes.Clear();
 				HashSet<Type> placedTypes = [];
-				Queue<Node> nodesToBePlaced = new( nodes.Values.Where( p => p.Parents.Count == 0 ) );
+				Queue<Node> nodesToBePlaced = new( nodes.Values.Where( p => p.Parents.Count == 0 && !p.PlaceLast ) );
+
+				while (nodesToBePlaced.TryDequeue( out Node? node )) {
+					if (placedTypes.Contains( node.ResolvedType.Type ))
+						continue;
+
+					if (!node.Parents.All( placedTypes.Contains )) {
+						nodesToBePlaced.Enqueue( node );
+						if (nodesToBePlaced.Count == 1)
+							return;
+						continue;
+					}
+
+					orderedTypes.Add( node.ResolvedType.Type );
+					placedTypes.Add( node.ResolvedType.Type );
+					foreach (Type child in node.Children)
+						nodesToBePlaced.Enqueue( nodes[ child ] );
+				}
+
+				foreach (Node? node in nodes.Values.Where( p => p.PlaceLast ))
+					nodesToBePlaced.Enqueue( node );
 
 				while (nodesToBePlaced.TryDequeue( out Node? node )) {
 					if (placedTypes.Contains( node.ResolvedType.Type ))

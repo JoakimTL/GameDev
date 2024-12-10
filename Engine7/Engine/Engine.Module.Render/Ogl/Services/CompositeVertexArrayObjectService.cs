@@ -32,9 +32,20 @@ public sealed class CompositeVertexArrayObjectService( OglBufferService vertexBu
 	private static unsafe string? GetIdentifyingString( Span<Type> input ) {
 		if (input.Length == 0)
 			return null;
-		Guid* srcPtr = stackalloc Guid[ input.Length ];
-		for (int i = 0; i < input.Length; i++)
-			srcPtr[ i ] = input[ i ].GUID;
-		return new string( new Span<char>( srcPtr, input.Length * sizeof( Guid ) ) );
+		int identificationStringLength = 0;
+		for (int i = 0; i < input.Length; i++) {
+			ResolvedType resolvedType = TypeManager.ResolveType( input[ i ] );
+			if (resolvedType.Identity is null)
+				throw new InvalidOperationException( $"Type {input[ i ].Name} has no identity!" );
+			identificationStringLength += resolvedType.Identity.Length;
+		}
+		Span<char> identification = stackalloc char[ identificationStringLength ];
+		int index = 0;
+		for (int i = 0; i < input.Length; i++) {
+			ResolvedType resolvedType = TypeManager.ResolveType( input[ i ] );
+			resolvedType.Identity!.CopyTo( identification[ index.. ] );
+			index += resolvedType.Identity.Length;
+		}
+		return new string( identification );
 	}
 }

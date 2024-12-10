@@ -62,10 +62,10 @@ public interface IWritableBuffer<TScalar> : IBuffer<TScalar> where TScalar : unm
 }
 
 public interface ICopyableBuffer<TScalar> {
-	bool CopyTo<TRecepientScalar>( IWritableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar dstOffsetBytes, TRecepientScalar bytesToCopy ) 
-		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar>;
-	bool Overwrite<TRecepientScalar>( IWriteResizableBuffer<TRecepientScalar> recepient, TScalar srcOffsetBytes, TRecepientScalar bytesToCopy )
-		where TRecepientScalar : unmanaged, IBinaryInteger<TRecepientScalar>, IUnsignedNumber<TRecepientScalar>;
+	bool CopyTo<TRecipientScalar>( IWritableBuffer<TRecipientScalar> recipient, TScalar srcOffsetBytes, TRecipientScalar dstOffsetBytes, TRecipientScalar bytesToCopy ) 
+		where TRecipientScalar : unmanaged, IBinaryInteger<TRecipientScalar>, IUnsignedNumber<TRecipientScalar>;
+	bool Overwrite<TRecipientScalar>( IWriteResizableBuffer<TRecipientScalar> recipient, TScalar srcOffsetBytes, TRecipientScalar bytesToCopy )
+		where TRecipientScalar : unmanaged, IBinaryInteger<TRecipientScalar>, IUnsignedNumber<TRecipientScalar>;
 }
 
 public interface IWriteResizableBuffer<TScalar> where TScalar : unmanaged, IBinaryInteger<TScalar>, IUnsignedNumber<TScalar> {

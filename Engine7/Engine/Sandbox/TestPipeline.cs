@@ -1,13 +1,16 @@
 ﻿using Engine;
 using Engine.Algorithms.Triangulation;
+using Engine.Logging;
 using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
 using Engine.Module.Render.Domain;
+using Engine.Module.Render.Entities.Components;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Render;
+using Engine.Standard.Render.Meshing;
 using Engine.Standard.Render.Text;
 using Engine.Standard.Render.Text.Fonts;
 using Engine.Transforms.Camera;
@@ -43,7 +46,7 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
 		this._view = new() {
-			Translation = new( 1, 0, 3 )
+			Translation = new( 1, 0, 5 )
 		};
 		//_view.Rotation = Rotor3.FromAxisAngle(Vector3<float>.UnitY, 0);
 		this._projection = new( this._windowService.Window, 90 );
@@ -55,7 +58,7 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		//_view.Translation;
 		if (this._camera is null || this._view is null || this._projection is null)
 			return;
-		this._view.Translation = new( MathF.Sin( (float) time ) * 3, 0, MathF.Cos( (float) time ) * 3 + 5 );
+		//this._view.Translation = new( MathF.Sin( (float) time ) * 3, 0, MathF.Cos( (float) time ) * 3 + 5 );
 		this._testUniforms.Buffer.Write<uint, SceneCameraBlock>( 0, new SceneCameraBlock( this._camera.Matrix, this._view.Rotation.Up, -this._view.Rotation.Left ) );
 
 	}
@@ -73,7 +76,10 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 public sealed class RenderArchetype : ArchetypeBase {
 	public RenderComponent RenderComponent { get; set; } = null!;
 	public Transform2Component Transform2Component { get; set; } = null!;
+	public TestRenderComponent TestRenderComponent { get; set; } = null!;
 }
+
+public sealed class TestRenderComponent : ComponentBase;
 
 public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<RenderArchetype> {
 
@@ -86,18 +92,25 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 		base.OnRenderEntitySet();
 		this._sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
 		this._sceneInstance.SetShaderBundle( this.RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>() );
-		this._sceneInstance.SetVertexArrayObject( this.RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2SceneData>() );
-		this._sceneInstance.SetMesh( this.RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
-			[ new Vertex2( (-.5f, -.5f), (255, 255, 0, 255) ),
-			new Vertex2( (-.5f, .5f), (255, 0, 255, 255) ),
-			new Vertex2( (.5f, .5f), (0, 255, 255, 255) ),
-			new Vertex2( (.5f, -.5f), (255, 0, 0, 255) ) ],
-			[ 2, 1, 0, 0, 3, 2 ] ) );
+		this._sceneInstance.SetVertexArrayObject( this.RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>() );
+		TetrahedraSphereService tetrahedraSphereService = new();
+		tetrahedraSphereService.GenerateTetrahedraVectors( 3, out var vectors, out var indices );
+		var vertices = new List<Vertex3>();
+		for (int i = 0; i < vectors.Count; i++) {
+			Vertex3 v = new( vectors[ i ].CastSaturating<double, float>(), 0, 0, 255 );
+			vertices.Add( v );
+		}
+		this._sceneInstance.SetMesh( this.RenderEntity.ServiceAccess.MeshProvider.CreateMesh( vertices.ToArray(), indices.ToArray() ) );
+		//this._sceneInstance.SetMesh( this.RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
+		//	[ new Vertex2( (-.5f, -.5f), (255, 255, 0, 255) ),
+		//	new Vertex2( (-.5f, .5f), (255, 0, 255, 255) ),
+		//	new Vertex2( (.5f, .5f), (0, 255, 255, 255) ),
+		//	new Vertex2( (.5f, -.5f), (255, 0, 0, 255) ) ],
+		//	[ 2, 1, 0, 0, 3, 2 ] ) );
 	}
 
 	public override void Update( double time, double deltaTime ) {
 		base.Update( time, deltaTime );
-		this._sceneInstance?.Write( new Entity2SceneData { ModelMatrix = this._transformMatrix } );
 	}
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
@@ -110,6 +123,7 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 
 	protected override void Synchronize() {
 		this._transformMatrix = this._preparedTransformMatrix;
+		this._sceneInstance?.Write( new Entity2SceneData( this._transformMatrix ) );
 	}
 
 	protected override bool InternalDispose() {

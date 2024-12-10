@@ -42,7 +42,7 @@ public abstract class TransformBase<TScalar, TTranslation, TRotation, TScale> : 
 		if (ReferenceEquals( this._parent, parent ) && adjustForFrameOfReference == this._adjustedForFrameOfReference)
 			return;
 		if (this._parent is not null)
-			this._parent.MatrixChanged -= ParentMatrixChanged;
+			this._parent.OnMatrixChanged -= ParentMatrixChanged;
 		if (this._adjustedForFrameOfReference)
 			RevertAdjustment( this._parent );
 		this._parent = parent;
@@ -50,7 +50,7 @@ public abstract class TransformBase<TScalar, TTranslation, TRotation, TScale> : 
 			Adjust( this._parent );
 		this._adjustedForFrameOfReference = adjustForFrameOfReference && this._parent is not null;
 		if (this._parent is not null)
-			this._parent.MatrixChanged += ParentMatrixChanged;
+			this._parent.OnMatrixChanged += ParentMatrixChanged;
 		SetChanged();
 	}
 

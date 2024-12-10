@@ -8,6 +8,7 @@ namespace Engine.Module.Render.Ogl.Services;
 /// Handles system buffers which will be synchronized with OpenGL buffers. If you need to change anything in a buffer, use this sevices' buffers.
 /// </summary>
 [Do<IInitializable>.After<OglBufferService>]
+[Do<IUpdateable>.Last]
 public sealed class BufferService : DisposableIdentifiable, IInitializable, IUpdateable {
 	private readonly OglBufferService _oglBufferService;
 
@@ -22,7 +23,7 @@ public sealed class BufferService : DisposableIdentifiable, IInitializable, IUpd
 		this._oglBufferService = oglBufferService;
 		this._buffers = [];
 		this._synchronizers = [];
-		this.ElementBuffer = new( 131_072, BufferAutoResizeMode.DOUBLE );
+		this.ElementBuffer = new( 131_072, BufferAutoResizeMode.DOUBLE ) { Nickname = "ElementBuffer" };
 	}
 
 	public void Initialize() {

@@ -24,6 +24,10 @@ public sealed class Contour( ushort startIndex, ContourPoint[] points ) : Identi
 		if (!myBounds.Intersects( otherBounds ))
 			return;
 		Vector2<int>[] points = Points.Select( p => p.Coordinate ).Distinct().ToArray();
+		Vector2<int> p2 = points[ ^1 ];
+		for (int i = 0; i < points.Length; i++) {
+
+		}
 		for (int i = 0; i < other.Points.Count; i++) {
 			if (other.Points[ i ].Coordinate.PointInPolygon( points, (1, 0) )) {
 				other._containedWithin.Add( this );

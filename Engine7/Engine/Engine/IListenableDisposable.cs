@@ -1,6 +1,7 @@
 ﻿namespace Engine;
 
 public interface IListenableDisposable : IDisposable {
+	bool Disposed { get; }
 	event DisposalHandler? OnDisposed;
 }
 

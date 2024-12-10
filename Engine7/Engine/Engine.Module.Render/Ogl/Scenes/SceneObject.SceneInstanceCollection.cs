@@ -9,14 +9,14 @@ namespace Engine.Module.Render.Ogl.Scenes;
 /// <typeparam name="TInstanceData"></typeparam>
 public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable {
 	private readonly HashSet<SceneInstanceBase> _instances = [];
-	private readonly SubBufferManager<BufferSegment> _subBufferManager;
+	private readonly BufferSlicer<BufferSegment> _subBufferManager;
 	private readonly BufferSegment _segment;
 	private readonly uint _maxInstanceCount;
 	private readonly uint _sizePerInstanceBytes;
 	public event Action? OnChanged;
 
 	public SceneObjectSceneInstanceCollection( BufferSegment segment, uint sizePerInstanceBytes ) {
-		this._subBufferManager = new( segment );
+		this._subBufferManager = new( segment, sizePerInstanceBytes );
 		this._segment = segment;
 		this._sizePerInstanceBytes = sizePerInstanceBytes;
 		this._maxInstanceCount = (uint) segment.LengthBytes / sizePerInstanceBytes;
@@ -24,6 +24,7 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 
 	public uint BaseInstance => (uint) (this._segment.OffsetBytes / this._sizePerInstanceBytes);
 	public uint InstanceCount => (uint) this._instances.Count;
+	public uint InstanceSizeBytes => this._sizePerInstanceBytes;
 
 	public event Action<SceneInstanceBase>? OnInstanceRemoved;
 
@@ -36,16 +37,16 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 			return false;
 		if (!this._instances.Add( sceneInstance ))
 			return false;
-		if (!this._subBufferManager.TryAllocate( this._sizePerInstanceBytes, out SubBuffer<BufferSegment>? subBuffer )) {
+		if (!this._subBufferManager.TryAllocate( this._sizePerInstanceBytes, out BufferSlice<BufferSegment>? slice )) {
 			this._instances.Remove( sceneInstance );
-			this.LogWarning( "Failed to allocate a subbuffer." );
+			this.LogWarning( "Failed to allocate a slice." );
 			return false;
 		}
 		sceneInstance.OnBindIndexChanged += OnBindIndexChanged;
 		sceneInstance.OnLayerChanged += OnLayerChanged;
 		sceneInstance.OnMeshChanged += OnMeshChanged;
 		sceneInstance.OnDisposed += OnInstanceDisposed;
-		sceneInstance.AssignDataSegment( subBuffer );
+		sceneInstance.AssignDataSegment( slice );
 		OnChanged?.Invoke();
 		return true;
 	}
@@ -55,9 +56,7 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 			this.LogWarning( "Instance was not found in the collection." );
 			return false;
 		}
-		SubBuffer<BufferSegment>? dataSegment = sceneInstance.InstanceDataSegment;
-		if (dataSegment is not null)
-			this._subBufferManager.Remove( dataSegment );
+		sceneInstance.InstanceDataSegment?.Free();
 		sceneInstance.AssignDataSegment( null );
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
