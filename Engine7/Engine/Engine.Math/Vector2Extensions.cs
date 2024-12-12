@@ -3,6 +3,15 @@
 namespace Engine;
 
 public static class Vector2Extensions {
+	public static Vector3<TScalar> ToCartesianFromPolar<TScalar>( in this Vector2<TScalar> polar, TScalar radius )
+		where TScalar :
+			unmanaged, IFloatingPointIeee754<TScalar> {
+		TScalar sinY = TScalar.Sin( polar.Y );
+		TScalar x = radius * sinY * TScalar.Cos( polar.X );
+		TScalar y = radius * sinY * TScalar.Sin( polar.X );
+		TScalar z = radius * TScalar.Cos( polar.Y );
+		return new( x, y, z );
+	}
 
 	public static uint DiscardDuplicates<TScalar>( this ReadOnlySpan<Vector2<TScalar>> vertices, in Span<uint> remaining )
 		where TScalar :

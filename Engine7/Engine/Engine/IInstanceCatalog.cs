@@ -21,4 +21,9 @@ public interface IInstanceCatalog {
 	/// <typeparam name="T"></typeparam>
 	/// <returns>True if the list didn't contain the type.</returns>
 	bool Host<T>();
+	/// <summary>
+	/// Adds the type to a list of services to be automatically initialized when the <see cref="IInstanceProvider"/> is instantiated.
+	/// </summary>
+	/// <returns>True if the list didn't contain the type.</returns>
+	bool Host( Type type );
 }

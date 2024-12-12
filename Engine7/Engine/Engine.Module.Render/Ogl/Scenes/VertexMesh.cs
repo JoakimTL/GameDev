@@ -3,25 +3,27 @@ using System.Runtime.InteropServices;
 
 namespace Engine.Module.Render.Ogl.Scenes;
 
-public class VertexMesh<TVertex> : DisposableIdentifiable, IMesh where TVertex : unmanaged {
+public class ReadOnlyVertexMesh<TVertex> : DisposableIdentifiable, IMesh where TVertex : unmanaged {
 
-	public BufferSegment VertexBufferSegment { get; }
-	public BufferSegment ElementBufferSegment { get; }
+	protected readonly BufferSegment _vertexBufferSegment;
+	protected readonly BufferSegment _elementBufferSegment;
 
 	public Type VertexType { get; }
 	public uint ElementCount { get; }
 	public uint ElementOffset { get; }
+	public uint VertexTypeSizeBytes { get; }
 	public uint VertexOffset { get; }
 
 	public event Action? OnChanged;
 
-	internal VertexMesh( BufferSegment vertexBufferSegment, BufferSegment elementBufferSegment ) {
-		this.VertexBufferSegment = vertexBufferSegment;
-		this.ElementBufferSegment = elementBufferSegment;
+	internal ReadOnlyVertexMesh( BufferSegment vertexBufferSegment, BufferSegment elementBufferSegment ) {
+		this._vertexBufferSegment = vertexBufferSegment;
+		this._elementBufferSegment = elementBufferSegment;
 		this.VertexType = typeof( TVertex );
 		this.ElementCount = (uint) elementBufferSegment.LengthBytes / IMesh.ElementSizeBytes;
 		this.ElementOffset = (uint) elementBufferSegment.OffsetBytes / IMesh.ElementSizeBytes;
-		this.VertexOffset = (uint) vertexBufferSegment.OffsetBytes / (uint) Marshal.SizeOf<TVertex>();
+		this.VertexTypeSizeBytes = (uint) Marshal.SizeOf<TVertex>();
+		this.VertexOffset = (uint) vertexBufferSegment.OffsetBytes / VertexTypeSizeBytes;
 
 		vertexBufferSegment.OffsetChanged += OnOffsetChanged;
 		elementBufferSegment.OffsetChanged += OnOffsetChanged;
@@ -30,8 +32,16 @@ public class VertexMesh<TVertex> : DisposableIdentifiable, IMesh where TVertex :
 	private void OnOffsetChanged( IBufferSegment<ulong> segment ) => OnChanged?.Invoke();
 
 	protected override bool InternalDispose() {
-		this.VertexBufferSegment.Dispose();
-		this.ElementBufferSegment.Dispose();
+		this._vertexBufferSegment.Dispose();
+		this._elementBufferSegment.Dispose();
 		return true;
 	}
+}
+
+public class VertexMesh<TVertex> : ReadOnlyVertexMesh<TVertex> where TVertex : unmanaged {
+
+	public BufferSegment VertexBufferSegment => _vertexBufferSegment;
+	public BufferSegment ElementBufferSegment => _elementBufferSegment;
+
+	internal VertexMesh( BufferSegment vertexBufferSegment, BufferSegment elementBufferSegment ) : base( vertexBufferSegment, elementBufferSegment ) { }
 }

@@ -19,6 +19,8 @@ public sealed class TextRenderingBehaviour : SynchronizedRenderBehaviourBase<Tex
 		_textLayout = RenderEntity.ServiceAccess.Get<TextLayoutProvider>().CreateLayout( "test", 0 );
 		_textLayout.Text = Archetype.RenderedTextComponent.Text;
 		_textLayout.FontName = Archetype.RenderedTextComponent.FontName;
+		_desyncText = _textLayout.Text;
+		_desyncFontName = _textLayout.FontName;
 		this.RenderEntity.OnBehaviourRemoved += OnBehaviourRemoved;
 	}
 

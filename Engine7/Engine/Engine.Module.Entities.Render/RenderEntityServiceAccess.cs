@@ -3,7 +3,7 @@ using Engine.Module.Render.Input;
 
 namespace Engine.Module.Entities.Render;
 
-public sealed class RenderEntityServiceAccess( IInstanceProvider instanceProvider, SceneInstanceProvider sceneInstanceProvider, CompositeVertexArrayProvider compositeVertexArrayProvider, ShaderBundleProvider shaderBundleProvider, MeshProvider meshProvider, UserInputEventService userInputEventService ) {
+public sealed class RenderEntityServiceAccess( IInstanceProvider instanceProvider, SceneInstanceProvider sceneInstanceProvider, CompositeVertexArrayProvider compositeVertexArrayProvider, ShaderBundleProvider shaderBundleProvider, MeshProvider meshProvider, UserInputEventService userInputEventService ) : IInitializable {
 	private readonly IInstanceProvider _instanceProvider = instanceProvider;
 	private readonly SceneInstanceProvider _sceneInstanceProvider = sceneInstanceProvider;
 	private readonly CompositeVertexArrayProvider _compositeVertexArrayProvider = compositeVertexArrayProvider;
@@ -18,4 +18,9 @@ public sealed class RenderEntityServiceAccess( IInstanceProvider instanceProvide
 	//TODO Make provider or handle differently!
 	public UserInputEventService UserInputEventService => this._userInputEventService;
 	public T Get<T>() where T : IRenderEntityServiceProvider => _instanceProvider.Get<T>();
+
+	public void Initialize() {
+		foreach (Type t in TypeManager.Registry.DerivedTypes.Where( p => p.IsAssignableTo( typeof( IRenderEntityServiceProvider ) ) ))
+			_instanceProvider.Catalog.Host( t );
+	}
 }

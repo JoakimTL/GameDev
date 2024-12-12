@@ -23,7 +23,7 @@ public sealed class BufferService : DisposableIdentifiable, IInitializable, IUpd
 		this._oglBufferService = oglBufferService;
 		this._buffers = [];
 		this._synchronizers = [];
-		this.ElementBuffer = new( 131_072, BufferAutoResizeMode.DOUBLE ) { Nickname = "ElementBuffer" };
+		this.ElementBuffer = new( 65_536u, BufferAutoResizeMode.DOUBLE ) { Nickname = "ElementBuffer" };
 	}
 
 	public void Initialize() {
@@ -39,7 +39,7 @@ public sealed class BufferService : DisposableIdentifiable, IInitializable, IUpd
 	public SegmentedSystemBuffer Get( Type t ) {
 		if (this._buffers.TryGetValue( t, out SegmentedSystemBuffer? buffer ))
 			return buffer;
-		buffer = new SegmentedSystemBuffer( 131_072, BufferAutoResizeMode.DOUBLE ) { Nickname = t.Name };
+		buffer = new SegmentedSystemBuffer( 65_536u, BufferAutoResizeMode.DOUBLE ) { Nickname = t.Name };
 		this._synchronizers[ t ] = new( buffer, (OglDynamicBuffer) this._oglBufferService.Get( t ) );
 		this._buffers[ t ] = buffer;
 		return buffer;

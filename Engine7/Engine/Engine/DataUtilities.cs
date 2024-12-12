@@ -13,7 +13,9 @@ public static class DataUtilities {
 		nuint srcOffsetBytesAsIntPtr = nuint.CreateSaturating( srcOffsetBytes );
 		nuint dstOffsetBytesAsIntPtr = nuint.CreateSaturating( dstOffsetBytes );
 		nuint bytesToCopyAsIntPtr = nuint.CreateSaturating( lengthBytes );
-		Buffer.MemoryCopy( srcPtr + srcOffsetBytesAsIntPtr, dstPtr + dstOffsetBytesAsIntPtr, bytesToCopyAsIntPtr, bytesToCopyAsIntPtr );
+		byte* offsetSrcPtr = srcPtr + srcOffsetBytesAsIntPtr;
+		byte* offsetDstPtr = dstPtr + dstOffsetBytesAsIntPtr;
+		Buffer.MemoryCopy( offsetSrcPtr, offsetDstPtr, bytesToCopyAsIntPtr, bytesToCopyAsIntPtr );
 	}
 	public static unsafe string ToStringNullStop( this nint pointer, Encoding encoding, int maxLen = 1024 ) {
 		sbyte* ptr = (sbyte*) pointer.ToPointer();

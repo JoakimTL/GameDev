@@ -8,6 +8,11 @@ public static partial class AABB {
 			unmanaged, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>, ILinearAlgebraVectorOperations<TVector>, IEntrywiseComparisonOperators<TVector>, IVectorIdentities<TVector>
 		=> r.Maxima.Subtract( l.Minima ) >= TVector.Zero && l.Maxima.Subtract( r.Minima ) >= TVector.Zero;
 
+	public static bool Contains<TVector>( in this AABB<TVector> r, in TVector l )
+		where TVector :
+			unmanaged, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>, ILinearAlgebraVectorOperations<TVector>, IEntrywiseComparisonOperators<TVector>, IVectorIdentities<TVector>
+		=> l >= r.Minima && l <= r.Maxima;
+
 	public static TScalar GetArea<TScalar>( in this AABB<Vector2<TScalar>> aabb ) where TScalar : unmanaged, INumber<TScalar>
 		=> (aabb.Maxima - aabb.Minima).ProductOfParts();
 	public static TScalar GetSurfaceArea<TScalar>( in this AABB<Vector3<TScalar>> aabb ) where TScalar : unmanaged, INumber<TScalar>

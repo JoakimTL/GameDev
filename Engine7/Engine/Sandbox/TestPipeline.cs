@@ -1,10 +1,10 @@
-﻿using Engine;
-using Engine.Algorithms.Triangulation;
-using Engine.Logging;
+﻿using Engine.Logging;
 using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
 using Engine.Module.Render.Domain;
 using Engine.Module.Render.Entities.Components;
+using Engine.Module.Render.Glfw.Enums;
+using Engine.Module.Render.Input;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
@@ -15,11 +15,12 @@ using Engine.Standard.Render.Text;
 using Engine.Standard.Render.Text.Fonts;
 using Engine.Transforms.Camera;
 using OpenGL;
-using System.Runtime.InteropServices;
+using System.Numerics;
+using static Engine.Logging.Log;
 
 namespace Sandbox;
 
-public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, FontService fontService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
+public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, FontService fontService, UserInputEventService userInputEventService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
 	private readonly WindowService _windowService = windowService;
 	private readonly DataBlockService _dataBlockService = dataBlockService;
 	private readonly SceneService _sceneService = sceneService;
@@ -32,6 +33,9 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 	private Perspective.Dynamic? _projection;
 	private Camera? _camera;
 	private Font? _font;
+
+	private bool _panning;
+	private Vector2<double> _lastMousePosition;
 
 	public void Initialize() {
 		//_font = _fontService.Get( "JetBrainsMono-Bold" );
@@ -46,12 +50,50 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
 		this._view = new() {
-			Translation = new( 1, 0, 5 )
+			Translation = new( 0, 1, 0.3f )
 		};
 		//_view.Rotation = Rotor3.FromAxisAngle(Vector3<float>.UnitY, 0);
-		this._projection = new( this._windowService.Window, 90 );
+		this._projection = new( this._windowService.Window, 90, 0.00001f, 2 );
 		this._camera = new( this._view, this._projection );
 		this._scene = this._sceneService.GetScene( "test" );
+		userInputEventService.OnKey += OnKey;
+		userInputEventService.OnMouseButton += OnMouseButton;
+		userInputEventService.OnMouseMoved += OnMouseMoved;
+	}
+
+	private void OnMouseMoved( MouseMoveEvent @event ) {
+		if (this._panning) {
+			var delta = @event.Movement - _lastMousePosition;
+			this._view.Rotation = (Rotor3.FromAxisAngle( Vector3<float>.UnitY, (float) -delta.X * float.Pi * 0.001f ) * this._view.Rotation).Normalize<Rotor3<float>, float>();
+			this._view.Rotation = (Rotor3.FromAxisAngle( this._view.Rotation.Left, (float) delta.Y * float.Pi * 0.001f ) * this._view.Rotation).Normalize<Rotor3<float>, float>();
+		}
+		_lastMousePosition = @event.Movement;
+	}
+
+	private void OnMouseButton( MouseButtonEvent @event ) {
+		if (@event.Button == MouseButton.Right) {
+			if (@event.InputType == TactileInputType.Press)
+				this._panning = true;
+			if (@event.InputType == TactileInputType.Release)
+				this._panning = false;
+		}
+	}
+
+	private void OnKey( KeyboardEvent @event ) {
+		if (@event.InputType != TactileInputType.Press)
+			return;
+		if (@event.Key == Keys.W)
+			this._view.Translation += this._view.Rotation.Forward * 0.05f;
+		if (@event.Key == Keys.S)
+			this._view.Translation -= this._view.Rotation.Forward * 0.05f;
+		if (@event.Key == Keys.A)
+			this._view.Translation += this._view.Rotation.Left * 0.1f;
+		if (@event.Key == Keys.D)
+			this._view.Translation -= this._view.Rotation.Left * 0.1f;
+		if (@event.Key == Keys.Space)
+			this._view.Translation += this._view.Rotation.Up * 0.1f;
+		if (@event.Key == Keys.LeftShift)
+			this._view.Translation -= this._view.Rotation.Up * 0.1f;
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
@@ -59,12 +101,15 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		if (this._camera is null || this._view is null || this._projection is null)
 			return;
 		//this._view.Translation = new( MathF.Sin( (float) time ) * 3, 0, MathF.Cos( (float) time ) * 3 + 5 );
+
 		this._testUniforms.Buffer.Write<uint, SceneCameraBlock>( 0, new SceneCameraBlock( this._camera.Matrix, this._view.Rotation.Up, -this._view.Rotation.Left ) );
 
 	}
 
 	public void DrawToScreen() {
-		Gl.Clear( ClearBufferMask.ColorBufferBit );
+		Gl.Clear( ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
+		Gl.Enable( EnableCap.DepthTest );
+		//Gl.Enable( EnableCap.CullFace );
 		this._scene.Render( "default", this._dataBlocks, _ => { }, PrimitiveType.Triangles );
 	}
 
@@ -75,7 +120,7 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 
 public sealed class RenderArchetype : ArchetypeBase {
 	public RenderComponent RenderComponent { get; set; } = null!;
-	public Transform2Component Transform2Component { get; set; } = null!;
+	public Transform3Component Transform3Component { get; set; } = null!;
 	public TestRenderComponent TestRenderComponent { get; set; } = null!;
 }
 
@@ -93,14 +138,79 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 		this._sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
 		this._sceneInstance.SetShaderBundle( this.RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>() );
 		this._sceneInstance.SetVertexArrayObject( this.RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>() );
-		TetrahedraSphereService tetrahedraSphereService = new();
-		tetrahedraSphereService.GenerateTetrahedraVectors( 3, out var vectors, out var indices );
-		var vertices = new List<Vertex3>();
-		for (int i = 0; i < vectors.Count; i++) {
-			Vertex3 v = new( vectors[ i ].CastSaturating<double, float>(), 0, 0, 255 );
+		IcosphereGenerator.GenerateIcosphereVectors( 3, out var vectors, out var indices );
+		OcTree<TriangleVertex, double> ocTree = new( 5 );
+		foreach (var v in vectors)
+			ocTree.Add( new( v ) );
+		this.LogLine( $"Vertices: {vectors.Count}" );
+		this.LogLine( $"Triangles: {indices.Count / 3}" );
+		List<Vertex3> vertices = new List<Vertex3>();
+		Vector2<double> polarSpace = (Math.PI, Math.PI / 2);
+		List<uint> ind3 = [];
+		Random r = new( 42 );
+		//for (int i = 0; i < vectors.Count; i++) {
+		//	Vertex3 v = new( vectors[ i ].CastSaturating<double, float>(), 0, 0, ((byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), 255) );
+		//	vertices.Add( v );
+		//}
+		var sub9Indices = indices[ 2 ];
+		for (int i = 0; i < sub9Indices.Count; i += 3) {
+			Vector4<byte> color = ((byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), 255);
+			var v1 = vectors[ (int) sub9Indices[ i ] ];
+			Vector2<double> cp1 = v1.ToNormalizedPolar().DivideEntrywise( polarSpace );
+			Vector4<byte> c1 = ((byte) (double.Abs( cp1.X ) * 255), (byte) (double.Abs( cp1.Y ) * 255), 0, 255);
+			Vertex3 v = new( vectors[ (int) sub9Indices[ i ] ].CastSaturating<double, float>(), 0, 0, c1 );
 			vertices.Add( v );
+			v = new( vectors[ (int) sub9Indices[ i + 1 ] ].CastSaturating<double, float>(), 0, 0, c1 );
+			vertices.Add( v );
+			v = new( vectors[ (int) sub9Indices[ i + 2 ] ].CastSaturating<double, float>(), 0, 0, c1 );
+			vertices.Add( v );
+			ind3.Add( (uint) vertices.Count - 3 );
+			ind3.Add( (uint) vertices.Count - 2 );
+			ind3.Add( (uint) vertices.Count - 1 );
 		}
-		this._sceneInstance.SetMesh( this.RenderEntity.ServiceAccess.MeshProvider.CreateMesh( vertices.ToArray(), indices.ToArray() ) );
+		//List<uint> ind2 = [];
+		//for (int i = 0; i < indices.Count; i += 3) {
+		//	ind2.Add( indices[ i ] );
+		//	ind2.Add( indices[ i + 1 ] );
+		//	ind2.Add( indices[ i + 1 ] );
+		//	ind2.Add( indices[ i + 2 ] );
+		//	ind2.Add( indices[ i + 2 ] );
+		//	ind2.Add( indices[ i ] );
+		//}
+		this._sceneInstance.SetMesh( this.RenderEntity.ServiceAccess.MeshProvider.CreateMesh( vertices.ToArray(), ind3.ToArray() ) );
+		//double minTriangleArea = double.MaxValue;
+		//double maxTriangleArea = double.MinValue;
+		//double avgTriangleArea = 0;
+		//double maxInnerAngle = double.MinValue;
+		//double minInnerAngle = double.MaxValue;
+		//double avgInnerAngle = 0;
+		//for (int i = 0; i < indices.Count; i += 3) {
+		//	Vector3<double> a = vectors[ (int) sub9Indices[ i ] ];
+		//	Vector3<double> b = vectors[ (int) sub9Indices[ i + 1 ] ];
+		//	Vector3<double> c = vectors[ (int) sub9Indices[ i + 2 ] ];
+		//	Vector3<double> ab = b - a;
+		//	Vector3<double> ac = c - a;
+		//	double area = Math.Abs( ab.Cross( ac ).Magnitude<Vector3<double>, double>() * 0.5 );
+		//	minTriangleArea = Math.Min( minTriangleArea, area );
+		//	maxTriangleArea = Math.Max( maxTriangleArea, area );
+		//	avgTriangleArea += area;
+		//	double innerAngle = Math.Acos( ab.Dot( ac ) / (ab.Magnitude<Vector3<double>, double>() * ac.Magnitude<Vector3<double>, double>()) );
+		//	minInnerAngle = Math.Min( minInnerAngle, innerAngle );
+		//	maxInnerAngle = Math.Max( maxInnerAngle, innerAngle );
+		//	avgInnerAngle += innerAngle;
+		//}
+		//avgTriangleArea /= indices.Count;
+		//avgTriangleArea *= 3;
+		//this.LogLine( $"Min triangle area: {minTriangleArea}, Max triangle area: {maxTriangleArea}, Avg: {avgTriangleArea}" );
+		//this.LogLine( $"Diff max/min: {maxTriangleArea / minTriangleArea}, max/avg {maxTriangleArea / avgTriangleArea}, avg/min {avgTriangleArea / minTriangleArea}" );
+
+		//this.LogLine( $"Avg represent of earth area {avgTriangleArea * 510100000}" );
+		//this.LogLine( $"Avg represent of earth area {avgTriangleArea * 510100000 * indices.Count / 3}" );
+
+		//avgInnerAngle /= indices.Count;
+		//avgInnerAngle *= 3;
+		//this.LogLine( $"Min inner angle: {minInnerAngle}, Max inner angle: {maxInnerAngle}, Avg: {avgInnerAngle}" );
+		//this.LogLine( $"Diff max-min: {maxInnerAngle - minInnerAngle}, max-avg {maxInnerAngle - avgInnerAngle}, avg-min {avgInnerAngle - minInnerAngle}" );
 		//this._sceneInstance.SetMesh( this.RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
 		//	[ new Vertex2( (-.5f, -.5f), (255, 255, 0, 255) ),
 		//	new Vertex2( (-.5f, .5f), (255, 0, 255, 255) ),
@@ -109,13 +219,18 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 		//	[ 2, 1, 0, 0, 3, 2 ] ) );
 	}
 
+	public class TriangleVertex( Vector3<double> vector ) : IOctreeLeaf<double> {
+		public Vector3<double> Vector { get; } = vector;
+		public uint Level { get; } = 0;
+	}
+
 	public override void Update( double time, double deltaTime ) {
 		base.Update( time, deltaTime );
 	}
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
-		if (component is Transform2Component t2c) {
-			this._preparedTransformMatrix = t2c.Transform.Matrix.CastSaturating<double, float>();
+		if (component is Transform3Component t3c) {
+			this._preparedTransformMatrix = t3c.Transform.Matrix.CastSaturating<double, float>();
 			return true;
 		}
 		return false;
@@ -131,3 +246,127 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 	}
 }
 
+public interface IOctreeLeaf<TScalar> where TScalar : unmanaged, INumber<TScalar> {
+	Vector3<TScalar> Vector { get; }
+	uint Level { get; }
+}
+
+public sealed class OcTree<T, TScalar>
+	where T : IOctreeLeaf<TScalar>
+	where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
+
+	private readonly OcTreeBranch<T, TScalar> _root;
+
+	public int Count => _root.Count;
+
+	public OcTree( uint depth ) {
+		_root = new( AABB.Create<Vector3<TScalar>>( [ TScalar.NegativeOne, TScalar.One ] ), depth );
+	}
+
+	/// <param name="level">Deepest level is 0, and goes higher from there.</param>
+	public void GetBoundsAtLevel( out List<AABB<Vector3<TScalar>>> bounds, uint level = 0 ) {
+		bounds = [];
+		_root.GetBoundsAtLevel( level, bounds );
+	}
+
+	public void GetAll( AABB<Vector3<TScalar>> area, List<T> output, uint level = 0 ) => _root.GetAll( area, output, level );
+
+	public void Add( T item ) => _root.Add( item );
+
+	public void Remove( T item ) => _root.Remove( item );
+
+}
+
+public sealed class OcTreeBranch<T, TScalar>
+	where T : IOctreeLeaf<TScalar>
+	where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
+
+	public AABB<Vector3<TScalar>> BranchDomain { get; }
+	public uint Level { get; }
+
+	private readonly OcTreeBranch<T, TScalar>[]? _subBranches;
+	private readonly HashSet<T> _contents;
+
+	public int Count => _contents?.Count ?? this._subBranches?.Sum( p => p.Count ) ?? 0;
+
+	public OcTreeBranch( AABB<Vector3<TScalar>> branchDomain, uint level ) {
+		this.BranchDomain = branchDomain;
+		this.Level = level;
+		this._contents = [];
+		if (level == 0) {
+			return;
+		}
+		this._subBranches = new OcTreeBranch<T, TScalar>[ 8 ];
+		int index = 0;
+		Vector3<TScalar> halfSpan = branchDomain.GetCenter() - branchDomain.Minima;
+		for (int x = 0; x <= 1; x++) {
+			for (int y = 0; y <= 1; y++) {
+				for (int z = 0; z <= 1; z++) {
+					Vector3<TScalar> walk = new Vector3<int>( x, y, z ).CastSaturating<int, TScalar>();
+					AABB<Vector3<TScalar>> childDomain = new( branchDomain.Minima + halfSpan.MultiplyEntrywise( walk ), branchDomain.GetCenter() + halfSpan.MultiplyEntrywise( walk ) );
+					this._subBranches[ index++ ] = new( childDomain, level - 1 );
+				}
+			}
+		}
+	}
+
+	public void GetBoundsAtLevel( uint level, List<AABB<Vector3<TScalar>>> bounds ) {
+		if (Level == level) {
+			bounds.Add( BranchDomain );
+			return;
+		}
+		if (Level == 0) {
+			this.LogLine( $"Concluding search at level 0, when intended search level was {level}" );
+			return;
+		}
+		if (_subBranches is null)
+			throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
+		for (int i = 0; i < 8; i++)
+			_subBranches[ i ].GetBoundsAtLevel( level, bounds );
+	}
+
+	public void GetAll( AABB<Vector3<TScalar>> volume, List<T> output, uint level ) {
+		if (Level == level) {
+			output.AddRange( _contents );
+			return;
+		}
+		if (Level == 0) {
+			this.LogLine( $"Concluding search at level 0, when intended search level was {level}" );
+			return;
+		}
+		if (_subBranches is null)
+			throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
+		for (int i = 0; i < 8; i++)
+			if (_subBranches[ i ].BranchDomain.Intersects( volume ))
+				_subBranches[ i ].GetAll( volume, output, level );
+	}
+
+	public bool Add( T item ) {
+		if (Level == item.Level) {
+			_contents.Add( item );
+			return true;
+		}
+		if (_subBranches is null)
+			throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
+		for (int i = 0; i < 8; i++)
+			if (_subBranches[ i ].BranchDomain.Contains( item.Vector ))
+				if (_subBranches[ i ].Add( item ))
+					return true;
+		return false;
+	}
+
+	public void Remove( T item ) {
+		if (Level == item.Level) {
+			_contents.Remove( item );
+			return;
+		}
+		if (_subBranches is null)
+			throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
+		for (int i = 0; i < 8; i++)
+			if (_subBranches[ i ].BranchDomain.Contains( item.Vector ))
+				_subBranches[ i ].Remove( item );
+	}
+
+	public override string ToString() => $"Level {Level}, {BranchDomain}, {Count} items";
+
+}

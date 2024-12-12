@@ -14,3 +14,14 @@ public sealed class Transform2Component : ComponentBase {
 
 	private void OnMatrixChanged( IMatrixProvider<double> provider ) => this.InvokeComponentChanged();
 }
+
+public sealed class Transform3Component : ComponentBase {
+	public Transform3<double> Transform { get; }
+
+	public Transform3Component() {
+		this.Transform = new();
+		this.Transform.OnMatrixChanged += OnMatrixChanged;
+	}
+
+	private void OnMatrixChanged( IMatrixProvider<double> provider ) => this.InvokeComponentChanged();
+}

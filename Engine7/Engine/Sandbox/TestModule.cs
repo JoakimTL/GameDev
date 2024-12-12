@@ -10,6 +10,7 @@ using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using Engine.Standard.Entities.Components;
+using Sandbox.Logic.World;
 
 namespace Sandbox;
 
@@ -18,14 +19,15 @@ internal sealed class GameLogicModule : ModuleBase {
 	private Entity? _textEntity;
 	private Entity? _entity;
 
-	public GameLogicModule() : base( false, 10 ) {
+	public GameLogicModule() : base( false, 1 ) {
 		OnInitialize += Init;
 		OnUpdate += Update;
 	}
 
 	private void Update( double time, double deltaTime ) {
-		if (this._entity?.TryGetComponent( out Transform2Component? t2c ) ?? false) {
-			t2c.Transform.Translation = new Vector2<double>( Math.Sin( time ) * 0.5f, Math.Cos( time ) * 0.5f );
+		if (this._entity?.TryGetComponent( out Transform3Component? t3c ) ?? false) {
+			t3c.Transform.Translation = new Vector3<double>( Math.Sin( time ) * 0.15f, Math.Cos( time ) * 0.15f, 0 );
+			t3c.Transform.Rotation = (Rotor3.FromAxisAngle( Vector3<double>.UnitY, 0.01 ) * t3c.Transform.Rotation).Normalize<Rotor3<double>, double>();
 		}
 	}
 
@@ -33,20 +35,25 @@ internal sealed class GameLogicModule : ModuleBase {
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
 		this._entity = container.CreateEntity();
 		_entity.AddComponent<RenderComponent>();
-		Transform2Component t2c1 = this._entity.AddComponent<Transform2Component>();
-		t2c1.Transform.Translation = (0, 0.5f);
+		Transform3Component t3c1 = this._entity.AddComponent<Transform3Component>();
+		t3c1.Transform.Translation = (0, 0.5f, 0);
+		t3c1.Transform.Scale = 1;
 		RenderedTextComponent text1 = _entity.AddComponent<RenderedTextComponent>();
 		text1.Text = "Hello, World!";
 		text1.FontName = "JetBrainsMono-Bold";
 		_entity.AddComponent<TextJumblerComponent>();
-		_entity.AddComponent<TestRenderComponent>();
+		_entity.AddComponent<WorldComponent>( p => {
+			p.SimulatedSurfaceArea = 611000000;
+		} );
+		_entity.AddComponent<WorldTilingComponent>();
 		this._textEntity = container.CreateEntity();
 		_textEntity.AddComponent<RenderComponent>();
 		Transform2Component t2c = _textEntity.AddComponent<Transform2Component>();
 		t2c.Transform.Scale = new Vector2<double>( 0.75, 0.75 );
-		RenderedTextComponent text = _textEntity.AddComponent<RenderedTextComponent>();
-		text.Text = "Hello, World!";
-		text.FontName = "JetBrainsMono-Bold";
+		RenderedTextComponent text = _textEntity.AddComponent<RenderedTextComponent>(p => {
+			p.Text = "Hello, World!";
+			p.FontName = "JetBrainsMono-Bold";
+		} );
 		TextJumblerComponent aa = _textEntity.AddComponent<TextJumblerComponent>();
 		aa.Offset = 1;
 	}
@@ -64,7 +71,15 @@ public sealed class TextJumblerArchetype : ArchetypeBase {
 public sealed class TextJumblerSystem : SystemBase<TextJumblerArchetype> {
 
 	protected override void ProcessEntity( TextJumblerArchetype archetype, double time, double deltaTime ) {
-		archetype.RenderedTextComponent.Text = time.ToString("n5");
+		string s = "";
+		for (int i = 0; i < 5; i++) {
+			char c = ((archetype.TextJumblerComponent.Offset + i) % 10).ToString()[ 0 ];
+			s += c;
+		}
+		archetype.TextJumblerComponent.Offset++;
+		if (archetype.TextJumblerComponent.Offset > 9)
+			archetype.TextJumblerComponent.Offset = 0;
+		archetype.RenderedTextComponent.Text = s;//time.ToString("n5");
 	}
 }
 

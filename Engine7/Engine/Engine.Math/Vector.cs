@@ -206,11 +206,6 @@ public static class Vector {
 			unmanaged, INumber<TScalar>
 		=> ((ReadOnlySpan<TVector>) vectors).Average<TVector, TScalar>();
 
-	public static Vector3<TScalar> Cross<TScalar>( this Vector3<TScalar> l, in Vector3<TScalar> r )
-		where TScalar :
-			unmanaged, INumber<TScalar>
-		=> l.Wedge( r ) * -Trivector3<TScalar>.One;
-
 	public static bool IsNegativeOrZero<TVector>( this TVector vector )
 		where TVector :
 			unmanaged, IEntrywiseComparisonOperators<TVector>, IVectorIdentities<TVector>

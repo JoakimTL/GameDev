@@ -23,7 +23,7 @@ namespace Engine.Standard.Render.Text.Fonts;
 //	public int Height => MaxY - MinY;
 
 //}
-public sealed class FontGlyph : IGlyph {
+public sealed class FontGlyph : Identifiable, IGlyph {
 	//https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6glyf.html
 	public FontGlyphHeader Header { get; }
 	public GlyphMap Mapping { get; }
@@ -40,6 +40,7 @@ public sealed class FontGlyph : IGlyph {
 	public IReadOnlyList<(Vector2<int> coordinate, bool onCurve)> Points => this._originalPoints;
 
 	public FontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector2<int> coordinate, bool onCurve)[] points, ushort[] endPointsOfContours, ushort unitsPerEm ) {
+		Nickname = $"[{(char)mapping.Unicode},{mapping.Unicode}]";
 		this.Header = header;
 		this.Mapping = mapping;
 		this._originalEndPointsOfContours = endPointsOfContours;
@@ -63,7 +64,7 @@ public sealed class FontGlyph : IGlyph {
 			int pointIndex = 0;
 
 			if (contourEnd - contourStart < 3) {
-				this.LogWarning( $"Contour {i} has less than 3 points." );
+				this.LogLine( $"Contour {i} has less than 3 points.", Log.Level.VERBOSE );
 				continue;
 			}
 

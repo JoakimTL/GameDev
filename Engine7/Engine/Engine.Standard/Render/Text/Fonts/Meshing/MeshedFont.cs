@@ -26,15 +26,15 @@ public sealed class MeshedFont : DisposableIdentifiable {
 		IGlyph glyph = this.Font[ c ];
 		GlyphTriangle[] triangles = glyph.TriangulateGlyph();
 		_loaded[ c ] = true;
-		this.LogLine( $"Loaded mesh for {c}." );
+		this.LogLine( $"Loaded mesh for {c}.", Log.Level.VERBOSE );
 		if (triangles.Length == 0)
 			return null;
-		mesh = new( glyph, CreateMesh( glyph.TriangulateGlyph() ) );
+		mesh = new( glyph, CreateMesh( c.ToString(), glyph.TriangulateGlyph() ) );
 		this._cachedMeshes[ c ] = mesh;
 		return mesh;
 	}
 
-	private VertexMesh<GlyphVertex> CreateMesh( GlyphTriangle[] triangles ) {
+	private VertexMesh<GlyphVertex> CreateMesh( string name, GlyphTriangle[] triangles ) {
 		List<GlyphVertex> vertices = [];
 		List<uint> indices = [];
 		foreach (GlyphTriangle t in triangles) {
@@ -46,7 +46,7 @@ public sealed class MeshedFont : DisposableIdentifiable {
 			indices.Add( index + 1 );
 			indices.Add( index + 2 );
 		}
-		return this._meshService.CreateMesh( vertices.ToArray(), indices.ToArray() );
+		return this._meshService.CreateMesh( vertices.ToArray(), indices.ToArray(), name );
 	}
 
 	protected override bool InternalDispose() {

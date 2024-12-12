@@ -6,12 +6,12 @@ internal sealed class InstanceCatalog( InstanceLibrary instanceLibrary ) : IInst
 
 	private readonly HashSet<Type> _hostedTypes = [];
 	private readonly InstanceLibrary _instanceLibrary = instanceLibrary;
-	public IInstanceLibrary Library => this._instanceLibrary; 
+	public IInstanceLibrary Library => this._instanceLibrary;
 	internal IReadOnlyCollection<Type> HostedTypes => this._hostedTypes;
 	public event Action<Type>? OnHostedTypeAdded;
 
-	public bool Host<T>() {
-		Type t = typeof( T );
+	public bool Host<T>() => Host( typeof( T ) );
+	public bool Host( Type t ) {
 		if (this._hostedTypes.Add( t )) {
 			OnHostedTypeAdded?.Invoke( t );
 			return true;

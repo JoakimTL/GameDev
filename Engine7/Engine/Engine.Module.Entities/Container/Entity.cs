@@ -75,6 +75,19 @@ public sealed class Entity : Identifiable {
 		return component;
 	}
 
+	public T AddComponent<T>(Action<T> componentInitialization) where T : ComponentBase, new() {
+		T component = new();
+		component.SetEntity( this );
+		componentInitialization( component );
+		this._components.Add( typeof( T ), component );
+		if (component is IMessageReadingComponent messageReader)
+			this._messageReaders.Add( messageReader );
+		ComponentAdded?.Invoke( component );
+		CheckAndAddArchetypes( typeof( T ) );
+		component.ComponentChanged += OnComponentChanged;
+		return component;
+	}
+
 	public bool HasComponent( Type t )
 		=> this._components.ContainsKey( t );
 

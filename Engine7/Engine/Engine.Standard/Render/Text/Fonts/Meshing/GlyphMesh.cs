@@ -18,6 +18,7 @@ public sealed class GlyphMesh : DisposableIdentifiable, IMesh {
 		this.Glyph = glyph;
 		this._mesh = mesh;
 		this._mesh.OnChanged += OnMeshChanged;
+		Nickname = mesh.Nickname;
 	}
 
 	private void OnMeshChanged() => OnChanged?.Invoke();

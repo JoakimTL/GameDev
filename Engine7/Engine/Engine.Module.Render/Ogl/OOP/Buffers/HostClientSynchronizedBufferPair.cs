@@ -26,6 +26,7 @@ public class HostClientSynchronizedBufferPair<THostBuffer> : DisposableIdentifia
 	private void OnHostBufferResized( IBuffer<ulong> buffer ) => this._hostResized = true;
 
 	public void Synchronize() {
+		this._hostResized |= this.HostBuffer.LengthBytes != this._clientBuffer.LengthBytes;
 		if (!this._changeTracker.HasChanges && !this._hostResized)
 			return;
 		if (this._hostResized) {
