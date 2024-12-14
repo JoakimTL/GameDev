@@ -1,6 +1,7 @@
 ﻿using Engine;
 using Engine.Module.Entities.Container;
 using Engine.Standard.Render.Meshing;
+using System.Resources;
 
 namespace Sandbox.Logic.World;
 public sealed class WorldComponent : ComponentBase {
@@ -13,34 +14,57 @@ public sealed class WorldTilingComponent : ComponentBase {
 
 public sealed class WorldTiling {
 
-	private readonly IReadOnlyList<Tile>[] _tilesPerSubdivision;
-	public IReadOnlyList<Vector3<double>> TileVectors { get; }
-	public IReadOnlyList<IReadOnlyList<Tile>> Tiles => _tilesPerSubdivision;
+	private readonly Icosphere _worldIcosphere;
+	public Icosphere WorldIcosphere => _worldIcosphere;
 
 	public WorldTiling() {
-		IcosphereGenerator.GenerateIcosphereVectors( 4, out List<Vector3<double>>? vectors, out List<List<uint>>? indicesPerSubdivision );
-		TileVectors = vectors;
-		_tilesPerSubdivision = new IReadOnlyList<Tile>[ indicesPerSubdivision.Count ];
-		for (int subdivisionIndex = 0; subdivisionIndex < indicesPerSubdivision.Count; subdivisionIndex++) {
-			List<uint> subdivision = indicesPerSubdivision[ subdivisionIndex ];
-			List<Tile> tiles = [];
-			for (int i = 0; i < subdivision.Count; i += 3) {
-				tiles.Add( new( subdivision[ i ], subdivision[ i + 1 ], subdivision[ i + 2 ] ) );
-			}
-			_tilesPerSubdivision[ subdivisionIndex ] = tiles;
-		}
+		_worldIcosphere = new Icosphere( 9, normalizeUpTo: 5 );
 	}
 
-	public IReadOnlyList<Tile> GetTilesForSubdivision(int subdivision) {
-		return _tilesPerSubdivision[ subdivision ];
-	}
+
+
+	//public IReadOnlyList<Tile> GetTilesForSubdivision(int subdivision) {
+	//	return _tilesPerSubdivision[ subdivision ];
+	//}
 
 }
 
-public sealed class Tile( uint indexA, uint indexB, uint indexC ) {
-	public uint IndexA { get; } = indexA;
-	public uint IndexB { get; } = indexB;
-	public uint IndexC { get; } = indexC;
+public sealed class BaseTile( uint baseVectorIndexA, uint baseVectorIndexB, uint baseVectorIndexC ) {
+	public uint BaseVectorIndexA { get; } = baseVectorIndexA;
+	public uint BaseVectorIndexB { get; } = baseVectorIndexB;
+	public uint BaseVectorIndexC { get; } = baseVectorIndexC;
+
+	//A basetile can be subdivided 4 times. The border always stays on the same edge.
+
+}
+
+//public sealed class TileSubdivision {
+
+//	public IReadOnlyList<TileSubdivision>? Subdivisions { get; }
+//	public IReadOnlyList<Tile>? Tiles { get; }
+
+//	public TileSubdivision(uint level, Span<uint> indices) {
+//		if (level > 1) {
+//			Subdivisions = CreateSubdivision( level - 1 );
+//		} else {
+//			Tiles = CreateTiles();
+//		}
+//	}
+
+//	private IReadOnlyList<TileSubdivision> CreateSubdivision( uint level ) {
+//		var subdivisions = new List<TileSubdivision>();
+//		for (uint i = 0; i < 4; i++) {
+//			subdivisions.Add( new( level ) );
+//		}
+//		return subdivisions;
+//	}
+
+//	private IReadOnlyList<Tile> CreateTiles() {
+//		 var tiles = new List<Tile>();
+//	}
+//}
+
+public sealed class Tile() {
 }
 
 public sealed class WorldArchetype : ArchetypeBase {

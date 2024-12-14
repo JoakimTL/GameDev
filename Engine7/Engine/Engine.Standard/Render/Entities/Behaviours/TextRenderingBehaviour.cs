@@ -32,8 +32,7 @@ public sealed class TextRenderingBehaviour : SynchronizedRenderBehaviourBase<Tex
 		}
 	}
 
-	public override void Update( double time, double deltaTime ) {
-		base.Update( time, deltaTime );
+	protected override void OnUpdate( double time, double deltaTime ) {
 		if (this._subscribedTransformBehaviour is null) {
 			if (!this.RenderEntity.TryGetBehaviour( out this._subscribedTransformBehaviour ))
 				return;

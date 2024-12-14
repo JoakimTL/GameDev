@@ -24,12 +24,15 @@ public abstract class SynchronizedRenderBehaviourBase<TArchetype> : DependentRen
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		if (this._synchronized)
-			return;
-		this._synchronized = true;
-		Synchronize();
-		OnSynchronized?.Invoke( this );
+		if (!this._synchronized) {
+			this._synchronized = true;
+			Synchronize();
+			OnSynchronized?.Invoke( this );
+		}
+		OnUpdate( time, deltaTime );
 	}
+
+	protected abstract void OnUpdate( double time, double deltaTime );
 
 	protected override bool InternalDispose() {
 		this.Archetype.UnsubscribeFromComponentChanges( InternalOnComponentChanged );

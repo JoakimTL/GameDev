@@ -11,7 +11,7 @@ public unsafe class OglStaticBuffer( BufferUsage usage, uint lengthBytes ) : Ogl
 			return this.LogWarningThenReturn( "Cannot write 0 bytes!", false );
 		uint bytesToCopy = (uint) (source.Length * sizeof( T ));
 		if (destinationOffsetBytes + bytesToCopy > this.LengthBytes)
-			return false;
+			return this.LogWarningThenReturn( "Write would exceed buffer size!", false );
 		fixed (T* srcPtr = source)
 			Write( new nint( srcPtr ), destinationOffsetBytes, bytesToCopy );
 		return true;
@@ -23,7 +23,7 @@ public unsafe class OglStaticBuffer( BufferUsage usage, uint lengthBytes ) : Ogl
 		if (srcLengthBytes == 0)
 			return this.LogWarningThenReturn( "Cannot write 0 bytes!", false );
 		if (destinationOffsetBytes + srcLengthBytes > this.LengthBytes)
-			return false;
+			return this.LogWarningThenReturn( "Write would exceed buffer size!", false );
 		Write( new nint( srcPtr ), destinationOffsetBytes, srcLengthBytes );
 		return true;
 	}

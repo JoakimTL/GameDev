@@ -20,18 +20,16 @@ using static Engine.Logging.Log;
 
 namespace Sandbox;
 
-public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, FontService fontService, UserInputEventService userInputEventService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
+public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, FontService fontService, UserInputEventService userInputEventService, CameraService cameraService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
 	private readonly WindowService _windowService = windowService;
 	private readonly DataBlockService _dataBlockService = dataBlockService;
 	private readonly SceneService _sceneService = sceneService;
 	private readonly FontService _fontService = fontService;
+	private readonly CameraService _cameraService = cameraService;
 	private UniformBlock _testUniforms = null!;
 	private ShaderStorageBlock _testShaderStorage = null!;
 	private DataBlockCollection _dataBlocks = null!;
 	private Scene _scene = null!;
-	private View3? _view;
-	private Perspective.Dynamic? _projection;
-	private Camera? _camera;
 	private Font? _font;
 
 	private bool _panning;
@@ -49,13 +47,8 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
-		this._view = new() {
-			Translation = new( 0, 1, 0.3f )
-		};
-		//_view.Rotation = Rotor3.FromAxisAngle(Vector3<float>.UnitY, 0);
-		this._projection = new( this._windowService.Window, 90, 0.00001f, 2 );
-		this._camera = new( this._view, this._projection );
 		this._scene = this._sceneService.GetScene( "test" );
+		_cameraService.Main.View3.Translation = new Vector3<float>( 0, 1, 1 );
 		userInputEventService.OnKey += OnKey;
 		userInputEventService.OnMouseButton += OnMouseButton;
 		userInputEventService.OnMouseMoved += OnMouseMoved;
@@ -64,8 +57,8 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 	private void OnMouseMoved( MouseMoveEvent @event ) {
 		if (this._panning) {
 			var delta = @event.Movement - _lastMousePosition;
-			this._view.Rotation = (Rotor3.FromAxisAngle( Vector3<float>.UnitY, (float) -delta.X * float.Pi * 0.001f ) * this._view.Rotation).Normalize<Rotor3<float>, float>();
-			this._view.Rotation = (Rotor3.FromAxisAngle( this._view.Rotation.Left, (float) delta.Y * float.Pi * 0.001f ) * this._view.Rotation).Normalize<Rotor3<float>, float>();
+			_cameraService.Main.View3.Rotation = (Rotor3.FromAxisAngle( Vector3<float>.UnitY, (float) -delta.X * float.Pi * 0.001f ) * _cameraService.Main.View3.Rotation).Normalize<Rotor3<float>, float>();
+			_cameraService.Main.View3.Rotation = (Rotor3.FromAxisAngle( _cameraService.Main.View3.Rotation.Left, (float) delta.Y * float.Pi * 0.001f ) * _cameraService.Main.View3.Rotation).Normalize<Rotor3<float>, float>();
 		}
 		_lastMousePosition = @event.Movement;
 	}
@@ -83,33 +76,27 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		if (@event.InputType != TactileInputType.Press)
 			return;
 		if (@event.Key == Keys.W)
-			this._view.Translation += this._view.Rotation.Forward * 0.05f;
+			_cameraService.Main.View3.Translation += _cameraService.Main.View3.Rotation.Forward * 0.05f;
 		if (@event.Key == Keys.S)
-			this._view.Translation -= this._view.Rotation.Forward * 0.05f;
+			_cameraService.Main.View3.Translation -= _cameraService.Main.View3.Rotation.Forward * 0.05f;
 		if (@event.Key == Keys.A)
-			this._view.Translation += this._view.Rotation.Left * 0.1f;
+			_cameraService.Main.View3.Translation += _cameraService.Main.View3.Rotation.Left * 0.1f;
 		if (@event.Key == Keys.D)
-			this._view.Translation -= this._view.Rotation.Left * 0.1f;
+			_cameraService.Main.View3.Translation -= _cameraService.Main.View3.Rotation.Left * 0.1f;
 		if (@event.Key == Keys.Space)
-			this._view.Translation += this._view.Rotation.Up * 0.1f;
+			_cameraService.Main.View3.Translation += _cameraService.Main.View3.Rotation.Up * 0.1f;
 		if (@event.Key == Keys.LeftShift)
-			this._view.Translation -= this._view.Rotation.Up * 0.1f;
+			_cameraService.Main.View3.Translation -= _cameraService.Main.View3.Rotation.Up * 0.1f;
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
-		//_view.Translation;
-		if (this._camera is null || this._view is null || this._projection is null)
-			return;
-		//this._view.Translation = new( MathF.Sin( (float) time ) * 3, 0, MathF.Cos( (float) time ) * 3 + 5 );
-
-		this._testUniforms.Buffer.Write<uint, SceneCameraBlock>( 0, new SceneCameraBlock( this._camera.Matrix, this._view.Rotation.Up, -this._view.Rotation.Left ) );
-
+		this._testUniforms.Buffer.Write<uint, SceneCameraBlock>( 0, new SceneCameraBlock( _cameraService.Main.Camera3.Matrix, _cameraService.Main.View3.Rotation.Up, -_cameraService.Main.View3.Rotation.Left ) );
 	}
 
 	public void DrawToScreen() {
 		Gl.Clear( ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
 		Gl.Enable( EnableCap.DepthTest );
-		//Gl.Enable( EnableCap.CullFace );
+		Gl.Enable( EnableCap.CullFace );
 		this._scene.Render( "default", this._dataBlocks, _ => { }, PrimitiveType.Triangles );
 	}
 
@@ -219,13 +206,12 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 		//	[ 2, 1, 0, 0, 3, 2 ] ) );
 	}
 
+	protected override void OnUpdate( double time, double deltaTime ) {
+	}
+
 	public class TriangleVertex( Vector3<double> vector ) : IOctreeLeaf<double> {
 		public Vector3<double> Vector { get; } = vector;
 		public uint Level { get; } = 0;
-	}
-
-	public override void Update( double time, double deltaTime ) {
-		base.Update( time, deltaTime );
 	}
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
@@ -248,7 +234,6 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 
 public interface IOctreeLeaf<TScalar> where TScalar : unmanaged, INumber<TScalar> {
 	Vector3<TScalar> Vector { get; }
-	uint Level { get; }
 }
 
 public sealed class OcTree<T, TScalar>
@@ -269,7 +254,7 @@ public sealed class OcTree<T, TScalar>
 		_root.GetBoundsAtLevel( level, bounds );
 	}
 
-	public void GetAll( AABB<Vector3<TScalar>> area, List<T> output, uint level = 0 ) => _root.GetAll( area, output, level );
+	public void GetAll( AABB<Vector3<TScalar>> area, List<T> output ) => _root.GetAll( area, output );
 
 	public void Add( T item ) => _root.Add( item );
 
@@ -325,24 +310,20 @@ public sealed class OcTreeBranch<T, TScalar>
 			_subBranches[ i ].GetBoundsAtLevel( level, bounds );
 	}
 
-	public void GetAll( AABB<Vector3<TScalar>> volume, List<T> output, uint level ) {
-		if (Level == level) {
-			output.AddRange( _contents );
-			return;
-		}
+	public void GetAll( AABB<Vector3<TScalar>> volume, List<T> output ) {
 		if (Level == 0) {
-			this.LogLine( $"Concluding search at level 0, when intended search level was {level}" );
+			output.AddRange( _contents );
 			return;
 		}
 		if (_subBranches is null)
 			throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
 		for (int i = 0; i < 8; i++)
 			if (_subBranches[ i ].BranchDomain.Intersects( volume ))
-				_subBranches[ i ].GetAll( volume, output, level );
+				_subBranches[ i ].GetAll( volume, output );
 	}
 
 	public bool Add( T item ) {
-		if (Level == item.Level) {
+		if (Level == 0) {
 			_contents.Add( item );
 			return true;
 		}
@@ -356,7 +337,7 @@ public sealed class OcTreeBranch<T, TScalar>
 	}
 
 	public void Remove( T item ) {
-		if (Level == item.Level) {
+		if (Level == 0) {
 			_contents.Remove( item );
 			return;
 		}

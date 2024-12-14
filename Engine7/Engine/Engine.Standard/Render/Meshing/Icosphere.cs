@@ -1,4 +1,5 @@
 ﻿using Engine.Module.Render.Ogl.Scenes;
+using Engine.Shapes;
 using System;
 using System.Collections.Generic;
 using System.IO.IsolatedStorage;
@@ -74,7 +75,7 @@ public static class IcosphereGenerator {
 
 	public static void GenerateIcosphereVectors( int subdivisions, out List<Vector3<double>> vectors, out List<List<uint>> indices ) {
 		CreateIcosphere( out vectors, out indices );
-		for (int i = 0; i < subdivisions; i++) 
+		for (int i = 0; i < subdivisions; i++)
 			Subdivide( vectors, indices );
 		NormalizeVectors( vectors );
 	}
@@ -133,6 +134,77 @@ public static class IcosphereGenerator {
 	//When trying to figure out which triangles should be most subdivided use a projection of the camera view to the octree. This means take the coordinates of the camera, and see where the projection edges (near to far each corner) intersects the sphere (line segment - sphere intersection (and find the intersection closest to the camera per edge)).
 	//Now travel the octree to find which triangles should be rendered at what LOD. (not sure how to do this yet)
 	//When hovering over a tile, the tile should bounce out and have an outline under to prevent holes in the earth
+}
+
+public sealed class Icosphere {
+
+	public readonly List<Vector3<double>> _vertices;
+	private readonly List<List<uint>> _indicesAtEarlierSubdivisions;
+	private readonly Dictionary<(int, int), int> _edgeMidpointCache;
+
+	private bool _locked = false;
+	public IReadOnlyList<Vector3<double>> Vertices => _vertices;
+
+	public Icosphere( uint subdivisions, int normalizeUpTo = -1 ) {
+		_locked = false;
+		IcosphereGenerator.CreateIcosphere( out _vertices, out _indicesAtEarlierSubdivisions );
+		_edgeMidpointCache = [];
+		for (int i = 0; i < subdivisions; i++) {
+			Subdivide();
+			if (i < normalizeUpTo || normalizeUpTo == -1)
+				NormalizeVectors( _vertices );
+		}
+		_locked = true;
+	}
+
+	public IReadOnlyList<uint> GetIndices( int level ) => _indicesAtEarlierSubdivisions[ level ];
+
+	private static void NormalizeVectors( List<Vector3<double>> vectors ) {
+		for (int i = 0; i < vectors.Count; i++)
+			vectors[ i ] = vectors[ i ].Normalize<Vector3<double>, double>();
+	}
+
+	public int GetMidpoint( uint v1, uint v2 ) {
+		// Ensure (min, max) ordering for the edge key
+		(int, int) edgeKey = ((int) Math.Min( v1, v2 ), (int) Math.Max( v1, v2 ));
+
+		if (_edgeMidpointCache.TryGetValue( edgeKey, out int midpointIndex ))
+			return midpointIndex;
+
+		if (_locked)
+			throw new InvalidOperationException( "Cannot subdivide a locked icosphere" );
+
+		// Calculate and normalize the midpoint
+		Vector3<double> midpoint = (_vertices[ (int) v1 ] + _vertices[ (int) v2 ]) * 0.5f;
+
+		// Add midpoint to vertex list and cache it
+		midpointIndex = _vertices.Count;
+		_vertices.Add( midpoint );
+		_edgeMidpointCache[ edgeKey ] = midpointIndex;
+
+		return midpointIndex;
+	}
+
+	private void Subdivide() {
+		List<uint> newIndices = [];
+		List<uint> currentIndices = _indicesAtEarlierSubdivisions[ ^1 ];
+		_indicesAtEarlierSubdivisions.Add( newIndices );
+		for (int i = 0; i < currentIndices.Count; i += 3) {
+			uint v1 = currentIndices[ i ];
+			uint v2 = currentIndices[ i + 1 ];
+			uint v3 = currentIndices[ i + 2 ];
+
+			int m1 = GetMidpoint( v1, v2 );
+			int m2 = GetMidpoint( v2, v3 );
+			int m3 = GetMidpoint( v3, v1 );
+
+			// Add the four new triangles
+			newIndices.AddRange( [ v1, (uint) m1, (uint) m3 ] );
+			newIndices.AddRange( [ v2, (uint) m2, (uint) m1 ] );
+			newIndices.AddRange( [ v3, (uint) m3, (uint) m2 ] );
+			newIndices.AddRange( [ (uint) m1, (uint) m2, (uint) m3 ] );
+		}
+	}
 }
 
 public sealed class TetrahedraSphereService() {

@@ -56,6 +56,9 @@ public class RenderEntityContainerTests {
 		//	this.CurrentVelocity = this._newVelocity.CastSaturating<double, float>();
 		//}
 
+		protected override void OnUpdate( double time, double deltaTime ) {
+		}
+
 		protected override bool PrepareSynchronization( ComponentBase component ) {
 			if (component is Translation3Component translation) {
 				this._newTranslation = translation.Translation;

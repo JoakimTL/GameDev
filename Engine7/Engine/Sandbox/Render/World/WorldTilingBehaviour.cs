@@ -10,6 +10,9 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 	private SceneInstanceCollection<Vertex3, Entity2SceneData>? _sceneInstanceCollection;
 	private OcTree<WorldTileTriangle, float> _octree;
 
+	protected override void OnUpdate( double time, double deltaTime ) {
+	}
+
 	protected override bool PrepareSynchronization( ComponentBase component ) {
 		return false;
 	}
@@ -17,41 +20,55 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 	protected override void Synchronize() {
 		if (_sceneInstanceCollection is null)
 			_sceneInstanceCollection = RenderEntity.RequestSceneInstanceCollection<Vertex3, Entity2SceneData, TestShaderBundle>( "test", 0 );
-		if (_octree is null)
-			_octree = new OcTree<WorldTileTriangle, float>( (uint) Archetype.WorldTilingComponent.Tiling.Tiles.Count );
+		//if (_octree is null)
+		//	_octree = new OcTree<WorldTileTriangle, float>( 3 );
 
-		for (int i = 0; i < Archetype.WorldTilingComponent.Tiling.Tiles.Count; i++) {
-			uint level = (uint) (Archetype.WorldTilingComponent.Tiling.Tiles.Count - 1 - i);
-			foreach (Tile tile in Archetype.WorldTilingComponent.Tiling.Tiles[ i ])
-				_octree.Add( new WorldTileTriangle( tile.IndexA, tile.IndexB, tile.IndexC, level, Archetype.WorldTilingComponent.Tiling.TileVectors ) );
-		}
+		//for (int i = 0; i < Archetype.WorldTilingComponent.Tiling.Tiles.Count; i++) {
+		//	uint level = (uint) (Archetype.WorldTilingComponent.Tiling.Tiles.Count - 1 - i);
+		//	if (level > 4)
+		//		continue;
+		//	foreach (Tile tile in Archetype.WorldTilingComponent.Tiling.Tiles[ i ])
+		//		_octree.Add( new WorldTileTriangle( tile.IndexA, tile.IndexB, tile.IndexC, Archetype.WorldTilingComponent.Tiling.TileVectors ) );
+		//}
 
-		//TODO: find some way to do this shit.
-		List<List<AABB<Vector3<float>>>> boundsPerLevel = [];
+		////TODO: find some way to do this shit.
+		//List<List<AABB<Vector3<float>>>> boundsPerLevel = [];
 
-		for (int i = Archetype.WorldTilingComponent.Tiling.Tiles.Count - 1; i >= 0; i--) {
-			_octree.GetBoundsAtLevel( out var boundAtLevel, (uint) i );
-			boundsPerLevel.Add( boundAtLevel );
+		//for (int i = 0; i < Archetype.WorldTilingComponent.Tiling.Tiles.Count; i++) {
+		//	_octree.GetBoundsAtLevel( out var boundAtLevel, (uint) i );
+		//	boundsPerLevel.Add( boundAtLevel );
 
-			foreach (AABB<Vector3<float>> bounds in boundAtLevel) {
-				WorldTileSceneInstance instance = _sceneInstanceCollection.Create<WorldTileSceneInstance>();
-				List<WorldTileTriangle> trianglesInLoD = [];
-				_octree.GetAll( bounds, trianglesInLoD, (uint) i );
-				instance.SetMesh( CreateLoDMesh( trianglesInLoD, Archetype.WorldTilingComponent.Tiling.TileVectors ) );
+		//	//foreach (AABB<Vector3<float>> bounds in boundAtLevel) {
+		//	//	WorldTileSceneInstance instance = _sceneInstanceCollection.Create<WorldTileSceneInstance>();
+		//	//	List<WorldTileTriangle> trianglesInLoD = [];
+		//	//	_octree.GetAll( bounds, trianglesInLoD, (uint) i );
+		//	//	instance.SetMesh( CreateLoDMesh( trianglesInLoD, Archetype.WorldTilingComponent.Tiling.TileVectors ) );
 
-				instance.Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity ) );
-			}
-		}
+		//	//	instance.Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity ) );
+		//	//}
+		//}
 
+		//Assign LoD level based on distance from camera. If an LoD level changes update the mesh of the affected cell and neighboring cells.
 
-		//foreach (AABB<Vector3<float>> bounds in boundsPerLevel[ 0 ]) {
+		//uint currentLevel = 4;
+		//foreach (AABB<Vector3<float>> bounds in boundsPerLevel[ (int) currentLevel ]) {
 		//	WorldTileSceneInstance instance = _sceneInstanceCollection.Create<WorldTileSceneInstance>();
-		//	List<WorldTileTriangle> trianglesIsLoD = [];
-		//	_octree.GetAll( bounds, trianglesIsLoD );
-		//	instance.SetMesh( CreateLoDMesh( trianglesIsLoD, Archetype.WorldTilingComponent.Tiling.TileVectors ) );
+		//	List<WorldTileTriangle> trianglesInLoD = [];
+		//	_octree.GetAll( bounds, trianglesInLoD );
+		//	instance.SetMesh( CreateLoDMesh( trianglesInLoD, Archetype.WorldTilingComponent.Tiling.TileVectors ) );
 
 		//	instance.Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity ) );
 		//}
+
+		var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
+		var indices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.GetIndices( 5 );
+		List<WorldTileTriangle> trianglesInLoD = [];
+		for (int i = 0; i < indices.Count; i += 3) {
+			trianglesInLoD.Add( new( indices[ i ], indices[ i + 1 ], indices[ i + 2 ], vertices ) );
+		}
+		WorldTileSceneInstance instance = _sceneInstanceCollection.Create<WorldTileSceneInstance>();
+		instance.SetMesh( CreateLoDMesh( trianglesInLoD, vertices ) );
+		instance.Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity ) );
 	}
 
 	private IMesh CreateLoDMesh( List<WorldTileTriangle> trianglesIsLoD, IReadOnlyList<Vector3<double>> tileVectors ) {
@@ -78,6 +95,7 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 
 		return RenderEntity.ServiceAccess.MeshProvider.CreateMesh( vertices.ToArray(), indices.ToArray() );
 	}
+
 }
 
 public sealed class WorldTileTriangle : IOctreeLeaf<float> {
@@ -93,13 +111,10 @@ public sealed class WorldTileTriangle : IOctreeLeaf<float> {
 	public uint B => _b;
 	public uint C => _c;
 
-	public uint Level { get; }
-
-	public WorldTileTriangle( uint a, uint b, uint c, uint level, IReadOnlyList<Vector3<double>> tileVertices ) {
+	public WorldTileTriangle( uint a, uint b, uint c, IReadOnlyList<Vector3<double>> tileVertices ) {
 		_a = a;
 		_b = b;
 		_c = c;
-		this.Level = level;
 		_tileVertices = tileVertices;
 		_center = Engine.Vector.Average<Vector3<double>, double>( [ tileVertices[ (int) a ], tileVertices[ (int) b ], tileVertices[ (int) c ] ] ).CastSaturating<double, float>();
 	}

@@ -27,6 +27,9 @@ public sealed class Transform2Behaviour : SynchronizedRenderBehaviourBase<Transf
 		this._incomingScale = t2c.Transform.Scale.CastSaturating<double, float>();
 	}
 
+	protected override void OnUpdate( double time, double deltaTime ) {
+	}
+
 	protected override bool PrepareSynchronization( ComponentBase component ) {
 		if (component is Transform2Component t2c) {
 			this._incomingTranslation = t2c.Transform.Translation.CastSaturating<double, float>();
