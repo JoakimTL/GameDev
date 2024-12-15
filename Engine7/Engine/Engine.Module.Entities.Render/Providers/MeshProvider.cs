@@ -1,5 +1,4 @@
-﻿using Engine.Module.Entities.Render;
-using Engine.Module.Render.Ogl.Scenes;
+﻿using Engine.Module.Render.Ogl.Scenes;
 
 namespace Engine.Module.Render.Entities.Providers;
 

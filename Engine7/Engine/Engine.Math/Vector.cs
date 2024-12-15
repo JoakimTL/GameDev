@@ -121,6 +121,13 @@ public static class Vector {
 			unmanaged, IFloatingPointIeee754<TScalar>
 		=> l.EntrywiseOperation( ( s ) => TScalar.Round( s, digits, roundingMode ) );
 
+	public static TVector Clamp<TVector, TScalar>( this TVector l, TScalar inclusiveLowerBound, TScalar inclusiveUpperBound )
+		where TVector :
+			unmanaged, IEntrywiseOperations<TVector, TScalar>
+		where TScalar :
+			unmanaged, INumber<TScalar>
+		=> l.EntrywiseOperation( ( s ) => TScalar.Clamp( s, inclusiveLowerBound, inclusiveUpperBound ) );
+
 	/// <summary>
 	/// Find the determinant between the two vectors <paramref name="l"/> and <paramref name="r"/> from a chosen <paramref name="origin"/>.
 	/// </summary>

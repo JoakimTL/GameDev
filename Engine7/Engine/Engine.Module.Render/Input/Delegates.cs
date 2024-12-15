@@ -1,5 +1,4 @@
 ﻿using Engine.Module.Render.Glfw.Enums;
-using System.Threading.Tasks;
 
 namespace Engine.Module.Render.Input;
 

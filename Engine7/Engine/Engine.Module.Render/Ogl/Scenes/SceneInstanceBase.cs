@@ -8,6 +8,7 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 
 	public delegate void SceneInstanceBindIndexChangeHandler( SceneInstanceBase changedInstance, ulong? oldBindIndex );
 	public delegate void SceneInstancePropertyChangeHandler<T>( SceneInstanceBase changedInstance, T? oldValue );
+	public delegate void SceneInstancePropertyOffsetChangeHandler( SceneInstanceBase changedInstance );
 
 	public OglVertexArrayObjectBase? VertexArrayObject { get; private set; }
 	public ShaderBundleBase? ShaderBundle { get; private set; }
@@ -34,6 +35,10 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	/// Called when the mesh changes.
 	/// </summary>
 	public event SceneInstancePropertyChangeHandler<IMesh>? OnMeshChanged;
+	/// <summary>
+	/// Called when the mesh changes.
+	/// </summary>
+	public event SceneInstancePropertyOffsetChangeHandler? OnMeshOffsetChanged;
 	/// <summary>
 	/// Called when the instance data segment changes.
 	/// </summary>
@@ -69,10 +74,16 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 		if (this.Mesh == mesh)
 			return;
 		IMesh? oldMesh = this.Mesh;
+		if (this.Mesh is not null)
+			this.Mesh.OnOffsetChanged -= InvokeOnMeshOffsetChanged;
 		this.Mesh = mesh;
+		if (this.Mesh is not null)
+			this.Mesh.OnOffsetChanged += InvokeOnMeshOffsetChanged;
 		UpdateValidity();
 		OnMeshChanged?.Invoke( this, oldMesh );
 	}
+
+	private void InvokeOnMeshOffsetChanged() => OnMeshOffsetChanged?.Invoke( this );
 
 	protected internal void SetLayer( uint layer ) {
 		if (this.RenderLayer == layer)

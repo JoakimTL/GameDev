@@ -13,10 +13,8 @@ using Engine.Standard.Render;
 using Engine.Standard.Render.Meshing;
 using Engine.Standard.Render.Text;
 using Engine.Standard.Render.Text.Fonts;
-using Engine.Transforms.Camera;
 using OpenGL;
 using System.Numerics;
-using static Engine.Logging.Log;
 
 namespace Sandbox;
 

@@ -1,5 +1,4 @@
-﻿using Engine;
-using Engine.Module.Render.Ogl.OOP.VertexArrays;
+﻿using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using OpenGL;
 using System.Runtime.InteropServices;
 

@@ -1,15 +1,4 @@
-﻿using Engine.Module.Render.Ogl.Scenes;
-using Engine.Shapes;
-using System;
-using System.Collections.Generic;
-using System.IO.IsolatedStorage;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.Intrinsics;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Engine.Standard.Render.Meshing;
+﻿namespace Engine.Standard.Render.Meshing;
 public static class IcosphereGenerator {
 	public static void CreateIcosphere( out List<Vector3<double>> vectors, out List<List<uint>> indices ) {
 		vectors = [];
@@ -145,7 +134,10 @@ public sealed class Icosphere {
 	private bool _locked = false;
 	public IReadOnlyList<Vector3<double>> Vertices => _vertices;
 
+	public int Subdivisions { get; }
+
 	public Icosphere( uint subdivisions, int normalizeUpTo = -1 ) {
+		Subdivisions = (int) subdivisions;
 		_locked = false;
 		IcosphereGenerator.CreateIcosphere( out _vertices, out _indicesAtEarlierSubdivisions );
 		_edgeMidpointCache = [];
@@ -204,6 +196,17 @@ public sealed class Icosphere {
 			newIndices.AddRange( [ v3, (uint) m3, (uint) m2 ] );
 			newIndices.AddRange( [ (uint) m1, (uint) m2, (uint) m3 ] );
 		}
+	}
+
+	public IReadOnlyList<uint> GetSubdivision( uint indexA, uint indexB, uint indexC ) {
+		int m1 = GetMidpoint( indexA, indexB );
+		int m2 = GetMidpoint( indexB, indexC );
+		int m3 = GetMidpoint( indexC, indexA );
+		return [ 
+			indexA, (uint) m1, (uint) m3, 
+			indexB, (uint) m2, (uint) m1, 
+			indexC, (uint) m3, (uint) m2, 
+			(uint) m1, (uint) m2, (uint) m3 ];
 	}
 }
 

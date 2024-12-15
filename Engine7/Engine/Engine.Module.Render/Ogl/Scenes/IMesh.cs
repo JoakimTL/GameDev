@@ -15,5 +15,5 @@ public interface IMesh : IListenableDisposable {
 	/// Offset of the first vertex. This is an element-size offset, not byte offset.
 	/// </summary>
 	uint VertexOffset { get; }
-	event Action? OnChanged;
+	event Action? OnOffsetChanged;
 }

@@ -1,9 +1,4 @@
-﻿using Engine;
-using Engine.Module.Render;
-using Engine.Shapes;
-using System.Reflection.PortableExecutable;
-
-namespace Engine.Standard.Render.Text.Fonts;
+﻿namespace Engine.Standard.Render.Text.Fonts;
 
 public sealed class Font {
 	public const uint Tag_Cmap = 1885433187;

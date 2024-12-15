@@ -1,5 +1,4 @@
 ﻿using Engine.Buffers;
-using Engine.Logging;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Services;
@@ -68,6 +67,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 
 		if (!this._unmeshedSceneInstances.Add( sceneInstance ))
 			return;
+
 		sceneInstance.OnBindIndexChanged += OnBindIndexChanged;
 		sceneInstance.OnLayerChanged += OnLayerChanged;
 		sceneInstance.OnMeshChanged += OnMeshChanged;
@@ -85,8 +85,10 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		sceneInstance.OnMeshChanged -= OnMeshChanged;
 		sceneInstance.OnDisposed -= OnInstanceDisposed;
 
-		if (TryAddingToCollection( collectionList, sceneInstance ))
+		if (TryAddingToCollection( collectionList, sceneInstance )) {
+			sceneInstance.OnMeshOffsetChanged += OnMeshOffsetChanged;
 			return;
+		}
 
 		uint sizePerInstanceBytes = (uint) (TypeManager.SizeOf( sceneInstance.InstanceDataType ) ?? throw new ArgumentException( "Instance data type must be unmanaged" ));
 		if (!this._bufferService.Get( sceneInstance.InstanceDataType ).TryAllocate( sizePerInstanceBytes * this._baseInstanceCount * (uint) (collectionList.Count + 1), out BufferSegment? segment ))
@@ -100,6 +102,11 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		}
 		newCollection.OnInstanceRemoved += OnInstanceRemovedFromCollection;
 		collectionList.Add( newCollection );
+		sceneInstance.OnMeshOffsetChanged += OnMeshOffsetChanged;
+	}
+
+	private void OnMeshOffsetChanged( SceneInstanceBase changedInstance ) {
+		OnChanged?.Invoke();
 	}
 
 	private bool TryAddingToCollection( List<SceneObjectSceneInstanceCollection> collectionList, SceneInstanceBase instance ) {
@@ -135,6 +142,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
 		sceneInstance.OnMeshChanged -= OnMeshChanged;
 		sceneInstance.OnDisposed -= OnInstanceDisposed;
+		sceneInstance.OnMeshOffsetChanged -= OnMeshOffsetChanged;
 		OnInstanceRemoved?.Invoke( sceneInstance );
 	}
 
@@ -162,6 +170,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 			sceneInstance.OnLayerChanged += OnLayerChanged;
 			sceneInstance.OnMeshChanged += OnMeshChanged;
 			sceneInstance.OnDisposed += OnInstanceDisposed;
+			sceneInstance.OnMeshOffsetChanged -= OnMeshOffsetChanged;
 			return;
 		}
 		//Now we know the mesh is not null. We need to add it to the correct collection.

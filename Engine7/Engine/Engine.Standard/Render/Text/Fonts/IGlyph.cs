@@ -1,6 +1,4 @@
-﻿using Engine.Shapes;
-
-namespace Engine.Standard.Render.Text.Fonts;
+﻿namespace Engine.Standard.Render.Text.Fonts;
 
 public interface IGlyph {
 	FontGlyphHeader Header { get; }

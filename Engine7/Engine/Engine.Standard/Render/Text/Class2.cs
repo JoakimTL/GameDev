@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Engine.Standard.Render.Text;
+﻿namespace Engine.Standard.Render.Text;
 internal class Class2 {
 }
 //static GlyphMap[] GetUnicodeToGlyphIndexMappings( FontReader reader, uint cmapOffset ) {

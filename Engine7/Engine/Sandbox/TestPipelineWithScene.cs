@@ -1,5 +1,4 @@
-﻿using Engine;
-using Engine.Module.Render.Domain;
+﻿using Engine.Module.Render.Domain;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;

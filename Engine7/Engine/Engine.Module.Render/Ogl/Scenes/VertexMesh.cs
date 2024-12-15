@@ -10,26 +10,26 @@ public class ReadOnlyVertexMesh<TVertex> : DisposableIdentifiable, IMesh where T
 
 	public Type VertexType { get; }
 	public uint ElementCount { get; }
-	public uint ElementOffset { get; }
+	public uint ElementOffset => (uint) _elementBufferSegment.OffsetBytes / IMesh.ElementSizeBytes;
 	public uint VertexTypeSizeBytes { get; }
-	public uint VertexOffset { get; }
+	public uint VertexOffset => (uint) _vertexBufferSegment.OffsetBytes / VertexTypeSizeBytes;
 
-	public event Action? OnChanged;
+	public event Action? OnOffsetChanged;
 
 	internal ReadOnlyVertexMesh( BufferSegment vertexBufferSegment, BufferSegment elementBufferSegment ) {
 		this._vertexBufferSegment = vertexBufferSegment;
 		this._elementBufferSegment = elementBufferSegment;
 		this.VertexType = typeof( TVertex );
 		this.ElementCount = (uint) elementBufferSegment.LengthBytes / IMesh.ElementSizeBytes;
-		this.ElementOffset = (uint) elementBufferSegment.OffsetBytes / IMesh.ElementSizeBytes;
 		this.VertexTypeSizeBytes = (uint) Marshal.SizeOf<TVertex>();
-		this.VertexOffset = (uint) vertexBufferSegment.OffsetBytes / VertexTypeSizeBytes;
 
-		vertexBufferSegment.OffsetChanged += OnOffsetChanged;
-		elementBufferSegment.OffsetChanged += OnOffsetChanged;
+		vertexBufferSegment.OffsetChanged += InvokeOnOffsetChanged;
+		elementBufferSegment.OffsetChanged += InvokeOnOffsetChanged;
 	}
 
-	private void OnOffsetChanged( IBufferSegment<ulong> segment ) => OnChanged?.Invoke();
+	private void InvokeOnOffsetChanged( IBufferSegment<ulong> segment ) {
+		OnOffsetChanged?.Invoke();
+	}
 
 	protected override bool InternalDispose() {
 		this._vertexBufferSegment.Dispose();

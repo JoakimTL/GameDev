@@ -1,7 +1,5 @@
 ﻿using Engine.Module.Entities.Render;
 using Engine.Module.Render.Ogl.Services;
-using Engine.Transforms;
-using Engine.Transforms.Camera;
 
 namespace Engine.Module.Render.Entities.Providers;
 

@@ -14,6 +14,11 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 	//	bufferService.ElementBuffer.TryAllocate( elementCount * IMesh.ElementSizeBytes, out BufferSegment? elementSegment );
 	//}
 
+	private void OnMeshDisposed( IListenableDisposable disposable ) {
+		_meshes.Remove( (IMesh) disposable );
+		disposable.OnDisposed -= OnMeshDisposed;
+	}
+
 	public VertexMesh<TVertex> CreateEmptyMesh<TVertex>( uint vertexCount, uint elementCount, string? name = null ) where TVertex : unmanaged {
 		if (!bufferService.Get( typeof( TVertex ) ).TryAllocate( vertexCount * (uint) Marshal.SizeOf<TVertex>(), out BufferSegment? vertexSegment ))
 			throw new InvalidOperationException( "Failed to allocate vertex buffer" );
@@ -25,6 +30,7 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 			Nickname = name
 		};
 		this._meshes.Add( mesh );
+		mesh.OnDisposed += OnMeshDisposed;
 		return mesh;
 	}
 
@@ -39,43 +45,24 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 			Nickname = name
 		};
 		this._meshes.Add( mesh );
+		mesh.OnDisposed += OnMeshDisposed;
 	}
 
 	public VertexMesh<TVertex> CreateMesh<TVertex>( Span<TVertex> vertices, Span<uint> elements, string? name = null ) where TVertex : unmanaged {
 		VertexMesh<TVertex> mesh = CreateEmptyMesh<TVertex>( (uint) vertices.Length, (uint) elements.Length, name );
-		//if (!bufferService.Get( typeof( TVertex ) ).TryAllocate( (uint) vertices.Length * (uint) Marshal.SizeOf<TVertex>(), out BufferSegment? vertexSegment ))
-		//	throw new InvalidOperationException( "Failed to allocate vertex buffer" );
-		//if (!bufferService.ElementBuffer.TryAllocate( (uint) elements.Length * IMesh.ElementSizeBytes, out BufferSegment? elementSegment ))
-		//	throw new InvalidOperationException( "Failed to allocate element buffer" );
-		//vertexSegment.Nickname = name;
-		//elementSegment.Nickname = name;
-		//VertexMesh<TVertex> mesh = new( vertexSegment, elementSegment ) {
-		//	Nickname = name
-		//};
 		mesh.VertexBufferSegment.WriteRange( vertices, 0 );
 		mesh.ElementBufferSegment.WriteRange( elements, 0 );
-		//this._meshes.Add( mesh );
 		return mesh;
 	}
 
 	public VertexMesh<TVertex> CreateMesh<TVertex>( TVertex[] vertices, uint[] elements, string? name = null ) where TVertex : unmanaged {
 		VertexMesh<TVertex> mesh = CreateEmptyMesh<TVertex>( (uint) vertices.Length, (uint) elements.Length, name );
-		//if (!bufferService.Get( typeof( TVertex ) ).TryAllocate( (uint) vertices.Length * (uint) Marshal.SizeOf<TVertex>(), out BufferSegment? vertexSegment ))
-		//	throw new InvalidOperationException( "Failed to allocate vertex buffer" );
-		//if (!bufferService.ElementBuffer.TryAllocate( (uint) elements.Length * IMesh.ElementSizeBytes, out BufferSegment? elementSegment ))
-		//	throw new InvalidOperationException( "Failed to allocate element buffer" );
-		//vertexSegment.Nickname = name;
-		//elementSegment.Nickname = name;
-		//VertexMesh<TVertex> mesh = new( vertexSegment, elementSegment ) {
-		//	Nickname = name
-		//};
 		unsafe {
 			fixed (TVertex* srcPtr = vertices)
 				mesh.VertexBufferSegment.WriteRange( srcPtr, (ulong) (vertices.Length * sizeof( TVertex )), 0 );
 			fixed (uint* srcPtr = elements)
 				mesh.ElementBufferSegment.WriteRange( srcPtr, (ulong) (elements.Length * sizeof( uint )), 0 );
 		}
-		//this._meshes.Add( mesh );
 		return mesh;
 	}
 
@@ -99,8 +86,10 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 	}
 
 	protected override bool InternalDispose() {
-		foreach (IMesh mesh in this._meshes)
+		foreach (IMesh mesh in this._meshes) {
+			mesh.OnDisposed -= OnMeshDisposed;
 			mesh.Dispose();
+		}
 		return true;
 	}
 }

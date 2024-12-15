@@ -2,12 +2,6 @@
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render.Text.Fonts.Meshing;
 using Engine.Transforms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Standard.Render.Text.Typesetting;
 public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2SceneData> sceneInstanceCollection, FontMeshingService fontMeshingService ) : DisposableIdentifiable, IUpdateable {

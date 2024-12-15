@@ -1,8 +1,6 @@
 ﻿using Engine.Algorithms.Triangulation;
 using Engine.Logging;
 using Engine.Shapes;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Engine.Standard.Render.Text.Fonts;
 
