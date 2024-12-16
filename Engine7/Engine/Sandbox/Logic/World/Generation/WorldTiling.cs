@@ -1,7 +1,7 @@
 ﻿using Engine.Logging;
 using Engine.Standard.Render.Meshing;
 
-namespace Sandbox.Logic.World;
+namespace Sandbox.Logic.World.Generation;
 
 public sealed class WorldTiling {
 
@@ -23,43 +23,49 @@ public sealed class WorldTiling {
 
 		Dictionary<(uint, uint), NeighbouringTiles> tilesBySharedEdge = [];
 		List<Tile> allTiles = [];
-		foreach (BaseTile rootTile in _rootTiles) {
-			AddTiles( rootTile, allTiles );
-		}
+		foreach (BaseTile rootTile in _rootTiles) 			AddTiles( rootTile, allTiles );
 
 		foreach (Tile tile in allTiles) {
 			(uint, uint) edgeAB = GetEdge( tile.IndexA, tile.IndexB );
 			(uint, uint) edgeBC = GetEdge( tile.IndexB, tile.IndexC );
 			(uint, uint) edgeCA = GetEdge( tile.IndexC, tile.IndexA );
-			if (tilesBySharedEdge.TryGetValue( edgeAB, out NeighbouringTiles? neighboursAB )) {
-				neighboursAB.TileB = tile;
-			} else {
-				tilesBySharedEdge.Add( edgeAB, new() { TileA = tile } );
-			}
-			if (tilesBySharedEdge.TryGetValue( edgeBC, out NeighbouringTiles? neighboursBC )) {
-				neighboursBC.TileB = tile;
-			} else {
-				tilesBySharedEdge.Add( edgeBC, new() { TileA = tile } );
-			}
-			if (tilesBySharedEdge.TryGetValue( edgeCA, out NeighbouringTiles? neighboursCA )) {
-				neighboursCA.TileB = tile;
-			} else {
-				tilesBySharedEdge.Add( edgeCA, new() { TileA = tile } );
-			}
+			if (tilesBySharedEdge.TryGetValue( edgeAB, out NeighbouringTiles? neighboursAB )) 				neighboursAB.TileB = tile;
+else 				tilesBySharedEdge.Add( edgeAB, new() { TileA = tile } );
+			if (tilesBySharedEdge.TryGetValue( edgeBC, out NeighbouringTiles? neighboursBC )) 				neighboursBC.TileB = tile;
+else 				tilesBySharedEdge.Add( edgeBC, new() { TileA = tile } );
+			if (tilesBySharedEdge.TryGetValue( edgeCA, out NeighbouringTiles? neighboursCA )) 				neighboursCA.TileB = tile;
+else 				tilesBySharedEdge.Add( edgeCA, new() { TileA = tile } );
 		}
 
 		foreach (var tile in tilesBySharedEdge) {
-			if (tile.Value.TileB is null) {
-				throw new InvalidOperationException( "Tile has no neighbour" );
-			}
+			if (tile.Value.TileB is null) 				throw new InvalidOperationException( "Tile has no neighbour" );
 			tile.Value.TileA.AddNeighbour( tile.Value.TileB );
 			tile.Value.TileB.AddNeighbour( tile.Value.TileA );
 		}
 
 		TerrainType.Initialize();
 		Random r = new( 42 );
-		Gradient3Noise coarseNoise = new( (r.Next(), r.Next(), r.Next()), 0.123f );
-		Gradient3Noise fineNoise = new( (r.Next(), r.Next(), r.Next()), 0.00987f );
+		Gradient3Noise coarseNoise = new( (r.Next(), r.Next(), r.Next()), (r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10), 0.1f );
+		Gradient3Noise fineNoise = new( (r.Next(), r.Next(), r.Next()), (r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10), 0.0004f );
+		//for (float x = -1; x <= 1; x += 1) {
+		//	for (float y = -1; y <= 1; y += 1) {
+		//		for (float z = -1; z <= 1; z += 1) {
+		//			this.LogLine( $"{x}, {y}, {z}: {coarseNoise.Sample( (x, y, z) )}", Log.Level.VERBOSE );
+		//		}
+		//	}
+		//}
+		//for (float y = -.5f; y <= .5f; y += .25f) {
+		//	for (float z = -.5f; z <= .5f; z += .25f) {
+		//		this.LogLine( $"{1}, {y}, {z}: {coarseNoise.Sample( (0.5f, y, z) )}", Log.Level.VERBOSE );
+		//	}
+		//}
+		//this.LogLine( coarseNoise.GetData( (1, 0, 0) ).ToString() );
+		//this.LogLine( coarseNoise.GetData( (-1, 0, 0) ).ToString() );
+		//this.LogLine( coarseNoise.GetData( (0, 1, 0) ).ToString() );
+		//this.LogLine( coarseNoise.GetData( (0, -1, 0) ).ToString() );
+		//this.LogLine( coarseNoise.GetData( (0, 0, 1) ).ToString() );
+		//this.LogLine( coarseNoise.GetData( (0, 0, -1) ).ToString() );
+
 		List<TileTerrainGenerationLandscapeData> tileTerrainGenerationDatas = [];
 		this.LogLine( $"Generating terrain data for {allTiles.Count} tiles...", Log.Level.VERBOSE );
 		foreach (Tile tile in allTiles) {
@@ -75,10 +81,8 @@ public sealed class WorldTiling {
 		}
 
 		List<BaseTile> tilesToGenerateFor = [];
-		foreach (BaseTile rootTile in _rootTiles) {
-			if (!NeighbourFound( rootTile, tilesToGenerateFor ))
+		foreach (BaseTile rootTile in _rootTiles) 			if (!NeighbourFound( rootTile, tilesToGenerateFor ))
 				tilesToGenerateFor.Add( rootTile );
-		}
 
 		tilesToGenerateFor.AddRange( _rootTiles.Except( tilesToGenerateFor ) );
 
@@ -151,9 +155,7 @@ public sealed class WorldTiling {
 				|| rootTile.VectorIndexB == potentialNeighbour.VectorIndexC
 				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexA
 				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexB
-				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexC) {
-				return true;
-			}
+				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexC) 				return true;
 		return false;
 	}
 
@@ -162,11 +164,7 @@ public sealed class WorldTiling {
 			list.AddRange( baseTile.Tiles );
 			return;
 		}
-		if (baseTile.SubTiles is not null) {
-			foreach (BaseTile subTile in baseTile.SubTiles) {
-				AddTiles( subTile, list );
-			}
-		}
+		if (baseTile.SubTiles is not null) 			foreach (BaseTile subTile in baseTile.SubTiles) 				AddTiles( subTile, list );
 	}
 
 	private (uint, uint) GetEdge( uint indexA, uint indexB ) => indexA < indexB
@@ -200,11 +198,8 @@ public sealed class WorldTiling {
 			uint subIndexC = indices[ i + 2 ];
 
 			BaseTile tile;
-			if (layer + 1 == _worldIcosphere.Subdivisions - 1) {
-				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetTiles( subIndexA, subIndexB, subIndexC ) );
-			} else {
-				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetSubTiles( subIndexA, subIndexB, subIndexC, layer + 1 ) );
-			}
+			if (layer + 1 == _worldIcosphere.Subdivisions - 1) 				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetTiles( subIndexA, subIndexB, subIndexC ) );
+else 				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetSubTiles( subIndexA, subIndexB, subIndexC, layer + 1 ) );
 			tiles.Add( tile );
 		}
 

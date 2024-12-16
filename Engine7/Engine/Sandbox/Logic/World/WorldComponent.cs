@@ -5,6 +5,11 @@ public sealed class WorldComponent : ComponentBase {
 	public double SimulatedSurfaceArea { get; set; } = 0;
 }
 
-public sealed class WorldTilingComponent : ComponentBase {
-	public WorldTiling Tiling { get; } = new();
+public sealed class WorldCameraComponent : ComponentBase {
+
+}
+
+public sealed class WorldCameraArchetype : ArchetypeBase {
+	public WorldComponent WorldComponent { get; set; } = null!;
+	public WorldCameraComponent WorldCameraComponent { get; set; } = null!;
 }

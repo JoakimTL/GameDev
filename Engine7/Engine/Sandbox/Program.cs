@@ -9,6 +9,8 @@ Startup.BeginInit()
 	.WithModule<SandboxRenderModule>()
 	.Start();
 
+//Lots of stuff: https://iquilezles.org/articles/
+
 //TODO: Add camera (done?)
 //TODO: Add render pipeline
 //TODO: Add input (done?)

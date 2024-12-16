@@ -128,6 +128,13 @@ public static class Vector {
 			unmanaged, INumber<TScalar>
 		=> l.EntrywiseOperation( ( s ) => TScalar.Clamp( s, inclusiveLowerBound, inclusiveUpperBound ) );
 
+	public static TVector Abs<TVector, TScalar>( this TVector l )
+		where TVector :
+			unmanaged, IEntrywiseOperations<TVector, TScalar>
+		where TScalar :
+			unmanaged, INumber<TScalar>
+		=> l.EntrywiseOperation( TScalar.Abs );
+
 	/// <summary>
 	/// Find the determinant between the two vectors <paramref name="l"/> and <paramref name="r"/> from a chosen <paramref name="origin"/>.
 	/// </summary>

@@ -1,4 +1,5 @@
-﻿using Engine.Module.Entities.Container;
+﻿using Engine;
+using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render;
@@ -10,7 +11,7 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 	private SceneInstanceCollection<Vertex3, Entity2SceneData>? _sceneInstanceCollection;
 	//private OcTree<TileTriangle, float> _octree;
 	private Vector3<float> _lastCameraTranslation;
-	private List<WorldTileSceneInstance> _instances = [];
+	private readonly List<WorldTileSceneInstance> _instances = [];
 
 	protected override void OnRenderEntitySet() {
 		if (_sceneInstanceCollection is null)
@@ -25,10 +26,10 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		Vector3<float> currentCameraTranslation = RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation;
+		Vector3<float> currentCameraTranslation = RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation.Round<Vector3<float>, float>( 2, MidpointRounding.ToEven );
 		if (_lastCameraTranslation == currentCameraTranslation)
 			return;
-		_lastCameraTranslation = RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation;
+		_lastCameraTranslation = currentCameraTranslation;
 
 		var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
 		Random r = new( 42 );
@@ -54,7 +55,7 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 	private int GetLoDLevel( float distance, int minLayer, int maxLayer ) {
 		//Min layer is the lowest level of detail, max layer is the highest level of detail.
 		int layerDifference = maxLayer - minLayer;
-		float distanceToLayer = distance / 0.5f;
+		float distanceToLayer = distance;
 		float distancePart = distanceToLayer * layerDifference;
 		float layer = maxLayer - distancePart;
 		return int.Min( (int) layer, maxLayer );
@@ -159,7 +160,7 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 			int a = (int) trianglesIsLoD[ i ].A;
 			int b = (int) trianglesIsLoD[ i ].B;
 			int c = (int) trianglesIsLoD[ i ].C;
-			Vector4<byte> color = (trianglesIsLoD[ i ].Color * 255).Clamp<Vector4<double>, double>(0, 255).CastSaturating<double, byte>();
+			Vector4<byte> color = (trianglesIsLoD[ i ].Color * 255).Clamp<Vector4<double>, double>( 0, 255 ).CastSaturating<double, byte>();
 
 			Vector3<float> aV = tileVectors[ a ].CastSaturating<double, float>();
 			Vector3<float> bV = tileVectors[ b ].CastSaturating<double, float>();

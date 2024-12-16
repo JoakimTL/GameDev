@@ -1,4 +1,6 @@
-﻿namespace Sandbox.Logic.World;
+﻿using Sandbox.Logic.World.Generation;
+
+namespace Sandbox.Logic.World;
 
 //public sealed class TileSubdivision {
 
@@ -36,7 +38,8 @@ public sealed class Tile( uint indexA, uint indexB, uint indexC ) : Identifiable
 	public IReadOnlyList<Tile> Neighbours => _neighbours;
 	public Vector4<double> Color => GetColor();
 	private Vector4<double> GetColor() {
-		return (Height > 0 ? Height : 0, Height < 0 ? -Height : 0, 0, 1);//Terrain?.Color ?? throw new InvalidOperationException( "No terrain type" );
+		return Terrain?.Color ?? throw new InvalidOperationException( "No terrain type" );
+		//return (Height > 0 ? Height : 0, Height < 0 ? -Height : 0, 0, 1);
 	}
 
 	public TerrainType? Terrain { get; private set; }

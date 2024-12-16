@@ -6,10 +6,10 @@ public static class Vector2Extensions {
 	public static Vector3<TScalar> ToCartesianFromPolar<TScalar>( in this Vector2<TScalar> polar, TScalar radius )
 		where TScalar :
 			unmanaged, IFloatingPointIeee754<TScalar> {
-		TScalar sinY = TScalar.Sin( polar.Y );
-		TScalar x = radius * sinY * TScalar.Cos( polar.X );
-		TScalar y = radius * sinY * TScalar.Sin( polar.X );
-		TScalar z = radius * TScalar.Cos( polar.Y );
+		TScalar sinY = TScalar.Cos( polar.Y );
+		TScalar x = radius * sinY * TScalar.Sin( polar.X );
+		TScalar y = radius * TScalar.Sin( polar.Y );
+		TScalar z = radius * sinY * TScalar.Cos( polar.X );
 		return new( x, y, z );
 	}
 

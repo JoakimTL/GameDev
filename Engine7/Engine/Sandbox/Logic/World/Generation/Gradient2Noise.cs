@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Logic.World;
+﻿namespace Sandbox.Logic.World.Generation;
 
 public class Gradient2Noise {
 	private readonly Vector2<int> _seed;
@@ -40,17 +40,17 @@ public class Gradient2Noise {
 
 	public Vector2<float> GetData( Vector2<int> p )
 		=> new Vector2<float>(
-				(GetDataValue( p, unchecked((uint) _seed.X) ) * 2) - 1,
-				(GetDataValue( p, unchecked((uint) _seed.Y) ) * 2) - 1
+				GetDataValue( p, unchecked((uint) _seed.X) ) * 2 - 1,
+				GetDataValue( p, unchecked((uint) _seed.Y) ) * 2 - 1
 			).Normalize<Vector2<float>, float>();
 
 	public static float GetDataValue( Vector2<int> p, uint seed ) {
 		unchecked {
 			uint v = 42595009 + seed;
 			v *= 40631027;
-			v ^= (uint) ((p.X * 4919) + (p.Y * 5879));
+			v ^= (uint) (p.X * 4919 + p.Y * 5879);
 			v *= 40014307;
-			v ^= (uint) ((p.X * 5237) + (p.Y * 6823));
+			v ^= (uint) (p.X * 5237 + p.Y * 6823);
 			return v * (1f / uint.MaxValue);
 		}
 	}

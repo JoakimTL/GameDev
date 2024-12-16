@@ -46,49 +46,49 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
 		this._scene = this._sceneService.GetScene( "test" );
-		_cameraService.Main.View3.Translation = new Vector3<float>( 0, 1, 1 );
-		userInputEventService.OnKey += OnKey;
-		userInputEventService.OnMouseButton += OnMouseButton;
-		userInputEventService.OnMouseMoved += OnMouseMoved;
+		//userInputEventService.OnKey += OnKey;
+		//userInputEventService.OnMouseButton += OnMouseButton;
+		//userInputEventService.OnMouseMoved += OnMouseMoved;
 	}
 
-	private void OnMouseMoved( MouseMoveEvent @event ) {
-		if (this._panning) {
-			var delta = @event.Movement - _lastMousePosition;
-			_cameraService.Main.View3.Rotation = (Rotor3.FromAxisAngle( Vector3<float>.UnitY, (float) -delta.X * float.Pi * 0.001f ) * _cameraService.Main.View3.Rotation).Normalize<Rotor3<float>, float>();
-			_cameraService.Main.View3.Rotation = (Rotor3.FromAxisAngle( _cameraService.Main.View3.Rotation.Left, (float) delta.Y * float.Pi * 0.001f ) * _cameraService.Main.View3.Rotation).Normalize<Rotor3<float>, float>();
-		}
-		_lastMousePosition = @event.Movement;
-	}
+	//private void OnMouseMoved( MouseMoveEvent @event ) {
+	//	if (this._panning) {
+	//		var delta = @event.Movement - _lastMousePosition;
+	//		_cameraService.Main.View3.Rotation = (Rotor3.FromAxisAngle( Vector3<float>.UnitY, (float) -delta.X * float.Pi * 0.001f ) * _cameraService.Main.View3.Rotation).Normalize<Rotor3<float>, float>();
+	//		_cameraService.Main.View3.Rotation = (Rotor3.FromAxisAngle( _cameraService.Main.View3.Rotation.Left, (float) delta.Y * float.Pi * 0.001f ) * _cameraService.Main.View3.Rotation).Normalize<Rotor3<float>, float>();
+	//	}
+	//	_lastMousePosition = @event.Movement;
+	//}
 
-	private void OnMouseButton( MouseButtonEvent @event ) {
-		if (@event.Button == MouseButton.Right) {
-			if (@event.InputType == TactileInputType.Press)
-				this._panning = true;
-			if (@event.InputType == TactileInputType.Release)
-				this._panning = false;
-		}
-	}
+	//private void OnMouseButton( MouseButtonEvent @event ) {
+	//	if (@event.Button == MouseButton.Right) {
+	//		if (@event.InputType == TactileInputType.Press)
+	//			this._panning = true;
+	//		if (@event.InputType == TactileInputType.Release)
+	//			this._panning = false;
+	//	}
+	//}
 
-	private void OnKey( KeyboardEvent @event ) {
-		if (@event.InputType != TactileInputType.Press)
-			return;
-		if (@event.Key == Keys.W)
-			_cameraService.Main.View3.Translation += _cameraService.Main.View3.Rotation.Forward * 0.05f;
-		if (@event.Key == Keys.S)
-			_cameraService.Main.View3.Translation -= _cameraService.Main.View3.Rotation.Forward * 0.05f;
-		if (@event.Key == Keys.A)
-			_cameraService.Main.View3.Translation += _cameraService.Main.View3.Rotation.Left * 0.1f;
-		if (@event.Key == Keys.D)
-			_cameraService.Main.View3.Translation -= _cameraService.Main.View3.Rotation.Left * 0.1f;
-		if (@event.Key == Keys.Space)
-			_cameraService.Main.View3.Translation += _cameraService.Main.View3.Rotation.Up * 0.1f;
-		if (@event.Key == Keys.LeftShift)
-			_cameraService.Main.View3.Translation -= _cameraService.Main.View3.Rotation.Up * 0.1f;
-	}
+	//private void OnKey( KeyboardEvent @event ) {
+	//	if (@event.InputType != TactileInputType.Press)
+	//		return;
+	//	if (@event.Key == Keys.W)
+	//		_cameraService.Main.View3.Translation += _cameraService.Main.View3.Rotation.Forward * 0.05f;
+	//	if (@event.Key == Keys.S)
+	//		_cameraService.Main.View3.Translation -= _cameraService.Main.View3.Rotation.Forward * 0.05f;
+	//	if (@event.Key == Keys.A)
+	//		_cameraService.Main.View3.Translation += _cameraService.Main.View3.Rotation.Left * 0.1f;
+	//	if (@event.Key == Keys.D)
+	//		_cameraService.Main.View3.Translation -= _cameraService.Main.View3.Rotation.Left * 0.1f;
+	//	if (@event.Key == Keys.Space)
+	//		_cameraService.Main.View3.Translation += _cameraService.Main.View3.Rotation.Up * 0.1f;
+	//	if (@event.Key == Keys.LeftShift)
+	//		_cameraService.Main.View3.Translation -= _cameraService.Main.View3.Rotation.Up * 0.1f;
+	//}
 
 	public void PrepareRendering( double time, double deltaTime ) {
 		this._testUniforms.Buffer.Write<uint, SceneCameraBlock>( 0, new SceneCameraBlock( _cameraService.Main.Camera3.Matrix, _cameraService.Main.View3.Rotation.Up, -_cameraService.Main.View3.Rotation.Left ) );
+		_windowService.Window.Title = $"Camera: {_cameraService.Main.View3.Translation}";
 	}
 
 	public void DrawToScreen() {

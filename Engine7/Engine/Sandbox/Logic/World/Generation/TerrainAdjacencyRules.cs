@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Logic.World;
+﻿namespace Sandbox.Logic.World.Generation;
 
 public static class TerrainAdjacencyRules {
 

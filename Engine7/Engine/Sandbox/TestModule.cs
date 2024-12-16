@@ -45,6 +45,7 @@ internal sealed class GameLogicModule : ModuleBase {
 			p.SimulatedSurfaceArea = 611000000;
 		} );
 		_entity.AddComponent<WorldTilingComponent>();
+		_entity.AddComponent<WorldCameraComponent>();
 		this._textEntity = container.CreateEntity();
 		_textEntity.AddComponent<RenderComponent>();
 		Transform2Component t2c = _textEntity.AddComponent<Transform2Component>();

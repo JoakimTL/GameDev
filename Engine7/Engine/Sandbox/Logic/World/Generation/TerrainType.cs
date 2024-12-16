@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Logic.World;
+﻿namespace Sandbox.Logic.World.Generation;
 
 public sealed class TerrainType {
 
@@ -42,7 +42,7 @@ public sealed class TerrainType {
 	}
 
 	public static IReadOnlyList<TerrainType> AllTerrainTypes => _terrainTypes;
-	public static IEnumerable<TerrainType> AllLandTerrainTypes => _terrainTypes.Where(p => !p.IsWater);
+	public static IEnumerable<TerrainType> AllLandTerrainTypes => _terrainTypes.Where( p => !p.IsWater );
 
 	public int Id { get; }
 	public Vector4<double> Color { get; }
