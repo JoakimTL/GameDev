@@ -16,7 +16,7 @@ Startup.BeginInit()
 //TODO: Add input (done?)
 //TODO: Add input to RenderEntity
 //TODO: Add sound (https://github.com/naudio/NAudio ?)
-//TODO: Partial icosphere
+//TODO: Partial icosphere (done?)
 //TODO: Add text rendering (soon done?)
 //TODO: Add GUI?
 

@@ -9,6 +9,7 @@ using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using Engine.Standard.Entities.Components;
+using Engine.Standard.Entities.Components.Rendering;
 using Sandbox.Logic.World;
 
 namespace Sandbox;

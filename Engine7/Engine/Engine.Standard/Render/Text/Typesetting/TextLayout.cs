@@ -6,6 +6,8 @@ using Engine.Transforms;
 namespace Engine.Standard.Render.Text.Typesetting;
 public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2SceneData> sceneInstanceCollection, FontMeshingService fontMeshingService ) : DisposableIdentifiable, IUpdateable {
 
+	//The entire point of this class is to place glyphs in the correct positions, such that they fill a rectangle. The rectangle is defined by the base matrix.
+
 	//A collection of scene instances.
 	//TODO Change from disposing everything to disposing only what needs to change. Reuse scene instances if possible.
 
@@ -16,10 +18,10 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 
 	private string _fontName = string.Empty;
 	private string _text = string.Empty;
+	private bool _billboard = true;
+	private Alignment _horizontalAlignment = Alignment.Negative;
+	private Alignment _verticalAlignment = Alignment.Positive;
 	private float _emsPerLine = 30;
-
-	//private string _incomingFontName = string.Empty;
-	//private string _incomingText = string.Empty;
 
 	public string FontName {
 		get => _fontName;
@@ -37,6 +39,36 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 			if (_text == value)
 				return;
 			_text = value;
+			_needsUpdate = true;
+		}
+	}
+
+	public bool Billboarded {
+		get => _billboard;
+		set {
+			if (_billboard == value)
+				return;
+			_billboard = value;
+			_needsUpdate = true;
+		}
+	}
+
+	public Alignment HorizontalAlignment {
+		get => _horizontalAlignment;
+		set {
+			if (_horizontalAlignment == value)
+				return;
+			_horizontalAlignment = value;
+			_needsUpdate = true;
+		}
+	}
+
+	public Alignment VerticalAlignment {
+		get => _verticalAlignment;
+		set {
+			if (_verticalAlignment == value)
+				return;
+			_verticalAlignment = value;
 			_needsUpdate = true;
 		}
 	}
@@ -84,6 +116,13 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		MeshedFont meshedFont = _fontMeshingService.Get( _fontName );
 		Fonts.Font font = meshedFont.Font;
 
+		int glyphedLetters = 0;
+		for (int i = 0; i < _text.Length; i++) {
+			char c = _text[ i ];
+			if (c != ' ' && c != '\t' && c != '\n' && c != '\r')
+				glyphedLetters++;
+		}
+
 		//Care for glyphs with no mesh.
 		for (int i = _glyphInstances.Count; i < _text.Length; i++)
 			_glyphInstances.Add( _sceneInstanceCollection.Create<GlyphInstance>() );
@@ -124,9 +163,4 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		return true;
 	}
 
-}
-
-public sealed class GlyphInstance : SceneInstanceCollection<GlyphVertex, Entity2SceneData>.InstanceBase {
-	internal void SetGlyphMesh( GlyphMesh? mesh ) => base.SetMesh( mesh );
-	internal bool SetInstanceData( Entity2SceneData data ) => base.Write( data );
 }

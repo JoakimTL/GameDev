@@ -1,15 +1,17 @@
 ﻿using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
-using Engine.Standard.Entities.Components;
+using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.Text;
 using Engine.Standard.Render.Text.Typesetting;
 
 namespace Engine.Standard.Render.Entities.Behaviours;
 
-public sealed class TextRenderingBehaviour : SynchronizedRenderBehaviourBase<TextRendering2Archetype> {
+public sealed class TextRendering2Behaviour : SynchronizedRenderBehaviourBase<TextRendering2Archetype> {
 
 	private string _desyncFontName = string.Empty;
 	private string _desyncText = string.Empty;
+	private Alignment _desyncHorizontalAlignment = Alignment.Negative;
+	private Alignment _desyncVerticalAlignment = Alignment.Positive;
 
 	private Transform2Behaviour? _subscribedTransformBehaviour;
 	private TextLayout? _textLayout;

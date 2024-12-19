@@ -1,4 +1,38 @@
-﻿namespace Engine.Standard.Render.Text.Fonts;
+﻿using System.Runtime.InteropServices;
+
+namespace Engine.Standard.Render.Text.Fonts;
+
+public unsafe sealed class FontLoader : DisposableIdentifiable {
+
+	public const uint Tag_Cmap = 1885433187;
+	public const uint Tag_Glyf = 1719233639;
+	public const uint Tag_Head = 1684104552;
+	public const uint Tag_Loca = 1633906540;
+	public const uint Tag_Maxp = 1886937453;
+	public const uint Tag_Hhea = 1634035816;
+	public const uint Tag_Hmtx = 2020896104;
+
+	private readonly byte* _fontDataPtr;
+	private readonly FontDataReader _dataReader;
+	private readonly FontLoaderHeaderData _fontHeaderData;
+	private readonly Tables.HeadTable _headTable;
+
+	public FontLoader(string fontFilePath ) {
+		if (Path.GetExtension(fontFilePath) != ".ttf")
+			throw new Exception( "Font file must be a TrueType font (.ttf)" );
+		byte[] fontDataByteArray = File.ReadAllBytes( fontFilePath );
+		_fontDataPtr = (byte*) NativeMemory.Alloc( (nuint) fontDataByteArray.Length );
+		Marshal.Copy( fontDataByteArray, 0, (nint) _fontDataPtr, fontDataByteArray.Length );
+		_dataReader = new( _fontDataPtr, fontDataByteArray.Length, false );
+		_fontHeaderData = new( _dataReader );
+		_headTable = new( _fontHeaderData.Tables[ Tag_Head ], _dataReader );
+	}
+
+	protected override bool InternalDispose() {
+		NativeMemory.Free( _fontDataPtr );
+		return true;
+	}
+}
 
 public sealed class Font {
 	public const uint Tag_Cmap = 1885433187;
@@ -13,7 +47,7 @@ public sealed class Font {
 	private ushort _unitsPerEm;
 	private ushort _numBytesPerLocationLookup;
 	private FontOffsetSubtable _fontOffsetSubtable;
-	private Dictionary<uint, FontTable> _tables = [];
+	private Dictionary<uint, FontTableHeader> _tables = [];
 	private Dictionary<char, IGlyph> _glyphs = [];
 	private IGlyph _missingGlyph;
 
@@ -34,14 +68,14 @@ public sealed class Font {
 		this._fontOffsetSubtable = FontUtilities.Read<FontOffsetSubtable>( srcPtr, ref offset ).ProperEndianness;
 
 		for (int i = 0; i < this._fontOffsetSubtable.NumTables; i++) {
-			FontTable table = FontUtilities.Read<FontTable>( srcPtr, ref offset ).ProperEndianness;
+			FontTableHeader table = FontUtilities.Read<FontTableHeader>( srcPtr, ref offset ).ProperEndianness;
 			this._tables.Add( table.Tag, table );
 		}
 
-		FontTable headTable = this._tables[ Tag_Head ];
-		FontTable maxpTable = this._tables[ Tag_Maxp ];
-		FontTable locaTable = this._tables[ Tag_Loca ];
-		FontTable glyfTable = this._tables[ Tag_Glyf ];
+		FontTableHeader headTable = this._tables[ Tag_Head ];
+		FontTableHeader maxpTable = this._tables[ Tag_Maxp ];
+		FontTableHeader locaTable = this._tables[ Tag_Loca ];
+		FontTableHeader glyfTable = this._tables[ Tag_Glyf ];
 
 		//Head table
 		offset = (nint) headTable.Offset + 18;
@@ -263,7 +297,7 @@ public sealed class Font {
 		}
 	}
 
-	private static unsafe GlyphMap[] GetUnicodeToGlyphIndexMappings( byte* srcPtr, in FontTable cmap ) {
+	private static unsafe GlyphMap[] GetUnicodeToGlyphIndexMappings( byte* srcPtr, in FontTableHeader cmap ) {
 		List<GlyphMap> glyphMaps = [];
 		nint offset = (nint) cmap.Offset;
 

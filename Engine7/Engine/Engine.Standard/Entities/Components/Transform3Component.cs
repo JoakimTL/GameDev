@@ -4,10 +4,10 @@ using Engine.Transforms;
 
 namespace Engine.Standard.Entities.Components;
 
-public sealed class Transform2Component : ComponentBase {
-	public Transform2<double> Transform { get; }
+public sealed class Transform3Component : ComponentBase {
+	public Transform3<double> Transform { get; }
 
-	public Transform2Component() {
+	public Transform3Component() {
 		this.Transform = new();
 		this.Transform.OnMatrixChanged += OnMatrixChanged;
 	}
