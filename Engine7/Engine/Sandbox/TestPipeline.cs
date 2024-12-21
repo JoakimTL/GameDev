@@ -11,24 +11,24 @@ using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Render;
 using Engine.Standard.Render.Meshing;
-using Engine.Standard.Render.Text;
 using Engine.Standard.Render.Text.Fonts;
+using Engine.Standard.Render.Text.Services;
 using OpenGL;
 using System.Numerics;
 
 namespace Sandbox;
 
-public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, FontService fontService, UserInputEventService userInputEventService, CameraService cameraService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
+public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, OldFontService fontService, UserInputEventService userInputEventService, CameraService cameraService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
 	private readonly WindowService _windowService = windowService;
 	private readonly DataBlockService _dataBlockService = dataBlockService;
 	private readonly SceneService _sceneService = sceneService;
-	private readonly FontService _fontService = fontService;
+	private readonly OldFontService _fontService = fontService;
 	private readonly CameraService _cameraService = cameraService;
 	private UniformBlock _testUniforms = null!;
 	private ShaderStorageBlock _testShaderStorage = null!;
 	private DataBlockCollection _dataBlocks = null!;
 	private Scene _scene = null!;
-	private Font? _font;
+	private OldFont? _font;
 
 	private bool _panning;
 	private Vector2<double> _lastMousePosition;

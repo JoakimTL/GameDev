@@ -13,7 +13,7 @@ public sealed class MeshedFont : DisposableIdentifiable {
 	public MeshedFont( Font font, MeshService meshService ) {
 		this._meshService = meshService;
 		this.Font = font;
-		Nickname = font.Path;
+		Nickname = font.FontName;
 	}
 
 	public GlyphMesh? this[ char c ] => GetOrCreateGlyphMesh( c );
@@ -22,14 +22,15 @@ public sealed class MeshedFont : DisposableIdentifiable {
 		GlyphMesh? mesh = this._cachedMeshes[ c ];
 		if (mesh is not null || _loaded[ c ])
 			return mesh;
-
-		IGlyph glyph = this.Font[ c ];
-		GlyphTriangle[] triangles = glyph.TriangulateGlyph();
 		_loaded[ c ] = true;
 		this.LogLine( $"Loaded mesh for {c}.", Log.Level.VERBOSE );
+		DefinedGlyph? glyphDefinition = this.Font[ c ];
+		if (glyphDefinition is null)
+			return null;
+		GlyphTriangle[] triangles = glyphDefinition.Glyph.TriangulateGlyph();
 		if (triangles.Length == 0)
 			return null;
-		mesh = new( glyph, CreateMesh( c.ToString(), glyph.TriangulateGlyph() ) );
+		mesh = new( glyphDefinition, CreateMesh( c.ToString(), triangles ) );
 		this._cachedMeshes[ c ] = mesh;
 		return mesh;
 	}

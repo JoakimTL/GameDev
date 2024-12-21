@@ -1,4 +1,4 @@
-﻿namespace Engine.Standard.Render.Text.Fonts.Tables;
+﻿namespace Engine.Standard.Render.Text.Fonts.Tables.Head;
 
 public enum FontDirectionHint : short {
 	/*

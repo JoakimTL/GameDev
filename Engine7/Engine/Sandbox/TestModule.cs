@@ -51,10 +51,10 @@ internal sealed class GameLogicModule : ModuleBase {
 		_textEntity.AddComponent<RenderComponent>();
 		Transform2Component t2c = _textEntity.AddComponent<Transform2Component>();
 		t2c.Transform.Scale = new Vector2<double>( 0.75, 0.75 );
-		//RenderedTextComponent text = _textEntity.AddComponent<RenderedTextComponent>(p => {
-		//	p.Text = "Hello, World!";
-		//	p.FontName = "JetBrainsMono-Bold";
-		//} );
+		RenderedTextComponent text = _textEntity.AddComponent<RenderedTextComponent>( p => {
+			p.Text = "Hello, World!";
+			p.FontName = "JetBrainsMono-Bold";
+		} );
 		//TextJumblerComponent aa = _textEntity.AddComponent<TextJumblerComponent>();
 		//aa.Offset = 1;
 	}

@@ -1,26 +1,25 @@
-﻿namespace Engine.Standard.Render.Text.Fonts;
+﻿using Engine.Standard.Render.Text.Fonts.Tables.Glyf;
+
+namespace Engine.Standard.Render.Text.Fonts;
 
 public sealed class FontCompoundGlyph : IGlyph {
-	public FontGlyphHeader Header { get; }
-	public GlyphMap Mapping { get; }
 
+	private readonly CompoundGlyphData _glyphData;
+	private readonly List<IGlyph> _componentGlyphs;
 
-	private readonly List<IGlyph> _glyphs;
-
-	public FontCompoundGlyph( FontGlyphHeader header, GlyphMap mapping ) {
-		this._glyphs = [];
-		this.Header = header;
-		this.Mapping = mapping;
+	public FontCompoundGlyph( CompoundGlyphData glyphData, Matrix2x2<float> transformationMatrix, Vector2<float> offset ) {
+		_glyphData = glyphData;
+		_componentGlyphs = [];
+		foreach (CompoundGlyphComponentData component in _glyphData.ComponentGlyphData)
+			_componentGlyphs.Add( Font.CreateGlyph( component.Glyph, transformationMatrix * component.TransformationMatrix, offset + component.Offset ) );
 	}
 
-	public void AddGlyph( IGlyph glyph ) {
-		this._glyphs.Add( glyph );
-	}
+	public IGlyphData GlyphData => _glyphData;
 
 	public GlyphTriangle[] TriangulateGlyph() {
-		List<GlyphTriangle> result = [];
-		foreach (IGlyph glyph in this._glyphs)
-			result.AddRange( glyph.TriangulateGlyph() );
-		return result.ToArray();
+		List<GlyphTriangle> triangles = [];
+		foreach (IGlyph component in _componentGlyphs)
+			triangles.AddRange( component.TriangulateGlyph() );
+		return [ .. triangles ];
 	}
 }

@@ -39,18 +39,18 @@ public sealed class TestPipelineNoMesh( ShaderBundleService shaderBundleService,
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
 		// ------------------------------- How to create a mesh in parts. ------------------------------- //
-		this._vertexBuffer = this._bufferService.Get( typeof( Vertex2 ) ) ?? throw new NullReferenceException( "VertexBuffer not found." );
+		this._vertexBuffer = this._bufferService.Get( typeof( VertexSpecial2 ) ) ?? throw new NullReferenceException( "VertexBuffer not found." );
 		unsafe {
-			if (!this._vertexBuffer.TryAllocate( 6 * (ulong) sizeof( Vertex2 ), out this._vertexBufferSegment! ))
+			if (!this._vertexBuffer.TryAllocate( 6 * (ulong) sizeof( VertexSpecial2 ), out this._vertexBufferSegment! ))
 				throw new InvalidOperationException( "Couldn't allocate vertex buffer segment." );
 		}
 		this._elementBuffer = this._bufferService.ElementBuffer;
 		if (!this._elementBuffer.TryAllocate( 3 * sizeof( int ), out this._elementBufferSegment! ))
 			throw new InvalidOperationException( "Couldn't allocate element buffer segment." );
 		this._vertexBufferSegment.WriteRange( [
-			new Vertex2 { Translation = (0.0f, 0.5f), Color = (255, 255, 0, 255) },
-			new Vertex2 { Translation = (-0.5f, -0.5f), Color = (255, 0, 0, 255) },
-			new Vertex2 { Translation = (0.5f, -0.5f), Color = (255, 0, 255, 255) } ], 0 );
+			new VertexSpecial2 { Translation = (0.0f, 0.5f), Color = (255, 255, 0, 255) },
+			new VertexSpecial2 { Translation = (-0.5f, -0.5f), Color = (255, 0, 0, 255) },
+			new VertexSpecial2 { Translation = (0.5f, -0.5f), Color = (255, 0, 255, 255) } ], 0 );
 		this._elementBufferSegment.WriteRange( [ 0, 1, 2 ], 0 );
 
 		this._sceneDataBuffer = this._bufferService.Get( typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexBuffer not found." );
@@ -65,15 +65,15 @@ public sealed class TestPipelineNoMesh( ShaderBundleService shaderBundleService,
 				throw new InvalidOperationException( "Couldn't allocate command buffer segment." );
 		}
 
-		this._testVertexArrayObject = this._compositeVertexArrayObjectService.Get( typeof( Vertex2 ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
+		this._testVertexArrayObject = this._compositeVertexArrayObjectService.Get( typeof( VertexSpecial2 ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
 		this._shaderBundle = this._shaderBundleService.Get<TestShaderBundle>() ?? throw new NullReferenceException( "ShaderBundle not found." );
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
 		this._vertexBufferSegment.WriteRange( [
-			new Vertex2 { Translation = (0.0f, 0.5f), Color = ((byte) (MathF.Sin((float) time) * 100 + 100), 255, 0, 255) },
-			new Vertex2 { Translation = (-0.5f, -0.5f), Color = (255, 0, 0, 255) },
-			new Vertex2 { Translation = (0.5f, -0.5f), Color = (255, 0, (byte) (MathF.Cos((float) time) * 100 + 100), 255) } ], 0 );
+			new VertexSpecial2 { Translation = (0.0f, 0.5f), Color = ((byte) (MathF.Sin((float) time) * 100 + 100), 255, 0, 255) },
+			new VertexSpecial2 { Translation = (-0.5f, -0.5f), Color = (255, 0, 0, 255) },
+			new VertexSpecial2 { Translation = (0.5f, -0.5f), Color = (255, 0, (byte) (MathF.Cos((float) time) * 100 + 100), 255) } ], 0 );
 		this._sceneDataBufferSegment.WriteRange( [
 			new Entity2SceneData ( Matrix.Create4x4.RotationZ( -(float) time * 2 ) ),
 			new Entity2SceneData ( Matrix.Create4x4.RotationZ( (float) time * 2 ) ) ], 0 );

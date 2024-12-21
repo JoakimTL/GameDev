@@ -42,9 +42,9 @@ public struct Vertex2UV( Vector2<float> translation, Vector2<float> uv, Vector4<
 	public Vector4<byte> Color = color;
 }
 
-[Identity( nameof( Vertex2 ) )]
+[Identity( nameof( VertexSpecial2 ) )]
 [VAO.Setup( 0, 0, 0 ), StructLayout( LayoutKind.Explicit, Pack = 1 )]
-public struct Vertex2( Vector2<float> translation, Vector4<byte> color ) {
+public struct VertexSpecial2( Vector2<float> translation, Vector4<byte> color ) {
 	[VAO.Data( VertexAttribType.Float, 2 ), FieldOffset( 0 )]
 	public Vector2<float> Translation = translation;
 	[VAO.Data( VertexAttribType.UnsignedByte, 4, normalized: true ), FieldOffset( 16 )]

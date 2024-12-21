@@ -1,76 +1,43 @@
-﻿using System;
+﻿using Engine.Logging;
+using Engine.Standard.Render.Text.Fonts.Tables.Glyf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Engine.Standard.Render.Text.Fonts.Tables;
 /// <summary>
 /// <c>Glyph outline table</c><br/>
-/// Contains the vectorized outlines of glyphs. Used in conjunction with <see cref="LocaTable"/>.<br/>
+/// Contains the vectorized outlines of glyphs. Uses <see cref="CmapTable"/> and <see cref="LocaTable"/>.<br/>
 /// <br/>
 /// <see href="https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6glyf.html">Glyph outline table documentation</see>
 /// </summary>
-public sealed class GlyfTable( FontTableHeader header, CmapTable cmap, LocaTable loca ) : FontTable( header ) {
-}
+public sealed class GlyfTable : FontTable {
 
-/// <summary>
-/// <c>Character code mapping table</c><br/>
-/// Contains information about how character codes map to glyph indices.<br/>
-/// <br/>
-/// <see href="https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6cmap.html">Character code mapping table</see>
-/// </summary>
-public sealed class CmapTable( FontTableHeader header ) : FontTable( header ) {
-}
+	private readonly Dictionary<uint, IGlyphData> _glyphByIndex;
+	private readonly Dictionary<char, IGlyphData> _glyphByUnicode;
 
-/// <summary>
-/// <c>Kerning table</c><br/>
-/// Contains kerning information for the font.<br/>
-/// <br/>
-/// <see href="https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6kern.html">Kerning table documentation</see>
-/// </summary>
-public sealed class KernTable( FontTableHeader header ) : FontTable( header ) {
-}
+	public GlyfTable( FontTableHeader header, LocaTable locaTable, CmapTable cmapTable, FontDataReader reader ) : base( header ) {
+		_glyphByIndex = [];
+		_glyphByUnicode = [];
+		GlyphReader glyphReader = new( header, locaTable, cmapTable, reader );
+		foreach (GlyphMap glyphMap in cmapTable.GlyphMaps)
+			glyphReader.GetGlyphData( glyphMap.GlyphIndex );
 
-/// <summary>
-/// <c>Glyph location table</c><br/>
-/// Contains information about the location of each glyph in the font.<br/>
-/// <br/>
-/// <see href="https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6loca.html">Glyph location table documentation</see>
-/// </summary>
-public sealed class LocaTable : FontTable {
-
-	private List<uint> _glyphLocationOffsetBytes;
-
-	public LocaTable( FontTableHeader header, HeadTable headTable, MaxPTable maxPTable, FontDataReader reader ) : base( header ) {
-		_glyphLocationOffsetBytes = [];
-		FontCaretedDataReader caret = new( reader );
-		caret.GoTo( header.Offset );
-		int numGlyphs = maxPTable.MaxGlyphs;
-		bool isTwoByteEntry = headTable.BytesPerLocationLookup == 2;
-		for (int glyphIndex = 0; glyphIndex < numGlyphs; glyphIndex++) {
-			// If 2-byte format is used, the stored location is half of actual location (so multiply by 2)
-			uint glyphDataOffset = isTwoByteEntry ? caret.Read<ushort>() * 2u : caret.Read<uint>();
-			_glyphLocationOffsetBytes.Add( glyphDataOffset );
+		foreach (IGlyphData glyph in glyphReader.Glyphs) {
+			this._glyphByIndex.Add( glyph.Mapping.GlyphIndex, glyph );
+			if (!this._glyphByUnicode.ContainsKey( (char) glyph.Mapping.Unicode ))
+				this._glyphByUnicode.Add( (char) glyph.Mapping.Unicode, glyph );
 		}
 	}
 
-}
+	public IReadOnlyDictionary<uint, IGlyphData> GlyphByIndex => _glyphByIndex;
+	public IReadOnlyDictionary<char, IGlyphData> GlyphByUnicode => _glyphByUnicode;
 
-/// <summary>
-/// <c>Horizontal header table</c><br/>
-/// Contains information about the horizontal layout of the font.<br/>
-/// <br/>
-/// <see href="https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6hhea.html">Horizontal header table documentation</see>
-public sealed class HheaTable(FontTableHeader header) : FontTable( header ) { 
-}
-
-
-/// <summary>
-/// <c>Horizontal metrics table</c><br/>
-/// Contains information about the horizontal metrics of the font.<br/>
-/// <br/>
-/// <see href="https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6hmtx.html">Horizontal metrics table documentation</see>
-/// </summary>
-public sealed class HmtxTable( FontTableHeader header ) : FontTable( header ) {
+	/// <summary>
+	/// Glyph indicating a missing glyph.
+	/// </summary>
+	public IGlyphData? MissingGlyph => _glyphByIndex.TryGetValue( 0, out IGlyphData? glyph ) ? glyph : null;
 }

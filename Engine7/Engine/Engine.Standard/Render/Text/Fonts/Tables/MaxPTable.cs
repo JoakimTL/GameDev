@@ -26,7 +26,7 @@ public sealed class MaxPTable : FontTable {
 	public MaxPTable( FontTableHeader header, FontDataReader reader ) : base( header ) {
 		FontCaretedDataReader caret = new( reader );
 		caret.GoTo( header.Offset );
-		caret.SkipBytes( 4 ); //version
+		caret.MoveCaretBy( 4 ); //version
 		MaxGlyphs = caret.Read<ushort>();
 		MaxPoints = caret.Read<ushort>();
 		MaxContours = caret.Read<ushort>();

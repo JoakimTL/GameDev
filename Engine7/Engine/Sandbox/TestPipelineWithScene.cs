@@ -21,7 +21,7 @@ public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleServi
 	private UniformBlock _testUniforms = null!;
 	private ShaderStorageBlock _testShaderStorage = null!;
 	private DataBlockCollection _dataBlocks = null!;
-	private VertexMesh<Vertex2> _vertexMesh = null!;
+	private VertexMesh<VertexSpecial2> _vertexMesh = null!;
 	private Scene _scene = null!;
 	private SceneInstance<Entity2SceneData> _sceneInstance1 = null!;
 	private SceneInstance<Entity2SceneData> _sceneInstance2 = null!;
@@ -34,9 +34,9 @@ public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleServi
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
-		this._vertexMesh = this._meshService.CreateEmptyMesh<Vertex2>( 3, 3 ) ?? throw new NullReferenceException( "Mesh not found." );
+		this._vertexMesh = this._meshService.CreateEmptyMesh<VertexSpecial2>( 3, 3 ) ?? throw new NullReferenceException( "Mesh not found." );
 		this._vertexMesh.ElementBufferSegment.WriteRange( [ 0, 1, 2 ], 0 );
-		this._testVertexArrayObject = this._compositeVertexArrayObjectService.Get( typeof( Vertex2 ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
+		this._testVertexArrayObject = this._compositeVertexArrayObjectService.Get( typeof( VertexSpecial2 ), typeof( Entity2SceneData ) ) ?? throw new NullReferenceException( "VertexArrayObject not found." );
 		this._shaderBundle = this._shaderBundleService.Get<TestShaderBundle>() ?? throw new NullReferenceException( "ShaderBundle not found." );
 
 		this._scene = this._sceneService.GetScene( "test" );
@@ -47,29 +47,29 @@ public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleServi
 
 		this._sceneInstance2 = this._scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
 		this._sceneInstance2.SetMesh( this._meshService.CreateMesh( [
-			new Vertex2( (-.5f, -.5f), (255, 255, 0, 255) ),
-			new Vertex2( (-.5f, .5f), (255, 0, 255, 255) ),
-			new Vertex2( (.5f, .5f), (0, 255, 255, 255) ),
-			new Vertex2( (.5f, -.5f), (255, 0, 0, 255) ) ], [ 2, 1, 0, 0, 3, 2 ] ) );
+			new VertexSpecial2( (-.5f, -.5f), (255, 255, 0, 255) ),
+			new VertexSpecial2( (-.5f, .5f), (255, 0, 255, 255) ),
+			new VertexSpecial2( (.5f, .5f), (0, 255, 255, 255) ),
+			new VertexSpecial2( (.5f, -.5f), (255, 0, 0, 255) ) ], [ 2, 1, 0, 0, 3, 2 ] ) );
 		this._sceneInstance2.SetVertexArrayObject( this._testVertexArrayObject );
 		this._sceneInstance2.SetShaderBundle( this._shaderBundle );
 
 		this._sceneInstance3 = this._scene.CreateInstance<SceneInstance<Entity2SceneData>>( 0 );
 		this._sceneInstance3.SetMesh( this._meshService.CreateMesh( [
-			new Vertex2( (-.5f, -.5f), (255, 255, 0, 255) ),
-			new Vertex2( (-.5f, .5f), (255, 0, 255, 255) ),
-			new Vertex2( (.5f, .5f), (0, 255, 255, 255) ),
-			new Vertex2( (.5f, -.5f), (255, 0, 0, 255) ),
-			new Vertex2( (1, 0), (255, 0, 0, 255) ) ], [ 2, 1, 0, 0, 3, 2, 2, 3, 4 ] ) );
+			new VertexSpecial2( (-.5f, -.5f), (255, 255, 0, 255) ),
+			new VertexSpecial2( (-.5f, .5f), (255, 0, 255, 255) ),
+			new VertexSpecial2( (.5f, .5f), (0, 255, 255, 255) ),
+			new VertexSpecial2( (.5f, -.5f), (255, 0, 0, 255) ),
+			new VertexSpecial2( (1, 0), (255, 0, 0, 255) ) ], [ 2, 1, 0, 0, 3, 2, 2, 3, 4 ] ) );
 		this._sceneInstance3.SetVertexArrayObject( this._testVertexArrayObject );
 		this._sceneInstance3.SetShaderBundle( this._shaderBundle );
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
 		this._vertexMesh.VertexBufferSegment.WriteRange( [
-			new Vertex2 { Translation = (0.0f, 0.5f), Color = ((byte) (MathF.Sin((float) time) * 100 + 100), 255, 0, 255) },
-			new Vertex2 { Translation = (-0.5f, -0.5f), Color = (255, 0, 0, 255) },
-			new Vertex2 { Translation = (0.5f, -0.5f), Color = (255, 0, (byte) (MathF.Cos((float) time) * 100 + 100), 255) } ], 0 );
+			new VertexSpecial2 { Translation = (0.0f, 0.5f), Color = ((byte) (MathF.Sin((float) time) * 100 + 100), 255, 0, 255) },
+			new VertexSpecial2 { Translation = (-0.5f, -0.5f), Color = (255, 0, 0, 255) },
+			new VertexSpecial2 { Translation = (0.5f, -0.5f), Color = (255, 0, (byte) (MathF.Cos((float) time) * 100 + 100), 255) } ], 0 );
 		this._sceneInstance1.Write( new Entity2SceneData( Matrix.Create4x4.RotationZ( -(float) time * 2 ) ) );
 		this._sceneInstance2.Write( new Entity2SceneData( Matrix.Create4x4.RotationZ( (float) time * 2 ) ) );
 		this._sceneInstance3.Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity ) );

@@ -6,14 +6,14 @@ public unsafe sealed class FontDataReader( byte* dataPtr, int dataLength, bool d
 	private readonly bool _dataIsLittleEndian = dataIsLittleEndian;
 	private readonly bool _archIsLittleEndian = BitConverter.IsLittleEndian;
 
-	public T Read<T>( in nint offset ) where T : unmanaged {
+	public T Read<T>( in nint offset, bool ensureEndianessMatchesArch = true ) where T : unmanaged {
 		ObjectDisposedException.ThrowIf( Disposed, this );
 		if (offset < 0)
 			throw new Exception( "Reading before start of data" );
 		if (offset + sizeof( T ) > this._dataLength)
 			throw new Exception( "Reading past end of data" );
 		T value = *(T*) (this._dataPtr + offset);
-		return EnsureEndianess( value );
+		return ensureEndianessMatchesArch ? EnsureEndianess( value ) : value;
 	}
 
 	protected override bool InternalDispose() {

@@ -12,10 +12,10 @@ public sealed class GlyphMesh : DisposableIdentifiable, IMesh {
 	public uint ElementOffset => _mesh.ElementOffset;
 	public uint VertexOffset => _mesh.VertexOffset;
 
-	public IGlyph Glyph { get; }
+	public DefinedGlyph GlyphDefinition { get; }
 
-	public GlyphMesh( IGlyph glyph, VertexMesh<GlyphVertex> mesh ) {
-		this.Glyph = glyph;
+	public GlyphMesh( DefinedGlyph glyphDefinition, VertexMesh<GlyphVertex> mesh ) {
+		this.GlyphDefinition = glyphDefinition;
 		this._mesh = mesh;
 		this._mesh.OnOffsetChanged += OnMeshChanged;
 		Nickname = mesh.Nickname;

@@ -1,6 +1,7 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render.Text.Fonts.Meshing;
+using Engine.Standard.Render.Text.Services;
 using Engine.Transforms;
 
 namespace Engine.Standard.Render.Text.Typesetting;
@@ -148,10 +149,10 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 			}
 
 			instance.SetGlyphMesh( mesh );
-			Matrix4x4<float> modelMatrix = Matrix.Create4x4.Scaling( 2f / EmsPerLine, 2f / EmsPerLine ) * Matrix.Create4x4.Translation( x / EmsPerLine, 0 ) * (BaseMatrix?.Matrix ?? Matrix4x4<float>.MultiplicativeIdentity);
+			Matrix4x4<float> modelMatrix = Matrix.Create4x4.Scaling(1f / EmsPerLine, 1f / EmsPerLine ) * Matrix.Create4x4.Translation( (x + mesh.GlyphDefinition.LeftSideBearing) / EmsPerLine, 0 ) * (BaseMatrix?.Matrix ?? Matrix4x4<float>.MultiplicativeIdentity);
 			if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix ) ))
 				this.LogLine( "Failed to write instance data." );
-			x += SpaceSizeEM * 4;
+			x += mesh.GlyphDefinition.Advance;
 
 		}
 

@@ -1,4 +1,4 @@
-﻿namespace Engine.Standard.Render.Text.Fonts.Tables;
+﻿namespace Engine.Standard.Render.Text.Fonts.Tables.Head;
 
 [Flags]
 public enum MacStyle : ushort {
@@ -19,5 +19,3 @@ bit 6 extended
 	Condensed = 0b0000_0000_0010_0000,
 	Extended = 0b0000_0000_0100_0000,
 }
-
-//public const uint Tag_Hmtx = 2020896104;

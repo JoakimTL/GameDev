@@ -1,7 +1,7 @@
 ﻿using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
 using Engine.Standard.Entities.Components.Rendering;
-using Engine.Standard.Render.Text;
+using Engine.Standard.Render.Text.Services;
 using Engine.Standard.Render.Text.Typesetting;
 
 namespace Engine.Standard.Render.Entities.Behaviours;

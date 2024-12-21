@@ -1,4 +1,6 @@
-﻿namespace Engine.Standard.Render.Text.Fonts.Tables;
+﻿using Engine.Standard.Render.Text.Fonts.Tables.Head;
+
+namespace Engine.Standard.Render.Text.Fonts.Tables;
 
 /// <summary>
 /// <c>Font header table</c><br/>
@@ -19,23 +21,23 @@ public sealed class HeadTable : FontTable {
 	public HeadTable( FontTableHeader header, FontDataReader dataReader ) : base( header ) {
 		FontCaretedDataReader caret = new( dataReader );
 		caret.GoTo( header.Offset );
-		caret.SkipBytes( 4 ); //version
-		caret.SkipBytes( 4 ); //fontRevision
-		caret.SkipBytes( 4 ); //checkSumAdjustment
-		caret.SkipBytes( 4 ); //magicNumber
+		caret.MoveCaretBy( 4 ); //version
+		caret.MoveCaretBy( 4 ); //fontRevision
+		caret.MoveCaretBy( 4 ); //checkSumAdjustment
+		caret.MoveCaretBy( 4 ); //magicNumber
 		Flags = (FontFlags) caret.Read<ushort>();
 		UnitsPerEm = caret.Read<ushort>();
-		caret.SkipBytes( 4 ); //created
-		caret.SkipBytes( 4 ); //modified
+		caret.MoveCaretBy( 8 ); //created
+		caret.MoveCaretBy( 8 ); //modified
 		short minX = caret.Read<short>();
 		short minY = caret.Read<short>();
 		short maxX = caret.Read<short>();
 		short maxY = caret.Read<short>();
 		MacStyle = (MacStyle) caret.Read<ushort>();
-		caret.SkipBytes( 2 ); //lowestRecPPEM
+		caret.MoveCaretBy( 2 ); //lowestRecPPEM
 		FontDirectionHint = (FontDirectionHint) caret.Read<short>();
-		BytesPerLocationLookup = caret.Read<short>() == 1 ? 4 : 2;
-		caret.SkipBytes( 2 ); //glyphDataFormat
+		BytesPerLocationLookup = caret.Read<ushort>() == 1 ? 4 : 2;
+		caret.MoveCaretBy( 2 ); //glyphDataFormat
 		Min = new( minX, minY );
 		Max = new( maxX, maxY );
 	}

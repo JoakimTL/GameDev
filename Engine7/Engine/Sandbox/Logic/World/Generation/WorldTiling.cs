@@ -5,7 +5,7 @@ namespace Sandbox.Logic.World.Generation;
 
 public sealed class WorldTiling {
 
-	public const int Levels = 9;
+	public const int Levels = 7;
 	public const int RootLevel = 4;
 
 	private readonly Icosphere _worldIcosphere;

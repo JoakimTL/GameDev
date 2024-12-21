@@ -14,11 +14,11 @@ public sealed class FontLoaderHeaderData {
 		}
 	}
 
-	private static FontOffsetSubtable ReadFontOffsetSubtable( FontCaretedDataReader caret ) 
+	private static FontOffsetSubtable ReadFontOffsetSubtable( FontCaretedDataReader caret )
 		=> new( caret.Read<uint>(), caret.Read<ushort>(), caret.Read<ushort>(), caret.Read<ushort>(), caret.Read<ushort>() );
 
 	private static FontTableHeader ReadFontTableHeader( FontCaretedDataReader caret )
-		=> new( caret.Read<uint>(), caret.Read<uint>(), caret.Read<uint>(), caret.Read<uint>() );
+		=> new( caret.Read<uint>( false ), caret.Read<uint>(), caret.Read<uint>(), caret.Read<uint>() );
 
 	public FontOffsetSubtable FontOffsetSubTable => this._fontOffsetSubTable;
 	public IReadOnlyDictionary<uint, FontTableHeader> Tables => this._tables;

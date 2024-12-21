@@ -1,7 +1,8 @@
-﻿namespace Engine.Standard.Render.Text.Fonts;
+﻿using Engine.Standard.Render.Text.Fonts.Tables.Glyf;
+
+namespace Engine.Standard.Render.Text.Fonts;
 
 public interface IGlyph {
-	FontGlyphHeader Header { get; }
-	GlyphMap Mapping { get; }
+	IGlyphData GlyphData { get; }
 	GlyphTriangle[] TriangulateGlyph();
 }
