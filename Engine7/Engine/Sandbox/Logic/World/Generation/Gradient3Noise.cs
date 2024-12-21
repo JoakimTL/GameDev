@@ -80,14 +80,14 @@ public class Gradient3Noise( Vector3<int> seed, Vector3<float> phase, Vector3<fl
 
 	public float GetData( Vector3<int> p )
 		=> (
-			GetDataValue( p.X, _seed.X ) +
-			GetDataValue( p.Y, _seed.Y ) +
-			GetDataValue( p.Z, _seed.Z )
+			GetDataValue( p.X + p.Y * p.Z, _seed.X ) +
+			GetDataValue( p.Y + p.Z * p.X, _seed.Y ) +
+			GetDataValue( p.Z + p.X * p.Y, _seed.Z )
 		) / 3;
 
 	public static float GetDataValue( int v, int seed ) {
 		unchecked {
-			uint x = Hash( (uint) v ) ^ Hash( (uint) seed );
+			uint x = Hash( (uint) v ) + Hash( (uint) seed );
 			x += x << 10;
 			x ^= x >> 6;
 			x += x << 3;

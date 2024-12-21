@@ -23,22 +23,30 @@ public sealed class WorldTiling {
 
 		Dictionary<(uint, uint), NeighbouringTiles> tilesBySharedEdge = [];
 		List<Tile> allTiles = [];
-		foreach (BaseTile rootTile in _rootTiles) 			AddTiles( rootTile, allTiles );
+		foreach (BaseTile rootTile in _rootTiles)
+			AddTiles( rootTile, allTiles );
 
 		foreach (Tile tile in allTiles) {
 			(uint, uint) edgeAB = GetEdge( tile.IndexA, tile.IndexB );
 			(uint, uint) edgeBC = GetEdge( tile.IndexB, tile.IndexC );
 			(uint, uint) edgeCA = GetEdge( tile.IndexC, tile.IndexA );
-			if (tilesBySharedEdge.TryGetValue( edgeAB, out NeighbouringTiles? neighboursAB )) 				neighboursAB.TileB = tile;
-else 				tilesBySharedEdge.Add( edgeAB, new() { TileA = tile } );
-			if (tilesBySharedEdge.TryGetValue( edgeBC, out NeighbouringTiles? neighboursBC )) 				neighboursBC.TileB = tile;
-else 				tilesBySharedEdge.Add( edgeBC, new() { TileA = tile } );
-			if (tilesBySharedEdge.TryGetValue( edgeCA, out NeighbouringTiles? neighboursCA )) 				neighboursCA.TileB = tile;
-else 				tilesBySharedEdge.Add( edgeCA, new() { TileA = tile } );
+			if (tilesBySharedEdge.TryGetValue( edgeAB, out NeighbouringTiles? neighboursAB ))
+				neighboursAB.TileB = tile;
+			else
+				tilesBySharedEdge.Add( edgeAB, new() { TileA = tile } );
+			if (tilesBySharedEdge.TryGetValue( edgeBC, out NeighbouringTiles? neighboursBC ))
+				neighboursBC.TileB = tile;
+			else
+				tilesBySharedEdge.Add( edgeBC, new() { TileA = tile } );
+			if (tilesBySharedEdge.TryGetValue( edgeCA, out NeighbouringTiles? neighboursCA ))
+				neighboursCA.TileB = tile;
+			else
+				tilesBySharedEdge.Add( edgeCA, new() { TileA = tile } );
 		}
 
 		foreach (var tile in tilesBySharedEdge) {
-			if (tile.Value.TileB is null) 				throw new InvalidOperationException( "Tile has no neighbour" );
+			if (tile.Value.TileB is null)
+				throw new InvalidOperationException( "Tile has no neighbour" );
 			tile.Value.TileA.AddNeighbour( tile.Value.TileB );
 			tile.Value.TileB.AddNeighbour( tile.Value.TileA );
 		}
@@ -81,7 +89,8 @@ else 				tilesBySharedEdge.Add( edgeCA, new() { TileA = tile } );
 		}
 
 		List<BaseTile> tilesToGenerateFor = [];
-		foreach (BaseTile rootTile in _rootTiles) 			if (!NeighbourFound( rootTile, tilesToGenerateFor ))
+		foreach (BaseTile rootTile in _rootTiles)
+			if (!NeighbourFound( rootTile, tilesToGenerateFor ))
 				tilesToGenerateFor.Add( rootTile );
 
 		tilesToGenerateFor.AddRange( _rootTiles.Except( tilesToGenerateFor ) );
@@ -155,7 +164,8 @@ else 				tilesBySharedEdge.Add( edgeCA, new() { TileA = tile } );
 				|| rootTile.VectorIndexB == potentialNeighbour.VectorIndexC
 				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexA
 				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexB
-				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexC) 				return true;
+				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexC)
+				return true;
 		return false;
 	}
 
@@ -164,7 +174,9 @@ else 				tilesBySharedEdge.Add( edgeCA, new() { TileA = tile } );
 			list.AddRange( baseTile.Tiles );
 			return;
 		}
-		if (baseTile.SubTiles is not null) 			foreach (BaseTile subTile in baseTile.SubTiles) 				AddTiles( subTile, list );
+		if (baseTile.SubTiles is not null)
+			foreach (BaseTile subTile in baseTile.SubTiles)
+				AddTiles( subTile, list );
 	}
 
 	private (uint, uint) GetEdge( uint indexA, uint indexB ) => indexA < indexB
@@ -198,8 +210,10 @@ else 				tilesBySharedEdge.Add( edgeCA, new() { TileA = tile } );
 			uint subIndexC = indices[ i + 2 ];
 
 			BaseTile tile;
-			if (layer + 1 == _worldIcosphere.Subdivisions - 1) 				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetTiles( subIndexA, subIndexB, subIndexC ) );
-else 				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetSubTiles( subIndexA, subIndexB, subIndexC, layer + 1 ) );
+			if (layer + 1 == _worldIcosphere.Subdivisions - 1)
+				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetTiles( subIndexA, subIndexB, subIndexC ) );
+			else
+				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetSubTiles( subIndexA, subIndexB, subIndexC, layer + 1 ) );
 			tiles.Add( tile );
 		}
 

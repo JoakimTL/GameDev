@@ -25,7 +25,7 @@ public sealed class WorldCameraBehaviour : DependentRenderBehaviourBase<WorldCam
 	}
 
 	private void OnMouseWheelScrolled( MouseWheelEvent @event ) {
-		_zoomVelocity = (float) -@event.Movement.Y * float.Exp( float.Min( _zoom - 2.5f, float.E ) );
+		_zoomVelocity = (float) -@event.Movement.Y * float.Exp( float.Min( _zoom * 2 - 3.25f, float.E ) );
 	}
 
 	private void OnKey( KeyboardEvent @event ) {
@@ -58,7 +58,7 @@ public sealed class WorldCameraBehaviour : DependentRenderBehaviourBase<WorldCam
 		_zoom += _zoomVelocity * (float) deltaTime;
 		if (_zoom < _minZoom)
 			_zoom = _minZoom;
-		acceleration *= float.Exp( float.Min( _zoom - 3, float.E ) ) * 5;
+		acceleration *= float.Exp( float.Min( _zoom * 2 - 2.75f, float.E ) ) * 5;
 
 		_velocity += acceleration * (float) deltaTime;
 		_velocity = (_velocity * float.Max( 1 - (float) deltaTime * 10, 0 )).Round<Vector2<float>, float>( 3, MidpointRounding.ToZero );
