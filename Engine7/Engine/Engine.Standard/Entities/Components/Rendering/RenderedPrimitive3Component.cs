@@ -1,4 +1,5 @@
 ﻿using Engine.Module.Entities.Container;
+using Engine.Standard.Render.Meshing;
 
 namespace Engine.Standard.Entities.Components.Rendering;
 
@@ -11,12 +12,5 @@ public sealed class RenderedPrimitive3Component : ComponentBase {
 			return;
 		this._primitive = primitive;
 		InvokeComponentChanged();
-	}
-
-	public enum Primitive3 {
-		Cube,
-		Icosphere,
-		EquilateralTetrahedron,
-		RightSidedTetrahedron
 	}
 }

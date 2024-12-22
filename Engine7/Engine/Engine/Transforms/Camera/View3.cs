@@ -14,6 +14,8 @@ public class View3 : MatrixProviderBase<float> {
 	public Vector3<float> Translation {
 		get => this._translation;
 		set {
+			if (this._translation == value)
+				return;
 			this._translation = value;
 			SetChanged();
 		}
@@ -22,6 +24,8 @@ public class View3 : MatrixProviderBase<float> {
 	public Rotor3<float> Rotation {
 		get => this._rotation;
 		set {
+			if (this._rotation == value)
+				return;
 			this._rotation = value;
 			SetChanged();
 		}

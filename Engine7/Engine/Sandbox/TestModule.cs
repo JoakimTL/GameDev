@@ -47,6 +47,7 @@ internal sealed class GameLogicModule : ModuleBase {
 		} );
 		_entity.AddComponent<WorldTilingComponent>();
 		_entity.AddComponent<WorldCameraComponent>();
+		_entity.AddComponent<WorldSelectedTileComponent>();
 		this._textEntity = container.CreateEntity();
 		_textEntity.AddComponent<RenderComponent>();
 		Transform2Component t2c = _textEntity.AddComponent<Transform2Component>();

@@ -3,7 +3,7 @@ using Engine.Module.Render.Ogl.Services;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
-namespace Engine.Module.Render.Ogl.Scenes;
+namespace Engine.Module.Render.Ogl.Scenes.Services;
 
 public sealed class MeshService( BufferService bufferService ) : DisposableIdentifiable {
 

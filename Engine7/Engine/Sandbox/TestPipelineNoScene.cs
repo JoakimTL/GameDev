@@ -4,6 +4,7 @@ using Engine.Module.Render.Ogl.OOP.DataBlocks;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
+using Engine.Module.Render.Ogl.Scenes.Services;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Render;
 using OpenGL;

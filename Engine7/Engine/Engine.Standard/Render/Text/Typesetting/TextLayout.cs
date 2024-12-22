@@ -131,6 +131,7 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		const float SpaceSizeEM = 0.333f;
 		const float LineHeightEM = 1.3f;
 
+		Vector2<float> cursor = (-1, 1);
 		float x = -1;
 		float y = 0;
 
@@ -149,7 +150,7 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 			}
 
 			instance.SetGlyphMesh( mesh );
-			Matrix4x4<float> modelMatrix = Matrix.Create4x4.Scaling(1f / EmsPerLine, 1f / EmsPerLine ) * Matrix.Create4x4.Translation( (x + mesh.GlyphDefinition.LeftSideBearing) / EmsPerLine, 0 ) * (BaseMatrix?.Matrix ?? Matrix4x4<float>.MultiplicativeIdentity);
+			Matrix4x4<float> modelMatrix = (BaseMatrix?.Matrix ?? Matrix4x4<float>.MultiplicativeIdentity) * Matrix.Create4x4.Scaling(1f / EmsPerLine, 1f / EmsPerLine ) * Matrix.Create4x4.Translation( (x + mesh.GlyphDefinition.LeftSideBearing) / EmsPerLine, 0 );
 			if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix ) ))
 				this.LogLine( "Failed to write instance data." );
 			x += mesh.GlyphDefinition.Advance;

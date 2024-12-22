@@ -1,9 +1,10 @@
 ﻿using Engine.Module.Entities.Render;
 using Engine.Module.Render.Ogl.Scenes;
+using Engine.Module.Render.Ogl.Scenes.Services;
 
-namespace Engine.Standard.Render;
+namespace Engine.Standard.Render.Meshing.Services;
 
-public sealed class PrimitiveMeshProvider( MeshService meshService ) : IRenderEntityServiceProvider, IInitializable {
+public sealed class PrimitiveMesh2Provider( MeshService meshService ) : IRenderEntityServiceProvider, IInitializable {
 
 	private ReadOnlyVertexMesh<Vertex3>? _triangle;
 	public ReadOnlyVertexMesh<Vertex3> Triangle => _triangle ?? throw new InvalidOperationException( "Triangle mesh not initialized" );

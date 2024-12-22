@@ -26,14 +26,14 @@ public sealed class TerrainType {
 		TerrainAdjacencyRules.SetAdjacencyWeight( ShallowWater.Id, Sand.Id, 95 );
 		TerrainAdjacencyRules.SetAdjacencyWeight( ShallowWater.Id, Rock.Id, 5 );
 
-		TerrainAdjacencyRules.SetAdjacencyWeight( Grass.Id, Grass.Id, 70 );
-		TerrainAdjacencyRules.SetAdjacencyWeight( Grass.Id, Sand.Id, 7 );
-		TerrainAdjacencyRules.SetAdjacencyWeight( Grass.Id, Rock.Id, 7 );
+		TerrainAdjacencyRules.SetAdjacencyWeight( Grass.Id, Grass.Id, 100 );
+		TerrainAdjacencyRules.SetAdjacencyWeight( Grass.Id, Sand.Id, 6 );
+		TerrainAdjacencyRules.SetAdjacencyWeight( Grass.Id, Rock.Id, 3 );
 		TerrainAdjacencyRules.SetAdjacencyWeight( Grass.Id, Forest.Id, 16 );
 		TerrainAdjacencyRules.SetAdjacencyWeight( Sand.Id, Sand.Id, 10 );
-		TerrainAdjacencyRules.SetAdjacencyWeight( Sand.Id, Rock.Id, 5 );
-		TerrainAdjacencyRules.SetAdjacencyWeight( Rock.Id, Rock.Id, 80 );
-		TerrainAdjacencyRules.SetAdjacencyWeight( Rock.Id, Forest.Id, 12 );
+		TerrainAdjacencyRules.SetAdjacencyWeight( Sand.Id, Rock.Id, 2 );
+		TerrainAdjacencyRules.SetAdjacencyWeight( Rock.Id, Rock.Id, 100 );
+		TerrainAdjacencyRules.SetAdjacencyWeight( Rock.Id, Forest.Id, 6 );
 		TerrainAdjacencyRules.SetAdjacencyWeight( Forest.Id, Forest.Id, 40 );
 	}
 
