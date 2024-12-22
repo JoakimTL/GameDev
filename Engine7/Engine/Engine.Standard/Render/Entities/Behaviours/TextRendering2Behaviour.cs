@@ -39,6 +39,13 @@ public sealed class TextRendering2Behaviour : SynchronizedRenderBehaviourBase<Te
 			if (!this.RenderEntity.TryGetBehaviour( out this._subscribedTransformBehaviour ))
 				return;
 			_subscribedTransformBehaviour.Transform.OnMatrixChanged += OnMatrixChanged;
+			if (_textLayout is null)
+				return;
+			_textLayout.TextArea = AABB.Create( [
+				_subscribedTransformBehaviour.Transform.GlobalTranslation - _subscribedTransformBehaviour.Transform.GlobalScale,
+				_subscribedTransformBehaviour.Transform.GlobalTranslation + _subscribedTransformBehaviour.Transform.GlobalScale
+			] );
+			_textLayout.TextRotation = _subscribedTransformBehaviour.Transform.GlobalRotation;
 		}
 		_textLayout?.Update( time, deltaTime );
 	}
@@ -48,7 +55,7 @@ public sealed class TextRendering2Behaviour : SynchronizedRenderBehaviourBase<Te
 			return;
 		_textLayout.TextArea = AABB.Create( [
 			_subscribedTransformBehaviour.Transform.GlobalTranslation - _subscribedTransformBehaviour.Transform.GlobalScale,
-			_subscribedTransformBehaviour.Transform.GlobalTranslation + _subscribedTransformBehaviour.Transform.GlobalScale 
+			_subscribedTransformBehaviour.Transform.GlobalTranslation + _subscribedTransformBehaviour.Transform.GlobalScale
 		] );
 		_textLayout.TextRotation = _subscribedTransformBehaviour.Transform.GlobalRotation;
 	}

@@ -51,7 +51,7 @@ internal sealed class GameLogicModule : ModuleBase {
 		this._textEntity = container.CreateEntity();
 		_textEntity.AddComponent<RenderComponent>();
 		Transform2Component t2c = _textEntity.AddComponent<Transform2Component>();
-		t2c.Transform.Scale = new Vector2<double>( 0.75, 0.75 );
+		t2c.Transform.Scale = new Vector2<double>( 0.2, 0.2 );
 		RenderedTextComponent text = _textEntity.AddComponent<RenderedTextComponent>( p => {
 			p.Text = "Hello, World!";
 			p.FontName = "JetBrainsMono-Bold";

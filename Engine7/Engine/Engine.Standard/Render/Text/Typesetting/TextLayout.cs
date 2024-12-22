@@ -145,18 +145,18 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		//How about we mulitply the cursor by the inverse of the text scale?
 
 		float shortestAxisOfTextArea = Math.Min( _textArea.Maxima.X - _textArea.Minima.X, _textArea.Maxima.Y - _textArea.Minima.Y );
-		Vector2<float> realScale = shortestAxisOfTextArea * _textScale;
+		float realScale = shortestAxisOfTextArea * _textScale;
 
 		float whitespaceSize = font[' ']?.Advance ?? throw new Exception( "Font does not contain whitespace." );
 		float lineHeight = font.ScaledLineGap;
 
-		Vector2<float> cursor = (-1, 0);
+		Vector2<float> cursor = (_textArea.Minima.X, _textArea.Maxima.Y - lineHeight);
 		int glyphIndex = 0;
 		for (int i = 0; i < _text.Length; i++) {
 			char c = _text[ i ];
 			if (!IsGlyphed( c )) {
 				if (c == ' ') {
-					cursor += new Vector2<float>( whitespaceSize, 0 ) * TextScale;
+					cursor += new Vector2<float>( whitespaceSize, 0 ) * realScale;
 				}
 				continue;
 			}
@@ -167,10 +167,10 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 			glyphIndex++;
 			if (mesh is null)
 				continue;
-			Matrix4x4<float> modelMatrix = Matrix.Create4x4.Scaling( TextScale, TextScale ) * Matrix.Create4x4.Translation( cursor + (mesh.GlyphDefinition.LeftSideBearing * TextScale, 0) );
+			Matrix4x4<float> modelMatrix = Matrix.Create4x4.RotationZ(_textRotation) * Matrix.Create4x4.Scaling( realScale, realScale ) * Matrix.Create4x4.Translation( cursor + ( mesh.GlyphDefinition.LeftSideBearing * realScale, 0) );
 			if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix ) ))
 				this.LogLine( "Failed to write instance data." );
-			cursor += new Vector2<float>( mesh.GlyphDefinition.Advance, 0 ) * TextScale;
+			cursor += new Vector2<float>( mesh.GlyphDefinition.Advance, 0 ) * realScale;
 		}
 		//for (int i = 0; i < _glyphInstances.Count; i++) {
 		//	if (i >= _text.Length) {

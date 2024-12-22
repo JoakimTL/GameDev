@@ -32,7 +32,6 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 		_lastCameraTranslation = currentCameraTranslation;
 
 		var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
-		Random r = new( 42 );
 		for (int i = 0; i < _instances.Count; i++) {
 			List<TileTriangle> trianglesInLoD = [];
 			var instance = _instances[ i ];
@@ -41,9 +40,9 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 				vertices[ (int) instance.BaseTile.VectorIndexB ],
 				vertices[ (int) instance.BaseTile.VectorIndexC ] ] ).CastSaturating<double, float>();
 			int seekingLayer = GetLoDLevel( (center - _lastCameraTranslation).Magnitude<Vector3<float>, float>(), instance.BaseTile.Layer, instance.BaseTile.Layer + instance.BaseTile.Sublayers );
-			if (int.Clamp( seekingLayer, instance.BaseTile.Layer, instance.BaseTile.Layer + instance.BaseTile.Sublayers - 1 ) == instance.CurrentLoD)
+			if (int.Clamp( seekingLayer, instance.BaseTile.Layer, instance.BaseTile.Layer + instance.BaseTile.Sublayers ) == instance.CurrentLoD)
 				continue;
-			instance.CurrentLoD = int.Clamp( seekingLayer, instance.BaseTile.Layer, instance.BaseTile.Layer + instance.BaseTile.Sublayers - 1 );
+			instance.CurrentLoD = int.Clamp( seekingLayer, instance.BaseTile.Layer, instance.BaseTile.Layer + instance.BaseTile.Sublayers );
 			instance.Mesh?.Dispose();
 			AddTilesToList( instance.BaseTile, trianglesInLoD, seekingLayer );
 			IMesh mesh = CreateLoDMesh( trianglesInLoD, vertices );
@@ -55,10 +54,10 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 	private int GetLoDLevel( float distance, int minLayer, int maxLayer ) {
 		//Min layer is the lowest level of detail, max layer is the highest level of detail.
 		int layerDifference = maxLayer - minLayer;
-		float distanceToLayer = distance;
+		float distanceToLayer = distance / 2;
 		float distancePart = distanceToLayer * layerDifference;
 		float layer = maxLayer - distancePart;
-		return int.Min( (int) layer, maxLayer );
+		return int.Min( (int) float.Round(layer), maxLayer );
 	}
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
@@ -153,14 +152,14 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 		}
 	}
 
-	private IMesh CreateLoDMesh( List<TileTriangle> trianglesIsLoD, IReadOnlyList<Vector3<double>> tileVectors ) {
+	private IMesh CreateLoDMesh( List<TileTriangle> trianglesInLoD, IReadOnlyList<Vector3<double>> tileVectors ) {
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
-		for (int i = 0; i < trianglesIsLoD.Count; i++) {
-			int a = (int) trianglesIsLoD[ i ].A;
-			int b = (int) trianglesIsLoD[ i ].B;
-			int c = (int) trianglesIsLoD[ i ].C;
-			Vector4<byte> color = (trianglesIsLoD[ i ].Color * 255).Clamp<Vector4<double>, double>( 0, 255 ).CastSaturating<double, byte>();
+		for (int i = 0; i < trianglesInLoD.Count; i++) {
+			int a = (int) trianglesInLoD[ i ].A;
+			int b = (int) trianglesInLoD[ i ].B;
+			int c = (int) trianglesInLoD[ i ].C;
+			Vector4<byte> color = ( trianglesInLoD[ i ].Color * 255).Clamp<Vector4<double>, double>( 0, 255 ).CastSaturating<double, byte>();
 
 			Vector3<float> aV = tileVectors[ a ].CastSaturating<double, float>();
 			Vector3<float> bV = tileVectors[ b ].CastSaturating<double, float>();

@@ -15,6 +15,7 @@ using Engine.Transforms.Camera;
 using Sandbox.Logic.World;
 using System;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Sandbox.Render.World;
 
@@ -96,15 +97,15 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 	private Vector3<float> _pointerDirection;
 	private bool _changed = true;
 
-	private DebugInstance _debugInstance;
+	//private DebugInstance _debugInstance;
 
 	protected override void OnRenderEntitySet() {
 		RenderEntity.ServiceAccess.UserInputEventService.OnMouseMoved += OnMouseMoved;
 		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged += OnCameraMatrixChanged;
-		_debugInstance = RenderEntity.RequestSceneInstance<DebugInstance>( "test", 0 );
-		_debugInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>()! );
-		_debugInstance.SetVertexArrayObject( RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>()! );
-		_debugInstance.SetMesh( RenderEntity.ServiceAccess.Get<PrimitiveMesh3Provider>().Get( Primitive3.Cube ) );
+		//_debugInstance = RenderEntity.RequestSceneInstance<DebugInstance>( "test", 0 );
+		//_debugInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>()! );
+		//_debugInstance.SetVertexArrayObject( RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>()! );
+		//_debugInstance.SetMesh( RenderEntity.ServiceAccess.Get<PrimitiveMesh3Provider>().Get( Primitive3.Cube ) );
 	}
 
 	private void OnCameraMatrixChanged( IMatrixProvider<float> provider ) {
@@ -124,14 +125,41 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		var projection = RenderEntity.ServiceAccess.CameraProvider.Main.Projection3;
 		var view = RenderEntity.ServiceAccess.CameraProvider.Main.View3;
 		var window = RenderEntity.ServiceAccess.Get<WindowProvider>().Window;
-		_pointerDirection = GetMouseUnprojected( projection.InverseMatrix, view.InverseMatrix, (_mousePointerLocation.DivideEntrywise( window.Size.CastSaturating<int, double>() ) * 2 - 1).MultiplyEntrywise( (1, -1) ).CastSaturating<double, float>() );
+		var ndc = (_mousePointerLocation.DivideEntrywise( window.Size.CastSaturating<int, double>() ) * 2).CastSaturating<double, float>();
+		ndc = (ndc.X - 1, 1 - ndc.Y);
+		_pointerDirection = GetMouseUnprojected( projection.InverseMatrix, view.InverseMatrix, ndc );
 
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, _pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
-			RenderEntity.SendMessageToEntity( new TileSelectionMessage( null ) );
+			RenderEntity.SendMessageToEntity( new TileHoverMessage( null ) );
 			return;
 		}
 
-		_debugInstance.Write( new Entity2SceneData( Matrix.Create4x4.Scaling( 0.01f, 0.01f, 0.01f ) * Matrix.Create4x4.Translation( intersectionPoint ) ) );
+		var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
+		var baseTile = Archetype.WorldTilingComponent.Tiling.Tiles.FirstOrDefault( p => RayIntersectsTriangle( 0, intersectionPoint, vertices[ (int) p.VectorIndexA ].CastSaturating<double, float>(), vertices[ (int) p.VectorIndexB ].CastSaturating<double, float>(), vertices[ (int) p.VectorIndexC ].CastSaturating<double, float>(), out _ ) );
+
+		Tile? selectedTiled = FindTileSelection( baseTile, intersectionPoint );
+
+		RenderEntity.SendMessageToEntity( new TileHoverMessage( selectedTiled ) );
+	}
+
+	private Tile? FindTileSelection( BaseTile? baseTile, Vector3<float> intersectionPoint ) {
+		if (baseTile is null)
+			return null;
+		var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
+		if (baseTile.SubTiles is not null) {
+			foreach (var subTile in baseTile.SubTiles) {
+				if (RayIntersectsTriangle( 0, intersectionPoint, vertices[ (int) subTile.VectorIndexA ].CastSaturating<double, float>(), vertices[ (int) subTile.VectorIndexB ].CastSaturating<double, float>(), vertices[ (int) subTile.VectorIndexC ].CastSaturating<double, float>(), out _ )) {
+					return FindTileSelection( subTile, intersectionPoint );
+				}
+			}
+		}
+		if (baseTile.Tiles is not null)
+			foreach (var tile in baseTile.Tiles) {
+				if (RayIntersectsTriangle( 0, intersectionPoint, vertices[ (int) tile.IndexA ].CastSaturating<double, float>(), vertices[ (int) tile.IndexB ].CastSaturating<double, float>(), vertices[ (int) tile.IndexC ].CastSaturating<double, float>(), out _ )) {
+					return tile;
+				}
+			}
+		return null;
 	}
 
 	protected override bool InternalDispose() {
@@ -141,9 +169,9 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 
 	public static Vector3<float> GetMouseUnprojected( Matrix4x4<float> inverseProjection, Matrix4x4<float> inverseView, Vector2<float> ndc ) {
 		Vector4<float> mouseVector = new( ndc.X, ndc.Y, -1, 1 );
-		Vector4<float> mouseEye = inverseProjection * mouseVector;
+		Vector4<float> mouseEye = mouseVector * inverseProjection;
 		mouseEye = new( mouseEye.X, mouseEye.Y, -1, 0 );
-		Vector4<float> mouseWorld = inverseView * mouseEye;
+		Vector4<float> mouseWorld = mouseEye * inverseView;
 
 		return new Vector3<float>( mouseWorld.X, mouseWorld.Y, mouseWorld.Z ).Normalize<Vector3<float>, float>();
 	}
@@ -177,6 +205,40 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		intersectionPoint = rayOrigin + t * rayDirection;
 		return true;
 	}
+
+	public static bool RayIntersectsTriangle( Vector3<float> rayOrigin, Vector3<float> rayDirection, Vector3<float> v0, Vector3<float> v1, Vector3<float> v2, out float t ) {
+		const float EPSILON = 1e-8f;
+		t = 0;
+
+		Vector3<float> edge1 = v1 - v0;
+		Vector3<float> edge2 = v2 - v0;
+
+		Vector3<float> h = rayDirection.Cross( edge2 );
+		float a = edge1.Dot( h );
+
+		if (float.Abs( a ) < EPSILON)
+			return false; // Ray is parallel to triangle.
+
+		float f = 1.0f / a;
+		Vector3<float> s = rayOrigin - v0;
+		float u = f * s.Dot( h );
+
+		if (u < 0.0f || u > 1.0f)
+			return false;
+
+		Vector3<float> q = s.Cross( edge1 );
+		float v = f * rayDirection.Dot( q );
+
+		if (v < 0.0f || u + v > 1.0f)
+			return false;
+
+		t = f * edge2.Dot( q );
+
+		if (t > EPSILON)
+			return true; // Intersection detected.
+
+		return false; // Intersection is behind the ray.
+	}
 }
 
 
@@ -189,18 +251,28 @@ public sealed class DebugInstance : SceneInstanceCollection<Vertex3, Entity2Scen
 }
 
 
-public sealed class TileSelectionMessage( Tile? tile ) {
+public sealed class TileHoverMessage( Tile? tile ) {
 	public Tile? Tile { get; } = tile;
 }
 
 public sealed class WorldSelectedTileRenderBehaviour : SynchronizedRenderBehaviourBase<WorldSelectedTileArchetype> {
+
+	private Tile? _desyncHoveringTile;
+	private Tile? _currentHoveringTile;
+
 	protected override void OnUpdate( double time, double deltaTime ) {
+		//Render lines!
 	}
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
+		if (component is WorldSelectedTileComponent selectedTileComponent) {
+			_desyncHoveringTile = selectedTileComponent.HoveringTile;
+			return true;
+		}
 		return false;
 	}
 
 	protected override void Synchronize() {
+		_currentHoveringTile = _desyncHoveringTile;
 	}
 }

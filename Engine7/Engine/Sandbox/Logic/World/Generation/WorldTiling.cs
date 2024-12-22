@@ -194,7 +194,7 @@ public sealed class WorldTiling {
 			uint indexB = indices[ i + 1 ];
 			uint indexC = indices[ i + 2 ];
 
-			tiles.Add( new BaseTile( indexA, indexB, indexC, RootLevel, GetSubTiles( indexA, indexB, indexC, RootLevel ) ) );
+			tiles.Add( new BaseTile( indexA, indexB, indexC, RootLevel, GetSubTiles( indexA, indexB, indexC, RootLevel + 1 ) ) );
 		}
 
 		return tiles;
@@ -210,7 +210,7 @@ public sealed class WorldTiling {
 			uint subIndexC = indices[ i + 2 ];
 
 			BaseTile tile;
-			if (layer + 1 == _worldIcosphere.Subdivisions - 1)
+			if (layer + 1 == _worldIcosphere.Subdivisions)
 				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetTiles( subIndexA, subIndexB, subIndexC ) );
 			else
 				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetSubTiles( subIndexA, subIndexB, subIndexC, layer + 1 ) );
