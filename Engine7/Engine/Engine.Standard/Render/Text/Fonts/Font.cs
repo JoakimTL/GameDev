@@ -10,6 +10,7 @@ public sealed class Font {
 	public Font( FontLoader loader ) {
 		FontName = loader.FontName;
 		UnitsPerEm = loader.HeadTable.UnitsPerEm;
+		LineGap = loader.HheaTable.LineGap;
 		ScalingFactor = 1f / UnitsPerEm;
 		_glyphs = new DefinedGlyph?[ char.MaxValue + 1 ];
 		foreach (IGlyphData glyphData in loader.GlyfTable.GlyphByUnicode.Values)
@@ -18,7 +19,12 @@ public sealed class Font {
 
 	public string FontName { get; }
 	public ushort UnitsPerEm { get; }
+	/// <summary>
+	/// The distance between the baselines of two consecutive lines of text. Use <see cref="ScaledLineGap"/> to get the scaled value in Ems.
+	/// </summary>
+	public short LineGap { get; }
 	public float ScalingFactor { get; }
+	public float ScaledLineGap => LineGap * ScalingFactor;
 
 	private void CreateDefinedGlyph( IGlyphData glyphData, FontLoader loader ) {
 		IGlyph glyph = CreateGlyph( glyphData, Matrix.Create2x2.Scaling( ScalingFactor, ScalingFactor ), Vector2<float>.Zero );

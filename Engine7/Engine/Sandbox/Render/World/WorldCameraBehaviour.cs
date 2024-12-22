@@ -126,14 +126,11 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		var window = RenderEntity.ServiceAccess.Get<WindowProvider>().Window;
 		_pointerDirection = GetMouseUnprojected( projection.InverseMatrix, view.InverseMatrix, (_mousePointerLocation.DivideEntrywise( window.Size.CastSaturating<int, double>() ) * 2 - 1).MultiplyEntrywise( (1, -1) ).CastSaturating<double, float>() );
 
-		this.LogLine( $"Pointer direction: {_pointerDirection}", Log.Level.VERBOSE );
-
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, _pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
 			RenderEntity.SendMessageToEntity( new TileSelectionMessage( null ) );
 			return;
 		}
 
-		this.LogLine( $"Intersection: {intersectionPoint}", Log.Level.VERBOSE );
 		_debugInstance.Write( new Entity2SceneData( Matrix.Create4x4.Scaling( 0.01f, 0.01f, 0.01f ) * Matrix.Create4x4.Translation( intersectionPoint ) ) );
 	}
 

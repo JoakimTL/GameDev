@@ -3,6 +3,7 @@ using Engine.Module.Entities.Render;
 using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.Text.Services;
 using Engine.Standard.Render.Text.Typesetting;
+using Engine.Transforms;
 
 namespace Engine.Standard.Render.Entities.Behaviours;
 
@@ -28,8 +29,7 @@ public sealed class TextRendering2Behaviour : SynchronizedRenderBehaviourBase<Te
 
 	private void OnBehaviourRemoved( RenderBehaviourBase @base ) {
 		if (@base == this._subscribedTransformBehaviour) {
-			if (_textLayout is not null)
-				_textLayout.BaseMatrix = null;
+			_subscribedTransformBehaviour.Transform.OnMatrixChanged -= OnMatrixChanged;
 			this._subscribedTransformBehaviour = null;
 		}
 	}
@@ -38,10 +38,19 @@ public sealed class TextRendering2Behaviour : SynchronizedRenderBehaviourBase<Te
 		if (this._subscribedTransformBehaviour is null) {
 			if (!this.RenderEntity.TryGetBehaviour( out this._subscribedTransformBehaviour ))
 				return;
-			if (_textLayout is not null)
-				_textLayout.BaseMatrix = _subscribedTransformBehaviour.Transform;
+			_subscribedTransformBehaviour.Transform.OnMatrixChanged += OnMatrixChanged;
 		}
 		_textLayout?.Update( time, deltaTime );
+	}
+
+	private void OnMatrixChanged( IMatrixProvider<float> provider ) {
+		if (_textLayout is null || _subscribedTransformBehaviour is null)
+			return;
+		_textLayout.TextArea = AABB.Create( [
+			_subscribedTransformBehaviour.Transform.GlobalTranslation - _subscribedTransformBehaviour.Transform.GlobalScale,
+			_subscribedTransformBehaviour.Transform.GlobalTranslation + _subscribedTransformBehaviour.Transform.GlobalScale 
+		] );
+		_textLayout.TextRotation = _subscribedTransformBehaviour.Transform.GlobalRotation;
 	}
 
 	protected override bool InternalDispose() {
