@@ -19,7 +19,7 @@ internal sealed class GameLogicModule : ModuleBase {
 	private Entity? _textEntity;
 	private Entity? _entity;
 
-	public GameLogicModule() : base( false, 1 ) {
+	public GameLogicModule() : base( false, 20 ) {
 		OnInitialize += Init;
 		OnUpdate += Update;
 	}

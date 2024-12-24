@@ -44,7 +44,9 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 
 	public void Update( double time, double deltaTime ) {
 		this._messageBusStop.ProcessQueue();
-		foreach (EntityContainer container in this._containers)
+		foreach (EntityContainer container in this._containers) {
+			container.ReadMessages();
 			container.SystemManager.Update( time, deltaTime );
+		}
 	}
 }

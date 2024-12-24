@@ -94,7 +94,7 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 	public void DrawToScreen() {
 		Gl.Clear( ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
 		Gl.Enable( EnableCap.DepthTest );
-		Gl.Enable( EnableCap.CullFace );
+		//Gl.Enable( EnableCap.CullFace );
 		this._scene.Render( "default", this._dataBlocks, _ => { }, PrimitiveType.Triangles );
 	}
 

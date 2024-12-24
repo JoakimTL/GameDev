@@ -1,5 +1,4 @@
-﻿using Engine.Logging;
-using Engine.Module.Entities.Container;
+﻿using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
 using Engine.Module.Render.Entities.Providers;
 using Engine.Module.Render.Glfw.Enums;
@@ -7,15 +6,14 @@ using Engine.Module.Render.Input;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
+using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Render;
-using Engine.Standard.Render.Meshing;
-using Engine.Standard.Render.Meshing.Services;
 using Engine.Transforms;
 using Engine.Transforms.Camera;
+using OpenGL;
 using Sandbox.Logic.World;
-using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Sandbox.Render.World;
 
@@ -79,9 +77,12 @@ public sealed class WorldCameraBehaviour : DependentRenderBehaviourBase<WorldCam
 
 		View3 cameraView = RenderEntity.ServiceAccess.CameraProvider.Main.View3; //Allow for named cameras through the component?
 
-		cameraView.Translation = _polarCoordinate.ToCartesianFromPolar( _zoom );
-		cameraView.Rotation = Rotor3.FromAxisAngle( Vector3<float>.UnitY, _polarCoordinate.X );
-		cameraView.Rotation = Rotor3.FromAxisAngle( cameraView.Rotation.Left, _polarCoordinate.Y ) * cameraView.Rotation;
+		cameraView.Translation = _polarCoordinate.ToCartesianFromPolar( _zoom ).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven );
+		Rotor3<float> newRotation = Rotor3.FromAxisAngle( Vector3<float>.UnitY, _polarCoordinate.X );
+		newRotation = Rotor3.FromAxisAngle( newRotation.Left, _polarCoordinate.Y ) * newRotation;
+		if ((newRotation.Left + newRotation.Forward).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven ) == (cameraView.Rotation.Left + cameraView.Rotation.Forward).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven ))
+			return;
+		cameraView.Rotation = newRotation;
 	}
 
 	protected override bool InternalDispose() {
@@ -97,15 +98,28 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 	private Vector3<float> _pointerDirection;
 	private bool _changed = true;
 
-	//private DebugInstance _debugInstance;
+	private DebugInstance _debugInstance;
 
 	protected override void OnRenderEntitySet() {
 		RenderEntity.ServiceAccess.UserInputEventService.OnMouseMoved += OnMouseMoved;
 		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged += OnCameraMatrixChanged;
-		//_debugInstance = RenderEntity.RequestSceneInstance<DebugInstance>( "test", 0 );
-		//_debugInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>()! );
-		//_debugInstance.SetVertexArrayObject( RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>()! );
-		//_debugInstance.SetMesh( RenderEntity.ServiceAccess.Get<PrimitiveMesh3Provider>().Get( Primitive3.Cube ) );
+		_debugInstance = RenderEntity.RequestSceneInstance<DebugInstance>( "test", 0 );
+		_debugInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>()! );
+		_debugInstance.SetVertexArrayObject( RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>()! );
+		_debugInstance.SetMesh( RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
+			[
+				new LineVertex( (0, 1), (0, 1), 255 ),
+				new LineVertex( (1, 1), (1, 1), 255 ),
+				new LineVertex( (1, 0), (1, 0),  255 ),
+				new LineVertex( (0, 0), (0, 0), 255 ),
+				new LineVertex( (-1, 0), (1, 0), 255 ),
+				new LineVertex( (-1, 1), (1, 1), 255 )
+			], [
+				0, 2, 1,
+				0, 3, 2,
+				0, 4, 5,
+				0, 3, 4
+			] ) );
 	}
 
 	private void OnCameraMatrixChanged( IMatrixProvider<float> provider ) {
@@ -133,6 +147,8 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 			RenderEntity.SendMessageToEntity( new TileHoverMessage( null ) );
 			return;
 		}
+
+		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
 		var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
 		var baseTile = Archetype.WorldTilingComponent.Tiling.Tiles.FirstOrDefault( p => RayIntersectsTriangle( 0, intersectionPoint, vertices[ (int) p.VectorIndexA ].CastSaturating<double, float>(), vertices[ (int) p.VectorIndexB ].CastSaturating<double, float>(), vertices[ (int) p.VectorIndexC ].CastSaturating<double, float>(), out _ ) );
@@ -164,6 +180,7 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 
 	protected override bool InternalDispose() {
 		RenderEntity.ServiceAccess.UserInputEventService.OnMouseMoved -= OnMouseMoved;
+		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged -= OnCameraMatrixChanged;
 		return true;
 	}
 
@@ -259,9 +276,65 @@ public sealed class WorldSelectedTileRenderBehaviour : SynchronizedRenderBehavio
 
 	private Tile? _desyncHoveringTile;
 	private Tile? _currentHoveringTile;
+	private SceneInstanceCollection<LineVertex, Line3SceneData>? _instanceCollection;
+	private readonly List<Line3Instance> _instances = [];
+	private IMesh? _lineInstanceMesh;
+
+	private bool _changed;
+
+	protected override void OnRenderEntitySet() {
+		base.OnRenderEntitySet();
+		_instanceCollection = RenderEntity.RequestSceneInstanceCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( "test", 0 );
+		_lineInstanceMesh = RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
+			[
+				new LineVertex( (0, 1), (0, 1), 255 ),
+				new LineVertex( (1, 1), (1, 1), 255 ),
+				new LineVertex( (1, 0), (1, 0),  255 ),
+				new LineVertex( (0, 0), (0, 0), 255 ),
+				new LineVertex( (-1, 0), (1, 0), 255 ),
+				new LineVertex( (-1, 1), (1, 1), 255 )
+			], [
+				0, 2, 1,
+				0, 3, 2,
+				0, 4, 5,
+				0, 3, 4
+			] );
+
+		_changed = true;
+	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		//Render lines!
+		if (!_changed)
+			return;
+		_changed = false;
+		if (_instanceCollection is null)
+			return;
+		//if (_currentHoveringTile is null) {
+		//	_instanceCollection.Clear();
+		//	return;
+		//}
+
+		if (_currentHoveringTile is not null) {
+			while (_instances.Count < 3) {
+				_instances.Add( _instanceCollection.Create<Line3Instance>() );
+				_instances[ ^1 ].SetMesh( _lineInstanceMesh );
+			}
+
+			var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
+			var vA = vertices[ (int) _currentHoveringTile.IndexA ].CastSaturating<double, float>();
+			var vB = vertices[ (int) _currentHoveringTile.IndexB ].CastSaturating<double, float>();
+			var vC = vertices[ (int) _currentHoveringTile.IndexC ].CastSaturating<double, float>();
+
+			var cross = (vB - vA).Cross( vC - vA );
+			var magnitude = cross.Magnitude<Vector3<float>, float>();
+			var normal = cross.Normalize<Vector3<float>, float>();
+
+			var lift = 1 + magnitude * 5;
+			var width = magnitude * 3;
+			_instances[ 0 ].Write( new Line3SceneData( vA * lift, width, vB * lift, width, normal, -1, 1, (0, 0, 0.5f), 0, (255, 0, 0, 255) ) );
+			_instances[ 1 ].Write( new Line3SceneData( vB * lift, width, vC * lift, width, normal, -1, 1, (0, 0, 0.5f), 0, (0, 255, 0, 255) ) );
+			_instances[ 2 ].Write( new Line3SceneData( vC * lift, width, vA * lift, width, normal, -1, 1, (0, 0, 0.5f), 0, (0, 0, 255, 255) ) );
+		}
 	}
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
@@ -274,5 +347,60 @@ public sealed class WorldSelectedTileRenderBehaviour : SynchronizedRenderBehavio
 
 	protected override void Synchronize() {
 		_currentHoveringTile = _desyncHoveringTile;
+		_changed = true;
 	}
+}
+
+[Identity( nameof( LineVertex ) )]
+[VAO.Setup( 0, 0, 0 ), StructLayout( LayoutKind.Explicit, Pack = 1 )]
+public readonly struct LineVertex( Vector2<float> translation, Vector2<float> uv, Vector4<byte> color ) {
+	[VAO.Data( VertexAttribType.Float, 2 ), FieldOffset( 0 )]
+	public readonly Vector2<float> Translation = translation;
+	[VAO.Data( VertexAttribType.Float, 2 ), FieldOffset( 8 )]
+	public readonly Vector2<float> UV = uv;
+	[VAO.Data( VertexAttribType.UnsignedByte, 4, normalized: true ), FieldOffset( 16 )]
+	public readonly Vector4<byte> Color = color;
+}
+
+[Identity( nameof( Line3SceneData ) )]
+[VAO.Setup( 0, 1, 0 ), StructLayout( LayoutKind.Explicit, Pack = 1 )]
+public readonly struct Line3SceneData( Vector3<float> pointA, float widthA, Vector3<float> pointB, float widthB, Vector3<float> lineNormal, float negativeAnchor, float positiveAnchor, Vector3<float> quadratic, float gradientWidth, Vector4<byte> color ) {
+	[VAO.Data( VertexAttribType.Float, 4 ), FieldOffset( 0 )]
+	public readonly Vector4<float> PointA = new( pointA.X, pointA.Y, pointA.Z, widthA );
+	[VAO.Data( VertexAttribType.Float, 4 ), FieldOffset( 16 )]
+	public readonly Vector4<float> PointB = new( pointB.X, pointB.Y, pointB.Z, widthB );
+	[VAO.Data( VertexAttribType.Float, 3 ), FieldOffset( 32 )]
+	public readonly Vector3<float> LineNormal = lineNormal;
+	[VAO.Data( VertexAttribType.Float, 2 ), FieldOffset( 44 )]
+	public readonly Vector2<float> FillAnchors = new( negativeAnchor, positiveAnchor );
+	[VAO.Data( VertexAttribType.Float, 4 ), FieldOffset( 52 )]
+	public readonly Vector4<float> FillQuadratic = new( quadratic.X, quadratic.Y, quadratic.Z, gradientWidth );
+	[VAO.Data( VertexAttribType.UnsignedByte, 4, normalized: true ), FieldOffset( 68 )]
+	public readonly Vector4<byte> Color = color;
+}
+
+public sealed class Line3Instance : SceneInstanceCollection<LineVertex, Line3SceneData>.InstanceBase {
+	public new void SetMesh( IMesh mesh ) => base.SetMesh( mesh );
+	public new bool Write<T>( T data ) where T : unmanaged => base.Write( data );
+}
+
+[Identity( nameof( Line3ShaderBundle ) )]
+public sealed class Line3ShaderBundle : ShaderBundleBase {
+	protected override void AddPipelines( ShaderPipelineService pipelineService ) => AddPipeline( "default", pipelineService.Get<Line3ShaderPipeline>() );
+}
+
+public sealed class Line3ShaderPipeline : OglShaderPipelineBase {
+	public override bool UsesTransparency => false;
+
+	protected override IEnumerable<OglShaderProgramBase> GetShaderPrograms( ShaderProgramService shaderProgramService ) {
+		yield return shaderProgramService.Get<Line3VertexShaderProgram>();
+		yield return shaderProgramService.Get<LineFragmentShaderProgram>();
+	}
+}
+
+public sealed class Line3VertexShaderProgram : OglShaderProgramBase {
+	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "line3.vert" ) );
+}
+public sealed class LineFragmentShaderProgram : OglShaderProgramBase {
+	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "line.frag" ) );
 }

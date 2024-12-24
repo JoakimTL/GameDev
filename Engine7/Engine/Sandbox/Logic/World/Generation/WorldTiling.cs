@@ -124,7 +124,7 @@ public sealed class WorldTiling {
 				tileTerrainGenerationDatasInRoot.Remove( next );
 			}
 			tiled++;
-			if (tiled % 50 == 0)
+			if (tiled % 200 == 0)
 				this.LogLine( $"Generated {tiled}/{tilesToGenerateFor.Count}", Log.Level.VERBOSE );
 		}
 
