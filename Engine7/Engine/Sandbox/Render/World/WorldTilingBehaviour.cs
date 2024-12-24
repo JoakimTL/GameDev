@@ -4,6 +4,7 @@ using Engine.Module.Entities.Render;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render;
 using Sandbox.Logic.World;
+using Sandbox.Logic.World.Tiles;
 
 namespace Sandbox.Render.World;
 public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<WorldArchetype> {
@@ -36,13 +37,13 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 			List<TileTriangle> trianglesInLoD = [];
 			var instance = _instances[ i ];
 			var center = Vector.Average<Vector3<double>, double>( [
-				vertices[ (int) instance.BaseTile.VectorIndexA ],
-				vertices[ (int) instance.BaseTile.VectorIndexB ],
-				vertices[ (int) instance.BaseTile.VectorIndexC ] ] ).CastSaturating<double, float>();
-			int seekingLayer = GetLoDLevel( (center - _lastCameraTranslation).Magnitude<Vector3<float>, float>(), instance.BaseTile.Layer, instance.BaseTile.Layer + instance.BaseTile.Sublayers );
-			if (int.Clamp( seekingLayer, instance.BaseTile.Layer, instance.BaseTile.Layer + instance.BaseTile.Sublayers ) == instance.CurrentLoD)
+				vertices[ instance.BaseTile.IndexA ],
+				vertices[ instance.BaseTile.IndexB ],
+				vertices[ instance.BaseTile.IndexC ] ] ).CastSaturating<double, float>();
+			int seekingLayer = GetLoDLevel( (center - _lastCameraTranslation).Magnitude<Vector3<float>, float>(), instance.BaseTile.Layer, instance.BaseTile.Layer + instance.BaseTile.RemainingLayers );
+			if (int.Clamp( seekingLayer, (int) instance.BaseTile.Layer, (int) (instance.BaseTile.Layer + instance.BaseTile.RemainingLayers) ) == instance.CurrentLoD)
 				continue;
-			instance.CurrentLoD = int.Clamp( seekingLayer, instance.BaseTile.Layer, instance.BaseTile.Layer + instance.BaseTile.Sublayers );
+			instance.CurrentLoD = int.Clamp( seekingLayer, (int) instance.BaseTile.Layer, (int) (instance.BaseTile.Layer + instance.BaseTile.RemainingLayers) );
 			instance.Mesh?.Dispose();
 			AddTilesToList( instance.BaseTile, trianglesInLoD, seekingLayer );
 			IMesh mesh = CreateLoDMesh( trianglesInLoD, vertices );
@@ -51,13 +52,13 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 		}
 	}
 
-	private int GetLoDLevel( float distance, int minLayer, int maxLayer ) {
+	private int GetLoDLevel( float distance, uint minLayer, uint maxLayer ) {
 		//Min layer is the lowest level of detail, max layer is the highest level of detail.
-		int layerDifference = maxLayer - minLayer;
+		int layerDifference = (int) (maxLayer - minLayer);
 		float distanceToLayer = distance / 2;
 		float distancePart = distanceToLayer * layerDifference;
 		float layer = maxLayer - distancePart;
-		return int.Min( (int) float.Round(layer), maxLayer );
+		return int.Min( (int) float.Round( layer ), (int) maxLayer );
 	}
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
@@ -132,23 +133,18 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 		//}
 	}
 
-	private void AddTilesToList( BaseTile baseTile, List<TileTriangle> trianglesInLoD, int seekingLayer ) {
+	private void AddTilesToList( IContainingTile baseTile, List<TileTriangle> trianglesInLoD, int seekingLayer ) {
 		if (baseTile.Layer == seekingLayer || seekingLayer < baseTile.Layer) {
 			trianglesInLoD.Add( new( baseTile ) );
 			return;
 		}
 
-		if (baseTile.SubTiles is not null) {
-			foreach (BaseTile subTile in baseTile.SubTiles) {
-				AddTilesToList( subTile, trianglesInLoD, seekingLayer );
+		foreach (ITile subTile in baseTile.SubTiles) {
+			if (subTile is not IContainingTile container) {
+				trianglesInLoD.Add( new( subTile ) );
+				continue;
 			}
-			return;
-		}
-
-		if (baseTile.Tiles is not null) {
-			foreach (Tile tile in baseTile.Tiles) {
-				trianglesInLoD.Add( new( tile ) );
-			}
+			AddTilesToList( container, trianglesInLoD, seekingLayer );
 		}
 	}
 
@@ -156,10 +152,10 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
 		for (int i = 0; i < trianglesInLoD.Count; i++) {
-			int a = (int) trianglesInLoD[ i ].A;
-			int b = (int) trianglesInLoD[ i ].B;
-			int c = (int) trianglesInLoD[ i ].C;
-			Vector4<byte> color = ( trianglesInLoD[ i ].Color * 255).Clamp<Vector4<double>, double>( 0, 255 ).CastSaturating<double, byte>();
+			int a = trianglesInLoD[ i ].A;
+			int b = trianglesInLoD[ i ].B;
+			int c = trianglesInLoD[ i ].C;
+			Vector4<byte> color = (trianglesInLoD[ i ].Color * 255).Clamp<Vector4<double>, double>( 0, 255 ).CastSaturating<double, byte>();
 
 			Vector3<float> aV = tileVectors[ a ].CastSaturating<double, float>();
 			Vector3<float> bV = tileVectors[ b ].CastSaturating<double, float>();
@@ -180,24 +176,17 @@ public sealed class WorldTilingBehaviour : SynchronizedRenderBehaviourBase<World
 
 }
 
-public sealed class TileTriangle {
+public sealed class TileTriangle( ITile tile ) {
 
-	private readonly Tile? _tile;
-	private readonly BaseTile? _baseTile;
+	private readonly ITile _tile = tile;
 
-	public uint A => _tile?.IndexA ?? _baseTile?.VectorIndexA ?? throw new InvalidOperationException( "Tile or BaseTile is not set." );
-	public uint B => _tile?.IndexB ?? _baseTile?.VectorIndexB ?? throw new InvalidOperationException( "Tile or BaseTile is not set." );
-	public uint C => _tile?.IndexC ?? _baseTile?.VectorIndexC ?? throw new InvalidOperationException( "Tile or BaseTile is not set." );
-	public Vector4<double> Color => _tile?.Color ?? _baseTile?.Color ?? throw new InvalidOperationException( "Tile or BaseTile is not set." );
-
-	public TileTriangle( Tile tile ) {
-		_tile = tile;
-	}
-
-	public TileTriangle( BaseTile baseTile ) {
-		_baseTile = baseTile;
-	}
-
+	public int A => _tile.IndexA;
+	public int B => _tile.IndexB;
+	public int C => _tile.IndexC;
+	public Vector4<double> Color => _tile.Color;
+	public Vector3<double> VectorA => _tile.VectorA;
+	public Vector3<double> VectorB => _tile.VectorB;
+	public Vector3<double> VectorC => _tile.VectorC;
 }
 
 public sealed class WorldTileLoD {
@@ -208,14 +197,14 @@ public sealed class WorldTileLoD {
 
 public sealed class WorldTileSceneInstance : SceneInstanceCollection<Vertex3, Entity2SceneData>.InstanceBase {
 
-	private BaseTile? _baseTile;
+	private CompositeTile? _baseTile;
 
-	public BaseTile BaseTile => _baseTile ?? throw new InvalidOperationException( "BaseTile is not set." );
+	public CompositeTile BaseTile => _baseTile ?? throw new InvalidOperationException( "BaseTile is not set." );
 
 	public int CurrentLoD { get; set; }
 
 	public new void SetMesh( IMesh mesh ) => base.SetMesh( mesh );
 	public new bool Write<T>( T data ) where T : unmanaged => base.Write( data );
 
-	internal void SetBaseTile( BaseTile baseTile ) => _baseTile = baseTile;
+	internal void SetBaseTile( CompositeTile baseTile ) => _baseTile = baseTile;
 }

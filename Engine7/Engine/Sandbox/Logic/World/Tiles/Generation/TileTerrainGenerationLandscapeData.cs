@@ -1,4 +1,6 @@
-﻿namespace Sandbox.Logic.World.Generation;
+﻿using Sandbox.Logic.World.Tiles;
+
+namespace Sandbox.Logic.World.Tiles.Generation;
 
 public sealed class TileTerrainGenerationLandscapeData( Tile tile, float rng, float height ) {
 	public Tile Tile { get; } = tile;
@@ -15,7 +17,8 @@ public sealed class TileTerrainGenerationLandscapeData( Tile tile, float rng, fl
 		Applied = true;
 		Tile.SetTerrainType( ChooseTerrainType() );
 		Tile.TerrainGenData = null;
-		foreach (Tile neighbour in Tile.Neighbours) 			neighbour.TerrainGenData?.UpdateAvailableTerrainTypes( ref lowestPossibleTerrainCount );
+		foreach (Tile neighbour in Tile.Neighbours)
+			neighbour.TerrainGenData?.UpdateAvailableTerrainTypes( ref lowestPossibleTerrainCount );
 	}
 
 	private int ChooseTerrainType() {
@@ -55,7 +58,8 @@ public sealed class TileTerrainGenerationLandscapeData( Tile tile, float rng, fl
 		if (previousCount != _availableTerrainTypes.Count) {
 			if (_availableTerrainTypes.Count < lowestPossibleTerrainCount)
 				lowestPossibleTerrainCount = _availableTerrainTypes.Count;
-			foreach (Tile neighbour in Tile.Neighbours) 				neighbour.TerrainGenData?.UpdateAvailableTerrainTypes( ref lowestPossibleTerrainCount );
+			foreach (Tile neighbour in Tile.Neighbours)
+				neighbour.TerrainGenData?.UpdateAvailableTerrainTypes( ref lowestPossibleTerrainCount );
 		}
 	}
 }

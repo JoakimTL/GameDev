@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Logic.World.Generation;
+﻿namespace Sandbox.Logic.World.Tiles.Generation;
 
 public class Gradient3Noise( Vector3<int> seed, Vector3<float> phase, Vector3<float> spread ) {
 	private readonly Vector3<int> _seed = seed;

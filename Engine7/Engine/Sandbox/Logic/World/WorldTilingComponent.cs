@@ -1,5 +1,5 @@
 ﻿using Engine.Module.Entities.Container;
-using Sandbox.Logic.World.Generation;
+using Sandbox.Logic.World.Tiles.Generation;
 
 namespace Sandbox.Logic.World;
 

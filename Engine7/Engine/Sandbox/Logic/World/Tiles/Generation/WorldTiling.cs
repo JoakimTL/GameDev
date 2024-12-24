@@ -1,7 +1,8 @@
 ﻿using Engine.Logging;
 using Engine.Standard.Render.Meshing;
+using Sandbox.Logic.World.Tiles;
 
-namespace Sandbox.Logic.World.Generation;
+namespace Sandbox.Logic.World.Tiles.Generation;
 
 public sealed class WorldTiling {
 
@@ -9,9 +10,9 @@ public sealed class WorldTiling {
 	public const int RootLevel = 4;
 
 	private readonly Icosphere _worldIcosphere;
-	private readonly List<BaseTile> _rootTiles;
+	private readonly List<CompositeTile> _rootTiles;
 	public Icosphere WorldIcosphere => _worldIcosphere;
-	public IReadOnlyList<BaseTile> Tiles => _rootTiles;
+	public IReadOnlyList<CompositeTile> Tiles => _rootTiles;
 
 	public WorldTiling() {
 		_worldIcosphere = new Icosphere( Levels, normalizeUpTo: RootLevel );
@@ -21,15 +22,15 @@ public sealed class WorldTiling {
 		//_worldIcosphere.GetIndices( 5 ).Count / 3;
 		_rootTiles = CreateTiles();
 
-		Dictionary<(uint, uint), NeighbouringTiles> tilesBySharedEdge = [];
+		Dictionary<(int, int), NeighbouringTiles> tilesBySharedEdge = [];
 		List<Tile> allTiles = [];
-		foreach (BaseTile rootTile in _rootTiles)
+		foreach (CompositeTile rootTile in _rootTiles)
 			AddTiles( rootTile, allTiles );
 
 		foreach (Tile tile in allTiles) {
-			(uint, uint) edgeAB = GetEdge( tile.IndexA, tile.IndexB );
-			(uint, uint) edgeBC = GetEdge( tile.IndexB, tile.IndexC );
-			(uint, uint) edgeCA = GetEdge( tile.IndexC, tile.IndexA );
+			(int, int) edgeAB = GetEdge( tile.IndexA, tile.IndexB );
+			(int, int) edgeBC = GetEdge( tile.IndexB, tile.IndexC );
+			(int, int) edgeCA = GetEdge( tile.IndexC, tile.IndexA );
 			if (tilesBySharedEdge.TryGetValue( edgeAB, out NeighbouringTiles? neighboursAB ))
 				neighboursAB.TileB = tile;
 			else
@@ -54,7 +55,7 @@ public sealed class WorldTiling {
 		TerrainType.Initialize();
 		Random r = new( 42 );
 		Gradient3Noise coarseNoise = new( (r.Next(), r.Next(), r.Next()), (r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10), 0.1f );
-		Gradient3Noise fineNoise = new( (r.Next(), r.Next(), r.Next()), (r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10), 0.0004f );
+		Gradient3Noise fineNoise = new( (r.Next(), r.Next(), r.Next()), (r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10), 0.01f );
 		//for (float x = -1; x <= 1; x += 1) {
 		//	for (float y = -1; y <= 1; y += 1) {
 		//		for (float z = -1; z <= 1; z += 1) {
@@ -78,7 +79,7 @@ public sealed class WorldTiling {
 		this.LogLine( $"Generating terrain data for {allTiles.Count} tiles...", Log.Level.VERBOSE );
 		foreach (Tile tile in allTiles) {
 			Vector3<float> tileTranslation = Vector
-				.Average<Vector3<double>, double>( [ normalizedVectors[ (int) tile.IndexA ], normalizedVectors[ (int) tile.IndexB ], normalizedVectors[ (int) tile.IndexC ] ] )
+				.Average<Vector3<double>, double>( [ normalizedVectors[ tile.IndexA ], normalizedVectors[ tile.IndexB ], normalizedVectors[ tile.IndexC ] ] )
 				.CastSaturating<double, float>();
 			float height = coarseNoise.Sample( tileTranslation ) + fineNoise.Sample( tileTranslation ) * 0.1f;
 			tile.Height = height;
@@ -88,8 +89,8 @@ public sealed class WorldTiling {
 			tileTerrainGenerationDatas.Add( data );
 		}
 
-		List<BaseTile> tilesToGenerateFor = [];
-		foreach (BaseTile rootTile in _rootTiles)
+		List<CompositeTile> tilesToGenerateFor = [];
+		foreach (CompositeTile rootTile in _rootTiles)
 			if (!NeighbourFound( rootTile, tilesToGenerateFor ))
 				tilesToGenerateFor.Add( rootTile );
 
@@ -99,7 +100,7 @@ public sealed class WorldTiling {
 
 		int tiled = 0;
 		int lowestPossible = int.MaxValue;
-		foreach (BaseTile rootTile in tilesToGenerateFor) {
+		foreach (CompositeTile rootTile in tilesToGenerateFor) {
 			List<TileTerrainGenerationLandscapeData> tileTerrainGenerationDatasInRoot = rootTile
 				.GetAllTiles()
 				.Select( t => t.TerrainGenData )
@@ -154,82 +155,93 @@ public sealed class WorldTiling {
 		//	}
 	}
 
-	private bool NeighbourFound( BaseTile rootTile, List<BaseTile> tilesToGenerateFor ) {
+	private bool NeighbourFound( CompositeTile rootTile, List<CompositeTile> tilesToGenerateFor ) {
 		foreach (var potentialNeighbour in tilesToGenerateFor)
-			if (rootTile.VectorIndexA == potentialNeighbour.VectorIndexA
-				|| rootTile.VectorIndexA == potentialNeighbour.VectorIndexB
-				|| rootTile.VectorIndexA == potentialNeighbour.VectorIndexC
-				|| rootTile.VectorIndexB == potentialNeighbour.VectorIndexA
-				|| rootTile.VectorIndexB == potentialNeighbour.VectorIndexB
-				|| rootTile.VectorIndexB == potentialNeighbour.VectorIndexC
-				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexA
-				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexB
-				|| rootTile.VectorIndexC == potentialNeighbour.VectorIndexC)
+			if (rootTile.IndexA == potentialNeighbour.IndexA
+				|| rootTile.IndexA == potentialNeighbour.IndexB
+				|| rootTile.IndexA == potentialNeighbour.IndexC
+				|| rootTile.IndexB == potentialNeighbour.IndexA
+				|| rootTile.IndexB == potentialNeighbour.IndexB
+				|| rootTile.IndexB == potentialNeighbour.IndexC
+				|| rootTile.IndexC == potentialNeighbour.IndexA
+				|| rootTile.IndexC == potentialNeighbour.IndexB
+				|| rootTile.IndexC == potentialNeighbour.IndexC)
 				return true;
 		return false;
 	}
 
-	private void AddTiles( BaseTile baseTile, List<Tile> list ) {
-		if (baseTile.Tiles is not null) {
-			list.AddRange( baseTile.Tiles );
-			return;
-		}
-		if (baseTile.SubTiles is not null)
-			foreach (BaseTile subTile in baseTile.SubTiles)
-				AddTiles( subTile, list );
+	private void AddTiles( CompositeTile baseTile, List<Tile> list ) {
+		list.AddRange( baseTile.GetAllTiles() );
 	}
 
-	private (uint, uint) GetEdge( uint indexA, uint indexB ) => indexA < indexB
+	private (int, int) GetEdge( int indexA, int indexB ) => indexA < indexB
 		? (indexA, indexB)
 		: indexA != indexB
 			? (indexB, indexA)
 			: throw new InvalidOperationException( "Indices must be different" );
 
-	private List<BaseTile> CreateTiles() {
-		List<BaseTile> tiles = [];
+	private List<CompositeTile> CreateTiles() {
+		List<CompositeTile> tiles = [];
 		IReadOnlyList<uint> indices = _worldIcosphere.GetIndices( RootLevel );
 
 		for (int i = 0; i < indices.Count; i += 3) {
-			uint indexA = indices[ i ];
-			uint indexB = indices[ i + 1 ];
-			uint indexC = indices[ i + 2 ];
+			int indexA = (int) indices[ i ];
+			int indexB = (int) indices[ i + 1 ];
+			int indexC = (int) indices[ i + 2 ];
 
-			tiles.Add( new BaseTile( indexA, indexB, indexC, RootLevel, GetSubTiles( indexA, indexB, indexC, RootLevel + 1 ) ) );
+			CompositeTile tile = new( _worldIcosphere, null, indexA, indexB, indexC, RootLevel );
+			tile.SetSubTiles( GetSubTiles( tile, indexA, indexB, indexC ).ToArray() );
+			tiles.Add( tile );
+
 		}
 
 		return tiles;
 	}
 
-	public List<BaseTile> GetSubTiles( uint indexA, uint indexB, uint indexC, int layer ) {
-		IReadOnlyList<uint> indices = _worldIcosphere.GetSubdivision( indexA, indexB, indexC );
-		List<BaseTile> tiles = [];
+	public List<IContainedTile> GetSubTiles( CompositeTile containingCompositeTile, int indexA, int indexB, int indexC ) {
+		IReadOnlyList<uint> indices = _worldIcosphere.GetSubdivision( (uint) indexA, (uint) indexB, (uint) indexC );
+		List<IContainedTile> tiles = [];
+		uint nextLayer = containingCompositeTile.Layer + 1;
+
+		if (nextLayer + 1 == _worldIcosphere.Subdivisions) {
+			//We need to create regions here.
+
+			for (int i = 0; i < indices.Count; i += 3) {
+				int subIndexA = (int) indices[ i ];
+				int subIndexB = (int) indices[ i + 1 ];
+				int subIndexC = (int) indices[ i + 2 ];
+
+				Region region = new( _worldIcosphere, containingCompositeTile, subIndexA, subIndexB, subIndexC, containingCompositeTile.Layer + 1 );
+				region.SetSubTiles( GetTiles( region, subIndexA, subIndexB, subIndexC ).ToArray() );
+				tiles.Add( region );
+			}
+
+			return tiles;
+		}
 
 		for (int i = 0; i < indices.Count; i += 3) {
-			uint subIndexA = indices[ i ];
-			uint subIndexB = indices[ i + 1 ];
-			uint subIndexC = indices[ i + 2 ];
+			int subIndexA = (int) indices[ i ];
+			int subIndexB = (int) indices[ i + 1 ];
+			int subIndexC = (int) indices[ i + 2 ];
 
-			BaseTile tile;
-			if (layer + 1 == _worldIcosphere.Subdivisions)
-				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetTiles( subIndexA, subIndexB, subIndexC ) );
-			else
-				tile = new BaseTile( subIndexA, subIndexB, subIndexC, layer, GetSubTiles( subIndexA, subIndexB, subIndexC, layer + 1 ) );
+			CompositeTile tile = new( _worldIcosphere, containingCompositeTile, subIndexA, subIndexB, subIndexC, nextLayer );
+			tile.SetSubTiles( GetSubTiles( tile, subIndexA, subIndexB, subIndexC ).ToArray() );
 			tiles.Add( tile );
 		}
 
 		return tiles;
 	}
 
-	private List<Tile> GetTiles( uint indexA, uint indexB, uint indexC ) {
-		IReadOnlyList<uint> indices = _worldIcosphere.GetSubdivision( indexA, indexB, indexC );
+	private List<Tile> GetTiles( Region containingRegion, int indexA, int indexB, int indexC ) {
+		IReadOnlyList<uint> indices = _worldIcosphere.GetSubdivision( (uint) indexA, (uint) indexB, (uint) indexC );
 		List<Tile> tiles = [];
 
 		for (int i = 0; i < indices.Count; i += 3) {
-			uint subIndexA = indices[ i ];
-			uint subIndexB = indices[ i + 1 ];
-			uint subIndexC = indices[ i + 2 ];
+			int subIndexA = (int) indices[ i ];
+			int subIndexB = (int) indices[ i + 1 ];
+			int subIndexC = (int) indices[ i + 2 ];
 
-			tiles.Add( new( subIndexA, subIndexB, subIndexC ) );
+			tiles.Add( new( _worldIcosphere, containingRegion, subIndexA, subIndexB, subIndexC, containingRegion.Layer + 1 ) );
 		}
 
 		return tiles;

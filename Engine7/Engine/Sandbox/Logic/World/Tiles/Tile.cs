@@ -1,6 +1,7 @@
-﻿using Sandbox.Logic.World.Generation;
+﻿using Engine.Standard.Render.Meshing;
+using Sandbox.Logic.World.Tiles.Generation;
 
-namespace Sandbox.Logic.World;
+namespace Sandbox.Logic.World.Tiles;
 
 //public sealed class TileSubdivision {
 
@@ -28,20 +29,28 @@ namespace Sandbox.Logic.World;
 //	}
 //}
 
-public sealed class Tile( uint indexA, uint indexB, uint indexC ) : Identifiable {
-	public uint IndexA { get; } = indexA;
-	public uint IndexB { get; } = indexB;
-	public uint IndexC { get; } = indexC;
-	public float Height { get; set; }
+public sealed class Tile( Icosphere icosphere, Region containingTile, int indexA, int indexB, int indexC, uint layer ) : IContainedTile {
+	private readonly Icosphere _icosphere = icosphere;
+	public int IndexA { get; } = indexA;
+	public int IndexB { get; } = indexB;
+	public int IndexC { get; } = indexC;
+	public Vector3<double> VectorA => _icosphere.Vertices[ IndexA ];
+	public Vector3<double> VectorB => _icosphere.Vertices[ IndexB ];
+	public Vector3<double> VectorC => _icosphere.Vertices[ IndexC ];
+	public uint RemainingLayers => 0;
+	public uint Layer { get; } = layer;
+	public Vector4<double> Color => GetColor();
+	public ITile ContainingTile { get; } = containingTile;
 
 	private readonly List<Tile> _neighbours = [];
+
 	public IReadOnlyList<Tile> Neighbours => _neighbours;
-	public Vector4<double> Color => GetColor();
 	private Vector4<double> GetColor() {
 		return Terrain?.Color ?? throw new InvalidOperationException( "No terrain type" );
 		//return (Height > 0 ? Height : 0, Height < 0 ? -Height : 0, 0, 1);
 	}
 
+	public float Height { get; set; }
 	public TerrainType? Terrain { get; private set; }
 	public TileTerrainGenerationLandscapeData? TerrainGenData { get; set; }
 	public void AddNeighbour( Tile neighbour ) {

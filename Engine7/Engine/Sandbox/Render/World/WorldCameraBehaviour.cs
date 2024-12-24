@@ -12,6 +12,7 @@ using Engine.Transforms;
 using Engine.Transforms.Camera;
 using OpenGL;
 using Sandbox.Logic.World;
+using Sandbox.Logic.World.Tiles;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -151,30 +152,25 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
 		var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
-		var baseTile = Archetype.WorldTilingComponent.Tiling.Tiles.FirstOrDefault( p => RayIntersectsTriangle( 0, intersectionPoint, vertices[ (int) p.VectorIndexA ].CastSaturating<double, float>(), vertices[ (int) p.VectorIndexB ].CastSaturating<double, float>(), vertices[ (int) p.VectorIndexC ].CastSaturating<double, float>(), out _ ) );
+		var baseTile = Archetype.WorldTilingComponent.Tiling.Tiles.FirstOrDefault( p => RayIntersectsTriangle( 0, intersectionPoint, p.VectorA.CastSaturating<double, float>(), p.VectorB.CastSaturating<double, float>(), p.VectorC.CastSaturating<double, float>(), out _ ) );
 
 		Tile? selectedTiled = FindTileSelection( baseTile, intersectionPoint );
 
 		RenderEntity.SendMessageToEntity( new TileHoverMessage( selectedTiled ) );
 	}
 
-	private Tile? FindTileSelection( BaseTile? baseTile, Vector3<float> intersectionPoint ) {
+	private Tile? FindTileSelection( IContainingTile? baseTile, Vector3<float> intersectionPoint ) {
 		if (baseTile is null)
 			return null;
-		var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
-		if (baseTile.SubTiles is not null) {
-			foreach (var subTile in baseTile.SubTiles) {
-				if (RayIntersectsTriangle( 0, intersectionPoint, vertices[ (int) subTile.VectorIndexA ].CastSaturating<double, float>(), vertices[ (int) subTile.VectorIndexB ].CastSaturating<double, float>(), vertices[ (int) subTile.VectorIndexC ].CastSaturating<double, float>(), out _ )) {
-					return FindTileSelection( subTile, intersectionPoint );
-				}
+		foreach (var subTile in baseTile.SubTiles) {
+			if (RayIntersectsTriangle( 0, intersectionPoint, subTile.VectorA.CastSaturating<double, float>(), subTile.VectorB.CastSaturating<double, float>(), subTile.VectorC.CastSaturating<double, float>(), out _ )) {
+				if (subTile is Tile tile)
+					return tile;
+				if (subTile is not IContainingTile subTileContainingTile)
+					continue;
+				return FindTileSelection( subTileContainingTile, intersectionPoint );
 			}
 		}
-		if (baseTile.Tiles is not null)
-			foreach (var tile in baseTile.Tiles) {
-				if (RayIntersectsTriangle( 0, intersectionPoint, vertices[ (int) tile.IndexA ].CastSaturating<double, float>(), vertices[ (int) tile.IndexB ].CastSaturating<double, float>(), vertices[ (int) tile.IndexC ].CastSaturating<double, float>(), out _ )) {
-					return tile;
-				}
-			}
 		return null;
 	}
 
@@ -315,15 +311,19 @@ public sealed class WorldSelectedTileRenderBehaviour : SynchronizedRenderBehavio
 		//}
 
 		if (_currentHoveringTile is not null) {
+			var region = _currentHoveringTile.ContainingTile as Region;
+			if (region is null)
+				return;
+
 			while (_instances.Count < 3) {
 				_instances.Add( _instanceCollection.Create<Line3Instance>() );
 				_instances[ ^1 ].SetMesh( _lineInstanceMesh );
 			}
 
-			var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
-			var vA = vertices[ (int) _currentHoveringTile.IndexA ].CastSaturating<double, float>();
-			var vB = vertices[ (int) _currentHoveringTile.IndexB ].CastSaturating<double, float>();
-			var vC = vertices[ (int) _currentHoveringTile.IndexC ].CastSaturating<double, float>();
+
+			var vA = region.VectorA.CastSaturating<double, float>();
+			var vB = region.VectorB.CastSaturating<double, float>();
+			var vC = region.VectorC.CastSaturating<double, float>();
 
 			var cross = (vB - vA).Cross( vC - vA );
 			var magnitude = cross.Magnitude<Vector3<float>, float>();
