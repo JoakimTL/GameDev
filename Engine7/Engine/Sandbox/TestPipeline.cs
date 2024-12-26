@@ -123,14 +123,14 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 		this._sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
 		this._sceneInstance.SetShaderBundle( this.RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>() );
 		this._sceneInstance.SetVertexArrayObject( this.RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>() );
-		IcosphereGenerator.GenerateIcosphereVectors( 3, out var vectors, out var indices );
-		OcTree<TriangleVertex, double> ocTree = new( 5 );
+		IcosphereGenerator.GenerateIcosphereVectors<float>( 3, out var vectors, out var indices );
+		OcTree<TriangleVertex, float> ocTree = new( 5 );
 		foreach (var v in vectors)
 			ocTree.Add( new( v ) );
 		this.LogLine( $"Vertices: {vectors.Count}" );
 		this.LogLine( $"Triangles: {indices.Count / 3}" );
 		List<Vertex3> vertices = new List<Vertex3>();
-		Vector2<double> polarSpace = (Math.PI, Math.PI / 2);
+		Vector2<float> polarSpace = (float.Pi, float.Pi / 2);
 		List<uint> ind3 = [];
 		Random r = new( 42 );
 		//for (int i = 0; i < vectors.Count; i++) {
@@ -141,13 +141,13 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 		for (int i = 0; i < sub9Indices.Count; i += 3) {
 			Vector4<byte> color = ((byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), 255);
 			var v1 = vectors[ (int) sub9Indices[ i ] ];
-			Vector2<double> cp1 = v1.ToNormalizedPolar().DivideEntrywise( polarSpace );
+			Vector2<float> cp1 = v1.ToNormalizedPolar().DivideEntrywise( polarSpace );
 			Vector4<byte> c1 = ((byte) (double.Abs( cp1.X ) * 255), (byte) (double.Abs( cp1.Y ) * 255), 0, 255);
-			Vertex3 v = new( vectors[ (int) sub9Indices[ i ] ].CastSaturating<double, float>(), 0, 0, c1 );
+			Vertex3 v = new( vectors[ (int) sub9Indices[ i ] ], 0, 0, c1 );
 			vertices.Add( v );
-			v = new( vectors[ (int) sub9Indices[ i + 1 ] ].CastSaturating<double, float>(), 0, 0, c1 );
+			v = new( vectors[ (int) sub9Indices[ i + 1 ] ], 0, 0, c1 );
 			vertices.Add( v );
-			v = new( vectors[ (int) sub9Indices[ i + 2 ] ].CastSaturating<double, float>(), 0, 0, c1 );
+			v = new( vectors[ (int) sub9Indices[ i + 2 ] ], 0, 0, c1 );
 			vertices.Add( v );
 			ind3.Add( (uint) vertices.Count - 3 );
 			ind3.Add( (uint) vertices.Count - 2 );
@@ -207,8 +207,8 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 	protected override void OnUpdate( double time, double deltaTime ) {
 	}
 
-	public class TriangleVertex( Vector3<double> vector ) : IOctreeLeaf<double> {
-		public Vector3<double> Vector { get; } = vector;
+	public class TriangleVertex( Vector3<float> vector ) : IOctreeLeaf<float> {
+		public Vector3<float> Vector { get; } = vector;
 		public uint Level { get; } = 0;
 	}
 

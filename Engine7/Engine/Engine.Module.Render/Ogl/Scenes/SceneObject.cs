@@ -54,7 +54,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	}
 
 	public void AddSceneInstance( SceneInstanceBase sceneInstance ) {
-		if (sceneInstance.Disposed)
+		if (sceneInstance.Removed)
 			throw new ArgumentException( "SceneInstance is disposed" );
 		if (sceneInstance.BindIndex != this.BindIndex)
 			throw new ArgumentException( "SceneInstance is not compatible with this SceneObject" );
@@ -71,7 +71,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		sceneInstance.OnBindIndexChanged += OnBindIndexChanged;
 		sceneInstance.OnLayerChanged += OnLayerChanged;
 		sceneInstance.OnMeshChanged += OnMeshChanged;
-		sceneInstance.OnDisposed += OnInstanceDisposed;
+		sceneInstance.OnRemoved += OnInstanceRemoval;
 	}
 
 	private void AddSceneInstanceIntoCollection( SceneInstanceBase sceneInstance ) {
@@ -83,7 +83,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
 		sceneInstance.OnMeshChanged -= OnMeshChanged;
-		sceneInstance.OnDisposed -= OnInstanceDisposed;
+		sceneInstance.OnRemoved -= OnInstanceRemoval;
 
 		if (TryAddingToCollection( collectionList, sceneInstance )) {
 			sceneInstance.OnMeshOffsetChanged += OnMeshOffsetChanged;
@@ -141,7 +141,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
 		sceneInstance.OnMeshChanged -= OnMeshChanged;
-		sceneInstance.OnDisposed -= OnInstanceDisposed;
+		sceneInstance.OnRemoved -= OnInstanceRemoval;
 		sceneInstance.OnMeshOffsetChanged -= OnMeshOffsetChanged;
 		OnInstanceRemoved?.Invoke( sceneInstance );
 	}
@@ -156,7 +156,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	}
 
 	private void OnInstanceRemovedFromCollection( SceneInstanceBase sceneInstance ) {
-		if (sceneInstance.Disposed || sceneInstance.BindIndex != this.BindIndex || sceneInstance.RenderLayer != this.RenderLayer) {
+		if (sceneInstance.Removed || sceneInstance.BindIndex != this.BindIndex || sceneInstance.RenderLayer != this.RenderLayer) {
 			//Make sure the container is not empty, if it is we should dispose it.
 			//PruneEmptyCollections();
 			OnInstanceRemoved?.Invoke( sceneInstance );
@@ -169,7 +169,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 			sceneInstance.OnBindIndexChanged += OnBindIndexChanged;
 			sceneInstance.OnLayerChanged += OnLayerChanged;
 			sceneInstance.OnMeshChanged += OnMeshChanged;
-			sceneInstance.OnDisposed += OnInstanceDisposed;
+			sceneInstance.OnRemoved += OnInstanceRemoval;
 			sceneInstance.OnMeshOffsetChanged -= OnMeshOffsetChanged;
 			return;
 		}
@@ -186,7 +186,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 				}
 	}
 
-	private void OnInstanceDisposed( IListenableDisposable disposable ) => RemoveInstance( (SceneInstanceBase) disposable );
+	private void OnInstanceRemoval( IRemovable removable ) => RemoveInstance( (SceneInstanceBase) removable );
 	/// <summary>
 	/// Only used if the instance is not meshed. If the layer changes the instance is guaranteed to not be compatible.
 	/// </summary>

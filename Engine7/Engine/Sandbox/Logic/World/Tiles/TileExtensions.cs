@@ -1,11 +1,11 @@
 ﻿namespace Sandbox.Logic.World.Tiles;
 
 public static class TileExtensions {
-	public static Vector3<double> GetCenter( this ITile tile ) {
+	public static Vector3<float> GetCenter( this ITile tile ) {
 		return (tile.VectorA + tile.VectorB + tile.VectorC) / 3;
 	}
 
-	public static void FillSpan( this ITile tile, Span<Vector3<double>> span ) {
+	public static void FillSpan( this ITile tile, Span<Vector3<float>> span ) {
 		if (span.Length != 3)
 			throw new ArgumentException( "Span must have a length of 3", nameof( span ) );
 		span[ 0 ] = tile.VectorA;
@@ -21,15 +21,7 @@ public static class TileExtensions {
 		span[ 2 ] = tile.IndexC;
 	}
 
-	public static void FillSpan( this ITile tile, Span<Vector3<float>> span ) {
-		if (span.Length != 3)
-			throw new ArgumentException( "Span must have a length of 3", nameof( span ) );
-		span[ 0 ] = tile.VectorA.CastSaturating<double, float>();
-		span[ 1 ] = tile.VectorB.CastSaturating<double, float>();
-		span[ 2 ] = tile.VectorC.CastSaturating<double, float>();
-	}
-
-	public static IReadOnlyList<Tile> GetAllTiles(this IContainingTile containingTile) {
+	public static IReadOnlyList<Tile> GetAllTiles( this IContainingTile containingTile ) {
 		List<Tile> tiles = [];
 		foreach (ITile subTile in containingTile.SubTiles) {
 			if (subTile is Tile tile) {
@@ -40,5 +32,17 @@ public static class TileExtensions {
 				tiles.AddRange( compositeSubTile.GetAllTiles() );
 		}
 		return tiles;
+	}
+	public static IReadOnlyList<Region> GetAllRegions( this IContainingTile containingTile ) {
+		List<Region> regions = [];
+		foreach (ITile subTile in containingTile.SubTiles) {
+			if (subTile is Region region) {
+				regions.Add( region );
+				continue;
+			}
+			if (subTile is IContainingTile compositeSubTile)
+				regions.AddRange( compositeSubTile.GetAllRegions() );
+		}
+		return regions;
 	}
 }

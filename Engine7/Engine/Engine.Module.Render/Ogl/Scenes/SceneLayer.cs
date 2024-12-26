@@ -38,7 +38,7 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 
 		sceneInstance.OnBindIndexChanged += OnBindIndexChanged;
 		sceneInstance.OnLayerChanged += OnLayerChanged;
-		sceneInstance.OnDisposed += OnInstanceDisposed;
+		sceneInstance.OnRemoved += OnInstanceRemoval;
 	}
 
 	private void OnBindIndexChanged( SceneInstanceBase sceneInstance, ulong? oldBindIndex ) {
@@ -62,11 +62,11 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 		sceneObject.AddSceneInstance( sceneInstance );
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
-		sceneInstance.OnDisposed -= OnInstanceDisposed;
+		sceneInstance.OnRemoved -= OnInstanceRemoval;
 	}
 
 	private void OnInstanceRemovedFromSceneObject( SceneInstanceBase sceneInstance ) {
-		if (sceneInstance.Disposed || sceneInstance.RenderLayer != this.RenderLayer) {
+		if (sceneInstance.Removed || sceneInstance.RenderLayer != this.RenderLayer) {
 			//Make sure the container is not empty, if it is we should dispose it.
 			OnInstanceRemoved?.Invoke( sceneInstance );
 			return;
@@ -77,7 +77,7 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 				throw new InvalidOperationException( "Failed to add instance back to unbound collection" );
 			sceneInstance.OnBindIndexChanged += OnBindIndexChanged;
 			sceneInstance.OnLayerChanged += OnLayerChanged;
-			sceneInstance.OnDisposed += OnInstanceDisposed;
+			sceneInstance.OnRemoved += OnInstanceRemoval;
 			return;
 		}
 		//Now we know the mesh is not null. We need to add it to the correct collection.
@@ -89,13 +89,13 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 		this._unboundSceneInstances.Remove( sceneInstance );
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
-		sceneInstance.OnDisposed -= OnInstanceDisposed;
+		sceneInstance.OnRemoved -= OnInstanceRemoval;
 		OnInstanceRemoved?.Invoke( sceneInstance );
 	}
 
 	private void OnSceneObjectChanged() => OnChanged?.Invoke();
 
-	private void OnInstanceDisposed( IListenableDisposable disposable ) => RemoveInstance( (SceneInstanceBase) disposable );
+	private void OnInstanceRemoval( IRemovable removable ) => RemoveInstance( (SceneInstanceBase) removable );
 
 	//If the layer of a scene instance changes, we know the scene instance is no longer compatible.
 	private void OnLayerChanged( SceneInstanceBase changedInstance, uint oldValue ) => RemoveInstance( changedInstance );

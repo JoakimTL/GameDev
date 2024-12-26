@@ -1,23 +1,11 @@
 ﻿using Engine.Buffers;
-using Engine.Module.Render.Ogl.Services;
+using Engine.Module.Render.Ogl.Scenes;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
-namespace Engine.Module.Render.Ogl.Scenes.Services;
+namespace Engine.Module.Render.Ogl.Services;
 
-public sealed class MeshService( BufferService bufferService ) : DisposableIdentifiable {
-
-	private readonly List<IMesh> _meshes = [];
-
-	//public VertexMesh CreateEmptyMesh( Type vertexType, uint vertexCount, uint elementCount ) {
-	//	bufferService.Get( typeof( TVertex ) ).TryAllocate( vertexCount * TypeManager.SizeOf<TVertex>(), out BufferSegment? vertexSegment );
-	//	bufferService.ElementBuffer.TryAllocate( elementCount * IMesh.ElementSizeBytes, out BufferSegment? elementSegment );
-	//}
-
-	private void OnMeshDisposed( IListenableDisposable disposable ) {
-		_meshes.Remove( (IMesh) disposable );
-		disposable.OnDisposed -= OnMeshDisposed;
-	}
+public sealed class MeshService( BufferService bufferService ) : Identifiable {
 
 	public VertexMesh<TVertex> CreateEmptyMesh<TVertex>( uint vertexCount, uint elementCount, string? name = null ) where TVertex : unmanaged {
 		if (!bufferService.Get( typeof( TVertex ) ).TryAllocate( vertexCount * (uint) Marshal.SizeOf<TVertex>(), out BufferSegment? vertexSegment ))
@@ -29,8 +17,6 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 		VertexMesh<TVertex> mesh = new( vertexSegment, elementSegment ) {
 			Nickname = name
 		};
-		this._meshes.Add( mesh );
-		mesh.OnDisposed += OnMeshDisposed;
 		return mesh;
 	}
 
@@ -44,8 +30,6 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 		mesh = new( vertexSegment, elementSegment ) {
 			Nickname = name
 		};
-		this._meshes.Add( mesh );
-		mesh.OnDisposed += OnMeshDisposed;
 	}
 
 	public VertexMesh<TVertex> CreateMesh<TVertex>( Span<TVertex> vertices, Span<uint> elements, string? name = null ) where TVertex : unmanaged {
@@ -83,13 +67,5 @@ public sealed class MeshService( BufferService bufferService ) : DisposableIdent
 				elementSegment.WriteRange( srcPtr, (ulong) (elements.Length * sizeof( uint )), 0 );
 		}
 		return mesh;
-	}
-
-	protected override bool InternalDispose() {
-		foreach (IMesh mesh in this._meshes) {
-			mesh.OnDisposed -= OnMeshDisposed;
-			mesh.Dispose();
-		}
-		return true;
 	}
 }

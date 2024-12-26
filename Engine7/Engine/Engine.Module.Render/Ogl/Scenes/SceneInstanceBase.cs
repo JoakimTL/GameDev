@@ -4,11 +4,11 @@ using Engine.Module.Render.Ogl.OOP.VertexArrays;
 
 namespace Engine.Module.Render.Ogl.Scenes;
 
-public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifiable {
+public abstract class SceneInstanceBase(Type instanceType) : Identifiable, IRemovable {
 
 	public delegate void SceneInstanceBindIndexChangeHandler( SceneInstanceBase changedInstance, ulong? oldBindIndex );
 	public delegate void SceneInstancePropertyChangeHandler<T>( SceneInstanceBase changedInstance, T? oldValue );
-	public delegate void SceneInstancePropertyOffsetChangeHandler( SceneInstanceBase changedInstance );
+	public delegate void SceneInstanceChangeHandler( SceneInstanceBase changedInstance );
 
 	public OglVertexArrayObjectBase? VertexArrayObject { get; private set; }
 	public ShaderBundleBase? ShaderBundle { get; private set; }
@@ -25,6 +25,9 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	/// </summary>
 	public bool Valid { get; private set; }
 
+	public bool Active { get; private set; } = true;
+	public bool Removed { get; private set; } = false;
+
 	public Type InstanceDataType { get; } = instanceType;
 
 	/// <summary>
@@ -38,7 +41,7 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	/// <summary>
 	/// Called when the mesh changes.
 	/// </summary>
-	public event SceneInstancePropertyOffsetChangeHandler? OnMeshOffsetChanged;
+	public event SceneInstanceChangeHandler? OnMeshOffsetChanged;
 	/// <summary>
 	/// Called when the instance data segment changes.
 	/// </summary>
@@ -47,6 +50,14 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 	/// Called when the instance layer changes.
 	/// </summary>
 	public event SceneInstancePropertyChangeHandler<uint>? OnLayerChanged;
+	/// <summary>
+	/// Called when the instance layer changes.
+	/// </summary>
+	public event SceneInstancePropertyChangeHandler<bool>? OnActiveChanged;
+	/// <summary>
+	/// Called when the instance should be removed from all scenes.
+	/// </summary>
+	public event RemovalHandler? OnRemoved;
 
 	protected void SetVertexArrayObject( OglVertexArrayObjectBase? vertexArrayObject ) {
 		if (this.VertexArrayObject == vertexArrayObject)
@@ -93,6 +104,22 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 		OnLayerChanged?.Invoke( this, oldLayer );
 	}
 
+	protected void SetActive(bool active) {
+		if (this.Active == active)
+			return;
+		this.Active = active;
+		UpdateValidity();
+		OnActiveChanged?.Invoke( this, !active );
+	}
+
+	public void Remove() {
+		if (this.Removed)
+			return;
+		this.Removed = true;
+		UpdateValidity();
+		OnRemoved?.Invoke( this );
+	}
+
 	internal void AssignDataSegment( BufferSlice<BufferSegment>? segment ) {
 		if (this.InstanceDataSegment == segment)
 			return;
@@ -111,11 +138,7 @@ public abstract class SceneInstanceBase(Type instanceType) : DisposableIdentifia
 		return this.InstanceDataSegment?.Read<ulong, TInstanceData>( 0, out data ) ?? false;
 	}
 
-	public bool MissingDataSegment => this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is null;
+	public bool MissingDataSegment => !Removed && Active && this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is null;
 
-	private void UpdateValidity() => this.Valid = this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is not null;
-
-	protected override bool InternalDispose() {
-		return true;
-	}
+	private void UpdateValidity() => this.Valid = !Removed && Active && this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is not null;
 }

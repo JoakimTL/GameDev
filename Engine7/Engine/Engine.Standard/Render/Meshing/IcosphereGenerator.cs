@@ -1,26 +1,29 @@
-﻿namespace Engine.Standard.Render.Meshing;
+﻿using System.Numerics;
+
+namespace Engine.Standard.Render.Meshing;
 
 public static class IcosphereGenerator {
-	public static void CreateIcosphere( out List<Vector3<double>> vectors, out List<List<uint>> indices ) {
+	public static void CreateIcosphere<TScalar>( out List<Vector3<TScalar>> vectors, out List<List<uint>> indices )
+		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
 		vectors = [];
 		List<uint> rootIndices = [];
 		indices = [ rootIndices ];
 
-		vectors.Add( new Vector3<double>( 0, 1, 0 ) );
+		vectors.Add( new Vector3<TScalar>( TScalar.CreateSaturating( 0 ), TScalar.CreateSaturating( 1 ), TScalar.CreateSaturating( 0 ) ) );
 
-		double H_ANGLE = Math.PI / 180 * 72;    // 72 degree = 360 / 5
-		double V_ANGLE = Math.Atan( 1f / 2 );  // elevation = 26.565 degree
+		TScalar H_ANGLE = TScalar.Pi / TScalar.CreateSaturating( 180 ) * TScalar.CreateSaturating( 72 );    // 72 degree = 360 / 5
+		TScalar V_ANGLE = TScalar.Atan( TScalar.CreateSaturating( 1 ) / TScalar.CreateSaturating( 2 ) );  // elevation = 26.565 degree
 
-		double hAngle1 = (-Math.PI / 2) - (H_ANGLE / 2);  // start from -126 deg at 1st row
-		double hAngle2 = -Math.PI / 2;                // start from -90 deg at 2nd row
+		TScalar hAngle1 = (-TScalar.Pi / TScalar.CreateSaturating( 2 )) - (H_ANGLE / TScalar.CreateSaturating( 2 ));  // start from -126 deg at 1st row
+		TScalar hAngle2 = -TScalar.Pi / TScalar.CreateSaturating( 2 );                // start from -90 deg at 2nd row
 
 		for (int i = 1; i <= 5; ++i) {
 			int i1 = i;
 
-			double y = Math.Sin( V_ANGLE );
-			double xz = Math.Cos( V_ANGLE );
+			TScalar y = TScalar.Sin( V_ANGLE );
+			TScalar xz = TScalar.Cos( V_ANGLE );
 
-			vectors.Add( new Vector3<double>( xz * Math.Cos( hAngle1 ), y, xz * Math.Sin( hAngle1 ) ) );
+			vectors.Add( new Vector3<TScalar>( xz * TScalar.Cos( hAngle1 ), y, xz * TScalar.Sin( hAngle1 ) ) );
 
 			hAngle1 += H_ANGLE;
 		}
@@ -28,15 +31,15 @@ public static class IcosphereGenerator {
 		for (int i = 1; i <= 5; ++i) {
 			int i2 = i + 5;
 
-			double y = Math.Sin( V_ANGLE );
-			double xz = Math.Cos( V_ANGLE );
+			TScalar y = TScalar.Sin( V_ANGLE );
+			TScalar xz = TScalar.Cos( V_ANGLE );
 
-			vectors.Add( new Vector3<double>( xz * Math.Cos( hAngle2 ), -y, xz * Math.Sin( hAngle2 ) ) );
+			vectors.Add( new Vector3<TScalar>( xz * TScalar.Cos( hAngle2 ), -y, xz * TScalar.Sin( hAngle2 ) ) );
 
 			hAngle2 += H_ANGLE;
 		}
 
-		vectors.Add( new Vector3<double>( 0, -1, 0 ) );
+		vectors.Add( new Vector3<TScalar>( TScalar.CreateSaturating( 0 ), TScalar.CreateSaturating( -1 ), TScalar.CreateSaturating( 0 ) ) );
 
 		for (uint i = 0; i < 5; i++) {
 			rootIndices.Add( 0 );
@@ -63,28 +66,30 @@ public static class IcosphereGenerator {
 		}
 	}
 
-	public static void GenerateIcosphereVectors( int subdivisions, out List<Vector3<double>> vectors, out List<List<uint>> indices ) {
+	public static void GenerateIcosphereVectors<TScalar>( int subdivisions, out List<Vector3<TScalar>> vectors, out List<List<uint>> indices )
+		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
 		CreateIcosphere( out vectors, out indices );
 		for (int i = 0; i < subdivisions; i++)
 			Subdivide( vectors, indices );
 		NormalizeVectors( vectors );
 	}
 
-	private static void Subdivide( List<Vector3<double>> vectors, List<List<uint>> indices ) {
+	private static void Subdivide<TScalar>( List<Vector3<TScalar>> vectors, List<List<uint>> indices )
+		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
 		List<uint> preSubdivisionIndices = indices[ ^1 ];
 		List<uint> subDivisionIndices = [];
 		for (int ind = 0; ind < preSubdivisionIndices.Count; ind += 3) {
 
 			uint ia = preSubdivisionIndices[ ind ];
-			Vector3<double> a = vectors[ (int) ia ];
+			Vector3<TScalar> a = vectors[ (int) ia ];
 			uint ib = preSubdivisionIndices[ ind + 1 ];
-			Vector3<double> b = vectors[ (int) ib ];
+			Vector3<TScalar> b = vectors[ (int) ib ];
 			uint ic = preSubdivisionIndices[ ind + 2 ];
-			Vector3<double> c = vectors[ (int) ic ];
+			Vector3<TScalar> c = vectors[ (int) ic ];
 
-			Vector3<double> ab = (a + b) / 2;
-			Vector3<double> bc = (b + c) / 2;
-			Vector3<double> ca = (c + a) / 2;
+			Vector3<TScalar> ab = (a + b) / TScalar.CreateSaturating( 2 );
+			Vector3<TScalar> bc = (b + c) / TScalar.CreateSaturating( 2 );
+			Vector3<TScalar> ca = (c + a) / TScalar.CreateSaturating( 2 );
 
 			uint iab = (uint) vectors.Count;
 			vectors.Add( ab );
@@ -113,9 +118,10 @@ public static class IcosphereGenerator {
 		indices.Add( subDivisionIndices );
 	}
 
-	private static void NormalizeVectors( List<Vector3<double>> vectors ) {
+	private static void NormalizeVectors<TScalar>( List<Vector3<TScalar>> vectors )
+		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
 		for (int i = 0; i < vectors.Count; i++) {
-			vectors[ i ] = vectors[ i ].Normalize<Vector3<double>, double>();
+			vectors[ i ] = vectors[ i ].Normalize<Vector3<TScalar>, TScalar>();
 		}
 	}
 

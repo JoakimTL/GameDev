@@ -27,11 +27,11 @@ public sealed class BufferSlicer<TBuffer> where TBuffer : IBuffer<ulong>, IReada
 		for (int i = 0; i < this._slices.Length; i++) {
 			this._slices[ i ] = new( hostBuffer, (ulong) i * sliceSizeBytes, sliceSizeBytes, i );
 			this._slices[ i ].OnFreed += OnSliceFreed;
-
 		}
 	}
 
-	public uint Count => (uint) this._slices.Length;
+	public uint Count => (uint) _currentUnoccupiedSliceIndex;
+	public uint Capacity => (uint) _slices.Length;
 
 	public bool TryAllocate( ulong lengthBytes, [NotNullWhen( true )] out BufferSlice<TBuffer>? slice ) {
 		slice = null;

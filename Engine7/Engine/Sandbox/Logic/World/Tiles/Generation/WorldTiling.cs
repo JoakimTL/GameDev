@@ -1,5 +1,7 @@
-﻿using Engine.Logging;
+﻿using Engine;
+using Engine.Logging;
 using Engine.Standard.Render.Meshing;
+using ImageMagick;
 using Sandbox.Logic.World.Tiles;
 
 namespace Sandbox.Logic.World.Tiles.Generation;
@@ -18,7 +20,7 @@ public sealed class WorldTiling {
 		_worldIcosphere = new Icosphere( Levels, normalizeUpTo: RootLevel );
 		this.LogLine( $"Icosphere created with {_worldIcosphere.Vertices.Count} vertices", Log.Level.VERBOSE );
 		this.LogLine( $"Icosphere created with {_worldIcosphere.GetIndices( Levels - 1 ).Count / 3} faces", Log.Level.VERBOSE );
-		var normalizedVectors = _worldIcosphere.Vertices.Select( v => v.Normalize<Vector3<double>, double>() ).ToList();
+		var normalizedVectors = _worldIcosphere.Vertices.Select( v => v.Normalize<Vector3<float>, float>() ).ToList();
 		//_worldIcosphere.GetIndices( 5 ).Count / 3;
 		_rootTiles = CreateTiles();
 
@@ -52,6 +54,14 @@ public sealed class WorldTiling {
 			tile.Value.TileB.AddNeighbour( tile.Value.TileA );
 		}
 
+		bool assetsDir = Directory.Exists( "assets" );
+		bool texturesDir = Directory.Exists( "assets\\textures" );
+		bool fileExists = File.Exists( "assets\\textures\\earthHeightmapLow.png" );
+		MagickImage image = new( "assets\\textures\\earthHeightmapLow.png" );
+		float[] heights = image.GetPixels().Select( p => p.GetChannel( 0 ) * (1f / ushort.MaxValue) ).ToArray();
+		int imageWidth = (int) image.Width;
+		int imageHeight = heights.Length / imageWidth;
+		image.Dispose();
 		TerrainType.Initialize();
 		Random r = new( 42 );
 		Gradient3Noise coarseNoise = new( (r.Next(), r.Next(), r.Next()), (r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10, r.NextSingle() * 20 - 10), 0.1f );
@@ -77,11 +87,11 @@ public sealed class WorldTiling {
 
 		List<TileTerrainGenerationLandscapeData> tileTerrainGenerationDatas = [];
 		this.LogLine( $"Generating terrain data for {allTiles.Count} tiles...", Log.Level.VERBOSE );
+		Span<Vector3<float>> tileVectors = stackalloc Vector3<float>[ 3 ];
 		foreach (Tile tile in allTiles) {
-			Vector3<float> tileTranslation = Vector
-				.Average<Vector3<double>, double>( [ normalizedVectors[ tile.IndexA ], normalizedVectors[ tile.IndexB ], normalizedVectors[ tile.IndexC ] ] )
-				.CastSaturating<double, float>();
-			float height = coarseNoise.Sample( tileTranslation ) + fineNoise.Sample( tileTranslation ) * 0.1f;
+			tile.FillSpan( tileVectors );
+			Vector3<float> tileTranslation = Vector.Average<Vector3<float>, float>( tileVectors );
+			float height = GetHeight( tileTranslation, heights, imageWidth, imageHeight );//coarseNoise.Sample( tileTranslation ) + fineNoise.Sample( tileTranslation ) * 0.1f;
 			tile.Height = height;
 			if (!TileTerrainGenerator.GenerateTerrain( tile, r.NextSingle(), height, out TileTerrainGenerationLandscapeData? data ))
 				continue;
@@ -153,6 +163,16 @@ public sealed class WorldTiling {
 		//	if (tiled % 1000 == 0) {
 		//		this.LogLine( $"Remaining: {tileTerrainGenerationDatas.Count}", Log.Level.VERBOSE );
 		//	}
+	}
+
+	private float GetHeight( Vector3<float> translation, float[] heights, int width, int height ) {
+		var polar = translation.ToNormalizedPolar();
+		var positivePolar = polar + (float.Pi, float.Pi / 2);
+		var normalizedPolar = positivePolar.DivideEntrywise( (float.Pi * 2, float.Pi) );
+		var imagePolar = normalizedPolar.MultiplyEntrywise( (width - 1, height - 1) );
+		int x = (width - 1) - (int) imagePolar.X;
+		int y = (height - 1) - (int) imagePolar.Y;
+		return heights[ x + y * width ] * 2 - 0.05f;
 	}
 
 	private bool NeighbourFound( CompositeTile rootTile, List<CompositeTile> tilesToGenerateFor ) {

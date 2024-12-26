@@ -28,11 +28,11 @@ float quadratic(float x, float quad, float linear, float constant) {
 }
 
 void main(void) {
-//	float quadEqX = findQuadraticEquationX(IN.Uv.x, IN.FillAnchors.y, IN.FillAnchors.x);
-//	float quadraticResult = quadratic(quadEqX, IN.FillQuadratic.x, IN.FillQuadratic.y, IN.FillQuadratic.z);
-//	if (IN.Uv.y * sign(quadraticResult) > quadraticResult) {
-//		discard;
-//	}
+	float quadEqX = findQuadraticEquationX(IN.Uv.y, IN.FillNegativeAnchor, IN.FillPositiveAnchor);
+	float quadraticResult = quadratic(quadEqX, IN.FillQuadratic.x, IN.FillQuadratic.y, IN.FillQuadratic.z);
+	if (IN.Uv.x > quadraticResult) {
+		discard;
+	}
 	outColor = IN.Color;
 	//IN.Uv.x -> UV on width
 	//IN.Uv.y -> UV on length

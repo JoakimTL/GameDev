@@ -1,21 +1,16 @@
 ﻿using Engine.Logging;
 using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
-using Engine.Module.Render.Input;
+using Engine.Module.Render.Ogl.Services;
+using Engine.Processing;
 
 namespace Engine.Standard.Render.Entities.Services;
 
-public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpdateable {
+[Do<IDisposable>.After<SceneService>]
+public sealed class RenderEntityContainerService( RenderEntityServiceAccess renderEntityServiceAccess ) : DisposableIdentifiable, IUpdateable {
 
 	private readonly Dictionary<EntityContainer, RenderEntityContainer> _containerPairs = [];
-	private readonly RenderEntityServiceAccess _renderEntityServiceAccess;
-	private readonly UserInputEventService _userInput;
-
-	public RenderEntityContainerService( RenderEntityServiceAccess renderEntityServiceAccess, UserInputEventService userInput ) {
-		this._renderEntityServiceAccess = renderEntityServiceAccess;
-		this._userInput = userInput;
-		userInput.OnCharacter += (e) => this.LogLine( $"Character input received {e.Character} {e.KeyCode} {e.Modifiers} {e.Time}", Log.Level.VERBOSE );
-	}
+	private readonly RenderEntityServiceAccess _renderEntityServiceAccess = renderEntityServiceAccess;
 
 	internal void RegisterEntityContainer( EntityContainer entityContainer ) {
 		if (this._containerPairs.ContainsKey( entityContainer )) {

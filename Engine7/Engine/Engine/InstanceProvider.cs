@@ -5,7 +5,7 @@ namespace Engine;
 internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvider {
 
 	private readonly InstanceCatalog _instanceCatalog;
-	private readonly List<IDisposable> _disposables = [];
+	private readonly InstanceDisposalExtension _disposalExtension;
 	private readonly Dictionary<Type, object> _instances = [];
 	public event Action<object>? OnInstanceAdded;
 	public IInstanceCatalog Catalog => this._instanceCatalog;
@@ -15,6 +15,7 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 		instanceCatalog.OnHostedTypeAdded += OnHostedTypeAdded;
 		foreach (Type hostedType in instanceCatalog.HostedTypes)
 			Get( hostedType );
+		_disposalExtension = new( this );
 	}
 
 	private void OnHostedTypeAdded( Type type )
@@ -42,8 +43,6 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 		instance = constructor.Invoke( resolvedParameters );
 		this._instances.Add( implementationType, instance );
 		OnInstanceAdded?.Invoke( instance );
-		if (instance is IDisposable disposable)
-			this._disposables.Add( disposable );
 		return instance;
 	}
 
@@ -59,9 +58,7 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 	}
 
 	protected override bool InternalDispose() {
-		foreach (IDisposable disposable in this._disposables)
-			disposable.Dispose();
-		this._disposables.Clear();
+		_disposalExtension.Dispose();
 		return true;
 	}
 }

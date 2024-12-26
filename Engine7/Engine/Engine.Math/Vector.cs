@@ -63,7 +63,7 @@ public static class Vector {
 			unmanaged, ILinearAlgebraScalarOperations<TVector, TScalar>, ILinearAlgebraVectorOperations<TVector>
 		where TScalar :
 			unmanaged, IFloatingPointIeee754<TScalar>
-		=> start.Lerp( end, (TScalar.CosPi( interpolationFactor ) + TScalar.One) / (TScalar.One + TScalar.One) );
+		=> start.Lerp( end, (TScalar.One - TScalar.CosPi( interpolationFactor )) / (TScalar.One + TScalar.One) );
 
 	public static TScalar Magnitude<TVector, TScalar>( this TVector vector )
 		where TVector :

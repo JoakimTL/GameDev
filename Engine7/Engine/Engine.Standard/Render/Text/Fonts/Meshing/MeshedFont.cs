@@ -1,6 +1,6 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Ogl.Scenes;
-using Engine.Module.Render.Ogl.Scenes.Services;
+using Engine.Module.Render.Ogl.Services;
 
 namespace Engine.Standard.Render.Text.Fonts.Meshing;
 

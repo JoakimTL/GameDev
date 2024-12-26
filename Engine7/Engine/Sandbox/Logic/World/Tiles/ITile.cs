@@ -5,12 +5,12 @@ public interface ITile {
 	int IndexB { get; }
 	int IndexC { get; }
 
-	Vector3<double> VectorA { get; }
-	Vector3<double> VectorB { get; }
-	Vector3<double> VectorC { get; }
+	Vector3<float> VectorA { get; }
+	Vector3<float> VectorB { get; }
+	Vector3<float> VectorC { get; }
 
 	uint RemainingLayers { get; }
 	uint Layer { get; }
 
-	Vector4<double> Color { get; }
+	Vector4<float> Color { get; }
 }

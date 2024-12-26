@@ -34,18 +34,18 @@ public sealed class Tile( Icosphere icosphere, Region containingTile, int indexA
 	public int IndexA { get; } = indexA;
 	public int IndexB { get; } = indexB;
 	public int IndexC { get; } = indexC;
-	public Vector3<double> VectorA => _icosphere.Vertices[ IndexA ];
-	public Vector3<double> VectorB => _icosphere.Vertices[ IndexB ];
-	public Vector3<double> VectorC => _icosphere.Vertices[ IndexC ];
+	public Vector3<float> VectorA => _icosphere.Vertices[ IndexA ];
+	public Vector3<float> VectorB => _icosphere.Vertices[ IndexB ];
+	public Vector3<float> VectorC => _icosphere.Vertices[ IndexC ];
 	public uint RemainingLayers => 0;
 	public uint Layer { get; } = layer;
-	public Vector4<double> Color => GetColor();
+	public Vector4<float> Color => GetColor();
 	public ITile ContainingTile { get; } = containingTile;
 
 	private readonly List<Tile> _neighbours = [];
 
 	public IReadOnlyList<Tile> Neighbours => _neighbours;
-	private Vector4<double> GetColor() {
+	private Vector4<float> GetColor() {
 		return Terrain?.Color ?? throw new InvalidOperationException( "No terrain type" );
 		//return (Height > 0 ? Height : 0, Height < 0 ? -Height : 0, 0, 1);
 	}

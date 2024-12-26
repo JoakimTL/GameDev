@@ -35,6 +35,7 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 			this._sceneLayersByLayer.Add( renderLayer, layer = new( renderLayer, this._bufferService ) );
 			this._sortedLayers.Add( layer );
 			layer.OnChanged += OnLayerChanged;
+			//TODO: handle scene instances moving between layers
 		}
 		layer.AddSceneInstance( instance );
 		return instance;
@@ -60,7 +61,6 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 	}
 
 	protected override bool InternalDispose() {
-
 		foreach (SceneLayer layer in this._sortedLayersReadOnly)
 			layer.Dispose();
 		this._sortedLayers.Clear();

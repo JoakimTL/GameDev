@@ -6,24 +6,32 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Module.Entities.Render;
 
-public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
+public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovable {
 	private readonly Entity _entity;
 	private readonly DisposableList _disposables;
+	private readonly RemovableList _removables;
 	private readonly Dictionary<Type, RenderBehaviourBase> _behaviours;
+	private readonly Queue<IInitializable> _initializationQueue;
 
 	public event Action<RenderBehaviourBase>? OnBehaviourRemoved;
+	public event RemovalHandler? OnRemoved;
+
 	public RenderEntityServiceAccess ServiceAccess { get; }
+
+	public bool Removed { get; private set; }
 
 	internal RenderEntity( Entity entity, RenderEntityServiceAccess serviceAccess ) {
 		this._entity = entity;
 		this.ServiceAccess = serviceAccess;
 		this._behaviours = [];
+		this._removables = new();
+		this._initializationQueue = [];
 		this._disposables = new();
 	}
 
 	public T RequestSceneInstance<T>( string sceneName, uint layer ) where T : SceneInstanceBase, new() {
 		T instance = this.ServiceAccess.SceneInstanceProvider.RequestSceneInstance<T>( sceneName, layer );
-		this._disposables.Add( instance );
+		this._removables.Add( instance );
 		return instance;
 	}
 
@@ -32,7 +40,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 		where TInstanceData : unmanaged
 		where TShaderBundle : ShaderBundleBase {
 		SceneInstanceCollection<TVertexData, TInstanceData> collection = this.ServiceAccess.SceneInstanceProvider.RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( sceneName, layer );
-		this._disposables.Add( collection );
+		this._removables.Add( collection );
 		return collection;
 	}
 
@@ -56,6 +64,8 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 		if (!this._behaviours.TryAdd( renderBehaviour.GetType(), renderBehaviour ))
 			return this.LogWarningThenReturn( $"Behaviour of type {renderBehaviour.GetType().Name} already exists.", false );
 		_disposables.Add( renderBehaviour );
+		if (renderBehaviour is IInitializable initializable)
+			_initializationQueue.Enqueue( initializable );
 		renderBehaviour.OnDisposed += OnRenderBehaviourDisposed;
 		return true;
 	}
@@ -83,9 +93,16 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 		=> (renderBehaviour = null) is null && this._behaviours.TryGetValue( typeof( T ), out RenderBehaviourBase? baseBehaviour ) && (renderBehaviour = baseBehaviour as T) is not null;
 
 	public void Update( double time, double deltaTime ) {
+		while (_initializationQueue.TryDequeue( out IInitializable? initializable )) {
+			if (!_behaviours.ContainsKey( initializable.GetType() ))
+				continue;
+			initializable.Initialize();
+		}
 		foreach (RenderBehaviourBase renderBehaviour in this._behaviours.Values)
 			renderBehaviour.Update( time, deltaTime );
 	}
+
+
 
 	protected override bool InternalDispose() {
 		foreach (RenderBehaviourBase renderBehaviour in this._behaviours.Values)
@@ -93,5 +110,13 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable {
 		this._behaviours.Clear();
 		_disposables.Dispose();
 		return true;
+	}
+
+	public void Remove() {
+		if (this.Removed)
+			return;
+		this.Removed = true;
+		_removables.Clear( true );
+		this.OnRemoved?.Invoke( this );
 	}
 }

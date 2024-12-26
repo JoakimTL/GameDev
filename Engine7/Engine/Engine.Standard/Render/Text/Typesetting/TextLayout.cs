@@ -5,7 +5,7 @@ using Engine.Standard.Render.Text.Services;
 using Engine.Transforms;
 
 namespace Engine.Standard.Render.Text.Typesetting;
-public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2SceneData> sceneInstanceCollection, FontMeshingService fontMeshingService ) : DisposableIdentifiable, IUpdateable {
+public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2SceneData> sceneInstanceCollection, FontMeshingService fontMeshingService ) : Identifiable, IUpdateable {
 
 	//The entire point of this class is to place glyphs in the correct positions, such that they fill a rectangle. The rectangle is defined by the base matrix.
 
@@ -104,8 +104,8 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 
 		if (string.IsNullOrEmpty( _fontName ) || _textArea.GetArea() == 0) {
 			for (int i = 0; i < _glyphInstances.Count; i++)
-				_glyphInstances[ i ].Dispose();
-			_glyphInstances.RemoveAll( p => p.Disposed );
+				_glyphInstances[ i ].Remove();
+			_glyphInstances.RemoveAll( p => p.Removed );
 			return;
 		}
 
@@ -124,8 +124,8 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 			_glyphInstances.Add( _sceneInstanceCollection.Create<GlyphInstance>() );
 
 		for (int i = glyphedLetters; i < _glyphInstances.Count; i++)
-			_glyphInstances[ i ].Dispose();
-		_glyphInstances.RemoveAll( p => p.Disposed );
+			_glyphInstances[ i ].Remove();
+		_glyphInstances.RemoveAll( p => p.Removed );
 
 		//What scale do we work at?
 		//We have a text area, which confines the glyphs into a rectangle.
@@ -196,10 +196,5 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 	}
 
 	private static bool IsGlyphed( char c ) => c != ' ' && c != '\t' && c != '\n' && c != '\r';
-
-	protected override bool InternalDispose() {
-		_sceneInstanceCollection.Dispose();
-		return true;
-	}
 
 }

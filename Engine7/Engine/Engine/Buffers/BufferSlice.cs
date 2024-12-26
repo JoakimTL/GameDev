@@ -1,6 +1,6 @@
 ﻿namespace Engine.Buffers;
 
-public sealed class BufferSlice<TBuffer>( TBuffer hostBuffer, ulong offsetBytes, ulong lengthBytes, int index ) : Identifiable, IBufferSegment<ulong>, IReadableBuffer<ulong>, IWritableBuffer<ulong> where TBuffer : IBuffer<ulong>, IReadableBuffer<ulong>, IWritableBuffer<ulong> {
+public sealed class BufferSlice<TBuffer>( TBuffer hostBuffer, ulong offsetBytes, ulong lengthBytes, int index ) : IBufferSegment<ulong>, IReadableBuffer<ulong>, IWritableBuffer<ulong> where TBuffer : IBuffer<ulong>, IReadableBuffer<ulong>, IWritableBuffer<ulong> {
 	private readonly TBuffer _hostBuffer = hostBuffer;
 
 	public ulong OffsetBytes { get; private set; } = offsetBytes;

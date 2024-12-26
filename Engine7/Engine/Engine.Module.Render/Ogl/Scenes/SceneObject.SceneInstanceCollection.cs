@@ -23,7 +23,7 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 	}
 
 	public uint BaseInstance => (uint) (this._segment.OffsetBytes / this._sizePerInstanceBytes);
-	public uint InstanceCount => (uint) this._instances.Count;
+	public uint InstanceCount => (uint) this._subBufferManager.Count;
 	public uint InstanceSizeBytes => this._sizePerInstanceBytes;
 
 	public event Action<SceneInstanceBase>? OnInstanceRemoved;
@@ -45,7 +45,8 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 		sceneInstance.OnBindIndexChanged += OnBindIndexChanged;
 		sceneInstance.OnLayerChanged += OnLayerChanged;
 		sceneInstance.OnMeshChanged += OnMeshChanged;
-		sceneInstance.OnDisposed += OnInstanceDisposed;
+		sceneInstance.OnRemoved += OnInstanceRemoval;
+		sceneInstance.OnActiveChanged += OnActiveChanged;
 		sceneInstance.AssignDataSegment( slice );
 		OnChanged?.Invoke();
 		return true;
@@ -61,13 +62,27 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
 		sceneInstance.OnMeshChanged -= OnMeshChanged;
-		sceneInstance.OnDisposed -= OnInstanceDisposed;
+		sceneInstance.OnRemoved -= OnInstanceRemoval;
+		sceneInstance.OnActiveChanged -= OnActiveChanged;
 		OnInstanceRemoved?.Invoke( sceneInstance );
 		OnChanged?.Invoke();
 		return true;
 	}
-
-	private void OnInstanceDisposed( IListenableDisposable disposable ) => Remove( (SceneInstanceBase) disposable );
+	/// <summary>
+	/// If the active state changes we still want to keep the instance, it's just not going to be rendered.
+	/// </summary>
+	private void OnActiveChanged( SceneInstanceBase changedInstance, bool oldValue ) {
+		if (changedInstance.Active) {
+			if (!this._subBufferManager.TryAllocate( this._sizePerInstanceBytes, out BufferSlice<BufferSegment>? slice ))
+				throw new InvalidOperationException( "Failed to allocate a slice." );
+			changedInstance.AssignDataSegment( slice );
+		} else {
+			changedInstance.InstanceDataSegment?.Free();
+			changedInstance.AssignDataSegment( null );
+		}
+		OnChanged?.Invoke();
+	}
+	private void OnInstanceRemoval( IRemovable removable ) => Remove( (SceneInstanceBase) removable );
 	/// <summary>
 	/// If the mesh changes this instance is guaranteed to no longer be compatible with this collection.
 	/// </summary>
@@ -82,7 +97,8 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 	private void OnLayerChanged( SceneInstanceBase changedInstance, uint oldValue ) => Remove( changedInstance );
 
 	protected override bool InternalDispose() {
-		this._segment.Dispose();
+		if (!this._segment.Disposed)
+			this._segment.Dispose();
 		return true;
 	}
 }

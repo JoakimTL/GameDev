@@ -61,7 +61,6 @@ public sealed class TextRendering2Behaviour : SynchronizedRenderBehaviourBase<Te
 	}
 
 	protected override bool InternalDispose() {
-		_textLayout?.Dispose();
 		return true;
 	}
 

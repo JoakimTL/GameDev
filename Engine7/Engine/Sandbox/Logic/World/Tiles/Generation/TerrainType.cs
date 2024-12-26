@@ -13,11 +13,11 @@ public sealed class TerrainType {
 	static TerrainType() {
 		_terrainTypes = [];
 		Water = new( new( 0, 0, 1 ), true );
-		ShallowWater = new( new( .3f, .33, 1 ), true );
+		ShallowWater = new( new( .33f, .33f, 1 ), true );
 		Grass = new( new( 0, 1, 0 ), false );
 		Sand = new( new( 1, 1, 0 ), false );
-		Rock = new( new( .5, .5, .5 ), false );
-		Forest = new( new( 0, .25, 0 ), false );
+		Rock = new( new( .5f, .5f, .5f ), false );
+		Forest = new( new( 0, .25f, 0 ), false );
 	}
 
 	public static void Initialize() {
@@ -45,10 +45,10 @@ public sealed class TerrainType {
 	public static IEnumerable<TerrainType> AllLandTerrainTypes => _terrainTypes.Where( p => !p.IsWater );
 
 	public int Id { get; }
-	public Vector4<double> Color { get; }
+	public Vector4<float> Color { get; }
 	public bool IsWater { get; }
 
-	public TerrainType( Vector3<double> color, bool isWater ) {
+	public TerrainType( Vector3<float> color, bool isWater ) {
 		this.Id = _terrainTypes.Count;
 		_terrainTypes.Add( this );
 		this.Color = new( color.X, color.Y, color.Z, 1 );

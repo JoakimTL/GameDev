@@ -1,5 +1,5 @@
 ﻿using Engine.Module.Render.Ogl.Scenes;
-using Engine.Module.Render.Ogl.Scenes.Services;
+using Engine.Module.Render.Ogl.Services;
 
 namespace Engine.Module.Render.Entities.Providers;
 

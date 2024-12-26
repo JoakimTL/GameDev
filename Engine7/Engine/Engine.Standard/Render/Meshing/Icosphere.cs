@@ -2,12 +2,12 @@
 
 public sealed class Icosphere {
 
-	public readonly List<Vector3<double>> _vertices;
+	public readonly List<Vector3<float>> _vertices;
 	private readonly List<List<uint>> _indicesAtEarlierSubdivisions;
 	private readonly Dictionary<(int, int), int> _edgeMidpointCache;
 
 	private bool _locked = false;
-	public IReadOnlyList<Vector3<double>> Vertices => _vertices;
+	public IReadOnlyList<Vector3<float>> Vertices => _vertices;
 
 	public int Subdivisions { get; }
 
@@ -26,9 +26,9 @@ public sealed class Icosphere {
 
 	public IReadOnlyList<uint> GetIndices( int level ) => _indicesAtEarlierSubdivisions[ level ];
 
-	private static void NormalizeVectors( List<Vector3<double>> vectors ) {
+	private static void NormalizeVectors( List<Vector3<float>> vectors ) {
 		for (int i = 0; i < vectors.Count; i++)
-			vectors[ i ] = vectors[ i ].Normalize<Vector3<double>, double>();
+			vectors[ i ] = vectors[ i ].Normalize<Vector3<float>, float>();
 	}
 
 	public int GetMidpoint( uint v1, uint v2 ) {
@@ -42,7 +42,7 @@ public sealed class Icosphere {
 			throw new InvalidOperationException( "Cannot subdivide a locked icosphere" );
 
 		// Calculate and normalize the midpoint
-		Vector3<double> midpoint = (_vertices[ (int) v1 ] + _vertices[ (int) v2 ]) * 0.5f;
+		Vector3<float> midpoint = (_vertices[ (int) v1 ] + _vertices[ (int) v2 ]) * 0.5f;
 
 		// Add midpoint to vertex list and cache it
 		midpointIndex = _vertices.Count;
