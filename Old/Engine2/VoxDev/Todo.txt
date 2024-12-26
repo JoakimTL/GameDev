@@ -1,0 +1,47 @@
+﻿World gen:
+-- Single dedicated thread to handle world gen
+	- This thread moves through world generation on new chunks.
+-- Multiple dedicated threads handle mesh gen.
+	- Threads are assigned to a chunk and works on that chunk until it is done generating.
+	- Mesh generation doesn't start until world gen for neighbouring chunks are done.
+Chunk updating
+-- Each chunk has a thread that activates once the initial mesh generation is completed. This thread tracks updates and updates the mesh when something changes.
+Chunk details
+-- Blocksets should be able to contain 2^16 blocks
+-- Blocks should be able to contain damage values (byte arrays), stored in a Dictionary
+Blocks
+-- Blocks should be able to be transparent.
+-- Blocks should be able to have unique models
+Process
+-- Do things small, and expand over time.
+
+Add way for world to know when to dispose chunks
+	When a chunk is dispoed, it should be saved first.
+
+The plan:
+x 1:Naive Saving/loading of chunks
+	x Compression for Saving/loading of chunks
+x 2:Finish 3d collision system
+	x Integrate into engine
+		x Create entity manager system
+	x Create rows of aabb shapes in the world.
+		x The world must have a transform
+		//Entity collision module that scans the world and creates collision shapes based on the world.
+x Trace method to support rotated worlds.
+x 3:Create player controller - 2.10
+- 4:Create menus/lobby (begin multiplayer) - 20.10
+- 5:Load into maps and display players - 27.10
+- 6:Create weapon system - 30.10
+- 7:Allow people to kell eachother - 30.10
+- 8:Model rigging and animation - 16.11
+	- Fix proper model loading for multiobject models (handgun.obj)
+- 9:Create fun weapons - blæh
+- 10:Create map making tools / save map stuff - Q1.21
+- 11:Game mode customization (lua scripting? standardization?)
+
+- Create custom binding options
+- GAEM TIME STARTED
+
+
+
+- Fix block breaking creating ghost faces

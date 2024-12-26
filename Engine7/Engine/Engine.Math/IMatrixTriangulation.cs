@@ -20,14 +20,3 @@ public interface IMatrixTriangulation<TMatrix>
 	/// <returns>False if triangulation failed</returns>
 	bool TryGetLowerTriangularDecomposition( out TMatrix lowerDecomposition, out TMatrix upperDecomposition );
 }
-
-public interface IMatrixVectorTransformation<TMatrix, TVector>
-	where TMatrix :
-		unmanaged, IMatrixVectorTransformation<TMatrix, TVector>
-	where TVector :
-		unmanaged {
-	/// <returns><c>null</c> if the transform can't be resolved.</returns>
-	TVector? TransformWorld( in TVector l );
-	/// <returns><c>null</c> if the transform can't be resolved.</returns>
-	TVector TransformNormal( in TVector l );
-}

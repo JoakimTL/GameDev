@@ -1,0 +1,3 @@
+﻿- Show map of world
+- Show Fog of War on map
+- Create arenas

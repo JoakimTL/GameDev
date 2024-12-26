@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "VoxDev": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

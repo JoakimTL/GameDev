@@ -1,0 +1,87 @@
+﻿TODO
+: Graphics
+	x Update Shaders to include files and recogninzing shaders being updated for quicker debugging.
+		x Allow for #include statements in shader (#include ./light/light.ps) ("./" to go back one directory, ".ps" is for partial shader file)
+	x PBR
+		// Should be done...
+	x Create IView interface and implement View2 and View3
+	- Create camera classes
+	- Default 3d and 2d event listeners
+	- Create pipeline class
+	- Redo rendering
+	- Cascaded Shadow maps
+		- Have all rendered objects implement an AABB to determine which object is in which cascaded shadow map
+		- Render shadow maps, however many, using data above.
+		- Separate thread sorting objects into groups of distance.
+			- Use camera position and motion to find objects close to crossing thresholds.
+	- Light Shafts
+		x Radial Blur
+		- All lights can have light shafts
+		- Use shadow volume method to create light shaft geometry
+	- Create an OpenGL statemachine
+	- Redo 3d rendering pipeline
+	- Double depth buffer for translucent shadows
+		- No second buffer needed, only color buffer.
+	- Redo water with dynamic waves: https://gamedev.stackexchange.com/questions/44547/how-do-i-create-2d-water-with-dynamic-waves
+		- Mesh updates on separate thread? Interpolating between previous and new state?
+		- Screen Space Reflections? Reflection Texture?
+	- Model rigging
+		- Ragdolls
+		- Animation handling
+	- LOD generator
+		// Choose a random index, then scan the neighbours of neighbours and remove the neighbour if the normal is within requirements.
+	- Subsurface Scattering
+	x Outline
+	- SSAO
+	- Redo 3d rendering pipeline again, probably
+	- Create mesh file format
+		- Create vertex format easily reading and writing this format
+		- Redo mesh reading from files to remove Mesh3 and Mesh2 classes, if possible!
+	:: Bugs/Errors:
+		x Fix minimazation framebuffer bug 
+		- Fix weird lighting error (shadow outline through objects)
+		x Fix spotlight shadows
+		- Fixing variance shadowmap for point and spotlights
+			- Blur cubemap
+		- Fix resize lag (finalize resize when the user is not resizing anymore!) (can't be fixed?)
+		- Fix renderable occlusion crash
+: Physics
+	- Physics
+		- EPA for 2d and 3d
+		- Collision response
+: Tools
+	x Make settingsfile easier to use
+	x Easy Startup for Prototyping
+	x Create WeakReferenced Cache.
+		- Enable ShapePolygonData to be read from files, and make the store a cache again
+		x Have all other caches utilize ref cache.
+	x Update Timer in ConnectionPinger class
+		x Create Timer class, because apparently C#'s are bad in several ways I don't like.
+		x Implement new Timer class over C#'s
+	- Randomly generated tree meshes and textures
+	- Map generation
+		- Use normal and height to determine erosion
+	- Temperature to wavelength
+	- Wavelengths to RGB
+	- Create painting application
+	- Create 3d modelling application
+		- Bone rigging
+	- Pathfinding
+		- Create a 2d pathfinding algortihm
+	- A voxel meshing tool
+		- Storage of voxel data
+: Entities
+	- Entity Component System with Server<->Client synchronization
+	- World Creation System (ECS for Worlds)
+		- World Systems
+			- Physics System
+		- World Components
+			- World Entity Container Component
+	- Look into Transferable class
+		- Use serialization?
+: Networking
+	- Enable IPv6 and promote it
+: Engine Specific
+	- Pipelines moved out of graphics, into more suitable location.
+	- Shorten folder depth (namespaces).
+	- Port to .Net Core

@@ -21,7 +21,8 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 		IProduct<Vector2<TScalar>, Multivector2<TScalar>, Multivector2<TScalar>>,
 		IProduct<Vector2<TScalar>, Matrix2x2<TScalar>, Vector2<TScalar>>,
 		IEntrywiseComparisonOperations<Vector2<TScalar>>,
-		IEntrywiseComparisonOperators<Vector2<TScalar>>
+		IEntrywiseComparisonOperators<Vector2<TScalar>>,
+		ITransformableVector<Matrix4x4<TScalar>, Vector2<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar X = x;
@@ -57,6 +58,8 @@ public readonly struct Vector2<TScalar>( TScalar x, TScalar y ) :
 	public TScalar SumOfUnitBasisAreas() => this.X * this.Y;
 	public TScalar SumOfUnitBasisVolumes() => TScalar.Zero;
 	public Vector2<TScalar> ReflectNormal( in Vector2<TScalar> normal ) => normal.Multiply( this ).Multiply( normal );
+	public Vector2<TScalar>? TransformWorld( in Matrix4x4<TScalar> l ) => l.TransformWorld( this );
+	public Vector2<TScalar> TransformNormal( in Matrix4x4<TScalar> l ) => l.TransformNormal( this );
 
 	public Rotor2<TScalar> Multiply( in Vector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );
 	public Vector2<TScalar> Multiply( in Bivector2<TScalar> r ) => GeometricAlgebraMath2.Multiply( this, r );

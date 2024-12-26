@@ -1,0 +1,44 @@
+﻿- PointMass weight should be the weighted scale of the point not actual weight. This weighted scale is then scaled with the mass of the shape
+	- If all pointmasses has a weight of 1, that means the weight is uniform.
+- Make distinction between the base model and the transformed model explicit
+- Make collision detection easy to use with one static class for both 2d and 3d
+- Make it possible to find the inertia of a physics model
+- Make 3x3 matrix for inertial tensor
+	- Give shapes inertial tensors (Mat3x3, float(2d only has one axis of rotation)) (generic perhaps?)
+	- 0.71^2*2^2 == (0.71*2)^2
+		- The shape can be normalized then the tensor can be scaled, meaning less computations
+
+https://physics.stackexchange.com/questions/485759/moment-of-inertia-for-arbitrary-shape
+https://physics.stackexchange.com/questions/148895/combining-moment-of-inertia-tensors
+https://geometrictools.com/Documentation/PolyhedralMassProperties.pdf
+https://www.gamedev.net/forums/topic/320067-calculating-the-inertia-tensors-for-an-arbitary-convex-hull/
+https://math.stackexchange.com/questions/60279/how-to-calculate-volume-of-3d-convex-hull
+
+CONVEX HULL ALGORTIHM
+https://en.wikipedia.org/wiki/Convex_hull_algorithms
+
+TORQUE:
+https://www.youtube.com/watch?v=jg4e8W44_E4&ab_channel=TheOrganicChemistryTutor
+
+
+Testing physics:
+Sphere spinning when two forces are acted on it in different locations
+Seesaw with objects of same mass, but one is further away from the com.
+
+Polygon triangulation:
+https://cs.stackexchange.com/questions/76228/an-algorithm-to-find-the-area-of-intersection-between-a-convex-polygon-and-a-3d
+https://en.wikipedia.org/wiki/Polygon_triangulation
+
+To find inertia:
+Find the area of the slice perpendicular to the axis of rotation, and take the outerhull and run the algortihm on that. (basically projecting the 3d points to 2d and finding the hull.)
+Slice face triangles along the plane then calculate area?
+
+Convex Hull:
+Using ideas from EPA:
+
+convex hulls always contain their center of mass:
+start with a triangle formed by taking the first three points, then create a minkowski difference using the center of mass as the difference point
+Then form a tetrahedron by searching in the opposite direction of the normal, if the normal faces outward. If the normal does not face outward B and C should be swapped before continuing. (maintaining right handedness)
+Then find the face closest to the center of mass(origin in the minkowski difference) and check if it is on the edge of the shape or not. Continue untill all faces have been confirmed outer shells.
+
+This is expensive, should be done only once when required. Linear transforms does not change the position of the vertices relative to others in the same shape, so unless the shape changes the check is only required once.

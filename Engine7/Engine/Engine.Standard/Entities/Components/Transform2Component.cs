@@ -14,3 +14,11 @@ public sealed class Transform2Component : ComponentBase {
 
 	private void OnMatrixChanged( IMatrixProvider<double> provider ) => this.InvokeComponentChanged();
 }
+
+
+public sealed class UiComponent : ComponentBase {
+
+	//Add collision data
+
+
+}

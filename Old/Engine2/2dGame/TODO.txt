@@ -1,0 +1,16 @@
+﻿- Tiles
+- World Generations
+- Multiplayer
+- Proper UI
+- Player Character
+	- Skill trees
+- Dimensions
+- Bosses
+- NPCs
+	- Mobs
+	- Friendly Characters
+- Items
+	- Basic Items
+	- Weapons
+	- Armor
+	- Accessory

@@ -1,0 +1,201 @@
+﻿TODO
+: Graphics
+	x Update Shaders to include files and recogninzing shaders being updated for quicker debugging.
+		x Allow for #include statements in shader (#include ./light/light.ps) ("./" to go back one directory, ".ps" is for partial shader file)
+	x PBR // Should be done...
+	x Create IView interface and implement View2 and View3
+	- Create a shader debug tool, which copies updated shader sources to the current directory
+	- Collision Detection
+		x 2D
+		- 3D
+	x Create camera classes
+	x Create pipeline class
+	- Redo rendering
+		- 3D
+			- Render Geometry and Particles
+				s Stencil buffer written to when geometry exists
+				- Instanced blending materials?
+					- A-Buffer??? https://computergraphics.stackexchange.com/questions/121/what-are-some-methods-to-render-transparency-in-opengl
+					- Include depth and color, like the particle
+			- Particles 3d:
+				- Render particles 
+					SOURCES:
+						- https://www.roxlu.com/downloads/scholar/008.rendering.practical_particle_lighting.pdf, 
+						- http://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/:
+							- http://developer.download.nvidia.com/whitepapers/2007/SDK10/SoftParticles_hi.pdf
+				- Render particles in shadow maps too
+					x Include depth and color (the color of the particle, which is then the color added to the environment)
+					x Occlusion model should fit all particles.
+					x no need to sort more than once (sort against main camera)
+					s Depth volume?
+					s Separate particle and smoke rendering
+						- Particles should use quads
+						- Smoke uses icospheres and depth volume
+							- No texture is applied, only color and density
+							- Use the depth volume, a double pass rendering recording the highest depth and lowest depth of the volume.
+								- The volume is used to record the amount of smoke the light needs to penetrate in order to get through to the viewer.
+					x Fix particles disappearing from shadows
+					x Smooth particles
+					- Create "low" setting particles
+					https://dev.to/keaukraine/implementing-soft-particles-in-webgl-and-opengl-es-3l6e
+			- Render Light
+				x Simple light for geometry
+					s Share depth/stencil buffer with G-Buffer
+						s Depth mask off
+					x Use icospheres
+					s Use stencil buffer to avoid rendering more than necessary
+				x Light on particles affect the world space coordinates the particles fill.
+				x Directional Light
+				x Point Light
+				x Spot Light
+				- Only a certain number of lights have shadows...
+					- Make the light and shadow buffers separate and managed by the light manager. The light manager then determines which light has shadows and which does not.
+			- PostFX
+				x Fog
+				- SSAO
+				- Sunshafts
+				- SSR
+				x Outline
+				x Bloom
+				- Cel
+	x Cascaded Shadow maps
+		x Have all rendered objects implement an AABB to determine which object is in which cascaded shadow map
+		x Render shadow maps, however many, using data above.
+		x Separate thread sorting objects into groups of distance.
+			s Use camera position and motion to find objects close to crossing thresholds.
+		s Render shadows facing the player with higher resolution than those facing away for point lights
+	x FIX LIGHTS (0xC0000005 error) (Gl.ClearTex... was to blame (utilizting temporary arrays lead to pointer error))
+	- Fix minimization bug (has to do with blooooooooom)
+	- Add float to increase/decrease brightness automatically (eyes adjusting)
+	- Redo lighting?
+		- With lux instead of arbitrary brightness
+	- Light Shafts
+		x Radial Blur
+		- All lights can have light shafts
+		- Use shadow volume method to create light shaft geometry
+	- Create an OpenGL statemachine
+	- Redo water with dynamic waves: https://gamedev.stackexchange.com/questions/44547/how-do-i-create-2d-water-with-dynamic-waves
+		- Mesh updates on separate thread? Interpolating between previous and new state?
+		- Screen Space Reflections? Reflection Texture?
+	- Screen Space Reflections
+		https://www.youtube.com/watch?v=K2rs7K4y_sY
+		- Make the FBO size dynamic, users can enjoy ssr without the best hardware.
+			- 1/2 scale default?
+	- Model rigging
+		- Ragdolls
+		- Animation handling
+	- LOD generator
+		// Choose a random index, then scan the neighbours of neighbours and remove the neighbour if the normal is within requirements.
+			//Use technique from EPA 3d
+	- Subsurface Scattering
+	x Outline
+	- Create mesh file format
+		- Create vertex format easily reading and writing this format
+		- Redo mesh reading from files to remove Mesh3 and Mesh2 classes, if possible!
+		- Include possibility of adding .. to vertices:
+			- translation
+			- normals
+			- UV
+			- color
+	:: OBSOLETE:
+		- Redo 3d rendering pipeline
+		- Double depth buffer for translucent shadows
+			- No second buffer needed, only color buffer.
+		- SSAO
+	:: Bugs/Errors:
+		x Fix minimazation framebuffer bug 
+		- Fix weird lighting error (shadow outline through objects)
+		x Fix spotlight shadows
+		- Fixing variance shadowmap for point and spotlights
+			- Blur cubemap
+		- Fix resize lag (finalize resize when the user is not resizing anymore!) (can't be fixed?)
+		- Fix renderable occlusion crash
+: Physics
+	- Physics
+		- EPA for 2d and 3d
+		- Collision response
+			- Inertia calculatiuon:
+				Take all points and dot them against the vector perpendicular to the force vector and the vector pointing from origin to contact point
+				see G:\C# Projects\Repos\Alpha\Engine2\forces.png
+				Then use 1 - |val| and multiply by the weight of the vertex. This leaves the moment off inertial along the collision axis
+: Tools
+	x Make settingsfile easier to use
+	x Easy Startup for Prototyping
+	x Create WeakReferenced Cache.
+		- Enable ShapePolygonData to be read from files, and make the store a cache again
+		x Have all other caches utilize ref cache.
+	x Update Timer in ConnectionPinger class
+		x Create Timer class, because apparently C#'s are bad in several ways I don't like.
+		x Implement new Timer class over C#'s
+	- Randomly generated tree meshes and textures
+	- Map generation
+		- Use normal and height to determine erosion
+	- Temperature to wavelength
+	- Wavelengths to RGB
+	- Voxel generation tool
+		- Generate voxel map internally
+		- Generate mesh instance data, but buffer it at around 8000 faces/s
+	- Create painting application
+	- Create 3d modelling application
+		- Bone rigging
+	- Pathfinding
+		- Create a 2d pathfinding algortihm
+		- Create a 3d pathfinding algortihm
+	- A voxel meshing tool
+		- Storage of voxel data
+: Entities
+	- Entity Component System with Server<->Client synchronization
+	- World Creation System (ECS for Worlds)
+		- World Systems
+			- Physics System
+		- World Components
+			- World Entity Container Component
+	- Look into Transferable class
+		- Use serialization?
+: Networking
+	x Enable IPv6 and promote it
+	- Store endianess of other systems (server side) (IPAddress.HostToNetworkOrder -> IPAddress.NetworkToHostOrder)
+	- Entity Sync over network
+	- Entity Manager Sync over network
+	- Packets types are registered when the program starts. Each type of packet can be subscribed to, but the subscribee needs to check for the correct type.
+		- Reflection construction is used to create the packets
+		- Packets are sorted alphabetically and given a unique ID for each TYPE of packet, this ID is in the header of all packets, and is used to determine which packet type has been sent and if the packet should be deciphered.
+: Engine Specific
+	x Settings
+		x Redo settings file
+		x Individual settings have a generic identifying the type it stores
+		x Creating settingsfiles should be easy (defaults in constructor, using a params array)
+	- Only log to console whenever the console exists, and not waste time logging if there is none.
+	x Pointerify DataTransform class (array of values from byte)
+		x Redo packet
+	X Pipelines moved out of graphics, into more suitable location.
+	- Shorten folder depth (namespaces).
+	x Port to .Net Core
+: AI
+	- Add simple stuff the character can do
+		- Fight someone
+		- Buy something
+		- Eat something
+		-...
+	- Add modifiers to the character
+		- Kindness
+		- Attractiveness
+		- Strength
+		-...
+		Can be modified with stuff
+	- Add a goal
+		- Babymaking?
+		- Hunger
+		- Thirst
+		- Stability (House, available food and water and a family)
+: NEXT
+	- Incorporate center of mass into mesh rendering, meaning the rotation of the transform happens around the center of mass, not center of the shape
+	- Model rigging on cpu instead of gpu:?
+		- Upload mesh data before rendering?
+		- Insancing??
+	- Check if EPA faces are parallel (check when finding the points for each face, you have the face data.)
+
+
+: Error
+	- Unable to find any connection with the address
+	- Tried to get string from byte array with a length of 0 or lower

@@ -1,0 +1,106 @@
+﻿//using Engine.Entities;
+using Engine.Networking.Packets;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+
+namespace Engine.Networking.Tools {
+	/// <summary>
+	/// Server and Client side
+	/// </summary>
+	/*public class PlayerList : IPacketListener {
+
+		private PacketReader reader;
+		private ConcurrentDictionary<string, Entity> players;
+
+		public delegate void PlayerListChangeHandler( Entity p );
+		private HashSet<PlayerListChangeHandler> newPlayerEvent;
+		private HashSet<PlayerListChangeHandler> lostPlayerEvent;
+
+		public PlayerList( PacketReader reader, Connection con ) {
+			this.reader = reader;
+			players = new ConcurrentDictionary<string, Entity>();
+			reader.Add( this );
+			newPlayerEvent = new HashSet<PlayerListChangeHandler>();
+			lostPlayerEvent = new HashSet<PlayerListChangeHandler>();
+			con.ConnectionClosedEvent += ConnectionLost;
+		}
+
+		private void ConnectionLost( Connection c ) {
+			List<string> cons = new List<string>( players.Keys );
+			for( int i = 0; i < cons.Count; i++ )
+				players.TryRemove( cons[ i ], out Entity e );
+		}
+
+		public PlayerList( PacketReader reader ) {
+			this.reader = reader;
+			players = new ConcurrentDictionary<string, Entity>();
+			reader.Add( this );
+			newPlayerEvent = new HashSet<PlayerListChangeHandler>();
+			lostPlayerEvent = new HashSet<PlayerListChangeHandler>();
+		}
+
+		public void AddNewPlayerListener( PlayerListChangeHandler e, bool catchup ) {
+			newPlayerEvent.Add( e );
+			if( catchup ) {
+				foreach( var p in players.Values )
+					e.Invoke( p );
+			}
+		}
+
+		public void RemoveNewPlayerListener( PlayerListChangeHandler e ) {
+			newPlayerEvent.Remove( e );
+		}
+
+		public void AddLostPlayerListener( PlayerListChangeHandler e ) {
+			lostPlayerEvent.Add( e );
+		}
+
+		public void RemoveLostPlayerListener( PlayerListChangeHandler e ) {
+			lostPlayerEvent.Remove( e );
+		}
+
+		public void HandlePacket( Packet p ) {
+			if( p.ID == PacketType.CONNECT.ID ) {
+				PacketConnection p0 = p as PacketConnection;
+				AddPlayer( p0.Username );
+			} else if( p.ID == PacketType.DISCONNECT.ID ) {
+				PacketDisconnection p0 = p as PacketDisconnection;
+				RemovePlayer( p0.Username );
+			} else if( p.ID == PacketType.PLAYERLIST.ID ) {
+				PacketPlayerList p0 = p as PacketPlayerList;
+				for( int i = 0; i < p0.ContentLength; i++ ) {
+					AddPlayer( p0[ i ] );
+				}
+			}
+		}
+
+		public void PlayerConnected( Connection c ) {
+			AddPlayer( c.Name );
+		}
+
+		public void PlayerDisconnected( Connection c ) {
+			RemovePlayer( c.Name );
+		}
+
+		private void AddPlayer( string username ) {
+			Entity e;
+			if( players.TryAdd( username, e = new Entity( username ) ) ) {
+				e.AddData( new PingComponent( e, reader ) );
+				foreach( var v in newPlayerEvent )
+					v.Invoke( e );
+			}
+		}
+
+		private void RemovePlayer( string username ) {
+			if( players.TryRemove( username, out Entity e ) ) {
+				e.Dispose();
+				foreach( var v in lostPlayerEvent )
+					v.Invoke( e );
+			}
+		}
+
+		public bool IsListening( uint iD ) {
+			return iD == PacketType.CONNECT.ID || iD == PacketType.DISCONNECT.ID || iD == PacketType.PLAYERLIST.ID;
+		}
+	}*/
+}

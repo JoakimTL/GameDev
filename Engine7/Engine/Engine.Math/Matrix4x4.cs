@@ -15,9 +15,7 @@ public readonly struct Matrix4x4<TScalar>( TScalar m00, TScalar m01, TScalar m02
 		IMatrix<TScalar>,
 		ISquareMatrix<Matrix4x4<TScalar>>,
 		IProduct<Matrix4x4<TScalar>, Matrix4x4<TScalar>, Matrix4x4<TScalar>>,
-		IProduct<Matrix4x4<TScalar>, Vector4<TScalar>, Vector4<TScalar>>,
-		IMatrixVectorTransformation<Matrix4x4<TScalar>, Vector2<TScalar>>,
-		IMatrixVectorTransformation<Matrix4x4<TScalar>, Vector3<TScalar>>
+		IProduct<Matrix4x4<TScalar>, Vector4<TScalar>, Vector4<TScalar>>
 	where TScalar
 		: unmanaged, INumber<TScalar> {
 

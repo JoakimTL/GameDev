@@ -1,0 +1,1 @@
+﻿-- 8 subblocks per block, gradient between each block

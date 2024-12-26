@@ -22,7 +22,8 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 		IProduct<Vector3<TScalar>, Multivector3<TScalar>, Multivector3<TScalar>>,
 		IProduct<Vector3<TScalar>, Matrix3x3<TScalar>, Vector3<TScalar>>,
 		IEntrywiseComparisonOperations<Vector3<TScalar>>,
-		IEntrywiseComparisonOperators<Vector3<TScalar>>
+		IEntrywiseComparisonOperators<Vector3<TScalar>>,
+		ITransformableVector<Matrix4x4<TScalar>, Vector3<TScalar>>
 	where TScalar :
 		unmanaged, INumber<TScalar> {
 	public readonly TScalar X = x;
@@ -60,6 +61,8 @@ public readonly struct Vector3<TScalar>( TScalar x, TScalar y, TScalar z ) :
 	public TScalar SumOfUnitBasisAreas() => (this.X * this.Y) + (this.Y * this.Z) + (this.Z * this.X);
 	public TScalar SumOfUnitBasisVolumes() => this.X * this.Y * this.Z;
 	public Vector3<TScalar> ReflectNormal( in Vector3<TScalar> normal ) => normal.Multiply( this ).Multiply( normal ).Vector;
+	public Vector3<TScalar>? TransformWorld( in Matrix4x4<TScalar> l ) => l.TransformWorld( this );
+	public Vector3<TScalar> TransformNormal( in Matrix4x4<TScalar> l ) => l.TransformNormal( this );
 
 	public Rotor3<TScalar> Multiply( in Vector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );
 	public Multivector3<TScalar> Multiply( in Bivector3<TScalar> r ) => GeometricAlgebraMath3.Multiply( this, r );

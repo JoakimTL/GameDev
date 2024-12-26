@@ -45,7 +45,7 @@ public sealed class TileRegionBorderContainer( RenderedFoundationTile tile, Scen
 		if (_tile.LevelOfDetail == _currentLoD)
 			return;
 		_currentLoD = _tile.LevelOfDetail;
-		if (_currentLoD < _tile.Tile.Layer + _tile.Tile.RemainingLayers - 1) {
+		if (_currentLoD < _tile.Tile.Layer + _tile.Tile.RemainingLayers) {
 			foreach (var instance in _instances)
 				instance.SetActive( false );
 			return;

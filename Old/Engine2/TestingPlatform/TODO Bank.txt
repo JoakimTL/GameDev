@@ -1,0 +1,11 @@
+﻿- Nye hus blir laget, eller solgt
+- Folk som kjøper hus, som søker lån for hus
+- Banken skal utregner 
+	- risiko på lånet
+		- Er det et delt lån?
+		- Har lånerene historikk?
+			- Dårlig betalingsevne?
+			- God betalingsevne?
+			- Ikke noe boliglån, men har lånt tidligere.
+	- hvor mye de er villige til å låne bort
+	- renten på lånet som er best for risikoen

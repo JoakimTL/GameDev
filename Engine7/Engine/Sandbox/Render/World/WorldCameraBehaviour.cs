@@ -110,6 +110,10 @@ public sealed class WorldCameraBehaviour : DependentRenderBehaviourBase<WorldCam
 		_customYawRotation += _lastRotation.X * 0.002f;
 		_customPitchRotation += _lastRotation.Y * 0.002f;
 		_lastRotation = 0;
+		if (_customPitchRotation < -float.Pi / 3)
+			_customPitchRotation = -float.Pi / 3;
+		if (_customPitchRotation > 0)
+			_customPitchRotation = 0;
 
 		cameraView.Translation = _polarCoordinate.ToCartesianFromPolar( _zoom ).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven );
 		Rotor3<float> newRotation = Rotor3.FromAxisAngle( Vector3<float>.UnitY, _polarCoordinate.X );
