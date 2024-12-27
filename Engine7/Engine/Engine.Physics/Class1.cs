@@ -152,10 +152,16 @@ public sealed class Collision2Calculation<TScalar>( GJKConvexShape<Vector2<TScal
 	private readonly Simplex2<TScalar> _simplex = new();
 	public CollisionResult CollisionResult { get; private set; }
 
-	/// <returns>True if the collision detection is resolved with the shapes' current configuration. Results can be found in <see cref="CollisionResult"/>.</returns>
-	public bool PerformStep() {
+	public bool Evaluate( int maxIterations = 25 ) {
 		_simplex.Refresh( _shapeA, _shapeB );
+		for (int i = 0; i < maxIterations; i++)
+			if (PerformStep())
+				return true;
+		return false;
+	}
 
+	/// <returns>True if the collision detection is resolved with the shapes' current configuration. Results can be found in <see cref="CollisionResult"/>.</returns>
+	private bool PerformStep() {
 		var shapeAVertices = _shapeA.GetVertices();
 		var shapeBVertices = _shapeB.GetVertices();
 
@@ -210,12 +216,10 @@ public sealed class Collision2Calculation<TScalar>( GJKConvexShape<Vector2<TScal
 			}
 
 		//Now we have a triangle:
-		PerformTriangleTest();
-
-		return false;
+		return PerformTriangleTest();
 	}
 
-	private void PerformTriangleTest() {
+	private bool PerformTriangleTest() {
 
 		//1-2-3-4-5-6-7-8-9-0-1-2-3-4-5-6-7-8-9-0-1-2-3-4-5-6-7-8-9//
 		//                       \         /                       //
@@ -271,41 +275,44 @@ public sealed class Collision2Calculation<TScalar>( GJKConvexShape<Vector2<TScal
 		if (winding == 0) {
 			//Degenerate case that should never happen if any of the two shapes contain a triangle with an area greater than 0.
 			CollisionResult = new CollisionResult( false, false );
-			return;
+			return true;
 		}
 
-		if (winding < 0) {
+		if (winding > 0) {
 			//Swap B and C for the calculation
 			Vector2<TScalar> temp = ca;
 			ca = bc;
 			bc = temp;
 		}
 
-		Vector2<TScalar> abPerp = ab * new Bivector2<TScalar>( -TScalar.One );
-		Vector2<TScalar> caPerp = ca * new Bivector2<TScalar>( -TScalar.One );
-		Vector2<TScalar> bcPerp = bc * new Bivector2<TScalar>( -TScalar.One );
+		Vector2<TScalar> abPerp = ab * new Bivector2<TScalar>( TScalar.One );
+		Vector2<TScalar> caPerp = ca * new Bivector2<TScalar>( TScalar.One );
+		Vector2<TScalar> bcPerp = bc * new Bivector2<TScalar>( TScalar.One );
 
-		if (abPerp.Dot( c ) < Epsilon) {
+		TScalar abPcDot = abPerp.Dot( c );
+		TScalar caPbDot = caPerp.Dot( b );
+		TScalar bcPaDot = bcPerp.Dot( a );
+
+		if (abPcDot < -Epsilon) {
 			_simplex.Remove( 2 );
 		}
 
-		if (caPerp.Dot( b ) < Epsilon) {
+		if (caPbDot < -Epsilon) {
 			_simplex.Remove( 1 );
 		}
 
-		if (bcPerp.Dot( a ) < Epsilon) {
+		if (bcPaDot < -Epsilon) {
 			_simplex.Remove( 0 );
 		}
 
 		if (_simplex.Count == 3) {
 			//The checks completed and the simplex is still a triangle. The origin is within the triangle.
 			CollisionResult = new CollisionResult( true, false );
-			return;
+			return true;
 		}
+		return false;
 
-		Vector2<TScalar> ao = -a;
-
-
+		//TODO: UNIT TESTS LOTS OF TESTS FOR WEIRD SHAPES AND SITUATIONS.
 	}
 
 	private bool Support( Vector2<TScalar> direction ) {
@@ -325,25 +332,5 @@ public readonly struct CollisionResult {
 	internal CollisionResult( bool isColliding, bool hasError ) {
 		IsColliding = isColliding;
 		HasError = hasError;
-	}
-}
-
-public static class GJK {
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <typeparam name="TScalar"></typeparam>
-	/// <param name="calculation"></param>
-	/// <param name="maxIterations"></param>
-	/// <returns>True if the calculations concluded.</returns>
-	public static bool Intersects<TScalar>( Collision2Calculation<TScalar> calculation, int maxIterations = 10 )
-		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
-		int iteration = 0;
-		while (iteration < maxIterations) {
-			if (calculation.PerformStep())
-				return true;
-			iteration++;
-		}
-		return false;
 	}
 }

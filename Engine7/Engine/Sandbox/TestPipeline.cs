@@ -8,6 +8,8 @@ using Engine.Module.Render.Input;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
+using Engine.Physics;
+using Engine.Shapes;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Render;
 using Engine.Standard.Render.Meshing;
@@ -44,6 +46,16 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		if (!this._dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out this._testShaderStorage! ))
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
+
+		Edge2<float> ed = new( (0, 0), (0, 1) );
+		var or1 = ed.Orientation( (1, 0) );
+		var or2 = ed.Orientation( (-1, 0) );
+
+		Collision2Calculation<float> collision2Calculation = new(
+			new GJKConvexShape<Vector2<float>, float>( [ (0.1F, .5F) ] ),
+			new GJKConvexShape<Vector2<float>, float>( [ 0, (0, 1), ( 1, 0) ] ) );
+
+		GJK.Intersects( collision2Calculation );
 
 		this._scene = this._sceneService.GetScene( "test" );
 		//userInputEventService.OnKey += OnKey;
