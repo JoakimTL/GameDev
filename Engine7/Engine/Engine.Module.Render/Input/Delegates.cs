@@ -17,3 +17,12 @@ public delegate void WindowContentScaleHandler( float xScale, float yScale );
 public delegate void WindowPositionHandler( double x, double y );
 public delegate void WindowBooleanValueHandler( bool boolValue );
 public delegate void WindowEventHandler();
+
+//MOUSE
+public delegate void TimedMouseButtonHandler( MouseButtonEvent @event );
+public delegate void TimedMouseScrollHandler( MouseWheelEvent @event );
+public delegate void TimedMouseMoveHandler( MouseMoveEvent @event );
+public delegate void TimedMouseEnterHandler( MouseEnterEvent @event );
+//KEYBOARD
+public delegate void TimedKeyboardHandler( KeyboardEvent @event );
+public delegate void TimedKeyboardCharHandler( KeyboardCharacterEvent @event );

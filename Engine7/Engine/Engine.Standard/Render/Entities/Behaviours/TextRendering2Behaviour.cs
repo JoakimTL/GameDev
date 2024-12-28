@@ -1,6 +1,8 @@
 ﻿using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Render;
+using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
+using Engine.Standard.Render.Input.Services;
 using Engine.Standard.Render.Text.Services;
 using Engine.Standard.Render.Text.Typesetting;
 using Engine.Transforms;
@@ -78,5 +80,26 @@ public sealed class TextRendering2Behaviour : SynchronizedRenderBehaviourBase<Te
 			return;
 		_textLayout.FontName = _desyncFontName;
 		_textLayout.Text = _desyncText;
+	}
+}
+
+public sealed class UiElementBehaviour : DependentRenderBehaviourBase<UiElementArchetype> {
+
+	private ProcessedMouseInputProvider _mouseInputProvider = null!;
+
+	protected override void OnRenderEntitySet() {
+		_mouseInputProvider = RenderEntity.ServiceAccess.Get<ProcessedMouseInputProvider>();
+	}
+
+	public override void Update( double time, double deltaTime ) {
+
+		//Have the ui element act alone. It should be sending a message to the ui component when it is clicked, but visuals and the like should be handled on the render thread with behaviours.
+		//This means collision detection is handled here. The ui component should contain collision data, but collision should be handled here.
+
+		throw new NotImplementedException();
+	}
+
+	protected override bool InternalDispose() {
+		return true;
 	}
 }

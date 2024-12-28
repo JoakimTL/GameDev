@@ -56,6 +56,7 @@ public sealed class Entity : Identifiable {
 	internal void RemoveArchetype( Type archetypeType ) {
 		if (!this._archetypes.Remove( archetypeType, out ArchetypeBase? archetype ))
 			return;
+		archetype.OnArchetypeRemoved();
 		ArchetypeRemoved?.Invoke( archetype );
 	}
 
