@@ -7,24 +7,30 @@ namespace Engine.Standard.Render.Entities.Behaviours;
 
 public sealed class Transform2Behaviour : SynchronizedRenderBehaviourBase<Transform2Archetype> {
 
+	private readonly Transform2<double> _highPrecisionTransform;
 	private readonly Transform2<float> _transform;
 
-	private Vector2<float> _incomingTranslation;
-	private float _incomingRotation;
-	private Vector2<float> _incomingScale;
+	private TransformData<Vector2<double>, double, Vector2<double>> _incomingHighPrecisionTransformData;
+	private TransformData<Vector2<float>, float, Vector2<float>> _incomingTransformData;
 
 	public TransformReadonly<float, Vector2<float>, float, Vector2<float>> Transform { get; }
+	public TransformReadonly<double, Vector2<double>, double, Vector2<double>> HighPrecisionTransform { get; }
+
 	public Transform2Behaviour() {
 		this._transform = new();
+		this._highPrecisionTransform = new();
 		this.Transform = this._transform.Readonly;
+		this.HighPrecisionTransform = this._highPrecisionTransform.Readonly;
 	}
 
 	protected override void OnRenderEntitySet() {
 		base.OnRenderEntitySet();
 		Transform2Component t2c = Archetype.Transform2Component;
-		this._incomingTranslation = t2c.Transform.Translation.CastSaturating<double, float>();
-		this._incomingRotation = float.CreateSaturating( t2c.Transform.Rotation );
-		this._incomingScale = t2c.Transform.Scale.CastSaturating<double, float>();
+		_incomingHighPrecisionTransformData = t2c.Transform.Data;
+		_incomingTransformData = new( 
+			_incomingHighPrecisionTransformData.Translation.CastSaturating<double, float>(), 
+			float.CreateSaturating( _incomingHighPrecisionTransformData.Rotation ), 
+			_incomingHighPrecisionTransformData.Scale.CastSaturating<double, float>() );
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
@@ -32,17 +38,22 @@ public sealed class Transform2Behaviour : SynchronizedRenderBehaviourBase<Transf
 
 	protected override bool PrepareSynchronization( ComponentBase component ) {
 		if (component is Transform2Component t2c) {
-			this._incomingTranslation = t2c.Transform.Translation.CastSaturating<double, float>();
-			this._incomingRotation = float.CreateSaturating( t2c.Transform.Rotation );
-			this._incomingScale = t2c.Transform.Scale.CastSaturating<double, float>();
+			_incomingHighPrecisionTransformData = t2c.Transform.Data;
+			_incomingTransformData = new(
+				_incomingHighPrecisionTransformData.Translation.CastSaturating<double, float>(),
+				float.CreateSaturating( _incomingHighPrecisionTransformData.Rotation ),
+				_incomingHighPrecisionTransformData.Scale.CastSaturating<double, float>() );
 			return true;
 		}
 		return false;
 	}
 
 	protected override void Synchronize() {
-		_transform.Translation = _incomingTranslation;
-		_transform.Rotation = _incomingRotation;
-		_transform.Scale = _incomingScale;
+		_highPrecisionTransform.Translation = _incomingHighPrecisionTransformData.Translation;
+		_highPrecisionTransform.Rotation = _incomingHighPrecisionTransformData.Rotation;
+		_highPrecisionTransform.Scale = _incomingHighPrecisionTransformData.Scale;
+		_transform.Translation = _incomingTransformData.Translation;
+		_transform.Rotation = _incomingTransformData.Rotation;
+		_transform.Scale = _incomingTransformData.Scale;
 	}
 }

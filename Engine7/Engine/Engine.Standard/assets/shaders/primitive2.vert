@@ -15,22 +15,10 @@ layout(location = 0) out PerVertex {
 	vec4 Position;
 	vec2 UV;
 	vec4 Color;
-	bool Fill;
-	bool Flip;
 } OUT;
 
-layout (std140) uniform testUniformBlock
-{ 
-	float translation;
-} testUniform;
-
-layout (std430) buffer testShaderStorageBlock
-{ 
-	float translation;
-} testShaderStorage;
-
 void main(void){
-	OUT.Position = iM_mat * vec4(vPos.x, vPos.y, 0.0, 1.0) + vec4(testShaderStorage.translation, testUniform.translation, 0, 0);
+	OUT.Position = iM_mat * vec4(vPos.x, vPos.y, 0.0, 1.0);
 	OUT.UV = vUV;
 	OUT.Color = vColor;
 	gl_Position = OUT.Position;

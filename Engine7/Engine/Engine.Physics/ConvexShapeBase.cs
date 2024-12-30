@@ -48,6 +48,8 @@ public abstract class ConvexShapeBase<TVector, TScalar>
 
 	private void OnMatrixChanged( IMatrixProvider<TScalar> provider ) => _hasChanged = false;
 
+	public bool HasTransformer => _transform is not null;
+
 	public IReadOnlyList<TVector> GetVertices() {
 		if (!_hasChanged)
 			return _transformedVertices;

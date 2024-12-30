@@ -2,6 +2,8 @@
 using Engine.Module.Render.Glfw.Enums;
 using Engine.Module.Render.Input;
 using Engine.Module.Render.Ogl.Services;
+using Engine.Physics;
+using Engine.Standard.Render.Entities.Behaviours;
 
 namespace Engine.Standard.Render.Input.Services;
 public sealed class ProcessedMouseInputProvider : DisposableIdentifiable, IRenderEntityServiceProvider {
@@ -35,6 +37,34 @@ public sealed class ProcessedMouseInputProvider : DisposableIdentifiable, IRende
 
 	private void OnMouseButton( MouseButtonEvent @event ) {
 		_pressedMouseButtons[ (int) @event.Button ] = @event.InputType == TactileInputType.Press;
+	}
+
+	protected override bool InternalDispose() {
+		_userInputEventService.OnMouseMoved -= OnMouseMoved;
+		return true;
+	}
+}
+
+public sealed class MouseColliderProvider : DisposableIdentifiable, IRenderEntityServiceProvider {
+	private readonly UserInputEventService _userInputEventService;
+	private readonly ProcessedMouseInputProvider _processedMouseInputProvider;
+	private readonly Collider2Shape _colliderShapeNDC;
+	private readonly Collider2Shape _colliderShapeNDCA;
+
+	public ConvexShapeBase<Vector2<double>, double> ColliderNDC => _colliderShapeNDC;
+	public ConvexShapeBase<Vector2<double>, double> ColliderNDCA => _colliderShapeNDCA;
+
+	public MouseColliderProvider( UserInputEventService userInputEventService, ProcessedMouseInputProvider processedMouseInputProvider) {
+		this._userInputEventService = userInputEventService;
+		this._processedMouseInputProvider = processedMouseInputProvider;
+		_colliderShapeNDC = new();
+		_colliderShapeNDCA = new();
+		_userInputEventService.OnMouseMoved += OnMouseMoved;
+	}
+
+	private void OnMouseMoved( MouseMoveEvent @event ) {
+		_colliderShapeNDC.SetBaseVertices( [ _processedMouseInputProvider.MouseNDCTranslation ] );
+		_colliderShapeNDCA.SetBaseVertices( [ _processedMouseInputProvider.MouseNDCAspectTranslation ] );
 	}
 
 	protected override bool InternalDispose() {

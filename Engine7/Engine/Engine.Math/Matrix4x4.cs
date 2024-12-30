@@ -267,26 +267,26 @@ public readonly struct Matrix4x4<TScalar>( TScalar m00, TScalar m01, TScalar m02
 
 	public Vector2<TScalar>? TransformWorld( in Vector2<TScalar> vector ) {
 		Vector4<TScalar> transformVector = new( vector.X, vector.Y, TScalar.Zero, TScalar.One );
-		Vector4<TScalar> result = this * transformVector;
+		Vector4<TScalar> result = transformVector * this;
 		if (TScalar.IsZero( result.W ))
 			return null;
 		return new Vector2<TScalar>( result.X, result.Y ) / result.W;
 	}
 	public Vector2<TScalar> TransformNormal( in Vector2<TScalar> vector ) {
 		Vector4<TScalar> transformVector = new( vector.X, vector.Y, TScalar.Zero, TScalar.Zero );
-		Vector4<TScalar> result = this * transformVector;
+		Vector4<TScalar> result = transformVector * this;
 		return new Vector2<TScalar>( result.X, result.Y );
 	}
 	public Vector3<TScalar>? TransformWorld( in Vector3<TScalar> vector ) {
 		Vector4<TScalar> transformVector = new( vector.X, vector.Y, vector.Z, TScalar.One );
-		Vector4<TScalar> result = this * transformVector;
+		Vector4<TScalar> result = transformVector * this;
 		if (TScalar.IsZero( result.W ))
 			return null;
 		return new Vector3<TScalar>( result.X, result.Y, result.Z ) / result.W;
 	}
 	public Vector3<TScalar> TransformNormal( in Vector3<TScalar> vector ) {
 		Vector4<TScalar> transformVector = new( vector.X, vector.Y, vector.Z, TScalar.Zero );
-		Vector4<TScalar> result = this * transformVector;
+		Vector4<TScalar> result = transformVector * this;
 		return new Vector3<TScalar>( result.X, result.Y, result.Z );
 	}
 

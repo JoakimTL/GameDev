@@ -32,6 +32,10 @@ public abstract class SynchronizedRenderBehaviourBase<TArchetype> : DependentRen
 		OnUpdate( time, deltaTime );
 	}
 
+	protected void ForceSynchronization() {
+		this._synchronized = false;
+	}
+
 	protected abstract void OnUpdate( double time, double deltaTime );
 
 	protected override bool InternalDispose() {

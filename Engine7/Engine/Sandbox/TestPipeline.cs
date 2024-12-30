@@ -51,11 +51,11 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		var or1 = ed.Orientation( (1, 0) );
 		var or2 = ed.Orientation( (-1, 0) );
 
-		Collision2Calculation<float> collision2Calculation = new(
-			new GJKConvexShape<Vector2<float>, float>( [ (0.1F, .5F) ] ),
-			new GJKConvexShape<Vector2<float>, float>( [ 0, (0, 1), ( 1, 0) ] ) );
+		//Collision2Calculation<float> collision2Calculation = new(
+		//	new GJKConvexShape<Vector2<float>, float>( [ (0.1F, .5F) ] ),
+		//	new GJKConvexShape<Vector2<float>, float>( [ 0, (0, 1), ( 1, 0) ] ) );
 
-		GJK.Intersects( collision2Calculation );
+		//GJK.Intersects( collision2Calculation );
 
 		this._scene = this._sceneService.GetScene( "test" );
 		//userInputEventService.OnKey += OnKey;

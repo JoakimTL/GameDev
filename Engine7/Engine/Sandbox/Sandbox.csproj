@@ -28,6 +28,9 @@
     <Content Include="assets\shaders\line.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="assets\shaders\text.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="assets\shaders\test.frag">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

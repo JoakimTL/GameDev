@@ -25,6 +25,7 @@ public sealed class Simplex2<TScalar>()
 	}
 
 	internal void Refresh( ConvexShapeBase<Vector2<TScalar>, TScalar> shapeA, ConvexShapeBase<Vector2<TScalar>, TScalar> shapeB ) {
+		//TODO: this somehow fails? It might resolve non intersecting shapes as intersecting.
 		for (int i = 0; i < _count; i++) {
 			MinkowskiDifference<Vector2<TScalar>> minkowskiSum = _minkowskiSums[ i ];
 			_minkowskiSums[ i ] = new MinkowskiDifference<Vector2<TScalar>>( shapeA.GetVertices()[ minkowskiSum.IndexShapeA ] - shapeB.GetVertices()[ minkowskiSum.IndexShapeB ], minkowskiSum.IndexShapeA, minkowskiSum.IndexShapeB );
@@ -42,5 +43,11 @@ public sealed class Simplex2<TScalar>()
 		for (int i = index; i < _minkowskiSums.Length - 1; i++)
 			_minkowskiSums[ i ] = _minkowskiSums[ i + 1 ];
 		_count--;
+	}
+
+	internal void Clear() {
+		for (int i = 0; i < _count; i++)
+			_minkowskiSums[ i ] = default;
+		_count = 0;
 	}
 }

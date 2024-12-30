@@ -21,27 +21,33 @@ public sealed class UiComponent : ComponentBase {
 
 	//Reads input messages
 
-	
+	public Vector4<double> NormalColor { get; private set; } = 1;
+	public Vector4<double> HoverColor { get; private set; } = 0.75;
+	public Vector4<double> PressedColor { get; private set; } = 0.5;
 
-
+	public void SetColors( Vector4<double> normal, Vector4<double> hover, Vector4<double> pressed ) {
+		NormalColor = normal;
+		HoverColor = hover;
+		PressedColor = pressed;
+		InvokeComponentChanged();
+	}
 }
 
 public sealed class Collider2Component : ComponentBase {
 
-	public Collider2Shape ColliderShape { get; } = new();
+	private readonly List<Vector2<double>> _colliderVertices = [];
+
+	public IReadOnlyList<Vector2<double>> ColliderVertices => _colliderVertices;
 
 	public void SetBaseVertices( ReadOnlySpan<Vector2<double>> vertices ) {
-		ColliderShape.SetBaseVertices( vertices );
+		_colliderVertices.Clear();
+		_colliderVertices.AddRange( vertices );
 		InvokeComponentChanged();
 	}
 
 	public void SetBaseVertices( IEnumerable<Vector2<double>> vertices ) {
-		ColliderShape.SetBaseVertices( vertices );
-		InvokeComponentChanged();
-	}
-
-	internal void SetTransform( IMatrixProvider<double>? transform ) {
-		ColliderShape.SetTransform( transform );
+		_colliderVertices.Clear();
+		_colliderVertices.AddRange( vertices );
 		InvokeComponentChanged();
 	}
 }
@@ -50,20 +56,4 @@ public sealed class UiElementArchetype : ArchetypeBase {
 	public UiComponent UiComponent { get; set; } = null!;
 	public Transform2Component Transform2Component { get; set; } = null!;
 	public Collider2Component Collider2Component { get; set; } = null!;
-
-	protected override void OnEntitySet( Entity e ) {
-		Collider2Component.SetTransform( Transform2Component.Transform );
-	}
-
-	protected override void OnArchetypeRemoved() {
-		Collider2Component.SetTransform( null );
-	}
-}
-
-public sealed class Collider2Shape : ConvexShapeBase<Vector2<double>, double> {
-	public Collider2Shape() : base( Array.Empty<Vector2<double>>().AsSpan() ) { }
-
-	internal new void SetBaseVertices( ReadOnlySpan<Vector2<double>> vertices ) => base.SetBaseVertices( vertices );
-	internal new void SetBaseVertices( IEnumerable<Vector2<double>> vertices ) => base.SetBaseVertices( vertices );
-	internal new void SetTransform( IMatrixProvider<double>? transform ) => base.SetTransform( transform );
 }

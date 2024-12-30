@@ -10,6 +10,7 @@ using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
+using Engine.Standard.Render.Entities.Behaviours;
 using Sandbox.Logic.World;
 
 namespace Sandbox;
@@ -51,13 +52,16 @@ internal sealed class GameLogicModule : ModuleBase {
 		this._textEntity = container.CreateEntity();
 		_textEntity.AddComponent<RenderComponent>();
 		Transform2Component t2c = _textEntity.AddComponent<Transform2Component>();
-		t2c.Transform.Translation = (-0.8, 1 - 0.2);
+		t2c.Transform.Translation = (-0.8, 1 - 0.3);
 		t2c.Transform.Scale = new Vector2<double>( 0.2, 0.2 );
-		t2c.Transform.Rotation = 0.3;
+		t2c.Transform.Rotation = 0;
 		RenderedTextComponent text = _textEntity.AddComponent<RenderedTextComponent>( p => {
 			p.Text = "Hello, World!";
 			p.FontName = "JetBrainsMono-Bold";
 		} );
+		_textEntity.AddComponent<UiComponent>();
+		_textEntity.AddComponent<Collider2Component>( p => p.SetBaseVertices( [ (-1, -1), (1, -1), (1, 1), (-1, 1) ] ) );
+		_textEntity.AddComponent<RenderedPrimitive2Component>();
 		//TextJumblerComponent aa = _textEntity.AddComponent<TextJumblerComponent>();
 		//aa.Offset = 1;
 	}

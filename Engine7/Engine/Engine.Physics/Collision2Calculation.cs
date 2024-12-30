@@ -19,7 +19,8 @@ public sealed class Collision2Calculation<TScalar>( ConvexShapeBase<Vector2<TSca
 	public CollisionResult CollisionResult { get; private set; }
 
 	public bool Evaluate( int maxIterations = 25 ) {
-		_simplex.Refresh( _shapeA, _shapeB );
+		//_simplex.Refresh( _shapeA, _shapeB );
+		_simplex.Clear();
 		for (int i = 0; i < maxIterations; i++)
 			if (PerformStep())
 				return true;
@@ -51,7 +52,7 @@ public sealed class Collision2Calculation<TScalar>( ConvexShapeBase<Vector2<TSca
 
 						if (!Support( -_simplex.A.Sum )) {
 							CollisionResult = new CollisionResult( false, false );
-							return false;
+							return true;
 						}
 						break;
 					}
@@ -75,7 +76,7 @@ public sealed class Collision2Calculation<TScalar>( ConvexShapeBase<Vector2<TSca
 
 						if (!Support( direction )) {
 							CollisionResult = new CollisionResult( false, false );
-							return false;
+							return true;
 						}
 						break;
 					}
@@ -133,42 +134,46 @@ public sealed class Collision2Calculation<TScalar>( ConvexShapeBase<Vector2<TSca
 		Vector2<TScalar> c = _simplex.C.Sum;
 		Vector2<TScalar> ab = b - a;
 		Vector2<TScalar> bc = c - b;
-		Vector2<TScalar> ca = a - c;
-
-		Edge2<TScalar> abEdge = new( a, b );
-		int winding = abEdge.Orientation( c );
-
-		if (winding == 0) {
-			//Degenerate case that should never happen if any of the two shapes contain a triangle with an area greater than 0.
-			CollisionResult = new CollisionResult( false, false );
-			return true;
-		}
-
-		if (winding > 0) {
-			//Swap B and C for the calculation
-			Vector2<TScalar> temp = ca;
-			ca = bc;
-			bc = temp;
-		}
+		Vector2<TScalar> ac = c - a;
 
 		Vector2<TScalar> abPerp = ab * new Bivector2<TScalar>( TScalar.One );
-		Vector2<TScalar> caPerp = ca * new Bivector2<TScalar>( TScalar.One );
-		Vector2<TScalar> bcPerp = bc * new Bivector2<TScalar>( TScalar.One );
+		Vector2<TScalar> acPerp = ac * new Bivector2<TScalar>( TScalar.One );
 
-		TScalar abPcDot = abPerp.Dot( c );
-		TScalar caPbDot = caPerp.Dot( b );
-		TScalar bcPaDot = bcPerp.Dot( a );
+		if (abPerp.Dot( -bc ) < TScalar.Zero)
+			abPerp = -abPerp;
 
-		if (abPcDot < -Epsilon) {
+		if (acPerp.Dot( bc ) < TScalar.Zero)
+			acPerp = -acPerp;
+
+		Vector2<TScalar> ao = -a;
+		TScalar acPaoDot = acPerp.Dot( ao );
+		TScalar acaoDot = ac.Dot( ao );
+		TScalar abPaoDot = abPerp.Dot( ao );
+		TScalar abaoDot = ab.Dot( ao );
+
+		if (acPaoDot > -Epsilon) {
+			if (acaoDot > -Epsilon) {
+				_simplex.Remove(1);
+				return false;
+			}
+			if (abaoDot > -Epsilon) {
+				_simplex.Remove( 2 );
+				return false;
+			}
+
 			_simplex.Remove( 2 );
-		}
-
-		if (caPbDot < -Epsilon) {
 			_simplex.Remove( 1 );
+			return false;
 		}
 
-		if (bcPaDot < -Epsilon) {
-			_simplex.Remove( 0 );
+		if (abPaoDot > -Epsilon) {
+			if (abaoDot > -Epsilon) {
+				_simplex.Remove( 2 );
+				return false;
+			}
+			_simplex.Remove( 2 );
+			_simplex.Remove( 1 );
+			return false;
 		}
 
 		if (_simplex.Count == 3) {
