@@ -1,16 +1,19 @@
-﻿using Engine.Module.Render.Input;
+﻿using Engine.Module.Render.Entities;
+using Engine.Module.Render.Input;
 
 namespace Engine.Standard.Render.UserInterface;
 
 public sealed class UserInterfaceService : DisposableIdentifiable, IUpdateable {
 	private readonly UserInterfaceStateManager _userInterfaceStateManager;
 	private readonly CapturableUserInputEventService _capturableUserInputEventService;
-	private readonly UserInterfaceServiceAccess _userInterfaceSceneInstanceToolProvider;
+	private readonly UserInterfaceServiceAccess _userInterfaceServiceAccess;
 
-	public UserInterfaceService( GameStateProvider gameStateProvider, CapturableUserInputEventService capturableUserInputEventService, UserInterfaceServiceAccess userInterfaceSceneInstanceToolProvider ) {
+	public UserInterfaceStateManager UserInterfaceStateManager => _userInterfaceStateManager;
+
+	public UserInterfaceService( GameStateProvider gameStateProvider, CapturableUserInputEventService capturableUserInputEventService, RenderServiceAccess renderServiceAccess ) {
 		this._capturableUserInputEventService = capturableUserInputEventService;
-		this._userInterfaceSceneInstanceToolProvider = userInterfaceSceneInstanceToolProvider;
-		_userInterfaceStateManager = new( _userInterfaceSceneInstanceToolProvider );
+		this._userInterfaceServiceAccess = new( renderServiceAccess, "ui" );
+		_userInterfaceStateManager = new( _userInterfaceServiceAccess, gameStateProvider );
 		this._capturableUserInputEventService.AddListener( _userInterfaceStateManager );
 	}
 

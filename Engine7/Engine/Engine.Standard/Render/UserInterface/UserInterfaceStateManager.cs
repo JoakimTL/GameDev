@@ -1,14 +1,17 @@
 ﻿using Engine.Module.Render.Input;
 
 namespace Engine.Standard.Render.UserInterface;
-public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userInterfaceServiceAccess ) : DisposableIdentifiable, ICapturingUserInputListener, IUpdateable {
+public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userInterfaceServiceAccess, GameStateProvider gameStateProvider ) : DisposableIdentifiable, ICapturingUserInputListener, IUpdateable {
 
 	private readonly List<UserInterfaceElementBase> _baseElements = [];
+	private readonly Queue<UserInterfaceElementBase> _elementsToInitialize = [];
 	private readonly UserInterfaceServiceAccess _userInterfaceServiceAccess = userInterfaceServiceAccess;
+	private readonly GameStateProvider _gameStateProvider = gameStateProvider;
 
 	public void AddElement<T>() where T : UserInterfaceElementBase, new() {
 		UserInterfaceElementBase element = new T();
 		this._baseElements.Add( element );
+		this._elementsToInitialize.Enqueue( element );
 		element.SetServiceAccess( _userInterfaceServiceAccess );
 	}
 
@@ -73,9 +76,15 @@ public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userIn
 	}
 
 	public void Update( double time, double deltaTime ) {
-		foreach (UserInterfaceElementBase element in this._baseElements)
+		while (this._elementsToInitialize.Count > 0) {
+			UserInterfaceElementBase element = this._elementsToInitialize.Dequeue();
+			element.Initialize( _gameStateProvider );
+		}
+		foreach (UserInterfaceElementBase element in this._baseElements) {
+			element.UpdateDisplayState( _gameStateProvider );
 			if (element.IsDisplayed)
 				element.Update( time, deltaTime );
+		}
 	}
 
 	protected override bool InternalDispose() {

@@ -10,20 +10,18 @@ public abstract class UserInterfaceElementBase : DisposableIdentifiable {
 
 	public bool IsDisplayed { get; private set; }
 
-	public void UpdateDisplayState( GameStateProvider gameStateProvider ) {
-		this.IsDisplayed = this.ShouldDisplay( gameStateProvider );
-	}
+	public void UpdateDisplayState( GameStateProvider gameStateProvider ) 
+		=> this.IsDisplayed = this.ShouldDisplay( gameStateProvider );
 
 	/// <summary>
 	/// Determines if the element should be displayed based on the current game state.
 	/// </summary>
 	protected abstract bool ShouldDisplay( GameStateProvider gameStateProvider );
 
-	protected void AddComponent( UserInterfaceComponentBase component ) {
-		this._components.Add( component );
-	}
+	protected void AddComponent( UserInterfaceComponentBase component ) 
+		=> this._components.Add( component );
 
-	internal protected abstract void Initialize();
+	internal protected abstract void Initialize( GameStateProvider gameStateProvider );
 
 	internal bool OnMouseButton( MouseButtonEvent @event ) {
 		foreach (UserInterfaceComponentBase component in this._components) {
@@ -78,7 +76,7 @@ public abstract class UserInterfaceElementBase : DisposableIdentifiable {
 			component.Update( time, deltaTime );
 	}
 
-	internal void SetServiceAccess( UserInterfaceServiceAccess userInterfaceServiceAccess )
+	internal void SetServiceAccess( UserInterfaceServiceAccess userInterfaceServiceAccess ) 
 		=> this.UserInterfaceServiceAccess = userInterfaceServiceAccess;
 
 	protected override bool InternalDispose() {

@@ -28,6 +28,7 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 	private ShaderStorageBlock _testShaderStorage = null!;
 	private DataBlockCollection _dataBlocks = null!;
 	private Scene _scene = null!;
+	private Scene _sceneUi = null!;
 	private OldFont? _font;
 
 	private bool _panning;
@@ -56,6 +57,7 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		//GJK.Intersects( collision2Calculation );
 
 		this._scene = this._sceneService.GetScene( "test" );
+		this._sceneUi = this._sceneService.GetScene( "ui" );
 		//userInputEventService.OnKey += OnKey;
 		//userInputEventService.OnMouseButton += OnMouseButton;
 		//userInputEventService.OnMouseMoved += OnMouseMoved;
@@ -106,6 +108,7 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		Gl.Enable( EnableCap.DepthTest );
 		//Gl.Enable( EnableCap.CullFace );
 		this._scene.Render( "default", this._dataBlocks, _ => { }, PrimitiveType.Triangles );
+		this._sceneUi.Render( "default", this._dataBlocks, _ => { }, PrimitiveType.Triangles );
 	}
 
 	protected override bool InternalDispose() {

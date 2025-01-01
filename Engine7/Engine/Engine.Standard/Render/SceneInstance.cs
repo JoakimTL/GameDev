@@ -2,7 +2,7 @@
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
 
-namespace Engine.Standard.Render.Entities.Behaviours;
+namespace Engine.Standard.Render;
 
 public sealed class SceneInstance<TInstanceData>() : SceneInstanceBase( typeof( TInstanceData ) ) where TInstanceData : unmanaged {
 	public new void SetLayer( uint layer ) => base.SetLayer( layer );

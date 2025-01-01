@@ -10,7 +10,9 @@ using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
+using Engine.Standard.Render.UserInterface;
 using Sandbox.Logic.World;
+using Sandbox.Render.Ui;
 
 namespace Sandbox;
 
@@ -96,6 +98,8 @@ internal class SandboxRenderModule : RenderModuleBase {
 	protected override void ContextAdded( Context context ) {
 		context.InstanceProvider.Catalog.Host<ContextTest>();
 		context.InstanceProvider.Catalog.Host<TestPipeline>();
+		var ui = context.InstanceProvider.Get<UserInterfaceService>();
+		ui.UserInterfaceStateManager.AddElement<TestUiElement>(); //TODO: Automate. Assume all element types that exists should be included. There are only custom element types.
 	}
 
 }

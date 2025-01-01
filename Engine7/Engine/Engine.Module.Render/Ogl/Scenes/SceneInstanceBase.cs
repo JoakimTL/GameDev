@@ -25,6 +25,9 @@ public abstract class SceneInstanceBase(Type instanceType) : Identifiable, IRemo
 	/// </summary>
 	public bool Valid { get; private set; }
 
+	/// <summary>
+	/// If true the instance will be rendered on screen. When an instance is inactive it loses it's instance data segment and is not rendered, but doesn't lose it's spot in the scene. This means it's much faster to reactivate than reinsert.
+	/// </summary>
 	public bool Active { get; private set; } = true;
 	public bool Removed { get; private set; } = false;
 
