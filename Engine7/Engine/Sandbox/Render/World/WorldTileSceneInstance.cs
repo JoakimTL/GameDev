@@ -1,4 +1,4 @@
-﻿using Engine.Module.Render.Entities.Providers;
+﻿using Engine.Module.Render.Ogl.Providers;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render;
 using Sandbox.Logic.World.Tiles;
@@ -17,7 +17,7 @@ public sealed class WorldTileSceneInstance : SceneInstanceCollection<Vertex3, En
 		if (_renderTile is not null)
 			throw new InvalidOperationException( $"{nameof( RenderTile )} is already set." );
 		_renderTile = renderTile;
-		Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity ) );
+		Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity, new( ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue ) ) );
 	}
 
 	public void Update( MeshProvider meshProvider ) {
@@ -26,10 +26,10 @@ public sealed class WorldTileSceneInstance : SceneInstanceCollection<Vertex3, En
 		CurrentLoD = RenderTile.LevelOfDetail;
 		//Update the instance.
 		UpdateMesh( meshProvider );
-		Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity ) );
+		Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity, new( ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue ) ) );
 	}
 
-	private void UpdateMesh(MeshProvider meshProvider) {
+	private void UpdateMesh( MeshProvider meshProvider ) {
 		List<ITile> tiles = [];
 		Mesh?.Dispose();
 		AddTilesToList( RenderTile.Tile, tiles, CurrentLoD );

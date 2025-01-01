@@ -17,6 +17,7 @@ public sealed class Entity : Identifiable {
 	public event EntityRelationChangedHandler? ParentChanged;
 	public event Action<Entity>? OnEntityShouldBeRemoved;
 	private readonly ParentIdChanged _parentIdChangedDelegate;
+
 	public event EntityArchetypeChangeHandler? ArchetypeAdded;
 	public event EntityArchetypeChangeHandler? ArchetypeRemoved;
 

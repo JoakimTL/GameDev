@@ -1,5 +1,4 @@
 ﻿using Engine.Standard.Render.Meshing;
-using System;
 
 namespace Sandbox.Logic.World.Tiles;
 

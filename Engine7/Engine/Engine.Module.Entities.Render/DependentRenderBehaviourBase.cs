@@ -1,6 +1,6 @@
 ﻿using Engine.Module.Entities.Container;
 
-namespace Engine.Module.Entities.Render;
+namespace Engine.Module.Render.Entities;
 
 public abstract class DependentRenderBehaviourBase<TArchetype> : RenderBehaviourBase where TArchetype : ArchetypeBase {
 

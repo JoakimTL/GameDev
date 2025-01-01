@@ -1,4 +1,4 @@
-﻿using Engine.Module.Entities.Render;
+﻿using Engine.Module.Render.Entities;
 using Engine.Module.Render.Glfw.Enums;
 using Engine.Module.Render.Input;
 using Engine.Module.Render.Ogl.OOP.Shaders;
@@ -34,10 +34,10 @@ public sealed class WorldCameraBehaviour : DependentRenderBehaviourBase<WorldCam
 	private bool _shouldRotate = false;
 
 	protected override void OnRenderEntitySet() {
-		RenderEntity.ServiceAccess.UserInputEventService.OnKey += OnKey;
-		RenderEntity.ServiceAccess.UserInputEventService.OnMouseWheelScrolled += OnMouseWheelScrolled;
-		RenderEntity.ServiceAccess.UserInputEventService.OnMouseMoved += OnMouseMoved;
-		RenderEntity.ServiceAccess.UserInputEventService.OnMouseButton += OnMouseButton;
+		RenderEntity.ServiceAccess.Input.OnKey += OnKey;
+		RenderEntity.ServiceAccess.Input.OnMouseWheelScrolled += OnMouseWheelScrolled;
+		RenderEntity.ServiceAccess.Input.OnMouseMoved += OnMouseMoved;
+		RenderEntity.ServiceAccess.Input.OnMouseButton += OnMouseButton;
 	}
 
 	private void OnMouseButton( MouseButtonEvent @event ) {
@@ -128,8 +128,10 @@ public sealed class WorldCameraBehaviour : DependentRenderBehaviourBase<WorldCam
 	}
 
 	protected override bool InternalDispose() {
-		RenderEntity.ServiceAccess.UserInputEventService.OnKey -= OnKey;
-		RenderEntity.ServiceAccess.UserInputEventService.OnMouseWheelScrolled -= OnMouseWheelScrolled;
+		RenderEntity.ServiceAccess.Input.OnKey -= OnKey;
+		RenderEntity.ServiceAccess.Input.OnMouseWheelScrolled -= OnMouseWheelScrolled;
+		RenderEntity.ServiceAccess.Input.OnMouseMoved -= OnMouseMoved;
+		RenderEntity.ServiceAccess.Input.OnMouseButton -= OnMouseButton;
 		return true;
 	}
 }

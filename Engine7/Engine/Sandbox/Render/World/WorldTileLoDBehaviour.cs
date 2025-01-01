@@ -1,4 +1,4 @@
-﻿using Engine.Module.Entities.Render;
+﻿using Engine.Module.Render.Entities;
 using Sandbox.Logic.World;
 using Sandbox.Logic.World.Tiles;
 
@@ -11,7 +11,7 @@ public sealed class WorldTileLoDBehaviour : DependentRenderBehaviourBase<WorldAr
 	public IReadOnlyList<RenderedFoundationTile> Tiles => _tiles;
 
 	protected override void OnRenderEntitySet() {
-		var baseTiles = Archetype.WorldTilingComponent.Tiling.Tiles;
+		IReadOnlyList<CompositeTile> baseTiles = Archetype.WorldTilingComponent.Tiling.Tiles;
 		for (int i = 0; i < baseTiles.Count; i++)
 			_tiles.Add( new( baseTiles[ i ] ) );
 	}
@@ -27,7 +27,7 @@ public sealed class WorldTileLoDBehaviour : DependentRenderBehaviourBase<WorldAr
 			RenderedFoundationTile renderedTile = _tiles[ i ];
 			ITile tile = renderedTile.Tile;
 			tile.FillSpan( tileVectors );
-			var center = Vector.Average<Vector3<float>, float>( tileVectors );
+			Vector3<float> center = Vector.Average<Vector3<float>, float>( tileVectors );
 			int seekingLayer = GetExpectedLevelOfDetailForDistance( (center - _lastCameraTranslation).Magnitude<Vector3<float>, float>(), tile.Layer, tile.Layer + tile.RemainingLayers );
 			renderedTile.SetLevelOfDetail( int.Clamp( seekingLayer, (int) tile.Layer, (int) (tile.Layer + tile.RemainingLayers) ) );
 		}

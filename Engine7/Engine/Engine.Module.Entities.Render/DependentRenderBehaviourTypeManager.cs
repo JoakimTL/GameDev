@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Engine.Module.Entities.Render;
+namespace Engine.Module.Render.Entities;
 
 public static class DependentRenderBehaviourTypeManager {
 	private static readonly Dictionary<Type, List<Type>> _typesDependentOnComponent;
@@ -70,8 +70,7 @@ public static class DependentRenderBehaviourTypeManager {
 		IReadOnlyCollection<Type>? allDependentTypes = GetAllDependentBehaviours( archetype.GetType() );
 		if (allDependentTypes is null)
 			return;
-		foreach (Type dependentType in allDependentTypes) {
+		foreach (Type dependentType in allDependentTypes)
 			renderEntity.RemoveBehaviour( dependentType );
-		}
 	}
 }

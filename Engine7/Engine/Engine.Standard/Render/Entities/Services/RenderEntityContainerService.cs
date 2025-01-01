@@ -1,6 +1,6 @@
 ﻿using Engine.Logging;
 using Engine.Module.Entities.Container;
-using Engine.Module.Entities.Render;
+using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Processing;
 

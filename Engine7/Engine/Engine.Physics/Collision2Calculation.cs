@@ -1,5 +1,4 @@
 ﻿using Engine.Logging;
-using Engine.Shapes;
 using System.Numerics;
 
 namespace Engine.Physics;
@@ -29,8 +28,8 @@ public sealed class Collision2Calculation<TScalar>( ConvexShapeBase<Vector2<TSca
 
 	/// <returns>True if the collision detection is resolved with the shapes' current configuration. Results can be found in <see cref="CollisionResult"/>.</returns>
 	private bool PerformStep() {
-		var shapeAVertices = _shapeA.GetVertices();
-		var shapeBVertices = _shapeB.GetVertices();
+		IReadOnlyList<Vector2<TScalar>> shapeAVertices = _shapeA.GetVertices();
+		IReadOnlyList<Vector2<TScalar>> shapeBVertices = _shapeB.GetVertices();
 
 		if (shapeAVertices.Count == 0 || shapeBVertices.Count == 0) {
 			CollisionResult = new CollisionResult( false, true );

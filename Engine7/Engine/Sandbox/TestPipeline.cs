@@ -1,14 +1,12 @@
 ﻿using Engine.Logging;
 using Engine.Module.Entities.Container;
-using Engine.Module.Entities.Render;
 using Engine.Module.Render.Domain;
+using Engine.Module.Render.Entities;
 using Engine.Module.Render.Entities.Components;
-using Engine.Module.Render.Glfw.Enums;
 using Engine.Module.Render.Input;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
-using Engine.Physics;
 using Engine.Shapes;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Render;
@@ -48,8 +46,8 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
 		Edge2<float> ed = new( (0, 0), (0, 1) );
-		var or1 = ed.Orientation( (1, 0) );
-		var or2 = ed.Orientation( (-1, 0) );
+		int or1 = ed.Orientation( (1, 0) );
+		int or2 = ed.Orientation( (-1, 0) );
 
 		//Collision2Calculation<float> collision2Calculation = new(
 		//	new GJKConvexShape<Vector2<float>, float>( [ (0.1F, .5F) ] ),
@@ -135,9 +133,9 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 		this._sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
 		this._sceneInstance.SetShaderBundle( this.RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>() );
 		this._sceneInstance.SetVertexArrayObject( this.RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>() );
-		IcosphereGenerator.GenerateIcosphereVectors<float>( 3, out var vectors, out var indices );
+		IcosphereGenerator.GenerateIcosphereVectors<float>( 3, out List<Vector3<float>>? vectors, out List<List<uint>>? indices );
 		OcTree<TriangleVertex, float> ocTree = new( 5 );
-		foreach (var v in vectors)
+		foreach (Vector3<float> v in vectors)
 			ocTree.Add( new( v ) );
 		this.LogLine( $"Vertices: {vectors.Count}" );
 		this.LogLine( $"Triangles: {indices.Count / 3}" );
@@ -149,10 +147,10 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 		//	Vertex3 v = new( vectors[ i ].CastSaturating<double, float>(), 0, 0, ((byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), 255) );
 		//	vertices.Add( v );
 		//}
-		var sub9Indices = indices[ 2 ];
+		List<uint> sub9Indices = indices[ 2 ];
 		for (int i = 0; i < sub9Indices.Count; i += 3) {
 			Vector4<byte> color = ((byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), (byte) r.Next( 100, 255 ), 255);
-			var v1 = vectors[ (int) sub9Indices[ i ] ];
+			Vector3<float> v1 = vectors[ (int) sub9Indices[ i ] ];
 			Vector2<float> cp1 = v1.ToNormalizedPolar().DivideEntrywise( polarSpace );
 			Vector4<byte> c1 = ((byte) (double.Abs( cp1.X ) * 255), (byte) (double.Abs( cp1.Y ) * 255), 0, 255);
 			Vertex3 v = new( vectors[ (int) sub9Indices[ i ] ], 0, 0, c1 );
@@ -234,7 +232,7 @@ public sealed class TestRenderBehaviour : SynchronizedRenderBehaviourBase<Render
 
 	protected override void Synchronize() {
 		this._transformMatrix = this._preparedTransformMatrix;
-		this._sceneInstance?.Write( new Entity2SceneData( this._transformMatrix ) );
+		this._sceneInstance?.Write( new Entity2SceneData( this._transformMatrix, ushort.MaxValue ) );
 	}
 
 	protected override bool InternalDispose() {

@@ -1,4 +1,5 @@
 using Engine.Module.Entities.Container;
+using Engine.Module.Render.Entities;
 using Engine.Module.Render.Entities.Components;
 
 namespace Engine.Module.Entities.Render.Tests;

@@ -1,10 +1,5 @@
 ﻿using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine.Standard.Render.Entities.Behaviours.Shaders;
 [Identity( nameof( Primitive2ShaderBundle ) )]

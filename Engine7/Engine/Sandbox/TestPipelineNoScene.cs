@@ -61,8 +61,8 @@ public sealed class TestPipelineNoScene( ShaderBundleService shaderBundleService
 			new VertexSpecial2 { Translation = (-0.5f, -0.5f), Color = (255, 0, 0, 255) },
 			new VertexSpecial2 { Translation = (0.5f, -0.5f), Color = (255, 0, (byte) (MathF.Cos((float) time) * 100 + 100), 255) } ], 0 );
 		this._sceneDataBufferSegment.WriteRange( [
-			new Entity2SceneData(Matrix.Create4x4.RotationZ( -(float) time * 2 ) ),
-			new Entity2SceneData(Matrix.Create4x4.RotationZ( (float) time * 2 ) ) ], 0 );
+			new Entity2SceneData(Matrix.Create4x4.RotationZ( -(float) time * 2 ), ushort.MaxValue ),
+			new Entity2SceneData(Matrix.Create4x4.RotationZ( (float) time * 2 ), ushort.MaxValue ) ], 0 );
 		this._testUniforms.Buffer.WriteRange( [ MathF.Cos( (float) time ) / 2 ], 0 );
 		this._testShaderStorage.Buffer.WriteRange( [ MathF.Sin( (float) time ) / 2 ], 0 );
 

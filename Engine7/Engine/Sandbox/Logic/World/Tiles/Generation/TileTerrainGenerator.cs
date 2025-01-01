@@ -1,5 +1,4 @@
-﻿using Sandbox.Logic.World.Tiles;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Sandbox.Logic.World.Tiles.Generation;
 

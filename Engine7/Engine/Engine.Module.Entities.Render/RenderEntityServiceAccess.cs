@@ -1,28 +1,28 @@
-﻿using Engine.Module.Render.Entities.Providers;
-using Engine.Module.Render.Input;
+﻿using Engine.Module.Render.Input;
+using Engine.Module.Render.Ogl.Providers;
 
-namespace Engine.Module.Entities.Render;
+namespace Engine.Module.Render.Entities;
 
-public sealed class RenderEntityServiceAccess( IInstanceProvider instanceProvider, SceneInstanceProvider sceneInstanceProvider, CompositeVertexArrayProvider compositeVertexArrayProvider, ShaderBundleProvider shaderBundleProvider, MeshProvider meshProvider, UserInputEventService userInputEventService, CameraProvider cameraProvider ) : IInitializable {
-	private readonly IInstanceProvider _instanceProvider = instanceProvider;
-	private readonly SceneInstanceProvider _sceneInstanceProvider = sceneInstanceProvider;
-	private readonly CompositeVertexArrayProvider _compositeVertexArrayProvider = compositeVertexArrayProvider;
-	private readonly ShaderBundleProvider _shaderBundleProvider = shaderBundleProvider;
-	private readonly MeshProvider _meshProvider = meshProvider;
-	private readonly UserInputEventService _userInputEventService = userInputEventService;
-	private readonly CameraProvider _cameraProvider = cameraProvider;
+public sealed class RenderEntityServiceAccess( RenderServiceAccess renderServiceAccess, CapturableUserInputEventService capturableUserInputEventService ) : DisposableIdentifiable {
+	private readonly RenderServiceAccess _renderServiceAccess = renderServiceAccess;
+	private readonly SceneInstanceProvider _sceneInstanceProvider = renderServiceAccess.Get<SceneInstanceProvider>();
+	private readonly CompositeVertexArrayProvider _compositeVertexArrayProvider = renderServiceAccess.Get<CompositeVertexArrayProvider>();
+	private readonly ShaderBundleProvider _shaderBundleProvider = renderServiceAccess.Get<ShaderBundleProvider>();
+	private readonly MeshProvider _meshProvider = renderServiceAccess.Get<MeshProvider>();
+	private readonly RenderEntityInput _input = new( capturableUserInputEventService );
+	private readonly CameraProvider _cameraProvider = renderServiceAccess.Get<CameraProvider>();
 
 	internal SceneInstanceProvider SceneInstanceProvider => this._sceneInstanceProvider;
 	public CompositeVertexArrayProvider CompositeVertexArrayProvider => this._compositeVertexArrayProvider;
 	public ShaderBundleProvider ShaderBundleProvider => this._shaderBundleProvider;
 	public MeshProvider MeshProvider => this._meshProvider;
 	public CameraProvider CameraProvider => this._cameraProvider;
-	//TODO Make provider or handle differently!
-	public UserInputEventService UserInputEventService => this._userInputEventService;
-	public T Get<T>() where T : IRenderEntityServiceProvider => _instanceProvider.Get<T>();
+	public RenderEntityInput Input => this._input;
 
-	public void Initialize() {
-		foreach (Type t in TypeManager.Registry.DerivedTypes.Where( p => p.IsAssignableTo( typeof( IRenderEntityServiceProvider ) ) ))
-			_instanceProvider.Catalog.Host( t );
+	public T Get<T>() where T : IRenderServiceProvider => _renderServiceAccess.Get<T>();
+
+	protected override bool InternalDispose() {
+		_input.Dispose();
+		return true;
 	}
 }

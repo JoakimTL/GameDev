@@ -10,7 +10,6 @@ using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
-using Engine.Standard.Render.Entities.Behaviours;
 using Sandbox.Logic.World;
 
 namespace Sandbox;
@@ -62,6 +61,7 @@ internal sealed class GameLogicModule : ModuleBase {
 		_textEntity.AddComponent<UiComponent>();
 		_textEntity.AddComponent<Collider2Component>( p => p.SetBaseVertices( [ (-1, -1), (1, -1), (1, 1), (-1, 1) ] ) );
 		_textEntity.AddComponent<RenderedPrimitive2Component>();
+		_textEntity.AddComponent<ButtonComponent>();
 		//TextJumblerComponent aa = _textEntity.AddComponent<TextJumblerComponent>();
 		//aa.Offset = 1;
 	}

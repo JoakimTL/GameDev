@@ -7,6 +7,7 @@ public sealed class EntityContainer : DisposableIdentifiable {
 	public const int MAX_GUID_ATTEMPTS = 16777216;
 	private readonly Dictionary<Guid, Entity> _entitiesById;
 	private readonly HashSet<EntityContainerListChangeEventHandler> _handlers;
+	private readonly ConcurrentDictionary<string, object> _gameState;
 	private readonly ConcurrentQueue<object> _messages;
 
 	public event EntityListChangedHandler? OnEntityAdded;
@@ -15,6 +16,7 @@ public sealed class EntityContainer : DisposableIdentifiable {
 	public EntityContainer() {
 		this._entitiesById = [];
 		this._handlers = [];
+		this._gameState = [];
 		this._messages = [];
 		this.ArchetypeManager = new( this );
 		this.SystemManager = new( this );
@@ -94,6 +96,19 @@ public sealed class EntityContainer : DisposableIdentifiable {
 	}
 
 	private void ParentIdChanged( Entity entity ) => entity.SetParentInternal( entity.ParentId.HasValue && this._entitiesById.TryGetValue( entity.ParentId.Value, out Entity? parentEntity ) ? parentEntity : null );
+
+	public void SetGameState( string key, object? value ) {
+		if (value is null) {
+			this._gameState.TryRemove( key, out _ );
+			return;
+		}
+		this._gameState[ key ] = value;
+	}
+
+	/// <summary>
+	/// Thread-safe method to get a game state value.
+	/// </summary>
+	public T? GetGameState<T>( string key ) => this._gameState.TryGetValue( key, out object? value ) && value is T t ? t : default;
 
 	protected override bool InternalDispose() {
 		foreach (EntityContainerListChangeEventHandler handler in this._handlers)

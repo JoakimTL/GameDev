@@ -1,12 +1,11 @@
-﻿
-using Engine.Module.Entities.Container;
+﻿using Engine.Module.Entities.Container;
 using System.Collections.Concurrent;
 
-namespace Engine.Module.Entities.Render;
+namespace Engine.Module.Render.Entities;
 
 internal class RenderEntityContainerDependentBehaviourManager( RenderEntityContainer renderEntityContainer ) : IUpdateable {
 
-	private readonly  RenderEntityContainer _renderEntityContainer = renderEntityContainer;
+	private readonly RenderEntityContainer _renderEntityContainer = renderEntityContainer;
 	private readonly ConcurrentQueue<ArchetypeBase> _archetypesAdded = [];
 	private readonly ConcurrentQueue<ArchetypeBase> _archetypesRemoved = [];
 

@@ -4,7 +4,7 @@ using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Scenes;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Engine.Module.Entities.Render;
+namespace Engine.Module.Render.Entities;
 
 public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovable {
 	private readonly Entity _entity;
@@ -35,7 +35,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 		return instance;
 	}
 
-	public SceneInstanceCollection<TVertexData, TInstanceData> RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( string sceneName, uint layer ) 
+	public SceneInstanceCollection<TVertexData, TInstanceData> RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( string sceneName, uint layer )
 		where TVertexData : unmanaged
 		where TInstanceData : unmanaged
 		where TShaderBundle : ShaderBundleBase {
@@ -117,6 +117,6 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 			return;
 		this.Removed = true;
 		_removables.Clear( true );
-		this.OnRemoved?.Invoke( this );
+		OnRemoved?.Invoke( this );
 	}
 }

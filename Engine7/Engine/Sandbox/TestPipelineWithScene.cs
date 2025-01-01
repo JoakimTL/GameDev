@@ -70,9 +70,9 @@ public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleServi
 			new VertexSpecial2 { Translation = (0.0f, 0.5f), Color = ((byte) (MathF.Sin((float) time) * 100 + 100), 255, 0, 255) },
 			new VertexSpecial2 { Translation = (-0.5f, -0.5f), Color = (255, 0, 0, 255) },
 			new VertexSpecial2 { Translation = (0.5f, -0.5f), Color = (255, 0, (byte) (MathF.Cos((float) time) * 100 + 100), 255) } ], 0 );
-		this._sceneInstance1.Write( new Entity2SceneData( Matrix.Create4x4.RotationZ( -(float) time * 2 ) ) );
-		this._sceneInstance2.Write( new Entity2SceneData( Matrix.Create4x4.RotationZ( (float) time * 2 ) ) );
-		this._sceneInstance3.Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity ) );
+		this._sceneInstance1.Write( new Entity2SceneData( Matrix.Create4x4.RotationZ( -(float) time * 2 ), ushort.MaxValue ) );
+		this._sceneInstance2.Write( new Entity2SceneData( Matrix.Create4x4.RotationZ( (float) time * 2 ), ushort.MaxValue ) );
+		this._sceneInstance3.Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
 		this._testUniforms.Buffer.WriteRange( [ MathF.Cos( (float) time ) / 2 ], 0 );
 		this._testShaderStorage.Buffer.WriteRange( [ MathF.Sin( (float) time ) / 2 ], 0 );
 	}

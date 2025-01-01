@@ -1,11 +1,11 @@
 ﻿using Engine.Module.Render.Ogl.Scenes;
 using System.Collections.Frozen;
-using Engine.Module.Entities.Render;
 using Engine.Module.Render.Ogl.Services;
+using Engine.Module.Render;
 
 namespace Engine.Standard.Render.Meshing.Services;
 
-public sealed class PrimitiveMesh3Provider( MeshService meshService ) : Identifiable, IInitializable, IRenderEntityServiceProvider {
+public sealed class PrimitiveMesh3Provider( MeshService meshService ) : Identifiable, IInitializable, IRenderServiceProvider {
 
 	private FrozenDictionary<Primitive3, ReadOnlyVertexMesh<Vertex3>> _primitives = new Dictionary<Primitive3, ReadOnlyVertexMesh<Vertex3>>().ToFrozenDictionary();
 

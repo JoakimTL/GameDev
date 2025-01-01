@@ -1,4 +1,4 @@
-﻿namespace Engine.Module.Entities.Render;
+﻿namespace Engine.Module.Render.Entities;
 
 public class Class1 {
 

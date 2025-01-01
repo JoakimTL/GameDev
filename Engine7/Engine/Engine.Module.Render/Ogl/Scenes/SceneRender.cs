@@ -28,7 +28,7 @@ public sealed class SceneRender : DisposableIdentifiable, ISceneRender {
 			}
 		unsafe {
 			if (this._indirectCommands.Count * Unsafe.SizeOf<IndirectCommand>() > _commandBuffer.LengthBytes) {
-				var commandArray = this._indirectCommands.ToArray();
+				IndirectCommand[] commandArray = this._indirectCommands.ToArray();
 				uint newSize = this._commandBuffer.LengthBytes * 2;
 				while (this._indirectCommands.Count * Unsafe.SizeOf<IndirectCommand>() > newSize)
 					newSize *= 2;
@@ -43,7 +43,7 @@ public sealed class SceneRender : DisposableIdentifiable, ISceneRender {
 					this._commandBuffer.WriteRange( srcPtr, (uint) (commands.Length * sizeof( IndirectCommand )), 0 );
 				}
 			} else {
-				var commandArray = this._indirectCommands.ToArray();
+				IndirectCommand[] commandArray = this._indirectCommands.ToArray();
 				fixed (IndirectCommand* srcPtr = commandArray) {
 					this._commandBuffer.WriteRange( srcPtr, (uint) (commandArray.Length * sizeof( IndirectCommand )), 0 );
 				}

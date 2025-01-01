@@ -1,5 +1,4 @@
-﻿using Engine.Module.Entities.Render;
-using Engine.Module.Render.Ogl.OOP.Textures;
+﻿using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render;
 using Sandbox.Logic.World;
@@ -16,7 +15,7 @@ public sealed class WorldTilingBehaviour : DependentRenderBehaviourBase<WorldArc
 		if (!RenderEntity.TryGetBehaviour( out WorldTileLoDBehaviour? lodBehaviour ))
 			throw new Exception( $"Needs {nameof( WorldTileLoDBehaviour )} to function!" );
 		_sceneInstanceCollection = RenderEntity.RequestSceneInstanceCollection<Vertex3, Entity2SceneData, TestShaderBundle>( "test", 0 );
-		foreach (var tile in lodBehaviour.Tiles) {
+		foreach (RenderedFoundationTile tile in lodBehaviour.Tiles) {
 			WorldTileSceneInstance instance = _sceneInstanceCollection.Create<WorldTileSceneInstance>();
 			instance.SetRenderTile( tile );
 			_instances.Add( instance );
@@ -24,7 +23,7 @@ public sealed class WorldTilingBehaviour : DependentRenderBehaviourBase<WorldArc
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		foreach (var instance in _instances)
+		foreach (WorldTileSceneInstance instance in _instances)
 			instance.Update( RenderEntity.ServiceAccess.MeshProvider );
 	}
 
@@ -46,7 +45,7 @@ public sealed class TileRegionBorderContainer( RenderedFoundationTile tile, Scen
 			return;
 		_currentLoD = _tile.LevelOfDetail;
 		if (_currentLoD < _tile.Tile.Layer + _tile.Tile.RemainingLayers) {
-			foreach (var instance in _instances)
+			foreach (Line3Instance instance in _instances)
 				instance.SetActive( false );
 			return;
 		}
@@ -57,29 +56,29 @@ public sealed class TileRegionBorderContainer( RenderedFoundationTile tile, Scen
 	private void UpdateInstances() {
 		_renderedEdges.Clear();
 		int instanceIndex = 0;
-		var regions = _tile.Tile.GetAllRegions();
+		IReadOnlyList<Region> regions = _tile.Tile.GetAllRegions();
 		for (int j = 0; j < regions.Count; j++) {
-			var region = regions[ j ];
+			Region region = regions[ j ];
 
 			//var regionCenter = region.GetCenter();
 			//if ((regionCenter - _lastCameraTranslation).Magnitude<Vector3<float>, float>() > 0.1f)
 			//	continue;
 
-			var vectorSpan = new Vector3<float>[ 3 ];
-			var indexSpan = new int[ 3 ];
+			Vector3<float>[] vectorSpan = new Vector3<float>[ 3 ];
+			int[] indexSpan = new int[ 3 ];
 			region.FillSpan( vectorSpan );
 			region.FillSpan( indexSpan );
 
-			var vA = vectorSpan[ 0 ];
-			var vB = vectorSpan[ 1 ];
-			var vC = vectorSpan[ 2 ];
+			Vector3<float> vA = vectorSpan[ 0 ];
+			Vector3<float> vB = vectorSpan[ 1 ];
+			Vector3<float> vC = vectorSpan[ 2 ];
 
-			var cross = (vB - vA).Cross( vC - vA );
-			var magnitude = cross.Magnitude<Vector3<float>, float>();
-			var normal = cross.Normalize<Vector3<float>, float>();
+			Vector3<float> cross = (vB - vA).Cross( vC - vA );
+			float magnitude = cross.Magnitude<Vector3<float>, float>();
+			Vector3<float> normal = cross.Normalize<Vector3<float>, float>();
 
 			for (int l = 0; l < 3; l++) {
-				var edgeIndices = GetEdge( indexSpan[ l ], indexSpan[ (l + 1) % 3 ] );
+				(int, int) edgeIndices = GetEdge( indexSpan[ l ], indexSpan[ (l + 1) % 3 ] );
 				if (!_renderedEdges.Add( edgeIndices ))
 					continue;
 
@@ -126,13 +125,13 @@ public sealed class RegionBorderRenderBehaviour : DependentRenderBehaviourBase<W
 				0, 4, 5,
 				0, 3, 4
 			] );
-		foreach (var tile in lodBehaviour.Tiles) {
+		foreach (RenderedFoundationTile tile in lodBehaviour.Tiles) {
 			_regionBorderContainers.Add( new( tile, RenderEntity.RequestSceneInstanceCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( "test", 0 ), _lineInstanceMesh ) );
 		}
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		foreach (var container in _regionBorderContainers)
+		foreach (TileRegionBorderContainer container in _regionBorderContainers)
 			container.Update();
 	}
 

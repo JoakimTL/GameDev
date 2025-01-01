@@ -1,7 +1,7 @@
-﻿using Engine.Module.Entities.Render;
-using Engine.Module.Render.Entities.Providers;
+﻿using Engine.Module.Render.Entities;
 using Engine.Module.Render.Input;
 using Engine.Standard.Render;
+using Engine.Standard.Render.Input.Services;
 using Engine.Transforms;
 using Sandbox.Logic.World;
 using Sandbox.Logic.World.Tiles;
@@ -17,7 +17,7 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 	private DebugInstance _debugInstance;
 
 	protected override void OnRenderEntitySet() {
-		RenderEntity.ServiceAccess.UserInputEventService.OnMouseMoved += OnMouseMoved;
+		RenderEntity.ServiceAccess.Input.OnMouseMoved += OnMouseMoved;
 		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged += OnCameraMatrixChanged;
 		_debugInstance = RenderEntity.RequestSceneInstance<DebugInstance>( "test", 0 );
 		_debugInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>()! );
@@ -52,11 +52,9 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		if (!_changed)
 			return;
 		_changed = false;
-		var projection = RenderEntity.ServiceAccess.CameraProvider.Main.Projection3;
-		var view = RenderEntity.ServiceAccess.CameraProvider.Main.View3;
-		var window = RenderEntity.ServiceAccess.Get<WindowProvider>().Window;
-		var ndc = (_mousePointerLocation.DivideEntrywise( window.Size.CastSaturating<int, double>() ) * 2).CastSaturating<double, float>();
-		ndc = (ndc.X - 1, 1 - ndc.Y);
+		Engine.Transforms.Camera.Perspective.Dynamic projection = RenderEntity.ServiceAccess.CameraProvider.Main.Projection3;
+		Engine.Transforms.Camera.View3 view = RenderEntity.ServiceAccess.CameraProvider.Main.View3;
+		Vector2<float> ndc = RenderEntity.ServiceAccess.Get<ProcessedMouseInputProvider>().MouseNDCTranslation.CastSaturating<double, float>();
 		_pointerDirection = GetMouseUnprojected( projection.InverseMatrix, view.InverseMatrix, ndc );
 
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, _pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
@@ -66,8 +64,8 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
-		var vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
-		var baseTile = Archetype.WorldTilingComponent.Tiling.Tiles.FirstOrDefault( p => RayIntersectsTriangle( 0, intersectionPoint, p.VectorA, p.VectorB, p.VectorC, out _ ) );
+		IReadOnlyList<Vector3<float>> vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
+		CompositeTile? baseTile = Archetype.WorldTilingComponent.Tiling.Tiles.FirstOrDefault( p => RayIntersectsTriangle( 0, intersectionPoint, p.VectorA, p.VectorB, p.VectorC, out _ ) );
 
 		Tile? selectedTiled = FindTileSelection( baseTile, intersectionPoint );
 
@@ -77,7 +75,7 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 	private Tile? FindTileSelection( IContainingTile? baseTile, Vector3<float> intersectionPoint ) {
 		if (baseTile is null)
 			return null;
-		foreach (var subTile in baseTile.SubTiles) {
+		foreach (ITile subTile in baseTile.SubTiles) {
 			if (RayIntersectsTriangle( 0, intersectionPoint, subTile.VectorA, subTile.VectorB, subTile.VectorC, out _ )) {
 				if (subTile is Tile tile)
 					return tile;
@@ -90,7 +88,7 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 	}
 
 	protected override bool InternalDispose() {
-		RenderEntity.ServiceAccess.UserInputEventService.OnMouseMoved -= OnMouseMoved;
+		RenderEntity.ServiceAccess.Input.OnMouseMoved -= OnMouseMoved;
 		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged -= OnCameraMatrixChanged;
 		return true;
 	}

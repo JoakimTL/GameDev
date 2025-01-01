@@ -1,6 +1,6 @@
 ﻿using Engine.Logging;
 using Engine.Module.Entities.Container;
-using Engine.Module.Entities.Render;
+using Engine.Module.Render.Entities;
 using Engine.Module.Render.Input;
 using Engine.Physics;
 using Engine.Standard.Entities.Components;
@@ -22,15 +22,15 @@ public sealed class UiElementBehaviour : SynchronizedRenderBehaviourBase<UiEleme
 	private bool _hovering = false;
 
 	protected override void OnRenderEntitySet() {
-		RenderEntity.ServiceAccess.UserInputEventService.OnMouseButton += OnMouseButton;
+		RenderEntity.ServiceAccess.Input.OnMouseButton += OnMouseButton;
 		_mouseColliderProvider = RenderEntity.ServiceAccess.Get<MouseColliderProvider>();
 		_incomingVertices = [ .. Archetype.Collider2Component.ColliderVertices ];
 		_collisionCalculation = new Collision2Calculation<double>( _collider, _mouseColliderProvider.ColliderNDC );
 	}
 
 	private void OnMouseButton( MouseButtonEvent @event ) {
-		if (@event.InputType == TactileInputType.Press && _hovering) {
-			this.LogLine( "Click detected." );
+		if (@event.InputType == TactileInputType.Release && _hovering) {
+			RenderEntity.SendMessageToEntity( new UiElementClicked(@event.Time, @event.Button) );
 		}
 	}
 
@@ -60,12 +60,12 @@ public sealed class UiElementBehaviour : SynchronizedRenderBehaviourBase<UiEleme
 	}
 
 	protected override void Synchronize() {
-		var vertices = _incomingVertices;
+		List<Vector2<double>> vertices = _incomingVertices;
 		_collider.SetBaseVertices( vertices );
 	}
 
 	protected override bool InternalDispose() {
-		RenderEntity.ServiceAccess.UserInputEventService.OnMouseButton -= OnMouseButton;
+		RenderEntity.ServiceAccess.Input.OnMouseButton -= OnMouseButton;
 		return base.InternalDispose();
 	}
 }

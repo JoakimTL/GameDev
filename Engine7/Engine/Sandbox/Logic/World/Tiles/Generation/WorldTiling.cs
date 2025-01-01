@@ -1,5 +1,4 @@
-﻿using Engine;
-using Engine.Logging;
+﻿using Engine.Logging;
 using Engine.Standard.Render.Meshing;
 using ImageMagick;
 
@@ -19,7 +18,7 @@ public sealed class WorldTiling {
 		_worldIcosphere = new Icosphere( Levels, normalizeUpTo: RootLevel );
 		this.LogLine( $"Icosphere created with {_worldIcosphere.Vertices.Count} vertices", Log.Level.VERBOSE );
 		this.LogLine( $"Icosphere created with {_worldIcosphere.GetIndices( Levels - 1 ).Count / 3} faces", Log.Level.VERBOSE );
-		var normalizedVectors = _worldIcosphere.Vertices.Select( v => v.Normalize<Vector3<float>, float>() ).ToList();
+		List<Vector3<float>> normalizedVectors = _worldIcosphere.Vertices.Select( v => v.Normalize<Vector3<float>, float>() ).ToList();
 		//_worldIcosphere.GetIndices( 5 ).Count / 3;
 		_rootTiles = CreateTiles();
 
@@ -46,7 +45,7 @@ public sealed class WorldTiling {
 				tilesBySharedEdge.Add( edgeCA, new() { TileA = tile } );
 		}
 
-		foreach (var tile in tilesBySharedEdge) {
+		foreach (KeyValuePair<(int, int), NeighbouringTiles> tile in tilesBySharedEdge) {
 			if (tile.Value.TileB is null)
 				throw new InvalidOperationException( "Tile has no neighbour" );
 			tile.Value.TileA.AddNeighbour( tile.Value.TileB );
@@ -165,17 +164,17 @@ public sealed class WorldTiling {
 	}
 
 	private float GetHeight( Vector3<float> translation, float[] heights, int width, int height ) {
-		var polar = translation.ToNormalizedPolar();
-		var positivePolar = polar + (float.Pi, float.Pi / 2);
-		var normalizedPolar = positivePolar.DivideEntrywise( (float.Pi * 2, float.Pi) );
-		var imagePolar = normalizedPolar.MultiplyEntrywise( (width - 1, height - 1) );
+		Vector2<float> polar = translation.ToNormalizedPolar();
+		Vector2<float> positivePolar = polar + (float.Pi, float.Pi / 2);
+		Vector2<float> normalizedPolar = positivePolar.DivideEntrywise( (float.Pi * 2, float.Pi) );
+		Vector2<float> imagePolar = normalizedPolar.MultiplyEntrywise( (width - 1, height - 1) );
 		int x = (width - 1) - (int) imagePolar.X;
 		int y = (height - 1) - (int) imagePolar.Y;
 		return heights[ x + y * width ] * 2 - 0.05f;
 	}
 
 	private bool NeighbourFound( CompositeTile rootTile, List<CompositeTile> tilesToGenerateFor ) {
-		foreach (var potentialNeighbour in tilesToGenerateFor)
+		foreach (CompositeTile potentialNeighbour in tilesToGenerateFor)
 			if (rootTile.IndexA == potentialNeighbour.IndexA
 				|| rootTile.IndexA == potentialNeighbour.IndexB
 				|| rootTile.IndexA == potentialNeighbour.IndexC

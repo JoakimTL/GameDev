@@ -3,7 +3,7 @@ using Engine.Module.Render.Entities.Components;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Engine.Module.Entities.Render;
+namespace Engine.Module.Render.Entities;
 
 public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable {
 	private readonly EntityContainer _container;

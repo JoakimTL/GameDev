@@ -1,7 +1,7 @@
 ﻿using Engine.Module.Entities.Container;
 using Engine.Transforms.Camera;
 
-namespace Engine.Module.Render.Entities.Components;
+namespace Engine.Standard.Entities.Components;
 
 public sealed class CameraComponent : ComponentBase {
 

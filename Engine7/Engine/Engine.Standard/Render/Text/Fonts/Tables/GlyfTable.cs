@@ -1,11 +1,4 @@
-﻿using Engine.Logging;
-using Engine.Standard.Render.Text.Fonts.Tables.Glyf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Engine.Standard.Render.Text.Fonts.Tables.Glyf;
 
 namespace Engine.Standard.Render.Text.Fonts.Tables;
 /// <summary>

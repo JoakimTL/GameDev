@@ -2,7 +2,6 @@
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render.Text.Fonts.Meshing;
 using Engine.Standard.Render.Text.Services;
-using Engine.Transforms;
 
 namespace Engine.Standard.Render.Text.Typesetting;
 public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2SceneData> sceneInstanceCollection, FontMeshingService fontMeshingService ) : Identifiable, IUpdateable {
@@ -167,8 +166,8 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 			glyphIndex++;
 			if (mesh is null)
 				continue;
-			Matrix4x4<float> modelMatrix = Matrix.Create4x4.RotationZ(_textRotation) * Matrix.Create4x4.Scaling( realScale, realScale ) * Matrix.Create4x4.Translation( cursor + ( mesh.GlyphDefinition.LeftSideBearing * realScale, 0) );
-			if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix ) ))
+			Matrix4x4<float> modelMatrix = Matrix.Create4x4.Scaling( realScale, realScale ) * Matrix.Create4x4.Translation( cursor + ( mesh.GlyphDefinition.LeftSideBearing * realScale, 0) ) * Matrix.Create4x4.RotationZ( _textRotation );
+			if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix, ushort.MaxValue ) ))
 				this.LogLine( "Failed to write instance data." );
 			cursor += new Vector2<float>( mesh.GlyphDefinition.Advance, 0 ) * realScale;
 		}

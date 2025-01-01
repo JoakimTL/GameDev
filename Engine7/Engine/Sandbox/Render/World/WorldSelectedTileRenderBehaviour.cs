@@ -1,5 +1,5 @@
 ﻿using Engine.Module.Entities.Container;
-using Engine.Module.Entities.Render;
+using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Sandbox.Logic.World;
 using Sandbox.Logic.World.Tiles;
@@ -49,7 +49,7 @@ public sealed class WorldSelectedTileRenderBehaviour : SynchronizedRenderBehavio
 		//}
 
 		if (_currentHoveringTile is not null) {
-			var region = _currentHoveringTile.ContainingTile as Region;
+			Region? region = _currentHoveringTile.ContainingTile as Region;
 			if (region is null)
 				return;
 
@@ -58,17 +58,16 @@ public sealed class WorldSelectedTileRenderBehaviour : SynchronizedRenderBehavio
 				_instances[ ^1 ].SetMesh( _lineInstanceMesh );
 			}
 
+			Vector3<float> vA = region.VectorA;
+			Vector3<float> vB = region.VectorB;
+			Vector3<float> vC = region.VectorC;
 
-			var vA = region.VectorA;
-			var vB = region.VectorB;
-			var vC = region.VectorC;
+			Vector3<float> cross = (vB - vA).Cross( vC - vA );
+			float magnitude = cross.Magnitude<Vector3<float>, float>();
+			Vector3<float> normal = cross.Normalize<Vector3<float>, float>();
 
-			var cross = (vB - vA).Cross( vC - vA );
-			var magnitude = cross.Magnitude<Vector3<float>, float>();
-			var normal = cross.Normalize<Vector3<float>, float>();
-
-			var lift = 1 + magnitude * 5;
-			var width = magnitude * 3;
+			float lift = 1 + magnitude * 5;
+			float width = magnitude * 3;
 			_instances[ 0 ].Write( new Line3SceneData( vA * lift, width, vB * lift, width, normal, -1, 1, (0, 0, 0.5f), 0, (255, 0, 0, 255) ) );
 			_instances[ 1 ].Write( new Line3SceneData( vB * lift, width, vC * lift, width, normal, -1, 1, (0, 0, 0.5f), 0, (0, 255, 0, 255) ) );
 			_instances[ 2 ].Write( new Line3SceneData( vC * lift, width, vA * lift, width, normal, -1, 1, (0, 0, 0.5f), 0, (0, 0, 255, 255) ) );

@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Engine.Standard.Render.Text.Fonts.Tables.Glyf;
+﻿namespace Engine.Standard.Render.Text.Fonts.Tables.Glyf;
 
 public static class ElementalGlyphReader {
 	public static IGlyphData Read( FontGlyphHeader header, GlyphMap glyphMap, FontCaretedDataReader caret ) {

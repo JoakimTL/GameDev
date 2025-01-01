@@ -1,6 +1,4 @@
-﻿using Sandbox.Logic.World.Tiles;
-
-namespace Sandbox.Logic.World.Tiles.Generation;
+﻿namespace Sandbox.Logic.World.Tiles.Generation;
 
 public sealed class TileTerrainGenerationLandscapeData( Tile tile, float rng, float height ) {
 	public Tile Tile { get; } = tile;
@@ -50,8 +48,8 @@ public sealed class TileTerrainGenerationLandscapeData( Tile tile, float rng, fl
 
 	public void UpdateAvailableTerrainTypes( ref int lowestPossibleTerrainCount ) {
 		int previousCount = _availableTerrainTypes.Count;
-		foreach (var tileNeighbour in Tile.Neighbours) {
-			var neighbouringTerrainType = tileNeighbour.Terrain;
+		foreach (Tile tileNeighbour in Tile.Neighbours) {
+			TerrainType? neighbouringTerrainType = tileNeighbour.Terrain;
 			if (neighbouringTerrainType is not null)
 				_availableTerrainTypes.RemoveAll( t => !TerrainAdjacencyRules.IsTileAllowedNextTo( t.Id, neighbouringTerrainType.Id ) );
 		}

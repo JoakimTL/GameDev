@@ -1,6 +1,4 @@
-﻿using Engine.Module.Entities.Render;
-
-namespace Engine.Module.Render.Entities.Components;
+﻿namespace Engine.Module.Render.Entities.Components;
 
 public abstract class RenderRoleBase {
 	public abstract void Apply( RenderEntity renderEntity );

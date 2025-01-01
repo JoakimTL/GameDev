@@ -1,4 +1,4 @@
-﻿using Engine.Module.Entities.Render;
+﻿using Engine.Module.Render.Entities;
 
 namespace Engine.Standard.Render.Entities.Behaviours;
 public sealed class MaterialRenderBehaviour : RenderBehaviourBase {
