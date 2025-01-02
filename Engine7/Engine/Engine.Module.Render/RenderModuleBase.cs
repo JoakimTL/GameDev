@@ -18,7 +18,6 @@ public abstract class RenderModuleBase : ModuleBase {
 	protected void InitializeModule() {
 		Gl.Initialize();
 		GlfwUtilities.Init();
-		Gl.DebugMessageCallback( OglDebugCallback, nint.Zero );
 		this.InstanceProvider.Get<ContextManagementService>().OnContextAdded += ContextAdded;
 		this.InstanceProvider.Get<ContextManagementService>().CreateContext( new WindowSettings { DisplayMode = new WindowedDisplayMode( (800, 600) ), Title = "Engine", VSyncLevel = 1 } );
 	}
@@ -27,11 +26,5 @@ public abstract class RenderModuleBase : ModuleBase {
 		if (this.InstanceProvider.Get<ContextManagementService>().ShouldStop)
 			Stop();
 	}
-
-	private void OglDebugCallback( DebugSource source, DebugType type, uint id, DebugSeverity severity, int length, nint message, nint userParam ) {
-		string msg = Marshal.PtrToStringAnsi( message, length );
-		this.LogLine( $"OpenGL: {msg}" );
-	}
-
 	protected abstract void ContextAdded( Context context );
 }

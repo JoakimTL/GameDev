@@ -1,9 +1,11 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Domain;
+using Engine.Module.Render.Glfw.Enums;
 using Engine.Module.Render.Ogl.OOP;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using OpenGL;
+using System.Runtime.InteropServices;
 
 namespace Engine.Module.Render.Ogl;
 public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializable {
@@ -41,6 +43,9 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 		Log.Line( $"Max uniform spec: Bindings: {maxBindings}, Locations: {maxLocations}, Block size: {maxBlockSize}B", Log.Level.NORMAL, ConsoleColor.Blue );
 		Gl.GetInteger( GetPName.MaxShaderStorageBufferBindings, out maxBindings );
 		Log.Line( $"Max shader storage spec: Bindings: {maxBindings}", Log.Level.NORMAL, ConsoleColor.Blue );
+		Gl.GetInteger( GetPName.MaxColorTextureSamples, out uint maxSamples );
+		Log.Line( $"Max color texture samples: {maxSamples}", Log.Level.NORMAL, ConsoleColor.Blue );
+		this.InstanceProvider.Get<GlDebugMessageService>().BindErrorCallback();
 		this.InstanceProvider.Catalog.Host<UserInputService>();
 	}
 

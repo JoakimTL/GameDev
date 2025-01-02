@@ -25,9 +25,22 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 		this.Resident = false;
 
 		this.TextureID = Gl.CreateTexture( this.Target );
+		var error = Gl.GetError();
+		if (error != ErrorCode.NoError)
+			this.LogWarning( $"Error creating texture 1: {error}" );
 		GenerateTexture( metadata );
-		for (int i = 0; i < parameters.Length; i++)
+		error = Gl.GetError();
+		if (error != ErrorCode.NoError)
+			this.LogWarning( $"Error creating texture 2: {error}" );
+		for (int i = 0; i < parameters.Length; i++) {
 			Gl.TextureParameter( this.TextureID, parameters[ i ].Item1, parameters[ i ].Item2 );
+			error = Gl.GetError();
+			if (error != ErrorCode.NoError)
+				this.LogWarning( $"Error creating texture 3 {i}: {error}" );
+		}
+		error = Gl.GetError();
+		if (error != ErrorCode.NoError)
+			this.LogWarning( $"Error creating texture 4: {error}" );
 		this._handle = Gl.GetTextureHandleARB( this.TextureID );
 		this.Nickname = $"TEX{this.TextureID} {name}";
 	}
@@ -59,7 +72,7 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 
 	private void OnReferenceDestruction() {
 		this._referenceCount--;
-		if (this._referenceCount == 0)
+		if (this._referenceCount == 0 && !Disposed)
 			MakeNonResident();
 	}
 
@@ -116,6 +129,6 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 			OnDestruction?.Invoke();
 		}
 
-		internal ulong GetHandle() => this._texture.Handle;
+		public ulong GetHandle() => this._texture.Handle;
 	}
 }

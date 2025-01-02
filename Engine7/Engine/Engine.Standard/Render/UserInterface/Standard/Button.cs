@@ -5,6 +5,8 @@ using Engine.Physics;
 using Engine.Standard.Render.Entities.Behaviours.Shaders;
 using Engine.Standard.Render.Input.Services;
 using Engine.Standard.Render.Meshing.Services;
+using Engine.Standard.Render.Text.Services;
+using Engine.Standard.Render.Text.Typesetting;
 using Engine.Transforms.Models;
 using System;
 using System.Collections.Generic;
@@ -23,12 +25,13 @@ public sealed class Button : UserInterfaceComponentBase {
 	private readonly Collider2Shape _collider;
 	private readonly Collision2Calculation<double> _collision;
 	private readonly SceneInstance<Entity2SceneData> _sceneInstance;
+	private readonly TextLayout _textLayout;
 
 	public Vector4<double> DefaultColor { get; set; }
 	public Vector4<double> HoverColor { get; set; }
 	public Vector4<double> PressedColor { get; set; }
 
-	public Button( UserInterfaceElementBase element, string text, TransformData<Vector2<double>, double, Vector2<double>> transform, Vector4<double> defaultColor, Vector4<double> hoverColor, Vector4<double> pressedColor ) : base( element ) {
+	public Button( UserInterfaceElementBase element, string text, string fontName, TransformData<Vector2<double>, double, Vector2<double>> transform, Vector4<double> defaultColor, Vector4<double> hoverColor, Vector4<double> pressedColor ) : base( element ) {
 		_transform = new Transform2<double>();
 		_transform.SetData( transform );
 		_collider = new Collider2Shape();
@@ -39,6 +42,15 @@ public sealed class Button : UserInterfaceComponentBase {
 		_sceneInstance.SetVertexArrayObject( element.UserInterfaceServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2SceneData>() );
 		_sceneInstance.SetShaderBundle( element.UserInterfaceServiceAccess.ShaderBundleProvider.GetShaderBundle<Primitive2ShaderBundle>() );
 		_sceneInstance.SetMesh( element.UserInterfaceServiceAccess.Get<PrimitiveMesh2Provider>().Get( Meshing.Primitive2.Rectangle ) );
+		_textLayout = element.UserInterfaceServiceAccess.RequestTextLayout( 1 );
+		_textLayout.FontName = fontName;
+		_textLayout.Text = text;
+		_textLayout.TextScale = 0.25f;
+		_textLayout.TextArea = AABB.Create(
+			[(_transform.GlobalTranslation - _transform.GlobalScale).CastSaturating<double, float>(),
+			(_transform.GlobalTranslation + _transform.GlobalScale).CastSaturating<double, float>()] );
+		_textLayout.VerticalAlignment = Alignment.Centered;
+		_textLayout.HorizontalAlignment = Alignment.Centered;
 		this.DefaultColor = defaultColor;
 		this.HoverColor = hoverColor;
 		this.PressedColor = pressedColor;
@@ -57,6 +69,8 @@ public sealed class Button : UserInterfaceComponentBase {
 		var colorUshort = (color * ushort.MaxValue).Clamp<Vector4<double>, double>( 0, ushort.MaxValue ).CastSaturating<double, ushort>();
 
 		_sceneInstance.Write( new Entity2SceneData( _transform.Matrix.CastSaturating<double, float>(), colorUshort ) );
+
+		_textLayout.Update( time, deltaTime );
 	}
 
 	protected internal override bool OnMouseButton( MouseButtonEvent @event ) {

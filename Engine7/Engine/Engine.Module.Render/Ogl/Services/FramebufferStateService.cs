@@ -14,6 +14,12 @@ public sealed class FramebufferStateService( ViewportStateService viewport ) : I
 		return new( framebufferId, size );
 	}
 
+	public OglFramebuffer CreateSurfaceDependentFramebuffer( IResizableSurface<int, float> resizableSurface, Vector2<float> scalingFactor ) {
+		//uint framebufferId = Gl.CreateFramebuffer();
+		//return new( framebufferId, size );
+		throw new NotImplementedException();
+	}
+
 	public void BindFramebuffer( FramebufferTarget target, OglFramebuffer buffer ) {
 		if (buffer.Disposed) {
 			this.LogWarning( $"Trying to bind disposed framebuffer {buffer}" );

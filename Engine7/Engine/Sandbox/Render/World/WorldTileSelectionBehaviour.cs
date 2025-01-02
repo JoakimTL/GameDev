@@ -14,28 +14,28 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 	private Vector3<float> _pointerDirection;
 	private bool _changed = true;
 
-	private DebugInstance _debugInstance;
+	//private DebugInstance _debugInstance;
 
 	protected override void OnRenderEntitySet() {
 		RenderEntity.ServiceAccess.Input.OnMouseMoved += OnMouseMoved;
 		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged += OnCameraMatrixChanged;
-		_debugInstance = RenderEntity.RequestSceneInstance<DebugInstance>( "test", 0 );
-		_debugInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>()! );
-		_debugInstance.SetVertexArrayObject( RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>()! );
-		_debugInstance.SetMesh( RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
-			[
-				new LineVertex( (0, 1), (0, 1), 255 ),
-				new LineVertex( (1, 1), (1, 1), 255 ),
-				new LineVertex( (1, 0), (1, 0),  255 ),
-				new LineVertex( (0, 0), (0, 0), 255 ),
-				new LineVertex( (-1, 0), (1, 0), 255 ),
-				new LineVertex( (-1, 1), (1, 1), 255 )
-			], [
-				0, 2, 1,
-				0, 3, 2,
-				0, 4, 5,
-				0, 3, 4
-			] ) );
+		//_debugInstance = RenderEntity.RequestSceneInstance<DebugInstance>( "test", 0 );
+		//_debugInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>()! );
+		//_debugInstance.SetVertexArrayObject( RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>()! );
+		//_debugInstance.SetMesh( RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
+		//	[
+		//		new LineVertex( (0, 1), (0, 1), 255 ),
+		//		new LineVertex( (1, 1), (1, 1), 255 ),
+		//		new LineVertex( (1, 0), (1, 0),  255 ),
+		//		new LineVertex( (0, 0), (0, 0), 255 ),
+		//		new LineVertex( (-1, 0), (1, 0), 255 ),
+		//		new LineVertex( (-1, 1), (1, 1), 255 )
+		//	], [
+		//		0, 2, 1,
+		//		0, 3, 2,
+		//		0, 4, 5,
+		//		0, 3, 4
+		//	] ) );
 	}
 
 	private void OnCameraMatrixChanged( IMatrixProvider<float> provider ) {

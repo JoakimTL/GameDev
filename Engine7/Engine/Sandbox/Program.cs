@@ -12,13 +12,14 @@ Startup.BeginInit()
 //Lots of stuff: https://iquilezles.org/articles/
 
 //TODO: Add camera (done?)
-//TODO: Add render pipeline
 //TODO: Add input (done?)
 //TODO: Add input to RenderEntity
 //TODO: Add sound (https://github.com/naudio/NAudio ?)
 //TODO: Partial icosphere (done?)
 //TODO: Add text rendering (soon done?)
 //TODO: Add GUI?
+//TODO: Add render pipeline
+//TODO: Add framebuffers
 //TODO: Add grid for tiles near mouse pointer
 
 //Game stuff:
@@ -27,6 +28,7 @@ Startup.BeginInit()
 //TODO: Administrative centers. Not really, but every 4 tiles (one basetile above the last subdivision) is there everything "happens". The tiles are there for army movement and resource distribution. The tiles contain data while the "administrative centers" do the logic is another way to put it.
 //TODO: Add players
 //TODO: Add items
+//TODO: Add characters and dynasties
 //TODO: Add population and needs
 //TODO: Add structures
 //TODO: Add resources
@@ -42,3 +44,5 @@ Startup.BeginInit()
 //TODO: Add combat
 
 //TODO: Add diplomacy
+
+//TODO: Add disease

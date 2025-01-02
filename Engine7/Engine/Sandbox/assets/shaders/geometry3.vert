@@ -7,6 +7,7 @@ layout(location = 1) in vec2 vUv;
 layout(location = 2) in vec3 vNor;
 layout(location = 3) in vec4 vColor;
 layout(location = 4) in mat4 iM_mat;
+layout(location = 8) in vec4 iColor;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -28,6 +29,6 @@ void main(void){
 	mat4 MVP_mat = sb.VP_mat * iM_mat;
 
 	OUT.Position = MVP_mat * vec4(vPos.xyz, 1.0);
-	OUT.Color = vColor;
+	OUT.Color = vColor * iColor;
 	gl_Position = OUT.Position;
 }

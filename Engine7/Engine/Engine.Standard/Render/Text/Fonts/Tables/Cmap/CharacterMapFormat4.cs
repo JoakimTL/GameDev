@@ -51,8 +51,9 @@ public sealed class CharacterMapFormat4() : CharacterMapFormatBase( 4 ) {
 				else {
 					uint currentOffset = caret.CurrentOffset;
 					uint rangeOffsetLocation = idRangeOffset[ i ].readLoc + idRangeOffset[ i ].offset;
-					nint glyphIndexArrayLocation = (nint) (2u * (currentCode - startCodes[ i ]) + rangeOffsetLocation);
+					uint glyphIndexArrayLocation = (uint) (2u * (currentCode - startCodes[ i ]) + rangeOffsetLocation);
 
+					caret.GoTo( glyphIndexArrayLocation );
 					glyphIndex = caret.Read<ushort>();
 					if (glyphIndex != 0)
 						glyphIndex += idDeltas[ i ];

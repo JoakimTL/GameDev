@@ -15,7 +15,7 @@ public static class GlfwUtilities {
 		WindowUtilities.WindowHint( Hint.ContextVersionMinor, minorVersion );
 		WindowUtilities.WindowHint( Hint.OpenglForwardCompatible, (int) forwardCompatible );
 		WindowUtilities.WindowHint( Hint.OpenglProfile, (int) oglProfile );
-		WindowUtilities.WindowHint( Hint.OpenglDebugContext, debug ? 1 : 0 );
+		WindowUtilities.WindowHint( Hint.OpenglDebugContext, (int) (debug ? Constants.True : Constants.False) );
 	}
 	public static nint GetPrimaryMonitor() => GLFW.GetPrimaryMonitor();
 }

@@ -36,14 +36,15 @@ public sealed class CmapTable : FontTable {
 		_glyphMaps = format.ReadFrom( caret );
 		_glyphMapByGlyphIndex = [];
 		foreach (GlyphMap glyphMap in _glyphMaps) {
-			_glyphMapByGlyphIndex.Add( glyphMap.GlyphIndex, glyphMap );
+			if (!_glyphMapByGlyphIndex.ContainsKey( glyphMap.GlyphIndex ))
+				_glyphMapByGlyphIndex.Add( glyphMap.GlyphIndex, glyphMap );
 		}
 	}
 
 	private CharacterMap FindPreferredMap() {
 		Span<SpecificPlatform> platformPreference = [
 			SpecificPlatform.Unicode_2_0_Full,
-			//SpecificPlatform.Unicode_2_0_BMP,
+			SpecificPlatform.Unicode_2_0_BMP,
 			SpecificPlatform.Unicode_Version1_1,
 			SpecificPlatform.Unicode_Version1_0,
 			SpecificPlatform.Unicode_VariationSequences,

@@ -16,7 +16,7 @@ public class Orthographic : MatrixProviderBase<float> {
 		SetChanged();
 	}
 
-	protected override void MatrixAccessed() => this.Matrix = Engine.Matrix.Create4x4.Orthographic( -this._size.X, -this._size.Y, this._size.X, this._size.Y, this._zNear, this._zFar );
+	protected override void MatrixAccessed() => this.Matrix = Engine.Matrix.Create4x4.Orthographic( -this._size.X, this._size.Y, this._size.X, -this._size.Y, this._zNear, this._zFar );
 
 	public Vector2<float> Size {
 		get => this._size;

@@ -80,19 +80,17 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 	/// Attaches a texture to the framebuffer at the specified attachment point.
 	/// </summary>
 	/// <param name="attachment">The attachment point</param>
-	/// <param name="tex">The texture id</param>
+	/// <param name="textureId">The texture id</param>
 	/// <param name="level">The texture level, if the texture has several layers you must choose which layer to write to.</param>
-	public void AttachTexture( FramebufferAttachment attachment, OglTexture texture, int level = 0 ) {
-		if (texture is null)
-			throw new ArgumentNullException( nameof( texture ) );
-		if (texture.TextureID == 0)
-			throw new OpenGlArgumentException( $"{this.FullName} says texture {texture} has not been created yet", nameof( texture ) );
+	public void AttachTexture( FramebufferAttachment attachment, uint textureId, int level = 0 ) {
+		if (textureId == 0)
+			throw new OpenGlArgumentException( $"Texture id must refer to a real texture. Dumbass.", nameof( textureId ) );
 		if (!this._attachments.TryAdd( (int) attachment, OglFramebufferAttachmentType.Texture )) {
 			this.LogWarning( $"Already an attachment at {attachment}." );
 			return;
 		}
 
-		Gl.NamedFramebufferTexture( this.FramebufferId, attachment, texture.TextureID, level );
+		Gl.NamedFramebufferTexture( this.FramebufferId, attachment, textureId, level );
 	}
 
 	/// <summary>

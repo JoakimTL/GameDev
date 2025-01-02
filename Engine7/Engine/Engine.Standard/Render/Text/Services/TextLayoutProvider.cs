@@ -10,9 +10,7 @@ public sealed class TextLayoutProvider( FontMeshingService fontMeshingService, S
 	private readonly FontMeshingService _fontMeshingService = fontMeshingService;
 	private readonly SceneInstanceProvider _sceneInstanceProvider = sceneInstanceProvider;
 
-	public TextLayout CreateLayout( string sceneName, uint layer ) {
-		TextLayout layout = new( _sceneInstanceProvider.RequestSceneInstanceCollection<GlyphVertex, Entity2SceneData, GlyphShaderBundle>( sceneName, layer ), _fontMeshingService );
-		return layout;
-	}
+	public TextLayout CreateLayout( string sceneName, uint layer ) 
+		=> new( _sceneInstanceProvider.RequestSceneInstanceCollection<GlyphVertex, Entity2SceneData, GlyphShaderBundle>( sceneName, layer ), _fontMeshingService );
 }
 

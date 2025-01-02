@@ -28,11 +28,6 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 	private ShaderStorageBlock _testShaderStorage = null!;
 	private DataBlockCollection _dataBlocks = null!;
 	private Scene _scene = null!;
-	private Scene _sceneUi = null!;
-	private OldFont? _font;
-
-	private bool _panning;
-	private Vector2<double> _lastMousePosition;
 
 	public void Initialize() {
 		//_font = _fontService.Get( "JetBrainsMono-Bold" );
@@ -46,9 +41,9 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
-		Edge2<float> ed = new( (0, 0), (0, 1) );
-		int or1 = ed.Orientation( (1, 0) );
-		int or2 = ed.Orientation( (-1, 0) );
+		//Edge2<float> ed = new( (0, 0), (0, 1) );
+		//int or1 = ed.Orientation( (1, 0) );
+		//int or2 = ed.Orientation( (-1, 0) );
 
 		//Collision2Calculation<float> collision2Calculation = new(
 		//	new GJKConvexShape<Vector2<float>, float>( [ (0.1F, .5F) ] ),
@@ -57,7 +52,6 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		//GJK.Intersects( collision2Calculation );
 
 		this._scene = this._sceneService.GetScene( "test" );
-		this._sceneUi = this._sceneService.GetScene( "ui" );
 		//userInputEventService.OnKey += OnKey;
 		//userInputEventService.OnMouseButton += OnMouseButton;
 		//userInputEventService.OnMouseMoved += OnMouseMoved;
@@ -106,9 +100,8 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 	public void DrawToScreen() {
 		Gl.Clear( ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
 		Gl.Enable( EnableCap.DepthTest );
-		//Gl.Enable( EnableCap.CullFace );
+		Gl.Enable( EnableCap.CullFace );
 		this._scene.Render( "default", this._dataBlocks, _ => { }, PrimitiveType.Triangles );
-		this._sceneUi.Render( "default", this._dataBlocks, _ => { }, PrimitiveType.Triangles );
 	}
 
 	protected override bool InternalDispose() {

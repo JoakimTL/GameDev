@@ -3,6 +3,8 @@ using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Providers;
 using Engine.Module.Render.Ogl.Scenes;
+using Engine.Standard.Render.Text.Services;
+using Engine.Standard.Render.Text.Typesetting;
 
 namespace Engine.Standard.Render.UserInterface;
 
@@ -23,4 +25,7 @@ public sealed class UserInterfaceServiceAccess( RenderServiceAccess renderServic
 		where TInstanceData : unmanaged
 		where TShaderBundle : ShaderBundleBase 
 		=> _sceneInstanceProvider.RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( _userInterfaceSceneName, layer );
+
+	public TextLayout RequestTextLayout( uint layer ) 
+		=> renderServiceAccess.Get<TextLayoutProvider>().CreateLayout( _userInterfaceSceneName, layer );
 }
