@@ -16,7 +16,7 @@ internal static class WindowCreationUtility {
 		};
 
 	private static nint CreateWindow( string title, uint width, uint height/*, Window? share = null*/ ) {
-		GlfwUtilities.SetHints( true, 0 );
+		GlfwUtilities.SetHints( true, 0, forwardCompatible: Constants.False );
 		nint winPtr = WindowUtilities.CreateWindow( width, height, title, nint.Zero, /*share?.Pointer ??*/ nint.Zero );
 		return winPtr;
 	}
@@ -29,7 +29,7 @@ internal static class WindowCreationUtility {
 	/// <returns>The window handle.</returns>
 	private static nint CreateFullscreen( string title, nint monitorPtr/*, Window? share = null*/ ) {
 		VideoMode vm = WindowUtilities.GetVideoMode( monitorPtr );
-		GlfwUtilities.SetHints( true, 0 );
+		GlfwUtilities.SetHints( true, 0, forwardCompatible: Constants.False );
 		nint winPtr = WindowUtilities.CreateWindow( (uint) vm.Width, (uint) vm.Height, title, monitorPtr, /*share?.Pointer ??*/ nint.Zero );
 		return winPtr;
 	}
@@ -42,7 +42,7 @@ internal static class WindowCreationUtility {
 	/// <returns>The window handle.</returns>
 	private static nint CreateBorderlessFullscreen( string title, nint monitorPtr/*, Window? share = null*/ ) {
 		VideoMode vm = WindowUtilities.GetVideoMode( monitorPtr );
-		GlfwUtilities.SetHints( true, 0 );
+		GlfwUtilities.SetHints( true, 0, forwardCompatible: Constants.False );
 		nint winPtr = WindowUtilities.CreateWindow( (uint) vm.Width, (uint) vm.Height, title, nint.Zero, /*share?.Pointer ??*/ nint.Zero );
 		WindowUtilities.SetWindowAttribute( winPtr, WindowAttribute.Floating, true );
 		WindowUtilities.SetWindowAttribute( winPtr, WindowAttribute.Decorated, false );

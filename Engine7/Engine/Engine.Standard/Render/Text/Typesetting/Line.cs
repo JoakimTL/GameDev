@@ -12,13 +12,15 @@ public sealed class Line {
 		ScaledWidth = 0;
 
 		for (int i = 0; i < words.Count; i++) {
-			if (ScaledWidth + words[ i ].ScaledWidth > width && _lineWords.Count > 0) {
-				ScaledWidth -= whitespaceAdvance; //Removes last whitespace. There will be no words after the last one, so no whitespace is needed. The whitespace can affect centering and right to left alignment.
+			if (ScaledWidth + words[ i ].ScaledWidth > width && _lineWords.Count > 0) 
 				break;
-			}
 			_lineWords.Add( words[ i ] );
 			ScaledWidth += words[ i ].ScaledWidth + whitespaceAdvance;
+			if (words[ i ].EndCharacter == '\n') 
+				break;
 		}
+
+		ScaledWidth -= whitespaceAdvance; //Removes last whitespace. There will be no words after the last one, so no whitespace is needed. The whitespace can affect centering and right to left alignment.
 
 		return _lineWords.Count;
 	}

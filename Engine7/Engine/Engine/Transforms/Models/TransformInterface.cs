@@ -36,7 +36,11 @@ public class TransformInterface<TScalar, TTranslation, TRotation, TScale> : IMat
 
 	public Matrix4x4<TScalar> InverseMatrix => this._transform.InverseMatrix;
 
-	public event Action<IMatrixProvider<TScalar>> OnMatrixChanged;
+	public event Action<IMatrixProvider<TScalar>>? OnMatrixChanged;
+
+	public void SetData( TransformData<TTranslation, TRotation, TScale> data ) {
+		this._transform.SetData( data );
+	}
 
 	private void ParentChanged( IMatrixProvider<TScalar> obj ) => OnMatrixChanged?.Invoke( obj );
 }

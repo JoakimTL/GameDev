@@ -11,6 +11,8 @@ public sealed class Font {
 		FontName = loader.FontName;
 		UnitsPerEm = loader.HeadTable.UnitsPerEm;
 		LineGap = loader.HheaTable.LineGap;
+		Ascent = loader.HheaTable.Ascent;
+		Descent = loader.HheaTable.Descent;
 		ScalingFactor = 1f / UnitsPerEm;
 		_glyphs = new DefinedGlyph?[ char.MaxValue + 1 ];
 		foreach (IGlyphData glyphData in loader.GlyfTable.GlyphByUnicode.Values)
@@ -19,12 +21,25 @@ public sealed class Font {
 
 	public string FontName { get; }
 	public ushort UnitsPerEm { get; }
-	/// <summary>
-	/// The distance between the baselines of two consecutive lines of text. Use <see cref="ScaledLineGap"/> to get the scaled value in Ems.
-	/// </summary>
 	public short LineGap { get; }
+	public short Ascent { get; }
+	public short Descent { get; }
+	public float GlyphHeight => Ascent - Descent;
 	public float ScalingFactor { get; }
+	public float ScaledAscent => Ascent * ScalingFactor;
+	public float ScaledDescent => Descent * ScalingFactor;
 	public float ScaledLineGap => LineGap * ScalingFactor;
+
+	/// <summary>
+	/// The maximum height of a glyph in the font, scaled to the font's units per em.<br/>
+	/// Found by subtracting the descent from the ascent and then scaling the result.
+	/// </summary>
+	public float ScaledGlyphHeight => GlyphHeight * ScalingFactor;
+	/// <summary>
+	/// The height of a line of text in the font, scaled to the font's units per em.<br/>
+	/// Found by adding the glyph height to the line gap and then scaling the result.
+	/// </summary>
+	public float ScaledLineHeight => (GlyphHeight + LineGap) * ScalingFactor;
 
 	private void CreateDefinedGlyph( IGlyphData glyphData, FontLoader loader ) {
 		IGlyph glyph = CreateGlyph( glyphData, Matrix.Create2x2.Scaling( ScalingFactor, ScalingFactor ), Vector2<float>.Zero );

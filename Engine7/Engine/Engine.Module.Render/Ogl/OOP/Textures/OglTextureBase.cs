@@ -41,7 +41,11 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 		error = Gl.GetError();
 		if (error != ErrorCode.NoError)
 			this.LogWarning( $"Error creating texture 4: {error}" );
+		Thread.Sleep( 50 );
 		this._handle = Gl.GetTextureHandleARB( this.TextureID );
+		error = Gl.GetError();
+		if (error != ErrorCode.NoError)
+			this.LogWarning( $"Error creating texture 5: {error}" );
 		this.Nickname = $"TEX{this.TextureID} {name}";
 	}
 

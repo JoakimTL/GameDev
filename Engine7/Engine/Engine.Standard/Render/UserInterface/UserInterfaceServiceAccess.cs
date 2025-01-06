@@ -15,6 +15,7 @@ public sealed class UserInterfaceServiceAccess( RenderServiceAccess renderServic
 	public CompositeVertexArrayProvider CompositeVertexArrayProvider { get; } = renderServiceAccess.Get<CompositeVertexArrayProvider>();
 	public ShaderBundleProvider ShaderBundleProvider { get; } = renderServiceAccess.Get<ShaderBundleProvider>();
 	public MeshProvider MeshProvider { get; } = renderServiceAccess.Get<MeshProvider>();
+	public WindowProvider WindowProvider { get; } = renderServiceAccess.Get<WindowProvider>();
 	public T Get<T>() where T : IRenderServiceProvider => renderServiceAccess.Get<T>();
 
 	public T RequestSceneInstance<T>( uint layer ) where T : SceneInstanceBase, new() 

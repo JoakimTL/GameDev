@@ -23,6 +23,10 @@ public static partial class AABB {
 		where TVector :
 			unmanaged, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>, ILinearAlgebraVectorOperations<TVector>, IEntrywiseComparisonOperators<TVector>, IVectorIdentities<TVector>, IEntrywiseProductOperations<TVector>
 		=> aabb.Minima.Add( aabb.Maxima.Subtract( aabb.Minima ).DivideEntrywise( TVector.Two ) );
+	public static TVector GetLengths<TVector>( in this AABB<TVector> aabb )
+		where TVector :
+			unmanaged, ILinearAlgebraVectorOperations<TVector>, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>
+		=> aabb.Maxima.Subtract( aabb.Minima );
 
 	///// <param name="aabb">The bounds in which will contain all points on the plane will</param>
 	///// <param name="stepSize">The step size between each point on the grid. This will be the length on a basis matrix formed by the plane rotation. X is right-left and Y is up-down in this basis.</param>

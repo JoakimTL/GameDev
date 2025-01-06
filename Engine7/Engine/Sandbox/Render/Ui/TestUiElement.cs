@@ -9,11 +9,20 @@ using System.Threading.Tasks;
 
 namespace Sandbox.Render.Ui;
 public sealed class TestUiElement : UserInterfaceElementBase {
-	protected override void Initialize( GameStateProvider gameStateProvider ) {
-		AddComponent( new Button( this, "Test!", "calibri", new( 0, 0, .25 ), (1, 1, 1, 1), (0.77, .77, .77, 1), (.5, .5, .5, 1) ) );
+
+	private Button _btnExit = null!;
+
+	protected override void Initialize() {
+		AddComponent( new Button( this, "New Game", "calibrib", new( (-.7, .6), 0, (.25, .1) ), (1, 1, 1, 1), (0.77, .77, .77, 1), (.5, .5, .5, 1) ) );
+		AddComponent( _btnExit = new Button( this, "Exit", "calibrib", new( (-.7, .3), 0, (.25, .1) ), (1, 1, 1, 1), (0.77, .77, .77, 1), (.5, .5, .5, 1) ) );
+		_btnExit.ButtonClicked += OnExitButtonClicked;
 	}
 
-	protected override bool ShouldDisplay( GameStateProvider gameStateProvider ) {
+	private void OnExitButtonClicked() {
+		GameStateProvider.Set( "closegame", true );
+	}
+
+	protected override bool ShouldDisplay() {
 		return true;
 	}
 }

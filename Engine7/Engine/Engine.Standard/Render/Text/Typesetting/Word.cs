@@ -5,6 +5,7 @@ namespace Engine.Standard.Render.Text.Typesetting;
 public sealed class Word {
 
 	public string Characters { get; private set; } = "";
+	public char EndCharacter { get; private set; } = '\0';
 	public float ScaledWidth { get; private set; }
 
 	public int Read( Font font, ReadOnlySpan<char> text, float realScale ) {
@@ -12,8 +13,10 @@ public sealed class Word {
 		int len = 0;
 		for (; len < text.Length; len++) {
 			char c = text[ len ];
-			if (IsWordBreak( c ))
+			if (IsWordBreak( c )) {
+				EndCharacter = c;
 				break;
+			}
 			charsInWord[ len ] = c;
 		}
 

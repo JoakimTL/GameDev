@@ -8,11 +8,13 @@ using Engine.Module.Render.Ogl;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
+using Engine.Standard;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.UserInterface;
 using Sandbox.Logic.World;
 using Sandbox.Render.Ui;
+using System.Net.Http.Headers;
 
 namespace Sandbox;
 
@@ -95,7 +97,12 @@ public sealed class TextJumblerSystem : SystemBase<TextJumblerArchetype> {
 
 internal class SandboxRenderModule : RenderModuleBase {
 
+	public SandboxRenderModule() : base() {
+		OnUpdate += Update;
+	}
+
 	protected override void ContextAdded( Context context ) {
+		context.InstanceProvider.Inject( InstanceProvider.Get<GameStateProvider>(), true );
 		context.InstanceProvider.Catalog.Host<ContextTest>();
 		context.InstanceProvider.Catalog.Host<TestPipeline>();
 		context.InstanceProvider.Catalog.Host<UserInterfaceRenderPipeline>();
@@ -103,6 +110,10 @@ internal class SandboxRenderModule : RenderModuleBase {
 		ui.UserInterfaceStateManager.AddElement<TestUiElement>(); //TODO: Automate. Assume all element types that exists should be included. There are only custom element types.
 	}
 
+	private void Update( double time, double deltaTime ) {
+		if (InstanceProvider.Get<GameStateProvider>().Get<bool>( "closegame" ))
+			InstanceProvider.Get<ContextManagementService>().CloseAll();
+	}
 }
 
 public sealed class ContextTest : DisposableIdentifiable, IInitializable, IUpdateable {

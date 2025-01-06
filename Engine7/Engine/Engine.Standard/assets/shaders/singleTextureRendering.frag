@@ -5,7 +5,6 @@
 layout(location = 0) in PerVertex {
 	vec4 Position;
 	vec2 UV;
-	vec4 Color;
 } IN;
 
 layout(location = 0) out vec4 outColor;
@@ -17,5 +16,5 @@ layout (std140) uniform SingleTextureRenderingBlock
 
 void main(void) {
 	sampler2D diffuseTex = sampler2D(strb.textureId);
-	outColor = texture(diffuseTex, IN.UV) * IN.Color;
+	outColor = texture(diffuseTex, IN.UV);
 }

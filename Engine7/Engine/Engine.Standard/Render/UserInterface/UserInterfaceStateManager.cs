@@ -1,4 +1,5 @@
 ﻿using Engine.Module.Render.Input;
+using Engine.Module.Render.Ogl.OOP;
 
 namespace Engine.Standard.Render.UserInterface;
 public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userInterfaceServiceAccess, GameStateProvider gameStateProvider ) : DisposableIdentifiable, ICapturingUserInputListener, IUpdateable {
@@ -8,11 +9,13 @@ public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userIn
 	private readonly UserInterfaceServiceAccess _userInterfaceServiceAccess = userInterfaceServiceAccess;
 	private readonly GameStateProvider _gameStateProvider = gameStateProvider;
 
+	private Vector2<float> _aspectRatioVector = 0;
+
 	public void AddElement<T>() where T : UserInterfaceElementBase, new() {
 		UserInterfaceElementBase element = new T();
 		this._baseElements.Add( element );
 		this._elementsToInitialize.Enqueue( element );
-		element.SetServiceAccess( _userInterfaceServiceAccess );
+		element.SetServices( _userInterfaceServiceAccess, _gameStateProvider );
 	}
 
 	public bool OnCharacter( KeyboardCharacterEvent @event ) {
@@ -78,10 +81,15 @@ public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userIn
 	public void Update( double time, double deltaTime ) {
 		while (this._elementsToInitialize.Count > 0) {
 			UserInterfaceElementBase element = this._elementsToInitialize.Dequeue();
-			element.Initialize( _gameStateProvider );
+			element.Initialize();
+		}
+		if (_userInterfaceServiceAccess.WindowProvider.Window.AspectRatioVector != _aspectRatioVector) {
+			_aspectRatioVector = _userInterfaceServiceAccess.WindowProvider.Window.AspectRatioVector;
+			foreach (UserInterfaceElementBase element in this._baseElements)
+				element.UiSpaceChanged( _aspectRatioVector.CastSaturating<float, double>() );
 		}
 		foreach (UserInterfaceElementBase element in this._baseElements) {
-			element.UpdateDisplayState( _gameStateProvider );
+			element.UpdateDisplayState();
 			if (element.IsDisplayed)
 				element.Update( time, deltaTime );
 		}

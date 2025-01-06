@@ -19,7 +19,6 @@ public static class PolygonExtensions {
 	public static bool PointInPolygon<TScalar>( this Vector2<TScalar> point, Span<Vector2<TScalar>> orderedPolygonPoints, Vector2<TScalar> rayDirection ) where TScalar : unmanaged, INumber<TScalar> {
 		//https://stackoverflow.com/questions/47004208/should-point-on-the-edge-of-polygon-be-inside-polygon
 		int intersections = 0;
-		int skippedEdges = 0;
 
 		Span<Vector2<TScalar>> postDegeneratePoints = stackalloc Vector2<TScalar>[ orderedPolygonPoints.Length ];
 		Edge2<TScalar> conceptualRay = new( point, point + rayDirection );
@@ -34,10 +33,8 @@ public static class PolygonExtensions {
 		Vector2<TScalar> p2 = postDegeneratePoints[ ^1 ];
 		for (int i = 0; i < postDegeneratePoints.Length; i++) {
 			Vector2<TScalar> p1 = postDegeneratePoints[ i ];
-			if (p1 == p2) {
-				skippedEdges++;
+			if (p1 == p2)
 				continue;
-			}
 			Edge2<TScalar> edge = new( p1, p2 );
 			IntersectionResult intersectionResult = edge.IntersectsRay( point, rayDirection );
 			if (intersectionResult == IntersectionResult.OnVertex) {
@@ -47,9 +44,6 @@ public static class PolygonExtensions {
 			}
 			p2 = p1;
 		}
-
-		if (skippedEdges > 0)
-			Console.WriteLine( $"Skipped {skippedEdges} edges." );
 
 		return (intersections / 2) % 2 == 1;
 	}

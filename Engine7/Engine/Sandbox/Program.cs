@@ -2,7 +2,7 @@
 using Engine.Modularity;
 using Sandbox;
 
-Log.LoggingLevel = Log.Level.VERBOSE;
+Log.LoggingLevel = Log.Level.NORMAL;
 
 Startup.BeginInit()
 	.WithModule<GameLogicModule>()

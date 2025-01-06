@@ -47,4 +47,9 @@ public sealed class ContextManagementService : DisposableIdentifiable, IUpdateab
 			context.Dispose();
 		return true;
 	}
+
+	public void CloseAll() {
+		foreach (Context context in this._contexts)
+			context.Dispose();
+	}
 }

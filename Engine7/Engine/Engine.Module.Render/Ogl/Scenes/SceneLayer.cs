@@ -103,7 +103,7 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 	public int CompareTo( SceneLayer? other ) {
 		if (other is null)
 			return 1;
-		return other.RenderLayer.CompareTo( this.RenderLayer );
+		return this.RenderLayer.CompareTo( other.RenderLayer );
 	}
 
 	protected override bool InternalDispose() {

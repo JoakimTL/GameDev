@@ -30,7 +30,7 @@ public sealed class GlyphReader {
 
 		FontGlyphHeader header = new(caret.Read<short>(), caret.Read<short>(), caret.Read<short>(), caret.Read<short>(), caret.Read<short>() );
 		if (!_cmapTable.GlyphMapByGlyphIndex.TryGetValue( glyphIndex, out GlyphMap glyphMap ))
-			glyphMap = this.LogWarningThenReturn( $"Failed to find glyph mapping for glyph index {glyphIndex}!", new GlyphMap( glyphIndex, 65535 ) );
+			glyphMap = new GlyphMap( glyphIndex, 65535 );
 
 		glyphData = header.NumberOfContours < 0
 			? _compoundGlyphReader.Read( header, glyphMap, caret )

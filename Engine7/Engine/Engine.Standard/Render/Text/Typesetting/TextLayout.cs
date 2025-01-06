@@ -114,10 +114,13 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		MeshedFont meshedFont = _fontMeshingService.Get( _fontName );
 		Fonts.Font font = meshedFont.Font;
 
-		float shortestAxisOfTextArea = Math.Min( _textArea.Maxima.X - _textArea.Minima.X, _textArea.Maxima.Y - _textArea.Minima.Y );
+		float shortestAxisOfTextArea = Math.Min( _textArea.Maxima.X - _textArea.Minima.X, (_textArea.Maxima.Y - _textArea.Minima.Y) / font.ScaledLineHeight );
 		float realScale = shortestAxisOfTextArea * _textScale;
 		float whitespaceSize = (font[ ' ' ]?.Advance ?? 0) * realScale;
-		float lineHeight = font.ScaledLineGap * realScale;
+		float glyphAscent = font.ScaledAscent * realScale;
+		float glyphDescent = font.ScaledDescent * realScale;
+		float lineGap = font.ScaledLineGap * realScale;
+		float lineHeight = glyphAscent - glyphDescent;
 
 		int wordIndex = 0;
 		int index = 0;
@@ -152,7 +155,7 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 				currentLine = new();
 				_lines.Add( currentLine );
 			}
-			int wordsRead = currentLine.Read( _words, whitespaceSize, _textArea.Maxima.X - _textArea.Minima.X );
+			int wordsRead = currentLine.Read( _words[ wordIndex.. ], whitespaceSize, _textArea.Maxima.X - _textArea.Minima.X );
 			if (wordsRead == 0)
 				throw new Exception( "Unable to read in any words. Something is wrong with the text logic." );
 			wordIndex += wordsRead;
@@ -176,23 +179,28 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		int glyphIndex = 0;
 		float width = _textArea.Maxima.X - _textArea.Minima.X;
 		float height = _textArea.Maxima.Y - _textArea.Minima.Y;
+
+		float textHeight = lineHeight * _lines.Count;
+
+		float cursorY = _textArea.Maxima.Y - glyphAscent;
+		if (VerticalAlignment == Alignment.Negative) {
+			cursorY = _textArea.Minima.Y + lineHeight * _lines.Count - glyphAscent;
+		} else if (VerticalAlignment == Alignment.Centered) {
+			float initialOffset = height * 0.5f;
+			float heightOffset = textHeight * 0.5f - glyphAscent;
+
+			cursorY = _textArea.Minima.Y + initialOffset + heightOffset;
+		}
+
 		for (int i = 0; i < _lines.Count; i++) {
-			Vector2<float> cursor = (_textArea.Minima.X, _textArea.Maxima.Y - lineHeight * i);/*= (
-				_textArea.Minima.X + width * .5f + (int) HorizontalAlignment * width * .5f,
-				_textArea.Maxima.Y - lineHeight * i + height * .5f + (int) VerticalAlignment * height * .5f
-			);*/
-
-			if (HorizontalAlignment == Alignment.Positive) {
-				cursor = (_textArea.Maxima.X - _lines[ i ].ScaledWidth, cursor.Y);
-			} else if (HorizontalAlignment == Alignment.Centered) {
-				cursor = (_textArea.Minima.X + (width - _lines[ i ].ScaledWidth) * .5f, cursor.Y);
-			}
-
-			if (VerticalAlignment == Alignment.Negative) {
-				cursor = (cursor.X, _textArea.Minima.Y + lineHeight * _lines.Count - lineHeight * i);
-			} else if (VerticalAlignment == Alignment.Centered) {
-				cursor = (cursor.X, _textArea.Minima.Y + (height - lineHeight * _lines.Count) * .5f);
-			}
+			float cursorX = 0;
+			cursorX = HorizontalAlignment switch {
+				Alignment.Negative => _textArea.Minima.X,
+				Alignment.Positive => _textArea.Maxima.X - _lines[ i ].ScaledWidth,
+				Alignment.Centered => _textArea.Minima.X + (width - _lines[ i ].ScaledWidth) * .5f,
+				_ => throw new ArgumentOutOfRangeException(),
+			};
+			Vector2<float> cursor = (cursorX, cursorY);
 
 			Line line = _lines[ i ];
 
@@ -202,7 +210,7 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 					GlyphMesh? mesh = meshedFont[ c ];
 					instance.SetGlyphMesh( mesh );
 					if (mesh is not null) {
-						Matrix4x4<float> modelMatrix = Matrix.Create4x4.RotationZ( _textRotation ) * Matrix.Create4x4.Scaling( realScale, realScale ) * Matrix.Create4x4.Translation( cursor + (mesh.GlyphDefinition.LeftSideBearing * realScale, 0) );
+						Matrix4x4<float> modelMatrix = Matrix.Create4x4.Scaling( realScale, realScale ) * Matrix.Create4x4.Translation( cursor + (mesh.GlyphDefinition.LeftSideBearing * realScale, 0) ) * Matrix.Create4x4.RotationZ( _textRotation );
 						if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix, (ushort.MaxValue, 0, 0, ushort.MaxValue) ) ))
 							this.LogLine( "Failed to write instance data." );
 						cursor += new Vector2<float>( mesh.GlyphDefinition.Advance, 0 ) * realScale;
@@ -210,6 +218,8 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 				}
 				cursor += new Vector2<float>( whitespaceSize, 0 );
 			}
+
+			cursorY -= lineHeight;
 		}
 
 		////What scale do we work at?

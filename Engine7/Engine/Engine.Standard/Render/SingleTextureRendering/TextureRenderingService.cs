@@ -40,6 +40,9 @@ public sealed class TextureRenderingService( ShaderBundleService shaderBundleSer
 		_uniformBlock.Buffer.Write( 0u, new SingleTextureRenderingBlock( textureHandle ) );
 		_dataBlockCollection.BindShader( shaderPipeline );
 		Gl.DrawElements( PrimitiveType.Triangles, (int) _mesh.ElementCount, DrawElementsType.UnsignedInt, 0 );
+		_dataBlockCollection.UnbindBuffers();
+		OglShaderPipelineBase.Unbind();
+		OglVertexArrayObjectBase.Unbind();
 	}
 
 }

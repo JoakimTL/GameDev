@@ -12,7 +12,6 @@ out gl_PerVertex {
 layout(location = 0) out PerVertex {
 	vec4 Position;
 	vec2 UV;
-	vec4 Color;
 } OUT;
 
 void main(void){
