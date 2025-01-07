@@ -14,7 +14,7 @@ public sealed class Button : UserInterfaceComponentBase {
 	private readonly Collider2Shape _collider;
 	private readonly Collision2Calculation<double> _collision;
 
-	public TexturedBackground Background { get; }
+	public TexturedNineSlicedBackground Background { get; }
 
 	public Label Label { get; }
 
@@ -27,7 +27,7 @@ public sealed class Button : UserInterfaceComponentBase {
 		_collider.SetBaseVertices( [ (-1, -1), (1, -1), (1, 1), (-1, 1) ] );
 		_collider.SetTransform( TransformInterface );
 		_collision = new Collision2Calculation<double>( _collider, element.UserInterfaceServiceAccess.Get<MouseColliderProvider>().ColliderNDCA );
-		Background = new TexturedBackground( this, element.UserInterfaceServiceAccess.Textures.Get("sampleTexture") );
+		Background = new TexturedNineSlicedBackground( this, element.UserInterfaceServiceAccess.Textures.Get("sampleTexture") );
 		Label = new Label( this ) {
 			Text = text,
 			FontName = fontName,

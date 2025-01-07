@@ -2,9 +2,9 @@
 using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Entities.Components.Rendering;
-using Engine.Standard.Render.Entities.Behaviours.Shaders;
 using Engine.Standard.Render.Meshing;
 using Engine.Standard.Render.Meshing.Services;
+using Engine.Standard.Render.Shaders;
 
 namespace Engine.Standard.Render.Entities.Behaviours;
 
@@ -23,7 +23,7 @@ public sealed class RenderedPrimitive2Behaviour : SynchronizedRenderBehaviourBas
 		_primitiveMeshProvider = this.RenderEntity.ServiceAccess.Get<PrimitiveMesh2Provider>();
 		_sceneInstance = this.RenderEntity.RequestSceneInstance<SceneInstance<Entity2SceneData>>( "test", 0 );
 		_sceneInstance.SetVertexArrayObject( this.RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2SceneData>() );
-		_sceneInstance.SetShaderBundle( this.RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<Primitive2FlatShaderBundle>() );
+		_sceneInstance.SetShaderBundle( this.RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<FlatShade2ShaderBundle>() );
 		_incomingPrimitive = Archetype.RenderedPrimitive2Component.Primitive;
 		ForceSynchronization();
 	}
