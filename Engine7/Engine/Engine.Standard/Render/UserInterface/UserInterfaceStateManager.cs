@@ -1,5 +1,4 @@
 ﻿using Engine.Module.Render.Input;
-using Engine.Module.Render.Ogl.OOP;
 
 namespace Engine.Standard.Render.UserInterface;
 public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userInterfaceServiceAccess, GameStateProvider gameStateProvider ) : DisposableIdentifiable, ICapturingUserInputListener, IUpdateable {

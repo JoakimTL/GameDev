@@ -1,10 +1,8 @@
-﻿using Engine.Logging;
-using Engine.Modularity;
+﻿using Engine.Modularity;
 using Engine.Module.Render.Domain;
 using Engine.Module.Render.Ogl;
 using Engine.Module.Render.Ogl.Utilities;
 using OpenGL;
-using System.Runtime.InteropServices;
 
 namespace Engine.Module.Render;
 

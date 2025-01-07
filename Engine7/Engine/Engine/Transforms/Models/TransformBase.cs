@@ -37,7 +37,7 @@ public abstract class TransformBase<TScalar, TTranslation, TRotation, TScale> : 
 	public TransformBase<TScalar, TTranslation, TRotation, TScale>? Parent
 		=> this._parent;
 
-	/// <param name="adjustForFrameOfReference">If true the transform will retian it's current world space location while still being a child of the new parent.</param>
+	/// <param name="adjustForFrameOfReference">If true the transform will retain it's current world space location while still being a child of the new parent.</param>
 	public void SetParent( TransformBase<TScalar, TTranslation, TRotation, TScale>? parent, bool adjustForFrameOfReference ) {
 		if (ReferenceEquals( this._parent, parent ) && adjustForFrameOfReference == this._adjustedForFrameOfReference)
 			return;

@@ -1,6 +1,9 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Ogl.OOP;
+using Engine.Module.Render.Ogl.OOP.Textures;
+using ImageMagick;
 using OpenGL;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Module.Render.Ogl.Services;
 
@@ -108,5 +111,61 @@ public sealed class FramebufferStateService( ViewportStateService viewport ) : I
 		//DrawBuffer( DrawBufferMode.Back );
 		UnbindFramebuffer( FramebufferTarget.ReadFramebuffer );
 	}
+
+}
+
+
+public sealed class TextureAssetService {
+	private readonly Dictionary<string, OglTexture> _textures = [];
+
+	public event Action? TextureAdded;
+	public event Action? TextureRemoved;
+
+	public OglTexture Get( string path ) {
+		if (_textures.TryGetValue( path, out OglTexture? texture ))
+			return texture;
+		if (!File.Exists( path ))
+			throw new FileNotFoundException( "Texture file not found", path );
+		if (Path.GetExtension( path ) != ".png")
+			throw new ArgumentException( "Texture file must be a PNG file", nameof( path ) );
+
+		byte[]? pixelData;
+		Vector2<int> imageDimensions;
+		using (MagickImage image = new( path )) {
+			image.Alpha( AlphaOption.Set );
+
+			uint bitDepth = image.Depth;
+
+			if (bitDepth != 8)
+				throw new InvalidOperationException( $"Unsupported bit depth: {bitDepth}. Only 8-bit and 16-bit are supported." );
+
+			image.Format = MagickFormat.Rgba;
+
+			imageDimensions = ((int) image.Width, (int) image.Height);
+			pixelData = image.GetPixels().ToByteArray( PixelMapping.RGBA );
+		}
+
+		if (pixelData is null)
+			throw new InvalidOperationException( "Failed to load image data" );
+
+		texture = new OglTexture( path, TextureTarget.Texture2d, imageDimensions, InternalFormat.Rgba8 );
+		unsafe {
+			fixed (byte* pixelDataPtr = pixelData) {
+				texture.SetPixels( PixelFormat.Rgba, PixelType.UnsignedByte, (nint) pixelDataPtr );
+			}
+		}
+		_textures.Add( path, texture );
+		return texture;
+	}
+}
+
+//TODO: REMOVE and replace with a better system for asset handling
+public sealed class TextureAssetProvider( TextureAssetService textureAssetService ) : IRenderServiceProvider {
+	private readonly TextureAssetService _textureAssetService = textureAssetService;
+
+	public OglTexture Get( string name ) => _textureAssetService.Get( Path.Combine( "assets\\textures", $"{name}.png" ));
+}
+
+public sealed class TextureShaderStorageService {
 
 }

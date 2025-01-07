@@ -7,23 +7,22 @@ using Engine.Module.Render.Input;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
-using Engine.Shapes;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Render;
 using Engine.Standard.Render.Meshing;
-using Engine.Standard.Render.Text.Fonts;
 using Engine.Standard.Render.Text.Services;
 using OpenGL;
 using System.Numerics;
 
 namespace Sandbox;
 
-public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, OldFontService fontService, UserInputEventService userInputEventService, CameraService cameraService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
+public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, OldFontService fontService, UserInputEventService userInputEventService, CameraService cameraService, TextureAssetService textureAssetService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
 	private readonly WindowService _windowService = windowService;
 	private readonly DataBlockService _dataBlockService = dataBlockService;
 	private readonly SceneService _sceneService = sceneService;
 	private readonly OldFontService _fontService = fontService;
 	private readonly CameraService _cameraService = cameraService;
+	private readonly TextureAssetService _textureAssetService = textureAssetService;
 	private UniformBlock _testUniforms = null!;
 	private ShaderStorageBlock _testShaderStorage = null!;
 	private DataBlockCollection _dataBlocks = null!;
@@ -41,6 +40,8 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 
+		_textureAssetService.Get( "assets\\textures\\sampleTexture.png" );
+		
 		//Edge2<float> ed = new( (0, 0), (0, 1) );
 		//int or1 = ed.Orientation( (1, 0) );
 		//int or2 = ed.Orientation( (-1, 0) );

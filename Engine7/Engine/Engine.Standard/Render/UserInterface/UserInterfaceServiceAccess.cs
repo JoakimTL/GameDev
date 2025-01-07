@@ -3,6 +3,7 @@ using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Providers;
 using Engine.Module.Render.Ogl.Scenes;
+using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Render.Text.Services;
 using Engine.Standard.Render.Text.Typesetting;
 
@@ -16,6 +17,7 @@ public sealed class UserInterfaceServiceAccess( RenderServiceAccess renderServic
 	public ShaderBundleProvider ShaderBundleProvider { get; } = renderServiceAccess.Get<ShaderBundleProvider>();
 	public MeshProvider MeshProvider { get; } = renderServiceAccess.Get<MeshProvider>();
 	public WindowProvider WindowProvider { get; } = renderServiceAccess.Get<WindowProvider>();
+	public TextureAssetProvider Textures { get; } = renderServiceAccess.Get<TextureAssetProvider>();
 	public T Get<T>() where T : IRenderServiceProvider => renderServiceAccess.Get<T>();
 
 	public T RequestSceneInstance<T>( uint layer ) where T : SceneInstanceBase, new() 

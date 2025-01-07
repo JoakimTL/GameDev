@@ -3,6 +3,7 @@
 namespace Engine.Standard.Render.UserInterface;
 
 public sealed class UserInterfaceComponentPlacement {
+
 	private readonly UserInterfaceComponentBase _component;
 
 	public TransformData<Vector2<double>, double, Vector2<double>> Transform { get; private set; }
@@ -19,9 +20,7 @@ public sealed class UserInterfaceComponentPlacement {
 		Changed = true;
 	}
 
-	private void OnComponentPlacementBoundsChanged() {
-		Changed = true;
-	}
+	private void OnComponentPlacementBoundsChanged() => Changed = true;
 
 	public void SetTransform( TransformData<Vector2<double>, double, Vector2<double>> transform ) {
 		Transform = transform;
@@ -38,9 +37,17 @@ public sealed class UserInterfaceComponentPlacement {
 		Changed = true;
 	}
 
-	public bool Update() {
+	public void Set( TransformData<Vector2<double>, double, Vector2<double>> transform, Alignment horizontalAlignment, Alignment verticalAlignment ) {
+		Transform = transform;
+		HorizontalAlignment = horizontalAlignment;
+		VerticalAlignment = verticalAlignment;
+		Changed = true;
+	}
+
+	public void Update() {
 		if (!Changed)
-			return false;
+			return;
+		Changed = false;
 		Vector2<double> placementCenter = _component.PlacementBounds.GetCenter();
 		Vector2<double> placementLengths = _component.PlacementBounds.GetLengths() * 0.5;
 		Vector2<double> newTranslation = placementCenter + placementLengths.MultiplyEntrywise( ((int) HorizontalAlignment, (int) VerticalAlignment) ) + Transform.Translation;
@@ -48,9 +55,5 @@ public sealed class UserInterfaceComponentPlacement {
 		TransformData<Vector2<double>, double, Vector2<double>> newTransform = new( newTranslation, Transform.Rotation, Transform.Scale );
 
 		_component.TransformInterface.SetData( newTransform );
-		Changed = false;
-		return true;
 	}
-
-
 }

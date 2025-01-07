@@ -66,6 +66,8 @@ public sealed class UserInterfaceRenderPipeline : DisposableIdentifiable, IIniti
 	}
 
 	private void OnWindowResized( IResizableSurface<int, float> surface ) {
+		if (surface.Size == 0)
+			return;
 		_framebuffer.DetachTexture( FramebufferAttachment.ColorAttachment0 );
 		_framebuffer.Resize( surface.Size );
 		_copyFramebuffer.DetachTexture( FramebufferAttachment.ColorAttachment0 );

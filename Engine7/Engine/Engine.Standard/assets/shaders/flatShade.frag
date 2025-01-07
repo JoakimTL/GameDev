@@ -6,6 +6,7 @@ layout(location = 0) in PerVertex {
 	vec4 Position;
 	vec2 UV;
 	vec4 Color;
+	flat uvec2 TextureId;
 } IN;
 
 layout(location = 0) out vec4 outColor;

@@ -12,6 +12,7 @@
     <None Remove="assets\fonts\calibri.ttf" />
     <None Remove="assets\fonts\calibrib.ttf" />
     <None Remove="assets\textures\earthHeightmapLow.png" />
+    <None Remove="assets\textures\sampleTexture.png" />
     <None Remove="test.frag" />
     <None Remove="test.vert" />
   </ItemGroup>
@@ -44,11 +45,9 @@
     <Content Include="assets\textures\earthHeightmapLow.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.2.0" />
-    <PackageReference Include="Magick.NET.Core" Version="14.2.0" />
+    <Content Include="assets\textures\sampleTexture.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,4 @@
-﻿using Engine.Logging;
-
-namespace Engine.Standard.Render.Text.Fonts.Tables.Glyf;
+﻿namespace Engine.Standard.Render.Text.Fonts.Tables.Glyf;
 
 public sealed class GlyphReader {
 	private readonly FontTableHeader _glyfTableHeader;

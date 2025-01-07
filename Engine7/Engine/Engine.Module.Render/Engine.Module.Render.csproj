@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.4.0" />
     <PackageReference Include="OpenGL.Net" Version="0.8.4" />
   </ItemGroup>
 

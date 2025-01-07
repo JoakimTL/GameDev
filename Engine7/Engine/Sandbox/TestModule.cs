@@ -14,7 +14,6 @@ using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.UserInterface;
 using Sandbox.Logic.World;
 using Sandbox.Render.Ui;
-using System.Net.Http.Headers;
 
 namespace Sandbox;
 

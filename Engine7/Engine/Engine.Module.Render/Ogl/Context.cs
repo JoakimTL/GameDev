@@ -1,11 +1,9 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Domain;
-using Engine.Module.Render.Glfw.Enums;
 using Engine.Module.Render.Ogl.OOP;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using OpenGL;
-using System.Runtime.InteropServices;
 
 namespace Engine.Module.Render.Ogl;
 public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializable {

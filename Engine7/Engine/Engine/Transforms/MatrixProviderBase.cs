@@ -20,14 +20,18 @@ public abstract class MatrixProviderBase<TScalar> : Identifiable, IMatrixProvide
 		OnMatrixChanged?.Invoke( this );
 	}
 
+	private void Update() {
+		if (!this._changed)
+			return;
+		MatrixAccessed();
+		this._changed = false;
+	}
+
 	protected abstract void MatrixAccessed();
 
 	public Matrix4x4<TScalar> Matrix {
 		get {
-			if (this._changed) {
-				MatrixAccessed();
-				this._changed = false;
-			}
+			Update();
 			return this._matrix;
 		}
 		protected set {
@@ -41,10 +45,7 @@ public abstract class MatrixProviderBase<TScalar> : Identifiable, IMatrixProvide
 
 	public Matrix4x4<TScalar> InverseMatrix {
 		get {
-			if (this._changed) {
-				MatrixAccessed();
-				this._changed = false;
-			}
+			Update();
 			return this._inverseMatrix;
 		}
 	}

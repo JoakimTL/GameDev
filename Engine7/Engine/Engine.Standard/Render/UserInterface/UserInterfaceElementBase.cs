@@ -2,7 +2,7 @@
 
 namespace Engine.Standard.Render.UserInterface;
 
-public abstract class UserInterfaceElementBase : DisposableIdentifiable {
+public abstract class UserInterfaceElementBase(uint baseLayer = 0) : DisposableIdentifiable {
 
 	private readonly List<UserInterfaceComponentBase> _components = [];
 
@@ -10,6 +10,8 @@ public abstract class UserInterfaceElementBase : DisposableIdentifiable {
 	public GameStateProvider GameStateProvider { get; private set; } = null!;
 
 	public bool IsDisplayed { get; private set; }
+
+	public uint BaseLayer { get; } = baseLayer;
 
 	public void UpdateDisplayState()
 		=> this.IsDisplayed = this.ShouldDisplay();

@@ -46,7 +46,7 @@ public abstract class ConvexShapeBase<TVector, TScalar>
 			_transform.OnMatrixChanged += OnMatrixChanged;
 	}
 
-	private void OnMatrixChanged( IMatrixProvider<TScalar> provider ) => _hasChanged = false;
+	private void OnMatrixChanged( IMatrixProvider<TScalar> provider ) => _hasChanged = true;
 
 	public bool HasTransformer => _transform is not null;
 

@@ -20,9 +20,10 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 	private string _text = string.Empty;
 	private AABB<Vector2<float>> _textArea = AABB.Create<Vector2<float>>( [ -1, 1 ] );
 	private float _textRotation = 0;
-	private float _textScale = 0.1f; //Maybe get pixel scaling?
+	private float _textScale = 1f; //Maybe get pixel scaling?
 	private Alignment _horizontalAlignment = Alignment.Negative;
 	private Alignment _verticalAlignment = Alignment.Positive;
+	private Vector4<double> _color = (1, 1, 1, 1);
 	private readonly List<Word> _words = [];
 	private readonly List<Line> _lines = [];
 
@@ -92,6 +93,16 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 			if (_verticalAlignment == value)
 				return;
 			_verticalAlignment = value;
+			_needsUpdate = true;
+		}
+	}
+
+	public Vector4<double> Color {
+		get => _color;
+		set {
+			if (_color == value)
+				return;
+			_color = value;
 			_needsUpdate = true;
 		}
 	}
@@ -185,19 +196,21 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		float cursorY = _textArea.Maxima.Y - glyphAscent;
 		if (VerticalAlignment == Alignment.Negative) {
 			cursorY = _textArea.Minima.Y + lineHeight * _lines.Count - glyphAscent;
-		} else if (VerticalAlignment == Alignment.Centered) {
+		} else if (VerticalAlignment == Alignment.Center) {
 			float initialOffset = height * 0.5f;
 			float heightOffset = textHeight * 0.5f - glyphAscent;
 
 			cursorY = _textArea.Minima.Y + initialOffset + heightOffset;
 		}
 
+		Vector4<ushort> color = (_color * ushort.MaxValue).Clamp<Vector4<double>, double>( 0, ushort.MaxValue ).CastSaturating<double, ushort>();
+
 		for (int i = 0; i < _lines.Count; i++) {
 			float cursorX = 0;
 			cursorX = HorizontalAlignment switch {
 				Alignment.Negative => _textArea.Minima.X,
 				Alignment.Positive => _textArea.Maxima.X - _lines[ i ].ScaledWidth,
-				Alignment.Centered => _textArea.Minima.X + (width - _lines[ i ].ScaledWidth) * .5f,
+				Alignment.Center => _textArea.Minima.X + (width - _lines[ i ].ScaledWidth) * .5f,
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 			Vector2<float> cursor = (cursorX, cursorY);
@@ -211,7 +224,7 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 					instance.SetGlyphMesh( mesh );
 					if (mesh is not null) {
 						Matrix4x4<float> modelMatrix = Matrix.Create4x4.Scaling( realScale, realScale ) * Matrix.Create4x4.Translation( cursor + (mesh.GlyphDefinition.LeftSideBearing * realScale, 0) ) * Matrix.Create4x4.RotationZ( _textRotation );
-						if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix, (ushort.MaxValue, 0, 0, ushort.MaxValue) ) ))
+						if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix, color ) ))
 							this.LogLine( "Failed to write instance data." );
 						cursor += new Vector2<float>( mesh.GlyphDefinition.Advance, 0 ) * realScale;
 					}

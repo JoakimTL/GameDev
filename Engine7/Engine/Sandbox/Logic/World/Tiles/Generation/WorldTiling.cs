@@ -6,7 +6,7 @@ namespace Sandbox.Logic.World.Tiles.Generation;
 
 public sealed class WorldTiling {
 
-	public const int Levels = 7;
+	public const int Levels = 8;
 	public const int RootLevel = 4;
 
 	private readonly Icosphere _worldIcosphere;
@@ -170,7 +170,7 @@ public sealed class WorldTiling {
 		Vector2<float> imagePolar = normalizedPolar.MultiplyEntrywise( (width - 1, height - 1) );
 		int x = (width - 1) - (int) imagePolar.X;
 		int y = (height - 1) - (int) imagePolar.Y;
-		return heights[ x + y * width ] * 2 - 0.05f;
+		return heights[ x + y * width ] * 2 - 0.01f;
 	}
 
 	private bool NeighbourFound( CompositeTile rootTile, List<CompositeTile> tilesToGenerateFor ) {
