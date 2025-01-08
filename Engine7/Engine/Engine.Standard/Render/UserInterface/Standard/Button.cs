@@ -27,7 +27,7 @@ public sealed class Button : UserInterfaceComponentBase {
 		_collider.SetBaseVertices( [ (-1, -1), (1, -1), (1, 1), (-1, 1) ] );
 		_collider.SetTransform( TransformInterface );
 		_collision = new Collision2Calculation<double>( _collider, element.UserInterfaceServiceAccess.Get<MouseColliderProvider>().ColliderNDCA );
-		Background = new TexturedNineSlicedBackground( this, element.UserInterfaceServiceAccess.Textures.Get("sampleTexture") );
+		Background = new TexturedNineSlicedBackground( this, element.UserInterfaceServiceAccess.Textures.Get("test") );
 		Label = new Label( this ) {
 			Text = text,
 			FontName = fontName,

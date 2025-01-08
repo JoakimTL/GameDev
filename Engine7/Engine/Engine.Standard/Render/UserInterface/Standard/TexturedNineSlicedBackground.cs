@@ -30,7 +30,7 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 		}
 	}
 
-	private float _edgeWidth = 0.1f;
+	private float _edgeWidth = .33f;
 	public float EdgeWidth {
 		get => _edgeWidth;
 		set {
@@ -75,7 +75,7 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 		for (int i = 0; i < result.Length; i++) {
 			SceneInstance<Entity2SlicedTexturedSceneData> sceneInstance = Element.UserInterfaceServiceAccess.RequestSceneInstance<SceneInstance<Entity2SlicedTexturedSceneData>>( RenderLayer );
 			sceneInstance.SetVertexArrayObject( Element.UserInterfaceServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2SlicedTexturedSceneData>() );
-			sceneInstance.SetShaderBundle( Element.UserInterfaceServiceAccess.ShaderBundleProvider.GetShaderBundle<TexturedShade2ShaderBundle>() );
+			sceneInstance.SetShaderBundle( Element.UserInterfaceServiceAccess.ShaderBundleProvider.GetShaderBundle<SlicedTexturedShade2ShaderBundle>() );
 			sceneInstance.SetMesh( Element.UserInterfaceServiceAccess.Get<PrimitiveMesh2Provider>().Get( Meshing.Primitive2.Rectangle ) );
 			result[ i ] = sceneInstance;
 		}
@@ -99,32 +99,65 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 		Span<Vector2<float>> sliceUvOffsets = stackalloc Vector2<float>[ _sceneInstances.Length ];
 		Span<Vector2<float>> sliceUvDimensions = stackalloc Vector2<float>[ _sceneInstances.Length ];
 
-		float centerDimensions = 1 - EdgeWidth * 2;
+		float centerUvLength = 1 - EdgeWidth * 2;
 
-		sliceUvOffsets[0] = (0, 0);
+		sliceUvOffsets[ 0 ] = (0, 0);
 		sliceUvDimensions[ 0 ] = (EdgeWidth, EdgeWidth);
 		sliceUvOffsets[ 1 ] = (EdgeWidth, 0);
-		sliceUvDimensions[ 1 ] = (centerDimensions, EdgeWidth);
+		sliceUvDimensions[ 1 ] = (centerUvLength, EdgeWidth);
 		sliceUvOffsets[ 2 ] = (1 - EdgeWidth, 0);
 		sliceUvDimensions[ 2 ] = (EdgeWidth, EdgeWidth);
 		sliceUvOffsets[ 3 ] = (0, EdgeWidth);
-		sliceUvDimensions[ 3 ] = (EdgeWidth, centerDimensions);
+		sliceUvDimensions[ 3 ] = (EdgeWidth, centerUvLength);
 		sliceUvOffsets[ 4 ] = (EdgeWidth, EdgeWidth);
-		sliceUvDimensions[ 4 ] = (centerDimensions, centerDimensions);
+		sliceUvDimensions[ 4 ] = (centerUvLength, centerUvLength);
 		sliceUvOffsets[ 5 ] = (1 - EdgeWidth, EdgeWidth);
-		sliceUvDimensions[ 5 ] = (EdgeWidth, centerDimensions);
+		sliceUvDimensions[ 5 ] = (EdgeWidth, centerUvLength);
 		sliceUvOffsets[ 6 ] = (0, 1 - EdgeWidth);
 		sliceUvDimensions[ 6 ] = (EdgeWidth, EdgeWidth);
 		sliceUvOffsets[ 7 ] = (EdgeWidth, 1 - EdgeWidth);
-		sliceUvDimensions[ 7 ] = (centerDimensions, EdgeWidth);
+		sliceUvDimensions[ 7 ] = (centerUvLength, EdgeWidth);
 		sliceUvOffsets[ 8 ] = (1 - EdgeWidth, 1 - EdgeWidth);
 		sliceUvDimensions[ 8 ] = (EdgeWidth, EdgeWidth);
 
+		var scale = TransformInterface.GlobalScale.CastSaturating<double, float>();
+		float lowestScale = scale.X < scale.Y ? scale.X : scale.Y;
+
+		Span<Vector2<float>> sliceOffsets = stackalloc Vector2<float>[ _sceneInstances.Length ];
+		Span<Vector2<float>> sliceDimensions = stackalloc Vector2<float>[ _sceneInstances.Length ];
+
+		float scaledEdge = lowestScale * EdgeWidth * EdgeScale;
+		float scaledHalfEdge = scaledEdge * .5f;
+		Vector2<float> scaledCenterUvLength = (scale - scaledEdge);
+
+		sliceOffsets[ 0 ] = (-scale.X, -scale.Y);
+		sliceDimensions[ 0 ] = (scaledHalfEdge, scaledHalfEdge);
+		sliceOffsets[ 1 ] = (scaledEdge - scale.X, -scale.Y);
+		sliceDimensions[ 1 ] = (scaledCenterUvLength.X, scaledHalfEdge);
+		sliceOffsets[ 2 ] = (scale.X - scaledEdge, -scale.Y);
+		sliceDimensions[ 2 ] = (scaledHalfEdge, scaledHalfEdge);
+		sliceOffsets[ 3 ] = (-scale.X, scaledEdge - scale.Y);
+		sliceDimensions[ 3 ] = (scaledHalfEdge, scaledCenterUvLength.Y);
+		sliceOffsets[ 4 ] = (scaledEdge - scale.X, scaledEdge - scale.Y);
+		sliceDimensions[ 4 ] = (scaledCenterUvLength.X, scaledCenterUvLength.Y);
+		sliceOffsets[ 5 ] = (scale.X - scaledEdge, scaledEdge - scale.Y);
+		sliceDimensions[ 5 ] = (scaledHalfEdge, scaledCenterUvLength.Y);
+		sliceOffsets[ 6 ] = (-scale.X, scale.Y - scaledEdge);
+		sliceDimensions[ 6 ] = (scaledHalfEdge, scaledHalfEdge);
+		sliceOffsets[ 7 ] = (scaledEdge - scale.X, scale.Y - scaledEdge);
+		sliceDimensions[ 7 ] = (scaledCenterUvLength.X, scaledHalfEdge);
+		sliceOffsets[ 8 ] = (scale.X - scaledEdge, scale.Y - scaledEdge);
+		sliceDimensions[ 8 ] = (scaledHalfEdge, scaledHalfEdge);
+
+		Matrix4x4<float> transform = Matrix.Create4x4.RotationZ( (float) TransformInterface.GlobalRotation ) * Matrix.Create4x4.Translation( TransformInterface.GlobalTranslation.CastSaturating<double, float>() );
+
 		for (int i = 0; i < _sceneInstances.Length; i++) {
 			//Fix scaling issue. Use transform but don't use the transform matrix?
-			Matrix4x4<float> sliceMatrix = Matrix.Create4x4.Scaling( sliceUvDimensions[ i ] ) * Matrix.Create4x4.Translation( (sliceUvOffsets[ i ] + sliceUvDimensions[ i ] * 0.5f) * 2 - 1 );
+			Matrix4x4<float> sliceMatrix = Matrix.Create4x4.Scaling( sliceDimensions[ i ] ) * Matrix.Create4x4.Translation( sliceOffsets[ i ] + sliceDimensions[ i ] );
 
-			_sceneInstances[ i ].Write( new Entity2SlicedTexturedSceneData( sliceMatrix * TransformInterface.Matrix.CastSaturating<double, float>(), color, _reference.GetHandle(), sliceUvOffsets[ i ], sliceUvDimensions[ i ] ) );
+			Matrix4x4<float> transformedSliceMatrix = sliceMatrix * transform;
+
+			_sceneInstances[ i ].Write( new Entity2SlicedTexturedSceneData( transformedSliceMatrix, color, _reference.GetHandle(), sliceUvOffsets[ i ], sliceUvDimensions[ i ] ) );
 		}
 	}
 

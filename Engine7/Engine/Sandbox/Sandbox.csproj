@@ -13,6 +13,7 @@
     <None Remove="assets\fonts\calibrib.ttf" />
     <None Remove="assets\textures\earthHeightmapLow.png" />
     <None Remove="assets\textures\sampleTexture.png" />
+    <None Remove="assets\textures\test.png" />
     <None Remove="test.frag" />
     <None Remove="test.vert" />
   </ItemGroup>
@@ -46,6 +47,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\sampleTexture.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\test.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
