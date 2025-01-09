@@ -45,7 +45,7 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 		}
 	}
 
-	private float _edgeScale = 1;
+	private float _edgeScale = 2;
 	public float EdgeScale {
 		get => _edgeScale;
 		set {
@@ -162,4 +162,14 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 	}
 
 	protected override bool InternalDispose() => true;
+
+	protected internal override void DoHide() {
+		foreach (SceneInstance<Entity2SlicedTexturedSceneData> sceneInstance in _sceneInstances)
+			sceneInstance.SetActive( false );
+	}
+
+	protected internal override void DoShow() {
+		foreach (SceneInstance<Entity2SlicedTexturedSceneData> sceneInstance in _sceneInstances)
+			sceneInstance.SetActive( true );
+	}
 }

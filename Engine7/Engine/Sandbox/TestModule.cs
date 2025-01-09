@@ -106,7 +106,8 @@ internal class SandboxRenderModule : RenderModuleBase {
 		context.InstanceProvider.Catalog.Host<TestPipeline>();
 		context.InstanceProvider.Catalog.Host<UserInterfaceRenderPipeline>();
 		var ui = context.InstanceProvider.Get<UserInterfaceService>();
-		ui.UserInterfaceStateManager.AddElement<TestUiElement>(); //TODO: Automate. Assume all element types that exists should be included. There are only custom element types.
+		ui.UserInterfaceStateManager.AddElement<StartMenu>(); //TODO: Automate. Assume all element types that exists should be included. There are only custom element types.
+		ui.UserInterfaceStateManager.AddElement<TileDataDisplay>();
 	}
 
 	private void Update( double time, double deltaTime ) {

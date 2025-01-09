@@ -1,6 +1,8 @@
-﻿namespace Engine.Standard;
+﻿using Engine.Module.Render;
 
-public sealed class GameStateProvider {
+namespace Engine.Standard;
+
+public sealed class GameStateProvider : IRenderServiceProvider {
 
 	public delegate void GameStateChangeHandler( string key, object? value );
 

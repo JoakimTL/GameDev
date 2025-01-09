@@ -114,5 +114,20 @@ public abstract class UserInterfaceComponentBase : DisposableIdentifiable {
 
 	protected abstract void OnPlacementChanged();
 
+	internal void Hide() {
+		foreach (UserInterfaceComponentBase child in _children)
+			child.Hide();
+		DoHide();
+	}
+
+	internal void Show() {
+		foreach (UserInterfaceComponentBase child in _children)
+			child.Show();
+		DoShow();
+	}
+
+	internal protected abstract void DoHide();
+	internal protected abstract void DoShow();
+
 	protected abstract void OnUpdate( double time, double deltaTime );
 }

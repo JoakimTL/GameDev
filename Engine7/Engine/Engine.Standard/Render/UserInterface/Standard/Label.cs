@@ -55,4 +55,12 @@ public sealed class Label : UserInterfaceComponentBase {
 	}
 
 	protected override bool InternalDispose() => true;
+
+	protected internal override void DoHide() {
+		_textLayout.Hide();
+	}
+
+	protected internal override void DoShow() {
+		_textLayout.Show();
+	}
 }

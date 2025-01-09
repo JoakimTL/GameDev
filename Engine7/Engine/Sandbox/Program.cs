@@ -19,6 +19,7 @@ Startup.BeginInit()
 //TODO: Add text rendering (soon done?)
 //TODO: Add GUI?
 //TODO: Add render pipeline
+//TODO: Render lines on separate FBO, fix 3d render pipeline
 //TODO: Add framebuffers
 //TODO: Add grid for tiles near mouse pointer
 

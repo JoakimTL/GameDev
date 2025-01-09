@@ -109,6 +109,16 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 
 	private bool _needsUpdate;
 
+	public void Show() {
+		foreach (GlyphInstance instance in _glyphInstances)
+			instance.SetActive(true);
+	}
+
+	public void Hide() {
+		foreach (GlyphInstance instance in _glyphInstances)
+			instance.SetActive(false);
+	}
+
 	public void Update( double time, double deltaTime ) {
 		if (!_needsUpdate)
 			return;

@@ -51,4 +51,12 @@ public sealed class FlatBackground : UserInterfaceComponentBase {
 	}
 
 	protected override bool InternalDispose() => true;
+
+	protected internal override void DoHide() {
+		_sceneInstance.SetActive( false );
+	}
+
+	protected internal override void DoShow() {
+		_sceneInstance.SetActive( true );
+	}
 }

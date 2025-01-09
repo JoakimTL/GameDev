@@ -1,5 +1,7 @@
 ﻿using Engine.Module.Render.Entities;
+using Engine.Module.Render.Glfw.Enums;
 using Engine.Module.Render.Input;
+using Engine.Standard;
 using Engine.Standard.Render.Input.Services;
 using Engine.Transforms;
 using Sandbox.Logic.World;
@@ -13,10 +15,13 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 	private Vector3<float> _pointerDirection;
 	private bool _changed = true;
 
+	private Tile? _selectedTile;
+
 	//private DebugInstance _debugInstance;
 
 	protected override void OnRenderEntitySet() {
 		RenderEntity.ServiceAccess.Input.OnMouseMoved += OnMouseMoved;
+		RenderEntity.ServiceAccess.Input.OnMouseButton += OnMouseButton;
 		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged += OnCameraMatrixChanged;
 		//_debugInstance = RenderEntity.RequestSceneInstance<DebugInstance>( "test", 0 );
 		//_debugInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>()! );
@@ -47,6 +52,13 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 
 	}
 
+	private void OnMouseButton( MouseButtonEvent @event ) {
+		if (@event.Button != MouseButton.Left || @event.InputType != TactileInputType.Press)
+			return;
+
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "selectedTile", _selectedTile );
+	}
+
 	public override void Update( double time, double deltaTime ) {
 		if (!_changed)
 			return;
@@ -56,7 +68,9 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		Vector2<float> ndc = RenderEntity.ServiceAccess.Get<ProcessedMouseInputProvider>().MouseNDCTranslation.CastSaturating<double, float>();
 		_pointerDirection = GetMouseUnprojected( projection.InverseMatrix, view.InverseMatrix, ndc );
 
+
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, _pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
+			_selectedTile = null;
 			RenderEntity.SendMessageToEntity( new TileHoverMessage( null ) );
 			return;
 		}
@@ -66,9 +80,9 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		IReadOnlyList<Vector3<float>> vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
 		CompositeTile? baseTile = Archetype.WorldTilingComponent.Tiling.Tiles.FirstOrDefault( p => RayIntersectsTriangle( 0, intersectionPoint, p.VectorA, p.VectorB, p.VectorC, out _ ) );
 
-		Tile? selectedTiled = FindTileSelection( baseTile, intersectionPoint );
+		_selectedTile = FindTileSelection( baseTile, intersectionPoint );
 
-		RenderEntity.SendMessageToEntity( new TileHoverMessage( selectedTiled ) );
+		RenderEntity.SendMessageToEntity( new TileHoverMessage( _selectedTile ) );
 	}
 
 	private Tile? FindTileSelection( IContainingTile? baseTile, Vector3<float> intersectionPoint ) {

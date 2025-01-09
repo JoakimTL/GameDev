@@ -88,7 +88,13 @@ public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userIn
 				element.UiSpaceChanged( _aspectRatioVector.CastSaturating<float, double>() );
 		}
 		foreach (UserInterfaceElementBase element in this._baseElements) {
-			element.UpdateDisplayState();
+			if (element.UpdateDisplayState()) {
+				if (element.IsDisplayed) {
+					element.Show();
+				} else {
+					element.Hide();
+				}
+			}
 			if (element.IsDisplayed)
 				element.Update( time, deltaTime );
 		}

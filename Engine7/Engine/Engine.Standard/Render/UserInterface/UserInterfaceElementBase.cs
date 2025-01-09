@@ -1,4 +1,5 @@
 ﻿using Engine.Module.Render.Input;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Standard.Render.UserInterface;
 
@@ -13,18 +14,31 @@ public abstract class UserInterfaceElementBase(uint baseLayer = 0) : DisposableI
 
 	public uint BaseLayer { get; } = baseLayer;
 
-	public void UpdateDisplayState()
-		=> this.IsDisplayed = this.ShouldDisplay();
+	internal protected abstract void Initialize();
+	protected abstract void OnUpdate( double time, double deltaTime );
 
 	/// <summary>
 	/// Determines if the element should be displayed based on the current game state.
 	/// </summary>
 	protected abstract bool ShouldDisplay();
 
+	public bool UpdateDisplayState() {
+		bool oldValue = this.IsDisplayed;
+		this.IsDisplayed = this.ShouldDisplay();
+		return oldValue != this.IsDisplayed;
+	}
 	protected void AddComponent( UserInterfaceComponentBase component )
 		=> this._components.Add( component );
 
-	internal protected abstract void Initialize();
+	internal void Hide() {
+		foreach (UserInterfaceComponentBase component in this._components)
+			component.Hide();
+	}
+
+	internal void Show() {
+		foreach (UserInterfaceComponentBase component in this._components)
+			component.Show();
+	}
 
 	internal void UiSpaceChanged( Vector2<double> newAspectVector ) {
 		foreach (UserInterfaceComponentBase component in this._components)
@@ -80,6 +94,7 @@ public abstract class UserInterfaceElementBase(uint baseLayer = 0) : DisposableI
 	}
 
 	internal void Update( double time, double deltaTime ) {
+		OnUpdate(time, deltaTime);
 		foreach (UserInterfaceComponentBase component in this._components)
 			component.Update( time, deltaTime );
 	}

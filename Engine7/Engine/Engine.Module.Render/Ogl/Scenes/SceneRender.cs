@@ -24,7 +24,10 @@ public sealed class SceneRender : DisposableIdentifiable, ISceneRender {
 			foreach (SceneObject sceneObject in layer.SceneObjects) {
 				uint countBeforeAddition = (uint) this._indirectCommands.Count;
 				sceneObject.AddIndirectCommands( this._indirectCommands );
-				this._stages.Add( new( sceneObject.VertexArrayObject, sceneObject.ShaderBundle, countBeforeAddition, this._indirectCommands.Count - (int) countBeforeAddition ) );
+				int numberOfCommandsInStage = this._indirectCommands.Count - (int) countBeforeAddition;
+				if (numberOfCommandsInStage == 0)
+					continue;
+				this._stages.Add( new( sceneObject.VertexArrayObject, sceneObject.ShaderBundle, countBeforeAddition, numberOfCommandsInStage ) );
 			}
 		unsafe {
 			if (this._indirectCommands.Count * Unsafe.SizeOf<IndirectCommand>() > _commandBuffer.LengthBytes) {
@@ -35,6 +38,7 @@ public sealed class SceneRender : DisposableIdentifiable, ISceneRender {
 				fixed (IndirectCommand* srcPtr = commandArray) {
 					this._commandBuffer.ResizeWrite( (nint) srcPtr, newSize );
 				}
+				return;
 			}
 			if (this._indirectCommands.Count < 32768) {
 				Span<IndirectCommand> commands = stackalloc IndirectCommand[ this._indirectCommands.Count ];
@@ -42,7 +46,9 @@ public sealed class SceneRender : DisposableIdentifiable, ISceneRender {
 				fixed (IndirectCommand* srcPtr = commands) {
 					this._commandBuffer.WriteRange( srcPtr, (uint) (commands.Length * sizeof( IndirectCommand )), 0 );
 				}
-			} else {
+				return;
+			}
+			{
 				IndirectCommand[] commandArray = this._indirectCommands.ToArray();
 				fixed (IndirectCommand* srcPtr = commandArray) {
 					this._commandBuffer.WriteRange( srcPtr, (uint) (commandArray.Length * sizeof( IndirectCommand )), 0 );
