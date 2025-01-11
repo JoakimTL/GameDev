@@ -19,9 +19,11 @@ Startup.BeginInit()
 //TODO: Add text rendering (soon done?)
 //TODO: Add GUI?
 //TODO: Add render pipeline
-//TODO: Render lines on separate FBO, fix 3d render pipeline
-//TODO: Add framebuffers
+//TODO: Render lines on separate FBO, fix 3d render pipeline (done)
+//TODO: Add framebuffers (done?)
 //TODO: Add grid for tiles near mouse pointer
+//TODO: Add players and tile ownership
+//TODO: Make tile ownership visible
 
 //Game stuff:
 //TODO: Add world entity and render the partial icosphere

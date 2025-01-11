@@ -16,7 +16,19 @@ public sealed class DataBlockService( OglBufferService oglBufferService ) : Disp
 		Gl.GetInteger( GetPName.MaxUniformBlockSize, out this._blockMaxSize );
 	}
 
-	public bool CreateUniformBlock( string blockName, uint size, Span<ShaderType> shaderTypes, [NotNullWhen(true)] out UniformBlock? block ) {
+	public UniformBlock CreateUniformBlockOrThrow( string blockName, uint size, Span<ShaderType> shaderTypes ) {
+		if (!TryCreateUniformBlock( blockName, size, shaderTypes, out UniformBlock? block ))
+			throw new InvalidOperationException( "Failed to create uniform block" );
+		return block;
+	}
+
+	public ShaderStorageBlock CreateShaderStorageBlockOrThrow( string blockName, uint size, Span<ShaderType> shaderTypes ) {
+		if (!TryCreateShaderStorageBlock( blockName, size, shaderTypes, out ShaderStorageBlock? block ))
+			throw new InvalidOperationException( "Failed to create shader block" );
+		return block;
+	}
+
+	public bool TryCreateUniformBlock( string blockName, uint size, Span<ShaderType> shaderTypes, [NotNullWhen( true )] out UniformBlock? block ) {
 		block = null;
 		if (size % this._alignment != 0)
 			return false;
@@ -29,7 +41,7 @@ public sealed class DataBlockService( OglBufferService oglBufferService ) : Disp
 		return true;
 	}
 
-	public bool CreateShaderStorageBlock( string blockName, uint size, Span<ShaderType> shaderTypes, [NotNullWhen( true )] out ShaderStorageBlock? block ) {
+	public bool TryCreateShaderStorageBlock( string blockName, uint size, Span<ShaderType> shaderTypes, [NotNullWhen( true )] out ShaderStorageBlock? block ) {
 		block = null;
 		if (!oglBufferService.ShaderStorage.TryAllocate( size, out OglBufferSegment? segment ))
 			return false;

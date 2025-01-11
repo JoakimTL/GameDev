@@ -13,6 +13,7 @@ using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.UserInterface;
 using Sandbox.Logic.World;
+using Sandbox.Render;
 using Sandbox.Render.Ui;
 
 namespace Sandbox;
@@ -103,7 +104,7 @@ internal class SandboxRenderModule : RenderModuleBase {
 	protected override void ContextAdded( Context context ) {
 		context.InstanceProvider.Inject( InstanceProvider.Get<GameStateProvider>(), true );
 		context.InstanceProvider.Catalog.Host<ContextTest>();
-		context.InstanceProvider.Catalog.Host<TestPipeline>();
+		context.InstanceProvider.Catalog.Host<Render3Pipeline>();
 		context.InstanceProvider.Catalog.Host<UserInterfaceRenderPipeline>();
 		var ui = context.InstanceProvider.Get<UserInterfaceService>();
 		ui.UserInterfaceStateManager.AddElement<StartMenu>(); //TODO: Automate. Assume all element types that exists should be included. There are only custom element types.

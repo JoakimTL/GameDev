@@ -56,16 +56,16 @@ public class Orthographic : MatrixProviderBase<float> {
 
 	public class Dynamic : Orthographic, IDisposable {
 
-		private readonly IResizableSurface<int, float> _surface;
+		private readonly IResizableAspectRatioSurface<int, float> _surface;
 		private Vector2<float> _scale;
 
-		public Dynamic( IResizableSurface<int, float> surface, Vector2<float> scale, float zNear, float zFar ) : base( surface.AspectRatioVector.MultiplyEntrywise( scale ), zNear, zFar ) {
+		public Dynamic( IResizableAspectRatioSurface<int, float> surface, Vector2<float> scale, float zNear, float zFar ) : base( surface.AspectRatioVector.MultiplyEntrywise( scale ), zNear, zFar ) {
 			this._surface = surface;
 			this._scale = scale;
 			this._surface.OnResized += WindowResized;
 		}
 
-		private void WindowResized( IResizableSurface<int, float> surface ) => this.Size = this._surface.AspectRatioVector.MultiplyEntrywise( this._scale );
+		private void WindowResized( IResizableSurface<int> surface ) => this.Size = this._surface.AspectRatioVector.MultiplyEntrywise( this._scale );
 
 		public void Dispose() {
 			this._surface.OnResized -= WindowResized;

@@ -4,12 +4,12 @@ using OpenGL;
 
 namespace Engine.Module.Render.Ogl.OOP;
 
-public sealed class OglWindow : DisposableIdentifiable, IResizableSurface<int, float> {
+public sealed class OglWindow : DisposableIdentifiable, IResizableAspectRatioSurface<int, float> {
 	private readonly FramebufferStateService _framebufferState;
 	private readonly ViewportStateService _viewport;
 	private string _title;
 
-	public event Action<IResizableSurface<int, float>>? OnResized;
+	public event Action<IResizableSurface<int>>? OnResized;
 
 	internal OglWindow( FramebufferStateService framebufferState, ViewportStateService viewport, nint handle ) {
 		this._framebufferState = framebufferState;

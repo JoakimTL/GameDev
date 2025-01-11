@@ -1,9 +1,9 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Ogl.OOP;
+using Engine.Module.Render.Ogl.OOP.Framebuffers;
 using Engine.Module.Render.Ogl.OOP.Textures;
 using ImageMagick;
 using OpenGL;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Module.Render.Ogl.Services;
 
@@ -12,16 +12,8 @@ public sealed class FramebufferStateService( ViewportStateService viewport ) : I
 	private readonly ViewportStateService _viewport = viewport;
 	private uint _boundDrawBuffer = 0, _boundReadBuffer = 0;
 
-	public OglFramebuffer CreateFramebuffer( Vector2<int> size ) {
-		uint framebufferId = Gl.CreateFramebuffer();
-		return new( framebufferId, size );
-	}
-
-	public OglFramebuffer CreateSurfaceDependentFramebuffer( IResizableSurface<int, float> resizableSurface, Vector2<float> scalingFactor ) {
-		//uint framebufferId = Gl.CreateFramebuffer();
-		//return new( framebufferId, size );
-		throw new NotImplementedException();
-	}
+	public OglFramebuffer CreateFramebuffer( Vector2<int> size ) => new( size );
+	public AutoscalingFramebuffer CreateAutoscalingFramebuffer( IResizableSurface<int> resizableSurface, float scalingFactor ) => new( resizableSurface, scalingFactor );
 
 	public void BindFramebuffer( FramebufferTarget target, OglFramebuffer buffer ) {
 		if (buffer.Disposed) {

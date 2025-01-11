@@ -28,9 +28,9 @@ public sealed class TestPipelineWithScene( ShaderBundleService shaderBundleServi
 	private SceneInstance<Entity2SceneData> _sceneInstance3 = null!;
 
 	public void Initialize() {
-		if (!this._dataBlockService.CreateUniformBlock( "testUniformBlock", 256, [ ShaderType.VertexShader ], out this._testUniforms! ))
+		if (!this._dataBlockService.TryCreateUniformBlock( "testUniformBlock", 256, [ ShaderType.VertexShader ], out this._testUniforms! ))
 			throw new InvalidOperationException( "Couldn't create uniform block." );
-		if (!this._dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out this._testShaderStorage! ))
+		if (!this._dataBlockService.TryCreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out this._testShaderStorage! ))
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 

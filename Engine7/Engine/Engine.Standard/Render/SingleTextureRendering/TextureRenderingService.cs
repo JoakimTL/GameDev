@@ -28,7 +28,7 @@ public sealed class TextureRenderingService( ShaderBundleService shaderBundleSer
 		this._shaderBundle = this._shaderBundleService.Get<SingleTextureRenderingShaderBundle>() ?? throw new( "Failed to get shader bundle" );
 		this._vao = this._compositeVertexArrayObjectService.Get( [ typeof( Vertex2 ) ] ) ?? throw new( "Failed to get vao" );
 		this._mesh = this._primitiveMesh2Provider.Get( Meshing.Primitive2.Rectangle );
-		if (!this._dataBlockService.CreateUniformBlock( nameof( SingleTextureRenderingBlock ), 256, [ ShaderType.FragmentShader ], out this._uniformBlock! ))
+		if (!this._dataBlockService.TryCreateUniformBlock( nameof( SingleTextureRenderingBlock ), 256, [ ShaderType.FragmentShader ], out this._uniformBlock! ))
 			throw new( "Failed to get uniform block" );
 		_dataBlockCollection = new DataBlockCollection( this._uniformBlock );
 	}

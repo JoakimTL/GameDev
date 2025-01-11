@@ -15,31 +15,11 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 	private Vector3<float> _pointerDirection;
 	private bool _changed = true;
 
-	private Tile? _selectedTile;
-
-	//private DebugInstance _debugInstance;
 
 	protected override void OnRenderEntitySet() {
 		RenderEntity.ServiceAccess.Input.OnMouseMoved += OnMouseMoved;
 		RenderEntity.ServiceAccess.Input.OnMouseButton += OnMouseButton;
 		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged += OnCameraMatrixChanged;
-		//_debugInstance = RenderEntity.RequestSceneInstance<DebugInstance>( "test", 0 );
-		//_debugInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<TestShaderBundle>()! );
-		//_debugInstance.SetVertexArrayObject( RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity2SceneData>()! );
-		//_debugInstance.SetMesh( RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
-		//	[
-		//		new LineVertex( (0, 1), (0, 1), 255 ),
-		//		new LineVertex( (1, 1), (1, 1), 255 ),
-		//		new LineVertex( (1, 0), (1, 0),  255 ),
-		//		new LineVertex( (0, 0), (0, 0), 255 ),
-		//		new LineVertex( (-1, 0), (1, 0), 255 ),
-		//		new LineVertex( (-1, 1), (1, 1), 255 )
-		//	], [
-		//		0, 2, 1,
-		//		0, 3, 2,
-		//		0, 4, 5,
-		//		0, 3, 4
-		//	] ) );
 	}
 
 	private void OnCameraMatrixChanged( IMatrixProvider<float> provider ) {
@@ -56,7 +36,7 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		if (@event.Button != MouseButton.Left || @event.InputType != TactileInputType.Press)
 			return;
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "selectedTile", _selectedTile );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "selectedTile", RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "hoveringTile" ) );
 	}
 
 	public override void Update( double time, double deltaTime ) {
@@ -70,8 +50,8 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 
 
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, _pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
-			_selectedTile = null;
-			RenderEntity.SendMessageToEntity( new TileHoverMessage( null ) );
+			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Tile>( "hoveringTile", null );
+			//RenderEntity.SendMessageToEntity( new TileHoverMessage( null ) );
 			return;
 		}
 
@@ -80,9 +60,7 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		IReadOnlyList<Vector3<float>> vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
 		CompositeTile? baseTile = Archetype.WorldTilingComponent.Tiling.Tiles.FirstOrDefault( p => RayIntersectsTriangle( 0, intersectionPoint, p.VectorA, p.VectorB, p.VectorC, out _ ) );
 
-		_selectedTile = FindTileSelection( baseTile, intersectionPoint );
-
-		RenderEntity.SendMessageToEntity( new TileHoverMessage( _selectedTile ) );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "hoveringTile", FindTileSelection( baseTile, intersectionPoint ) );
 	}
 
 	private Tile? FindTileSelection( IContainingTile? baseTile, Vector3<float> intersectionPoint ) {

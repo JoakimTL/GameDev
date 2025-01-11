@@ -1,7 +1,7 @@
 ﻿using Engine.Module.Render;
 using Engine.Module.Render.Domain;
-using Engine.Module.Render.Ogl.OOP;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
+using Engine.Module.Render.Ogl.OOP.Framebuffers;
 using Engine.Module.Render.Ogl.OOP.Textures;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
@@ -9,69 +9,37 @@ using Engine.Standard.Render.SingleTextureRendering;
 using OpenGL;
 
 namespace Engine.Standard.Render.UserInterface;
-public sealed class UserInterfaceRenderPipeline : DisposableIdentifiable, IInitializable, IRenderPipeline {
-	private readonly SceneService _sceneService;
-	private readonly DataBlockService _dataBlockService;
-	private readonly CameraService _cameraService;
-	private readonly FramebufferStateService _framebufferStateService;
-	private readonly WindowService _windowService;
-	private readonly TextureRenderingService _textureRenderingService;
+public sealed class UserInterfaceRenderPipeline( SceneService sceneService, DataBlockService dataBlockService, CameraService cameraService, FramebufferStateService framebufferStateService, WindowService windowService, TextureRenderingService textureRenderingService ) : DisposableIdentifiable, IInitializable, IRenderPipeline {
+	private readonly SceneService _sceneService = sceneService;
+	private readonly DataBlockService _dataBlockService = dataBlockService;
+	private readonly CameraService _cameraService = cameraService;
+	private readonly FramebufferStateService _framebufferStateService = framebufferStateService;
+	private readonly WindowService _windowService = windowService;
+	private readonly TextureRenderingService _textureRenderingService = textureRenderingService;
 	private UniformBlock _uiSceneCamera = null!;
 	private Scene _uiScene = null!;
 	private CameraSuite _cameraSuite = null!;
 	private DataBlockCollection _dataBlockCollection = null!;
-	private OglFramebuffer _framebuffer = null!;
-	private OglMultisampledTexture _framebufferTexture = null!;
-	private OglTextureBase<OglMultisampledTextureMetadata>.TextureReference? _textureReference = null;
-	private OglFramebuffer _copyFramebuffer = null!;
-	private OglTexture _copyFramebufferTexture = null!;
-	private OglTextureBase<OglMipmappedTextureMetadata>.TextureReference? _copyTextureReference = null;
 
-	public UserInterfaceRenderPipeline( SceneService sceneService, DataBlockService dataBlockService, CameraService cameraService, FramebufferStateService framebufferStateService, WindowService windowService, TextureRenderingService textureRenderingService ) {
-		this._sceneService = sceneService;
-		this._dataBlockService = dataBlockService;
-		this._cameraService = cameraService;
-		this._framebufferStateService = framebufferStateService;
-		this._windowService = windowService;
-		this._textureRenderingService = textureRenderingService;
-	}
+	private AutoscalingFramebuffer _framebuffer = null!;
+	private AutoGeneratingFramebuffer _framebufferGenerator = null!;
+
+	private AutoscalingFramebuffer _displayedFramebuffer = null!;
+	private AutoGeneratingFramebuffer _displayedFramebufferGenerator = null!;
+	private FramebufferScaledTextureGenerator _displayTexture = null!;
 
 	public void Initialize() {
 		_uiScene = _sceneService.GetScene( "ui" );
-		if (!this._dataBlockService.CreateUniformBlock( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ], out this._uiSceneCamera! ))
-			throw new InvalidOperationException( "Couldn't create uniform block." );
+		_uiSceneCamera = _dataBlockService.CreateUniformBlockOrThrow( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ] );
 		_cameraSuite = _cameraService.Get( "ui" );
 		_dataBlockCollection = new( _uiSceneCamera );
-		_framebuffer = _framebufferStateService.CreateFramebuffer( _windowService.Window.Size );
-		_framebuffer.OnFramebufferGeneration += UiFramebufferGeneration;
-		_copyFramebuffer = _framebufferStateService.CreateFramebuffer( _windowService.Window.Size );
-		_copyFramebuffer.OnFramebufferGeneration += CopyFramebufferGeneration;
-		_windowService.Window.OnResized += OnWindowResized;
-	}
+		_framebuffer = _framebufferStateService.CreateAutoscalingFramebuffer( _windowService.Window, 1 );
+		_framebufferGenerator = new( _framebuffer );
+		_framebufferGenerator.AddTexture(FramebufferAttachment.ColorAttachment0, dimensions => new OglMultisampledTexture( "uiFramebufferColor", TextureTarget.Texture2dMultisample, dimensions, 4, InternalFormat.Rgba8, true ) );
 
-	private void CopyFramebufferGeneration( OglFramebuffer framebuffer ) {
-		_copyTextureReference = null;
-		_copyFramebufferTexture?.Dispose();
-		_copyFramebufferTexture = new( "copyFrameBuffer", TextureTarget.Texture2d, _windowService.Window.Size, InternalFormat.Rgba8, (TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear), (TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Linear) );
-		_copyFramebuffer.AttachTexture( FramebufferAttachment.ColorAttachment0, _copyFramebufferTexture.TextureID, 0 );
-		_copyFramebuffer.EnableCurrentColorAttachments();
-	}
-
-	private void UiFramebufferGeneration( OglFramebuffer framebuffer ) {
-		_textureReference = null;
-		_framebufferTexture?.Dispose();
-		_framebufferTexture = new OglMultisampledTexture( "uiFramebufferColor", TextureTarget.Texture2dMultisample, _framebuffer.Size, 4, InternalFormat.Rgba8, true );
-		framebuffer.AttachTexture( FramebufferAttachment.ColorAttachment0, _framebufferTexture.TextureID, 0 );
-		framebuffer.EnableCurrentColorAttachments();
-	}
-
-	private void OnWindowResized( IResizableSurface<int, float> surface ) {
-		if (surface.Size == 0)
-			return;
-		_framebuffer.DetachTexture( FramebufferAttachment.ColorAttachment0 );
-		_framebuffer.Resize( surface.Size );
-		_copyFramebuffer.DetachTexture( FramebufferAttachment.ColorAttachment0 );
-		_copyFramebuffer.Resize( surface.Size );
+		_displayedFramebuffer = _framebufferStateService.CreateAutoscalingFramebuffer( _windowService.Window, 1 );
+		_displayedFramebufferGenerator = new( _displayedFramebuffer );
+		_displayTexture = _displayedFramebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglTexture( "uiFramebufferColor", TextureTarget.Texture2d, dimensions, InternalFormat.Rgba8, (TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear), (TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Linear) ) );
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
@@ -88,7 +56,7 @@ public sealed class UserInterfaceRenderPipeline : DisposableIdentifiable, IIniti
 		_framebuffer.Clear( OpenGL.Buffer.Color, 0, [ 0 ] );
 		_uiScene.Render( "default", _dataBlockCollection, null, PrimitiveType.Triangles );
 		_framebufferStateService.UnbindFramebuffer( FramebufferTarget.Framebuffer );
-		_framebufferStateService.BlitToFrameBuffer( _framebuffer, _copyFramebuffer, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear );
+		_framebufferStateService.BlitToFrameBuffer( _framebuffer, _displayedFramebuffer, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear );
 	}
 
 	public void DrawToScreen() {
@@ -98,13 +66,14 @@ public sealed class UserInterfaceRenderPipeline : DisposableIdentifiable, IIniti
 		Gl.BlendEquation( BlendEquationMode.FuncAdd );
 		Gl.Disable( EnableCap.DepthTest );
 		Gl.DepthMask( false );
-		_copyTextureReference ??= _copyFramebufferTexture.GetTextureReference();
-		_textureRenderingService.RenderTexture( _copyTextureReference.GetHandle() );
+		_textureRenderingService.RenderTexture( _displayTexture.TextureReference.GetHandle() );
 	}
 
 	protected override bool InternalDispose() {
 		_framebuffer.Dispose();
-		_framebufferTexture?.Dispose();
+		_framebufferGenerator.Dispose();
+		_displayedFramebuffer.Dispose();
+		_displayedFramebufferGenerator.Dispose();
 		return true;
 	}
 

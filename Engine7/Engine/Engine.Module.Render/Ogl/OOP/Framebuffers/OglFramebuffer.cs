@@ -1,10 +1,9 @@
 ﻿using Engine.Logging;
-using Engine.Module.Render.Ogl.OOP.Textures;
 using OpenGL;
 
-namespace Engine.Module.Render.Ogl.OOP;
+namespace Engine.Module.Render.Ogl.OOP.Framebuffers;
 
-public sealed class OglFramebuffer : DisposableIdentifiable {
+public class OglFramebuffer : DisposableIdentifiable, IResizableSurface<int> {
 
 	public readonly uint FramebufferId;
 	public Vector2<int> Size { get; private set; }
@@ -12,23 +11,19 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 
 	public bool RequiresGeneration { get; private set; } = false;
 
-	public event Action<OglFramebuffer>? OnFramebufferGeneration;
-
 	private readonly Dictionary<int, OglFramebufferAttachmentType> _attachments;
 	public IReadOnlyDictionary<int, OglFramebufferAttachmentType> Attachments => this._attachments.AsReadOnly();
 
-	private readonly List<uint> _currentRenderbuffers;
-	private readonly List<OglTexture> _currentTextures;
+	public event Action<OglFramebuffer>? OnFramebufferGeneration;
+	public event Action<IResizableSurface<int>>? OnResized;
 
-	public OglFramebuffer( uint framebufferId, Vector2<int> size ) {
+	public OglFramebuffer( Vector2<int> size ) {
 		if (size.X <= 0 || size.Y <= 0)
 			throw new OpenGlArgumentException( $"{this.FullName} must have positive non-zero size on both axis", nameof( size ) );
 
-		this.FramebufferId = framebufferId;
+		this.FramebufferId = Gl.CreateFramebuffer();
 		this.Size = size;
 		this._attachments = [];
-		this._currentRenderbuffers = [];
-		this._currentTextures = [];
 		this.RequiresGeneration = true;
 		this.Nickname = $"FBO{this.FramebufferId}";
 	}
@@ -51,23 +46,8 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 		if (newSize == this.Size)
 			this.LogWarning( $"Already has size {newSize}." );
 		this.Size = newSize;
+		OnResized?.Invoke( this );
 		this.RequiresGeneration = true;
-	}
-
-	public OglTexture CreateTexture( TextureTarget target, InternalFormat internalFormat, params (TextureParameterName, int)[] parameters ) {
-		OglTexture t = new( $"FBO{this.FramebufferId}", target, this.Size, internalFormat, parameters );
-		this._currentTextures.Add( t );
-		return t;
-	}
-
-	public uint CreateRenderbuffer( InternalFormat format, int samples ) {
-		uint buffer = Gl.CreateRenderbuffer();
-		if (samples <= 0)
-			Gl.NamedRenderbufferStorage( buffer, format, this.Size.X, this.Size.Y );
-		else
-			Gl.NamedRenderbufferStorageMultisample( buffer, samples, format, this.Size.X, this.Size.Y );
-		this._currentRenderbuffers.Add( buffer );
-		return buffer;
 	}
 
 	private void Validate() {
@@ -141,10 +121,8 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 	public void EnableCurrentColorAttachments() {
 		int[] attachments = [ .. this._attachments.Keys.Where( p => p != (int) FramebufferAttachment.DepthAttachment && p != (int) FramebufferAttachment.DepthStencilAttachment ) ];
 		Array.Sort( attachments );
-		if (this._currentActiveAttachments is not null && this._currentActiveAttachments.SequenceEqual( attachments )) {
-			this.LogWarning( $"Already has the correct color attachments enabled." );
+		if (this._currentActiveAttachments is not null && this._currentActiveAttachments.SequenceEqual( attachments ))
 			return;
-		}
 		this._currentActiveAttachments = attachments;
 		Gl.NamedFramebufferDrawBuffers( this.FramebufferId, attachments.Length, attachments );
 	}
@@ -175,14 +153,5 @@ public sealed class OglFramebuffer : DisposableIdentifiable {
 				default:
 					throw new ArgumentOutOfRangeException( nameof( kvp.Value ), kvp.Value, null );
 			}
-
-		if (this._currentRenderbuffers.Count > 0) {
-			Gl.DeleteRenderbuffers( [ .. this._currentRenderbuffers ] );
-			this._currentRenderbuffers.Clear();
-		}
-
-		for (int i = 0; i < this._currentTextures.Count; i++)
-			this._currentTextures[ i ].Dispose();
-		this._currentTextures.Clear();
 	}
 }

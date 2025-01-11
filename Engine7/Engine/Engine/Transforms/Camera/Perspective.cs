@@ -89,9 +89,9 @@ public class Perspective : MatrixProviderBase<float> {
 	}
 
 	public class Dynamic : Perspective, IDisposable {
-		private readonly IResizableSurface<int, float> _surface;
+		private readonly IResizableAspectRatioSurface<int, float> _surface;
 
-		public Dynamic( IResizableSurface<int, float> surface, float fov, float zNear = DEFAULT_NEAR, float zFar = DEFAULT_FAR ) : base( fov, surface.AspectRatio, zNear, zFar ) {
+		public Dynamic( IResizableAspectRatioSurface<int, float> surface, float fov, float zNear = DEFAULT_NEAR, float zFar = DEFAULT_FAR ) : base( fov, surface.AspectRatio, zNear, zFar ) {
 			this._surface = surface;
 			this._surface.OnResized += WindowResized;
 		}
@@ -101,6 +101,6 @@ public class Perspective : MatrixProviderBase<float> {
 			GC.SuppressFinalize( this );
 		}
 
-		private void WindowResized( IResizableSurface<int, float> surface ) => this.AspectRatio = surface.AspectRatio;
+		private void WindowResized( IResizableSurface<int> surface ) => this.AspectRatio = _surface.AspectRatio;
 	}
 }

@@ -30,7 +30,7 @@ public sealed class TexturedBackground : UserInterfaceComponentBase {
 		}
 	}
 
-	private OglTextureBase<OglMipmappedTextureMetadata>.TextureReference? _reference;
+	private TextureReference? _reference;
 
 	private bool _changed;
 

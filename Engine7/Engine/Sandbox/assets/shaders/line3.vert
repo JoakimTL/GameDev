@@ -11,7 +11,8 @@ layout(location = 5) in vec3 iLineNormal;		//xyz
 //layout(location = 7) in vec4 iFill;			//Rectangle on the uv which is filled. x = xStart, y = yStart, z = xEnd, w = yEnd
 layout(location = 6) in vec2 iFillAnchors;		//Where x is the negativeAnchor and y is the positiveAnchor
 layout(location = 7) in vec4 iFillQuadratic;	//x = quadratic, y = linear, z = constant, w = gradientSharpness. The quadratic equation y is on the width of the line, while the x = 0 is at (iFill.z + iFill.x) / 2, and x = -1 at iFillLayout.x, and x = 1 at iFillLayout.z. 
-layout(location = 8) in vec4 iColor;
+layout(location = 8) in vec4 iColorStart;
+layout(location = 9) in vec4 iColorEnd;
 
 //Let's map vUv.x to a with this function: a = (2 * (iFillLayout.x + a * (iFillLayout.y - iFillLayout.x) - iFillLayout.z) / (iFillLayout.w - iFillLayout.z)) - 1
 //The line is filled if vUv.y < f(vUv.x) {iFillQuadratic.x * iFillQuadratic.x * a + iFillQuadratic.y * a + iFillQuadratic.z}
@@ -56,7 +57,7 @@ void main(void){
 
 	OUT.Position = sb.VP_mat * vec4(pos, 1.0);
 	OUT.Uv = vUv;
-	OUT.Color = vColor * iColor;
+	OUT.Color = vColor * (iColorStart * (1 - vUv.y) +iColorEnd * vUv.y);
 	OUT.FillNegativeAnchor = iFillAnchors.x;
 	OUT.FillPositiveAnchor = iFillAnchors.y;
 	OUT.FillQuadratic = iFillQuadratic.xyz;

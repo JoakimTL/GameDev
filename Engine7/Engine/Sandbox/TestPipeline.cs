@@ -1,5 +1,6 @@
 ﻿using Engine.Logging;
 using Engine.Module.Entities.Container;
+using Engine.Module.Render;
 using Engine.Module.Render.Domain;
 using Engine.Module.Render.Entities;
 using Engine.Module.Render.Entities.Components;
@@ -34,9 +35,9 @@ public sealed class TestPipeline( WindowService windowService, DataBlockService 
 		//var g = _font[ 'A' ];
 		//g.CreateMeshTriangles();
 
-		if (!this._dataBlockService.CreateUniformBlock( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ], out this._testUniforms! ))
+		if (!this._dataBlockService.TryCreateUniformBlock( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ], out this._testUniforms! ))
 			throw new InvalidOperationException( "Couldn't create uniform block." );
-		if (!this._dataBlockService.CreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out this._testShaderStorage! ))
+		if (!this._dataBlockService.TryCreateShaderStorageBlock( "testShaderStorageBlock", 4, [ ShaderType.VertexShader ], out this._testShaderStorage! ))
 			throw new InvalidOperationException( "Couldn't create shader storage block." );
 		this._dataBlocks = new DataBlockCollection( this._testUniforms, this._testShaderStorage );
 

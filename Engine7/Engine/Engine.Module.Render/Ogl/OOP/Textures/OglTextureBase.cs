@@ -3,69 +3,79 @@ using OpenGL;
 
 namespace Engine.Module.Render.Ogl.OOP.Textures;
 
-public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struct {
-	public readonly uint TextureID;
-	public readonly TextureTarget Target;
-	public readonly T Metadata;
-	protected readonly ulong _handle;
-	protected readonly IReadOnlyList<Vector2<int>> _levels;
+public abstract class OglTextureBase : DisposableIdentifiable, IOglTexture {
+
+	private bool _generated;
+
 	private uint _referenceCount;
+	private uint _textureID;
+	private bool _resident;
+	private ulong _handle;
+	private readonly TextureTarget _target;
+	private readonly List<Vector2<int>> _levels;
+	private readonly (TextureParameterName name, int value)[] _parameters;
 
-	/// <summary>
-	/// Level 0 is guaranteed to exist, with a size of 1x1 or greater.
-	/// </summary>
+	public uint TextureID => GetTextureId();
+	public TextureTarget Target => this._target;
+	public bool Resident => this._resident;
 	public Vector2<int> Level0 => this._levels[ 0 ];
-	public bool Resident { get; private set; }
+	internal ulong Handle => GetTextureHandle();
 
-	public OglTextureBase( string name, TextureTarget target, Vector2<int> level0, T metadata, params (TextureParameterName, int)[] parameters ) {
+	protected OglTextureBase( string name, TextureTarget target, Vector2<int> level0, params Span<(TextureParameterName, int)> parameters ) {
 		if (level0.X <= 0 || level0.Y <= 0)
 			throw new OpenGlArgumentException( "Texture size must be greater than zero on both axis", nameof( level0 ) );
-		this.Target = target;
-		this._levels = GetLevels( level0, metadata );
-		this.Resident = false;
-
-		this.TextureID = Gl.CreateTexture( this.Target );
-		var error = Gl.GetError();
-		if (error != ErrorCode.NoError)
-			this.LogWarning( $"Error creating texture 1: {error}" );
-		GenerateTexture( metadata );
-		error = Gl.GetError();
-		if (error != ErrorCode.NoError)
-			this.LogWarning( $"Error creating texture 2: {error}" );
-		for (int i = 0; i < parameters.Length; i++) {
-			Gl.TextureParameter( this.TextureID, parameters[ i ].Item1, parameters[ i ].Item2 );
-			error = Gl.GetError();
-			if (error != ErrorCode.NoError)
-				this.LogWarning( $"Error creating texture 3 {i}: {error}" );
-		}
-		error = Gl.GetError();
-		if (error != ErrorCode.NoError)
-			this.LogWarning( $"Error creating texture 4: {error}" );
-		Thread.Sleep( 50 );
-		this._handle = Gl.GetTextureHandleARB( this.TextureID );
-		error = Gl.GetError();
-		if (error != ErrorCode.NoError)
-			this.LogWarning( $"Error creating texture 5: {error}" );
-		this.Nickname = $"TEX{this.TextureID} {name}";
+		_textureID = 0;
+		_target = target;
+		_levels = [ level0 ];
+		_parameters = [ .. parameters ];
+		_resident = false;
+		_handle = 0;
+		_generated = false;
+		Nickname = name;
 	}
 
-	protected abstract void GenerateTexture( T metadata );
+	private uint GetTextureId() {
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Accessed();
+		return this._textureID;
+	}
 
-	protected abstract IReadOnlyList<Vector2<int>> GetLevels( Vector2<int> level0, T metadata );
+	private ulong GetTextureHandle() {
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Accessed();
+		return this._handle;
+	}
 
-	internal ulong Handle => this._handle;
+	private void Accessed() {
+		if (_generated)
+			return;
+		Generate();
+		_generated = true;
+	}
+
+	protected void Generate() {
+		if (_generated)
+			throw new InvalidOperationException( "Texture already generated." );
+		AddLevels( _levels );
+		_textureID = Gl.CreateTexture( _target );
+		GenerateTexture( _textureID );
+		for (int i = 0; i < _parameters.Length; i++)
+			Gl.TextureParameter( _textureID, _parameters[ i ].name, _parameters[ i ].value );
+		this._handle = Gl.GetTextureHandleARB( _textureID );
+	}
+
+	protected abstract void AddLevels( List<Vector2<int>> levelsList );
+	protected abstract void GenerateTexture( uint textureId );
 
 	public Vector2<int> GetLevel( uint level ) {
-		if (level > this._levels.Count) {
-			this.LogWarning( $"Has no level {level}" );
-			return (0, 0);
-		}
+		if (level >= this._levels.Count)
+			return this.LogWarningThenReturn( $"Has no level {level}", 0 );
 		return this._levels[ (int) level ];
 	}
 
 	public TextureReference GetTextureReference() {
-		if (this.Disposed)
-			throw new ObjectDisposedException( this.FullName );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Accessed();
 		TextureReference reference = new( this );
 		reference.OnDestruction += OnReferenceDestruction;
 		if (this._referenceCount == 0)
@@ -80,24 +90,27 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 			MakeNonResident();
 	}
 
-	//How? How to handle it being non-resident, but still referenced? Is this even relevant? Should a texture be non-resident but still referencable?
 	internal void MakeResident() {
-		if (this.Disposed)
-			throw new ObjectDisposedException( this.FullName );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Accessed();
 		if (this.Resident)
 			return;
+		_resident = true;
 		Gl.MakeTextureHandleResidentARB( this._handle );
 	}
 
 	internal void MakeNonResident() {
-		if (this.Disposed)
-			throw new ObjectDisposedException( this.FullName );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Accessed();
 		if (!this.Resident)
 			return;
+		_resident = false;
 		Gl.MakeTextureHandleNonResidentARB( this._handle );
 	}
 
 	public void SetPixels( PixelFormat format, PixelType pixelType, nint ptr, uint level = 0 ) {
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Accessed();
 		if (level > this._levels.Count) {
 			this.LogWarning( "Attempted to set pixels at a deeper mipmap level than present." );
 			return;
@@ -107,6 +120,8 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 	}
 
 	public void SetPixelsCompressed( PixelFormat format, int size, nint ptr, uint level = 0 ) {
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
+		Accessed();
 		if (level > this._levels.Count) {
 			this.LogWarning( "Attempted to set pixels at a deeper mipmap level than present." );
 			return;
@@ -116,23 +131,17 @@ public abstract class OglTextureBase<T> : DisposableIdentifiable where T : struc
 	}
 
 	protected override bool InternalDispose() {
+		if (!_generated)
+			return true;
 		Gl.DeleteTextures( [ this.TextureID ] );
 		return true;
 	}
+}
 
-	public sealed class TextureReference {
-		private readonly OglTextureBase<T> _texture;
+public abstract class OglTextureBase<T> : OglTextureBase where T : struct {
+	public readonly T Metadata;
 
-		internal event Action? OnDestruction;
-
-		public TextureReference( OglTextureBase<T> texture ) {
-			this._texture = texture;
-		}
-
-		~TextureReference() {
-			OnDestruction?.Invoke();
-		}
-
-		public ulong GetHandle() => this._texture.Handle;
+	public OglTextureBase( string name, TextureTarget target, Vector2<int> level0, T metadata, params Span<(TextureParameterName, int)> parameters ) : base( name, target, level0, parameters ) {
+		Metadata = metadata;
 	}
 }
