@@ -3,6 +3,13 @@
 namespace Engine;
 
 public static partial class AABB {
+	/*
+	 * |------|
+	 *       |-----|
+	 *       
+	 * |-------|
+	 *   |---|
+	 */
 	public static bool Intersects<TVector>( in this AABB<TVector> r, in AABB<TVector> l )
 		where TVector :
 			unmanaged, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>, ILinearAlgebraVectorOperations<TVector>, IEntrywiseComparisonOperators<TVector>, IVectorIdentities<TVector>

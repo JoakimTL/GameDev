@@ -2,7 +2,7 @@
 
 public sealed class Icosphere {
 
-	public readonly List<Vector3<float>> _vertices;
+	private readonly List<Vector3<float>> _vertices;
 	private readonly List<List<uint>> _indicesAtEarlierSubdivisions;
 	private readonly Dictionary<(int, int), int> _edgeMidpointCache;
 
