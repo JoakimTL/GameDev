@@ -1,4 +1,4 @@
-﻿namespace Engine.Module.Render.Entities;
+﻿namespace Engine.Module.Render;
 
 public sealed class RenderServiceAccess( IInstanceProvider instanceProvider ) : Identifiable, IInitializable {
 	private readonly IInstanceProvider _instanceProvider = instanceProvider;

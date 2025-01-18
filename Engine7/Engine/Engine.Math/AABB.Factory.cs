@@ -12,4 +12,16 @@ public static partial class AABB {
 		}
 		return new AABB<TVector>( min, max );
 	}
+
+	public static AABB<TVector> Create<TVector>( Span<AABB<TVector>> bounds )
+		where TVector :
+			unmanaged, IInEqualityOperators<TVector, TVector, bool>, IEntrywiseMinMaxOperations<TVector> {
+		TVector min = bounds[ 0 ].Minima;
+		TVector max = bounds[ 0 ].Maxima;
+		for (int i = 1; i < bounds.Length; i++) {
+			min = min.Min( bounds[ i ].Minima );
+			max = max.Max( bounds[ i ].Maxima );
+		}
+		return new AABB<TVector>( min, max );
+	}
 }

@@ -1,7 +1,7 @@
 ﻿using Engine.Standard;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
-using Sandbox.Logic.World.Tiles;
+using Sandbox.Logic.OldWorld.Tiles;
 
 namespace Sandbox.Render.Ui;
 

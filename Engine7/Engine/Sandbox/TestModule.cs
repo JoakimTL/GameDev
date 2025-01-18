@@ -12,6 +12,7 @@ using Engine.Standard;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.UserInterface;
+using Sandbox.Logic.OldWorld;
 using Sandbox.Logic.World;
 using Sandbox.Render;
 using Sandbox.Render.Ui;
@@ -39,19 +40,28 @@ internal sealed class GameLogicModule : ModuleBase {
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
 		this._entity = container.CreateEntity();
 		_entity.AddComponent<RenderComponent>();
-		Transform3Component t3c1 = this._entity.AddComponent<Transform3Component>();
-		t3c1.Transform.Translation = (0, 0.5f, 0);
-		t3c1.Transform.Scale = 1;
-		RenderedTextComponent text1 = _entity.AddComponent<RenderedTextComponent>();
-		text1.Text = "Hello, World!";
-		text1.FontName = "JetBrainsMono-Bold";
-		//_entity.AddComponent<TextJumblerComponent>();
-		_entity.AddComponent<WorldComponent>( p => {
+		Transform3Component t3c = this._entity.AddComponent<Transform3Component>();
+		_entity.AddComponent<GlobeComponent>(p => {
+			p.Layers = 9;
 			p.SimulatedSurfaceArea = 611000000;
+			p.Initialize();
 		} );
-		_entity.AddComponent<WorldTilingComponent>();
-		_entity.AddComponent<WorldCameraComponent>();
-		_entity.AddComponent<WorldSelectedTileComponent>();
+
+		//this._entity = container.CreateEntity();
+		//_entity.AddComponent<RenderComponent>();
+		//Transform3Component t3c1 = this._entity.AddComponent<Transform3Component>();
+		//t3c1.Transform.Translation = (0, 0.5f, 0);
+		//t3c1.Transform.Scale = 1;
+		//RenderedTextComponent text1 = _entity.AddComponent<RenderedTextComponent>();
+		//text1.Text = "Hello, World!";
+		//text1.FontName = "JetBrainsMono-Bold";
+		////_entity.AddComponent<TextJumblerComponent>();
+		//_entity.AddComponent<WorldComponent>( p => {
+		//	p.SimulatedSurfaceArea = 611000000;
+		//} );
+		//_entity.AddComponent<WorldTilingComponent>();
+		//_entity.AddComponent<WorldCameraComponent>();
+		//_entity.AddComponent<WorldSelectedTileComponent>();
 		//this._textEntity = container.CreateEntity();
 		//_textEntity.AddComponent<RenderComponent>();
 		//Transform2Component t2c = _textEntity.AddComponent<Transform2Component>();

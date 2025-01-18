@@ -1,7 +1,5 @@
 ﻿using Engine.Module.Entities.Container;
-using Engine.Module.Render;
 using Engine.Module.Render.Domain;
-using Engine.Module.Render.Entities;
 using Engine.Module.Render.Entities.Components;
 using Engine.Module.Render.Input;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
@@ -9,11 +7,8 @@ using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Render;
-using Engine.Standard.Render.Meshing;
 using Engine.Standard.Render.Text.Services;
 using OpenGL;
-using System.Collections.Generic;
-using static Sandbox.OcTree<T, TScalar>;
 
 namespace Sandbox;
 

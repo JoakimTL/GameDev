@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sandbox.Logic.Technologies;
+namespace Sandbox.Logic.Research;
 public abstract class TechnologyBase {
 
-	protected TechnologyBase(string displayName) {
+	protected TechnologyBase( string displayName ) {
 		this.DisplayName = displayName;
 	}
 

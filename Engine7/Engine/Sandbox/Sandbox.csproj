@@ -63,7 +63,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Logic\World\Render\" />
+    <Folder Include="Logic\OldWorld\Render\" />
   </ItemGroup>
 
 </Project>

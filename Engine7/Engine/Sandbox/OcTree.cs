@@ -1,9 +1,24 @@
 ﻿using Engine.Logging;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Sandbox;
-public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint layers, bool allowLeafOnMultipleBranches = true )
-	where T : OcTree<T, TScalar>.ILeaf
+
+public interface IReadOnlyOcTree<T, TScalar>
+	where T : IOcTreeLeaf<TScalar>
+	where TScalar : unmanaged, INumber<TScalar> {
+	public IReadOnlyList<AABB<Vector3<TScalar>>> GetBoundsAtLevel( uint level = 0 );
+	public IReadOnlyList<IReadOnlyCollection<T>> GetContentsAtLevel( uint level = 0 );
+	public IReadOnlyList<T> GetAll( AABB<Vector3<TScalar>> bounds );
+}
+
+public interface IOcTreeLeaf<TScalar>
+	where TScalar : unmanaged, INumber<TScalar> {
+	AABB<Vector3<TScalar>> Bounds { get; }
+}
+
+public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint layers, bool allowLeafOnMultipleBranches = true ) : IReadOnlyOcTree<T, TScalar>
+	where T : IOcTreeLeaf<TScalar>
 	where TScalar : unmanaged, INumber<TScalar> {
 
 	private readonly Branch _root = new( bounds, layers, allowLeafOnMultipleBranches );
@@ -26,15 +41,15 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 		return contents;
 	}
 
-	public void GetAll( AABB<Vector3<TScalar>> bounds, List<T> output ) => _root.GetAll( bounds, output );
+	public IReadOnlyList<T> GetAll( AABB<Vector3<TScalar>> bounds ) {
+		List<T> output = [];
+		_root.GetAll( bounds, output );
+		return output;
+	}
 
 	public void Add( T item ) => _root.Add( item );
 
 	public void Remove( T item ) => _root.Remove( item );
-
-	public interface ILeaf {
-		AABB<Vector3<TScalar>> Bounds { get; }
-	}
 
 	private sealed class Branch {
 
