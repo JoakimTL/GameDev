@@ -30,5 +30,6 @@ public sealed class StartMenu : UserInterfaceElementBase {
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
+		//_btnExit.Placement.SetTransform( new( (.3, -.4), time, (.25, .1) ) );
 	}
 }

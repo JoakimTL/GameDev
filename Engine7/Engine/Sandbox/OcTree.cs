@@ -1,5 +1,4 @@
 ﻿using Engine.Logging;
-using System.Collections.Generic;
 using System.Numerics;
 
 namespace Sandbox;
@@ -9,7 +8,9 @@ public interface IReadOnlyOcTree<T, TScalar>
 	where TScalar : unmanaged, INumber<TScalar> {
 	public IReadOnlyList<AABB<Vector3<TScalar>>> GetBoundsAtLevel( uint level = 0 );
 	public IReadOnlyList<IReadOnlyCollection<T>> GetContentsAtLevel( uint level = 0 );
-	public IReadOnlyList<T> GetAll( AABB<Vector3<TScalar>> bounds );
+	public IReadOnlyList<T> Get( AABB<Vector3<TScalar>> bounds, bool requireLeafIntersection = true );
+	public int Get( List<T> outputList, AABB<Vector3<TScalar>> bounds, bool requireLeafIntersection = true );
+	AABB<Vector3<TScalar>> MaxDepthBounds { get; }
 }
 
 public interface IOcTreeLeaf<TScalar>
@@ -24,6 +25,14 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 	private readonly Branch _root = new( bounds, layers, allowLeafOnMultipleBranches );
 
 	public int Count => _root.Count;
+
+	public AABB<Vector3<TScalar>> MaxDepthBounds {
+		get {
+			Vector3<TScalar> span = _root.BranchBounds.Maxima - _root.BranchBounds.Minima;
+			span /= TScalar.CreateSaturating( 2 << (int) _root.Level );
+			return AABB.Create( [ -span, span ] );
+		}
+	}
 
 	/// <param name="level">Deepest level is 0, and goes higher from there.</param>
 	public IReadOnlyList<AABB<Vector3<TScalar>>> GetBoundsAtLevel( uint level = 0 ) {
@@ -41,10 +50,15 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 		return contents;
 	}
 
-	public IReadOnlyList<T> GetAll( AABB<Vector3<TScalar>> bounds ) {
+	public IReadOnlyList<T> Get( AABB<Vector3<TScalar>> bounds, bool requireLeafIntersection = true ) {
 		List<T> output = [];
-		_root.GetAll( bounds, output );
+		_root.Get( bounds, output, requireLeafIntersection );
 		return output;
+	}
+	public int Get( List<T> outputList, AABB<Vector3<TScalar>> bounds, bool requireLeafIntersection = true ) {
+		int preAdded = outputList.Count;
+		_root.Get( bounds, outputList, requireLeafIntersection );
+		return outputList.Count - preAdded;
 	}
 
 	public void Add( T item ) => _root.Add( item );
@@ -54,18 +68,25 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 	private sealed class Branch {
 
 		public AABB<Vector3<TScalar>> BranchBounds { get; }
+		private AABB<Vector3<TScalar>> _actualBounds;
+		public AABB<Vector3<TScalar>> ActualBounds => GetActualBounds();
+
 		public uint Level { get; }
 
 		private readonly Branch[]? _subBranches;
 		private readonly HashSet<T> _contents;
 		private readonly bool _allowLeafOnMultipleBranches;
+		private bool _actualBoundsNeedUpdate;
 
 		public IReadOnlyCollection<T> Contents => _contents;
 
 		public int Count => _contents?.Count ?? this._subBranches?.Sum( p => p.Count ) ?? 0;
 
+		private event Action? ActualBoundsChanged;
+
 		public Branch( AABB<Vector3<TScalar>> bounds, uint level, bool allowLeafOnMultipleBranches ) {
 			this.BranchBounds = bounds;
+			_actualBounds = bounds;
 			this.Level = level;
 			this._allowLeafOnMultipleBranches = allowLeafOnMultipleBranches;
 			this._contents = [];
@@ -80,7 +101,9 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 					for (int z = 0; z <= 1; z++) {
 						Vector3<TScalar> walk = new Vector3<int>( x, y, z ).CastSaturating<int, TScalar>();
 						AABB<Vector3<TScalar>> childDomain = new( bounds.Minima + halfSpan.MultiplyEntrywise( walk ), bounds.GetCenter() + halfSpan.MultiplyEntrywise( walk ) );
-						this._subBranches[ index++ ] = new( childDomain, level - 1, allowLeafOnMultipleBranches );
+						Branch branch = new( childDomain, level - 1, allowLeafOnMultipleBranches );
+						this._subBranches[ index++ ] = branch;
+						branch.ActualBoundsChanged += OnActualBoundsChanged;
 					}
 				}
 			}
@@ -116,21 +139,26 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 				_subBranches[ i ].GetBranchesAtLevel( branches, level );
 		}
 
-		public void GetAll( AABB<Vector3<TScalar>> volume, List<T> output ) {
+		public void Get( AABB<Vector3<TScalar>> bounds, List<T> output, bool checkLeafIntersection ) {
 			if (Level == 0) {
-				output.AddRange( _contents );
+				if (checkLeafIntersection) {
+					output.AddRange( _contents.Where( p => p.Bounds.Intersects( bounds ) ) );
+				} else {
+					output.AddRange( _contents );
+				}
 				return;
 			}
 			if (_subBranches is null)
 				throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
 			for (int i = 0; i < 8; i++)
-				if (_subBranches[ i ].BranchBounds.Intersects( volume ))
-					_subBranches[ i ].GetAll( volume, output );
+				if (_subBranches[ i ].BranchBounds.Intersects( bounds ))
+					_subBranches[ i ].Get( bounds, output, checkLeafIntersection );
 		}
 
 		public bool Add( T item ) {
 			if (Level == 0) {
 				_contents.Add( item );
+				SetActualBounds( _actualBounds.GetLargestBounds( item.Bounds ) );
 				return true;
 			}
 			if (_subBranches is null)
@@ -142,9 +170,17 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 			return false;
 		}
 
+		private void SetActualBounds( AABB<Vector3<TScalar>> newBounds ) {
+			if (_actualBounds == newBounds)
+				return;
+			_actualBounds = newBounds;
+			ActualBoundsChanged?.Invoke();
+		}
+
 		public void Remove( T item ) {
 			if (Level == 0) {
 				_contents.Remove( item );
+				_actualBoundsNeedUpdate = true;
 				return;
 			}
 			if (_subBranches is null)
@@ -152,6 +188,31 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 			for (int i = 0; i < 8; i++)
 				if (_subBranches[ i ].BranchBounds.Intersects( item.Bounds ))
 					_subBranches[ i ].Remove( item );
+		}
+
+		private void OnActualBoundsChanged() {
+			_actualBoundsNeedUpdate = true;
+			ActualBoundsChanged?.Invoke();
+		}
+
+		private AABB<Vector3<TScalar>> GetActualBounds() {
+			if (!_actualBoundsNeedUpdate)
+				return _actualBounds;
+			_actualBoundsNeedUpdate = false;
+			AABB<Vector3<TScalar>> newBounds = BranchBounds;
+
+			if (Level == 0) {
+				foreach (T item in _contents)
+					newBounds = newBounds.GetLargestBounds( item.Bounds );
+				SetActualBounds( newBounds );
+				return _actualBounds;
+			}
+			if (_subBranches is null)
+				throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
+			foreach (Branch branch in _subBranches)
+				newBounds = newBounds.GetLargestBounds( branch.ActualBounds );
+			SetActualBounds( newBounds );
+			return _actualBounds;
 		}
 
 		public override string ToString() => $"Level {Level}, {BranchBounds}, {Count} items";

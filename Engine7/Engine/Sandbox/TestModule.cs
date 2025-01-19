@@ -42,8 +42,8 @@ internal sealed class GameLogicModule : ModuleBase {
 		_entity.AddComponent<RenderComponent>();
 		Transform3Component t3c = this._entity.AddComponent<Transform3Component>();
 		_entity.AddComponent<GlobeComponent>(p => {
-			p.Layers = 9;
-			p.SimulatedSurfaceArea = 611000000;
+			p.Layers = 8;
+			p.SimulatedSurfaceArea = 509600000;
 			p.Initialize();
 		} );
 

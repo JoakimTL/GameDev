@@ -2,10 +2,12 @@
 
 namespace Sandbox.Render.World;
 
-public sealed class TileRenderCluster {
+public sealed class RenderCluster {
 	private readonly List<Tile> _tilesInCluster;
+	private readonly List<Edge> _edgesInCluster;
 
 	public IReadOnlyList<Tile> Tiles => _tilesInCluster;
+	public IReadOnlyList<Edge> Edges => _edgesInCluster;
 
 	public readonly AABB<Vector3<float>> ClusterBounds;
 
@@ -13,8 +15,9 @@ public sealed class TileRenderCluster {
 
 	public event Action? VisibilityChanged;
 
-	public TileRenderCluster( IEnumerable<Tile> tilesInCluster ) {
+	public RenderCluster( IEnumerable<Tile> tilesInCluster, IEnumerable<Edge> edgesInCluster ) {
 		this._tilesInCluster = tilesInCluster.ToList();
+		this._edgesInCluster = edgesInCluster.ToList();
 		this.ClusterBounds = AABB.Create<Vector3<float>>( _tilesInCluster.Select( t => t.Bounds ).ToArray() );
 	}
 

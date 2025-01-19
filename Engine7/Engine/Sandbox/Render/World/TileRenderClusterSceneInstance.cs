@@ -2,37 +2,40 @@
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render;
 using Sandbox.Logic.World.Tiles;
+using Sandbox.Render.Oldworld;
 
 namespace Sandbox.Render.World;
 
 public sealed class TileRenderClusterSceneInstance : SceneInstanceCollection<Vertex3, Entity3SceneData>.InstanceBase {
 
-	private TileRenderCluster? _renderCluster;
-	public TileRenderCluster RenderCluster => _renderCluster ?? throw new InvalidOperationException( $"{nameof( RenderCluster )} is not set." );
+	private RenderCluster? _renderCluster;
+	public RenderCluster RenderCluster => _renderCluster ?? throw new InvalidOperationException( $"{nameof( RenderCluster )} is not set." );
 
-	private bool _hasChanged = false;
+	private bool _needsMeshUpdate = false;
+	private bool _visibilityChanged = false;
 
-	internal void SetTileRenderCluster( TileRenderCluster cluster ) {
+	internal void SetTileRenderCluster( RenderCluster cluster ) {
 		if (_renderCluster is not null)
 			throw new InvalidOperationException( $"{nameof( RenderCluster )} is already set." );
 		_renderCluster = cluster;
-		_hasChanged = true;
+		_needsMeshUpdate = true;
 		_renderCluster.VisibilityChanged += OnVisibilityChanged;
 	}
 
 	private void OnVisibilityChanged() {
-		_hasChanged = true;
+		_visibilityChanged = true;
 	}
 
 	public void Update( MeshProvider meshProvider ) {
-		if (!_hasChanged || _renderCluster is null)
+		if (!(_visibilityChanged || _needsMeshUpdate) || _renderCluster is null)
 			return;
-		_hasChanged = false;
 		//Update the instance.
 		SetActive( _renderCluster.IsVisible );
-		if (Active) {
+		_visibilityChanged = false;
+		if (Active && _needsMeshUpdate) {
 			UpdateMesh( meshProvider );
 			Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity, new( ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue ) ) );
+			_needsMeshUpdate = false;
 		}
 	}
 

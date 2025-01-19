@@ -303,4 +303,14 @@ public static class Vector {
 			unmanaged, INumber<TScalarNew>
 		=> new( TScalarNew.CreateTruncating( vector.X ), TScalarNew.CreateTruncating( vector.Y ), TScalarNew.CreateTruncating( vector.Z ), TScalarNew.CreateTruncating( vector.W ) );
 
+	public static Vector3<TScalar> GetMouseWorldDirection<TScalar>( in this Vector2<TScalar> ndc, in Matrix4x4<TScalar> inverseViewMatrix, in Matrix4x4<TScalar> inverseProjectionMatrix )
+		where TScalar :
+			unmanaged, IFloatingPointIeee754<TScalar> {
+		Vector4<TScalar> mouseVector = new( ndc.X, ndc.Y, TScalar.NegativeOne, TScalar.One );
+		Vector4<TScalar> mouseEye = mouseVector * inverseProjectionMatrix;
+		mouseEye = new( mouseEye.X, mouseEye.Y, TScalar.NegativeOne, TScalar.Zero );
+		Vector4<TScalar> mouseWorld = mouseEye * inverseViewMatrix;
+
+		return new Vector3<TScalar>( mouseWorld.X, mouseWorld.Y, mouseWorld.Z ).Normalize<Vector3<TScalar>, TScalar>();
+	}
 }

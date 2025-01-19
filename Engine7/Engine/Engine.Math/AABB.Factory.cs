@@ -24,4 +24,14 @@ public static partial class AABB {
 		}
 		return new AABB<TVector>( min, max );
 	}
+
+	public static AABB<TVector> MoveBy<TVector>( in this AABB<TVector> bounds, TVector basis )
+		where TVector :
+			unmanaged, IInEqualityOperators<TVector, TVector, bool>, IEntrywiseMinMaxOperations<TVector>, ILinearAlgebraVectorOperations<TVector>
+		=> new( bounds.Minima.Add( basis ), bounds.Maxima.Add( basis ) );
+
+	public static AABB<TVector> CreateBounds<TVector>( this TVector basis )
+		where TVector :
+			unmanaged, IInEqualityOperators<TVector, TVector, bool>, IEntrywiseMinMaxOperations<TVector>, ILinearAlgebraVectorOperations<TVector>
+		=> new( basis, basis );
 }

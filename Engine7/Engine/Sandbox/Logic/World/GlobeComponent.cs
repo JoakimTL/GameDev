@@ -47,6 +47,8 @@ public sealed class GlobeComponent : ComponentBase, IInitializable {
 		Icosphere icosphere = new( GeneratedLayers );
 		_vertices.AddRange( icosphere.Vertices );
 		GenerateMosaic( icosphere );
+
+		Console.WriteLine( GeneratedSurfaceArea / _tiles.Count );
 	}
 
 	private void GenerateMosaic( Icosphere icosphere ) {
