@@ -1,6 +1,8 @@
-﻿using Engine.Module.Render.Ogl.OOP.Shaders;
+﻿using Engine.Buffers;
+using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Services;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Module.Render.Ogl.Scenes;
 
@@ -12,9 +14,9 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 
 	private readonly HashSet<SceneInstanceBase> _unboundSceneInstances = [];
 	private readonly Dictionary<ulong, SceneObject> _sceneObjectsByBindIndex = [];
-	private readonly Structures.SimpleSortedList<SceneObject> _sceneObjects = new();
+	private readonly Structures.SimpleSortedList<IndirectCommandProviderBase> _indirectCommandProviders = new();
 	private readonly BufferService _bufferService;
-	public IReadOnlyList<SceneObject> SceneObjects => this._sceneObjects.AsReadOnly();
+	public IReadOnlyList<IndirectCommandProviderBase> CommandProviders => this._indirectCommandProviders.AsReadOnly();
 
 	public event Action<SceneInstanceBase>? OnInstanceRemoved;
 	public event Action? OnChanged;
@@ -22,6 +24,19 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 	public SceneLayer( uint renderLayer, BufferService bufferService ) {
 		this.RenderLayer = renderLayer;
 		this._bufferService = bufferService;
+	}
+
+	internal SceneObjectFixedCollection<TVertexData, TInstanceData> CreateFixedCollection<TVertexData, TInstanceData>( OglVertexArrayObjectBase vao, ShaderBundleBase shaderBundle, IMesh mesh, uint count )
+		where TVertexData : unmanaged
+		where TInstanceData : unmanaged {
+		uint instanceSize = (uint) Unsafe.SizeOf<TInstanceData>();
+		if (!this._bufferService.Get( typeof( TInstanceData ) ).TryAllocate( count * instanceSize, out BufferSegment? bufferSegment ))
+			throw new InvalidOperationException( "Failed to allocate buffer segment" );
+		SceneObjectFixedCollection<TVertexData, TInstanceData> collection = new( this.RenderLayer, vao, shaderBundle, mesh, bufferSegment );
+		this._indirectCommandProviders.Add( collection );
+		collection.OnChanged += OnProviderChanged;
+		collection.OnRemoved += OnProviderRemoval;
+		return collection;
 	}
 
 	public void AddSceneInstance( SceneInstanceBase sceneInstance ) {
@@ -54,9 +69,9 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 		ShaderBundleBase? shaderBundle = sceneInstance.ShaderBundle ?? throw new ArgumentException( "SceneInstance does not have a ShaderBundle" );
 
 		if (!this._sceneObjectsByBindIndex.TryGetValue( bindIndex, out SceneObject? sceneObject )) {
-			this._sceneObjectsByBindIndex.Add( bindIndex, sceneObject = new( this.RenderLayer, this._bufferService, vertexArrayObject, shaderBundle, 8 ) );
-			this._sceneObjects.Add( sceneObject );
-			sceneObject.OnChanged += OnSceneObjectChanged;
+			this._sceneObjectsByBindIndex.Add( bindIndex, sceneObject = new( this.RenderLayer, vertexArrayObject, shaderBundle, this._bufferService, 8 ) );
+			this._indirectCommandProviders.Add( sceneObject );
+			sceneObject.OnChanged += OnProviderChanged;
 		}
 		sceneObject.OnInstanceRemoved += OnInstanceRemovedFromSceneObject;
 		sceneObject.AddSceneInstance( sceneInstance );
@@ -93,8 +108,16 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 		OnInstanceRemoved?.Invoke( sceneInstance );
 	}
 
-	private void OnSceneObjectChanged() => OnChanged?.Invoke();
+	private void OnProviderChanged() => OnChanged?.Invoke();
 
+
+	private void OnProviderRemoval( IRemovable removable ) {
+		if (removable is not IndirectCommandProviderBase indirectCommandProvider)
+			throw new ArgumentException( "Removable is not an IndirectCommandProviderBase" );
+		this._indirectCommandProviders.Remove( indirectCommandProvider );
+		OnChanged?.Invoke();
+	}
+	
 	private void OnInstanceRemoval( IRemovable removable ) => RemoveInstance( (SceneInstanceBase) removable );
 
 	//If the layer of a scene instance changes, we know the scene instance is no longer compatible.
@@ -109,7 +132,7 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 	protected override bool InternalDispose() {
 		foreach (SceneObject sceneObject in this._sceneObjectsByBindIndex.Values)
 			sceneObject.Dispose();
-		this._sceneObjects.Clear();
+		this._indirectCommandProviders.Clear();
 		this._sceneObjectsByBindIndex.Clear();
 		this._unboundSceneInstances.Clear();
 		return true;

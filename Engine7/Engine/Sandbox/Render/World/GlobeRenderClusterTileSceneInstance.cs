@@ -6,7 +6,7 @@ using Sandbox.Render.Oldworld;
 
 namespace Sandbox.Render.World;
 
-public sealed class TileRenderClusterSceneInstance : SceneInstanceCollection<Vertex3, Entity3SceneData>.InstanceBase {
+public sealed class GlobeRenderClusterTileSceneInstance : SceneInstanceCollection<Vertex3, Entity3SceneData>.InstanceBase {
 
 	private RenderCluster? _renderCluster;
 	public RenderCluster RenderCluster => _renderCluster ?? throw new InvalidOperationException( $"{nameof( RenderCluster )} is not set." );

@@ -21,4 +21,13 @@ public sealed class SceneInstanceProvider( SceneService sceneService, CompositeV
 		TShaderBundle shaderBundle = _shaderBundleProvider.GetShaderBundle<TShaderBundle>() ?? throw new InvalidOperationException( "ShaderBundle not found." );
 		return this._sceneService.GetScene( sceneName ).CreateInstanceCollection<TVertexData, TInstanceData>( layer, vao, shaderBundle );
 	}
+
+	public SceneObjectFixedCollection<TVertexData, TInstanceData> RequestSceneObjectFixedCollection<TVertexData, TInstanceData, TShaderBundle>( string sceneName, uint layer, IMesh mesh, uint count )
+		where TVertexData : unmanaged
+		where TInstanceData : unmanaged
+		where TShaderBundle : ShaderBundleBase {
+		OglVertexArrayObjectBase vao = _compositeVertexArrayProvider.GetVertexArray<TVertexData, TInstanceData>() ?? throw new InvalidOperationException( "CompositeVertexArrayObject not found." );
+		TShaderBundle shaderBundle = _shaderBundleProvider.GetShaderBundle<TShaderBundle>() ?? throw new InvalidOperationException( "ShaderBundle not found." );
+		return this._sceneService.GetScene( sceneName ).CreateFixedCollection<TVertexData, TInstanceData>( layer, vao, shaderBundle, mesh, count );
+	}
 }

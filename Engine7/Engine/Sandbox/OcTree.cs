@@ -6,11 +6,23 @@ namespace Sandbox;
 public interface IReadOnlyOcTree<T, TScalar>
 	where T : IOcTreeLeaf<TScalar>
 	where TScalar : unmanaged, INumber<TScalar> {
-	public IReadOnlyList<AABB<Vector3<TScalar>>> GetBoundsAtLevel( uint level = 0 );
-	public IReadOnlyList<IReadOnlyCollection<T>> GetContentsAtLevel( uint level = 0 );
-	public IReadOnlyList<T> Get( AABB<Vector3<TScalar>> bounds, bool requireLeafIntersection = true );
-	public int Get( List<T> outputList, AABB<Vector3<TScalar>> bounds, bool requireLeafIntersection = true );
+	IReadOnlyList<AABB<Vector3<TScalar>>> GetBoundsAtLevel( uint level = 0 );
+	IReadOnlyList<IReadOnlyCollection<T>> GetContentsAtLevel( uint level = 0 );
+	IReadOnlyList<T> Get( AABB<Vector3<TScalar>> bounds, bool requireLeafIntersection = true );
+	int Get( List<T> outputList, AABB<Vector3<TScalar>> bounds, bool requireLeafIntersection = true );
+	IReadOnlyList<IReadOnlyBranch<T, TScalar>> GetBranches( AABB<Vector3<TScalar>> bounds );
+	IReadOnlyList<IReadOnlyBranch<T, TScalar>> GetBranches();
 	AABB<Vector3<TScalar>> MaxDepthBounds { get; }
+}
+
+public interface IReadOnlyBranch<T, TScalar>
+	where T : IOcTreeLeaf<TScalar>
+	where TScalar : unmanaged, INumber<TScalar> {
+	AABB<Vector3<TScalar>> BranchBounds { get; }
+	AABB<Vector3<TScalar>> ActualBounds { get; }
+	IReadOnlyCollection<T> Contents { get; }
+	uint Level { get; }
+	int Count { get; }
 }
 
 public interface IOcTreeLeaf<TScalar>
@@ -55,17 +67,30 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 		_root.Get( bounds, output, requireLeafIntersection );
 		return output;
 	}
+
 	public int Get( List<T> outputList, AABB<Vector3<TScalar>> bounds, bool requireLeafIntersection = true ) {
 		int preAdded = outputList.Count;
 		_root.Get( bounds, outputList, requireLeafIntersection );
 		return outputList.Count - preAdded;
 	}
 
+	public IReadOnlyList<IReadOnlyBranch<T, TScalar>> GetBranches( AABB<Vector3<TScalar>> bounds ) {
+		List<IReadOnlyBranch<T, TScalar>> output = [];
+		_root.GetBranches( bounds, output );
+		return output;
+	}
+
+	public IReadOnlyList<IReadOnlyBranch<T, TScalar>> GetBranches() {
+		List<IReadOnlyBranch<T, TScalar>> output = [];
+		_root.GetBranches( output );
+		return output;
+	}
+
 	public void Add( T item ) => _root.Add( item );
 
 	public void Remove( T item ) => _root.Remove( item );
 
-	private sealed class Branch {
+	private sealed class Branch : IReadOnlyBranch<T, TScalar> {
 
 		public AABB<Vector3<TScalar>> BranchBounds { get; }
 		private AABB<Vector3<TScalar>> _actualBounds;
@@ -153,6 +178,29 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 			for (int i = 0; i < 8; i++)
 				if (_subBranches[ i ].BranchBounds.Intersects( bounds ))
 					_subBranches[ i ].Get( bounds, output, checkLeafIntersection );
+		}
+
+		public void GetBranches( AABB<Vector3<TScalar>> bounds, List<IReadOnlyBranch<T, TScalar>> output ) {
+			if (Level == 0) {
+				output.Add( this );
+				return;
+			}
+			if (_subBranches is null)
+				throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
+			for (int i = 0; i < 8; i++)
+				if (_subBranches[ i ].BranchBounds.Intersects( bounds ))
+					_subBranches[ i ].GetBranches( bounds, output );
+		}
+
+		public void GetBranches( List<IReadOnlyBranch<T, TScalar>> output ) {
+			if (Level == 0) {
+				output.Add( this );
+				return;
+			}
+			if (_subBranches is null)
+				throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
+			for (int i = 0; i < 8; i++)
+				_subBranches[ i ].GetBranches( output );
 		}
 
 		public bool Add( T item ) {

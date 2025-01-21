@@ -63,7 +63,7 @@ public sealed class TileRegionBorderContainer( RenderedFoundationTile tile, Scen
 					_instances.Add( instance );
 				}
 
-				instance.Write( new Line3SceneData( vectorSpan[ l ], magnitude * 1.5f, vectorSpan[ (l + 1) % 3 ], magnitude * 1.5f, normal, 0, 1, (-1, 0, 1), 0, 255 ) );
+				instance.Write( new Line3SceneData( vectorSpan[ l ], magnitude * 1.5f, vectorSpan[ (l + 1) % 3 ], magnitude * 1.5f, normal, 0, 1, (-1, 0, 1), 0, 1, 1, 255 ) );
 				instanceIndex++;
 			}
 		}

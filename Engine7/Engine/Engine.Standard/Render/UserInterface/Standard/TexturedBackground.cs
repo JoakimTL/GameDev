@@ -45,7 +45,7 @@ public sealed class TexturedBackground : UserInterfaceComponentBase {
 	}
 
 	private SceneInstance<Entity2TexturedSceneData> CreateSceneInstance() {
-		var sceneInstance = Element.UserInterfaceServiceAccess.RequestSceneInstance<SceneInstance<Entity2TexturedSceneData>>( RenderLayer );
+		SceneInstance<Entity2TexturedSceneData> sceneInstance = Element.UserInterfaceServiceAccess.RequestSceneInstance<SceneInstance<Entity2TexturedSceneData>>( RenderLayer );
 		sceneInstance.SetVertexArrayObject( Element.UserInterfaceServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2TexturedSceneData>() );
 		sceneInstance.SetShaderBundle( Element.UserInterfaceServiceAccess.ShaderBundleProvider.GetShaderBundle<TexturedShade2ShaderBundle>() );
 		sceneInstance.SetMesh( Element.UserInterfaceServiceAccess.Get<PrimitiveMesh2Provider>().Get( Meshing.Primitive2.Rectangle ) );

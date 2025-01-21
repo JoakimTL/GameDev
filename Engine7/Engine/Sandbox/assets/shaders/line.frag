@@ -10,12 +10,9 @@ layout(location = 0) in PerVertex {
 	float FillPositiveAnchor;
 	vec3 FillQuadratic;
 	float FillGradient;
+	float InvisibleAtDistance;
+	float DistanceGradient;
 } IN;
-
-//Let's map vUv.x to a with this function: a = (2 * (iFillLayout.x + a * (iFillLayout.y - iFillLayout.x) - iFillLayout.z) / (iFillLayout.w - iFillLayout.z)) - 1
-//The line is filled if vUv.y < f(vUv.x) {iFillQuadratic.x * iFillQuadratic.x * a + iFillQuadratic.y * a + iFillQuadratic.z}
-
-//Alpha is a factor if iFillQuadratic.w is greater than 0. At 0 the separation between fill and unfilled is at f(x). iFillQuadratic.w is the width of the gradient between filled and unfilled.
 
 layout(location = 0) out vec4 outColor;
 
@@ -33,8 +30,9 @@ void main(void) {
 	if (IN.Uv.x > quadraticResult) {
 		discard;
 	}
-	outColor = IN.Color;
-	//IN.Uv.x -> UV on width
-	//IN.Uv.y -> UV on length
-	//IN.Fill.x < Uv.Y
+	float distanceFromEdge = quadraticResult - IN.Uv.x;
+//	float distanceFromCamera = IN.DistanceGradient * IN.Position.z;
+	float clamped = clamp(distanceFromEdge / IN.FillGradient, 0, 1);
+	outColor = vec4(IN.Color.r, IN.Color.g, IN.Color.b, IN.Color.a * clamped);
+	//clamp((IN.Uv.x - quadraticResult + 1) * .5 / IN.FillGradient, 0, 1);
 }

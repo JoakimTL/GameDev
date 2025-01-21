@@ -41,7 +41,7 @@ public sealed class GlobeTileSelectionBehaviour : DependentRenderBehaviourBase<G
 		Engine.Transforms.Camera.Perspective.Dynamic projection = RenderEntity.ServiceAccess.CameraProvider.Main.Projection3;
 		Engine.Transforms.Camera.View3 view = RenderEntity.ServiceAccess.CameraProvider.Main.View3;
 		Vector2<float> ndc = RenderEntity.ServiceAccess.Get<ProcessedMouseInputProvider>().MouseNDCTranslation.CastSaturating<double, float>();
-		Vector3<float> pointerDirection = ndc.GetMouseWorldDirection( projection.InverseMatrix, view.InverseMatrix );
+		Vector3<float> pointerDirection = ndc.GetMouseWorldDirection( view.InverseMatrix, projection.InverseMatrix );
 
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
 			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Tile>( "hoveringTile", null );
@@ -51,7 +51,7 @@ public sealed class GlobeTileSelectionBehaviour : DependentRenderBehaviourBase<G
 
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
-		var bounds = Archetype.GlobeComponent.TileTree.MaxDepthBounds;
+		AABB<Vector3<float>> bounds = Archetype.GlobeComponent.TileTree.MaxDepthBounds;
 		bounds = AABB.Create( [ bounds.Minima * 0.25f, bounds.Maxima * 0.25f ] );
 		IReadOnlyList<Tile> tilesInBounds = Archetype.GlobeComponent.TileTree.Get( bounds.MoveBy( intersectionPoint ) ); //TODO persistent list?
 
@@ -62,7 +62,7 @@ public sealed class GlobeTileSelectionBehaviour : DependentRenderBehaviourBase<G
 			return;
 		}
 
-		throw new System.Exception( "No tile found" );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Tile>( "hoveringTile", null );
 	}
 
 	protected override bool InternalDispose() {

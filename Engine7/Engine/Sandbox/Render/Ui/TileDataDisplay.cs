@@ -1,7 +1,7 @@
 ﻿using Engine.Standard;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
-using Sandbox.Logic.OldWorld.Tiles;
+using Sandbox.Logic.World.Tiles;
 
 namespace Sandbox.Render.Ui;
 
@@ -22,7 +22,7 @@ public sealed class TileDataDisplay : UserInterfaceElementBase {
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		_lblTileName.Text = GameStateProvider.Get<Tile>( "selectedTile" )?.Height.ToString() ?? "Unknown";
+		_lblTileName.Text = $"{GameStateProvider.Get<Tile>( "selectedTile" )?.Area:N5}km^2";
 	}
 
 	protected override bool ShouldDisplay() {

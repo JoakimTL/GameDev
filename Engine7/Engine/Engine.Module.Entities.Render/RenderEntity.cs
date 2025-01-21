@@ -3,6 +3,7 @@ using Engine.Module.Entities.Container;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Scenes;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Emit;
 
 namespace Engine.Module.Render.Entities;
 
@@ -11,7 +12,8 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 	private readonly DisposableList _disposables;
 	private readonly RemovableList _removables;
 	private readonly Dictionary<Type, RenderBehaviourBase> _behaviours;
-	private readonly Queue<IInitializable> _initializationQueue;
+	private readonly List<IInitializable> _initializationQueue;
+	private readonly Engine.Structures.TypeDigraph<IInitializable> _initializationTree;
 
 	public event Action<RenderBehaviourBase>? OnBehaviourRemoved;
 	public event RemovalHandler? OnRemoved;
@@ -27,6 +29,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 		this._removables = new();
 		this._initializationQueue = [];
 		this._disposables = new();
+		this._initializationTree = new();
 	}
 
 	public T RequestSceneInstance<T>( string sceneName, uint layer ) where T : SceneInstanceBase, new() {
@@ -40,6 +43,15 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 		where TInstanceData : unmanaged
 		where TShaderBundle : ShaderBundleBase {
 		SceneInstanceCollection<TVertexData, TInstanceData> collection = this.ServiceAccess.SceneInstanceProvider.RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( sceneName, layer );
+		this._removables.Add( collection );
+		return collection;
+	}
+
+	public SceneObjectFixedCollection<TVertexData, TInstanceData> RequestSceneInstanceFixedCollection<TVertexData, TInstanceData, TShaderBundle>( string sceneName, uint layer, IMesh mesh, uint count )
+		where TVertexData : unmanaged
+		where TInstanceData : unmanaged
+		where TShaderBundle : ShaderBundleBase {
+		SceneObjectFixedCollection<TVertexData, TInstanceData> collection = this.ServiceAccess.SceneInstanceProvider.RequestSceneObjectFixedCollection<TVertexData, TInstanceData, TShaderBundle>( sceneName, layer, mesh, count );
 		this._removables.Add( collection );
 		return collection;
 	}
@@ -64,8 +76,10 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 		if (!this._behaviours.TryAdd( renderBehaviour.GetType(), renderBehaviour ))
 			return this.LogWarningThenReturn( $"Behaviour of type {renderBehaviour.GetType().Name} already exists.", false );
 		_disposables.Add( renderBehaviour );
-		if (renderBehaviour is IInitializable initializable)
-			_initializationQueue.Enqueue( initializable );
+		if (renderBehaviour is IInitializable initializable) {
+			_initializationQueue.Add( initializable );
+			_initializationTree.Add( initializable.GetType() );
+		}
 		renderBehaviour.OnDisposed += OnRenderBehaviourDisposed;
 		return true;
 	}
@@ -93,11 +107,12 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 		=> (renderBehaviour = null) is null && this._behaviours.TryGetValue( typeof( T ), out RenderBehaviourBase? baseBehaviour ) && (renderBehaviour = baseBehaviour as T) is not null;
 
 	public void Update( double time, double deltaTime ) {
-		while (_initializationQueue.TryDequeue( out IInitializable? initializable )) {
-			if (!_behaviours.ContainsKey( initializable.GetType() ))
-				continue;
-			initializable.Initialize();
+		var types = _initializationTree.GetTypes();
+		for (int i = 0; i < types.Count; i++) {
+			_initializationQueue.First( p => p.GetType() == types[ i ] ).Initialize();
 		}
+		_initializationTree.Clear();
+		_initializationQueue.Clear();
 		foreach (RenderBehaviourBase renderBehaviour in this._behaviours.Values)
 			renderBehaviour.Update( time, deltaTime );
 	}

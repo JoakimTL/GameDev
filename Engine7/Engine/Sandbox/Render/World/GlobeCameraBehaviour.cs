@@ -12,7 +12,7 @@ public sealed class GlobeCameraBehaviour : DependentRenderBehaviourBase<GlobeArc
 	private Vector2<float> _velocity;
 	private float _zoom = 2;
 	private float _zoomVelocity;
-	private float _minZoom = 1.01f;
+	private float _minZoom = 1.005f;
 	private bool _wKeyDown;
 	private bool _sKeyDown;
 	private bool _aKeyDown;
@@ -46,7 +46,7 @@ public sealed class GlobeCameraBehaviour : DependentRenderBehaviourBase<GlobeArc
 	}
 
 	private void OnMouseWheelScrolled( MouseWheelEvent @event ) {
-		_zoomVelocity = (float) -@event.Movement.Y * float.Exp( float.Min( _zoom * 2 - 3.25f, float.E ) );
+		_zoomVelocity = (float) -@event.Movement.Y * (float.Exp( float.Min( _zoom * 2 - 3.25f, float.E ) ) - .15f);
 	}
 
 	private void OnKey( KeyboardEvent @event ) {

@@ -17,6 +17,10 @@ public sealed class Edge : IOcTreeLeaf<float> {
 
 	public AABB<Vector3<float>> Bounds => AABB.Create( [ Globe.Vertices[ EdgeIndices.A ], Globe.Vertices[ EdgeIndices.B ] ] );
 
+	public Vector3<float> VectorA => Globe.Vertices[ EdgeIndices.A ];
+	public Vector3<float> VectorB => Globe.Vertices[ EdgeIndices.B ];
+	public Vector3<float> Normal => (_tiles[ 0 ].RenderModel.Normal + _tiles[ 1 ].RenderModel.Normal) / 2;
+
 	internal void AddTile( Tile tile ) {
 		if (_tiles[ 0 ] == null)
 			_tiles[ 0 ] = tile;

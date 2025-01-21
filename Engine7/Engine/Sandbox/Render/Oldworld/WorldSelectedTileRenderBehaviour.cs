@@ -77,9 +77,9 @@ public sealed class WorldSelectedTileRenderBehaviour : DependentRenderBehaviourB
 		Vector3<float> normal = cross.Normalize<Vector3<float>, float>();
 
 		float width = magnitude * 1.75f;
-		_instances[ 0 ].Write( new Line3SceneData( vA, width, vB, width, normal, 0, 1, (-1, 0, 1), 0, (120, 120, 120, 255) ) );
-		_instances[ 1 ].Write( new Line3SceneData( vB, width, vC, width, normal, 0, 1, (-1, 0, 1), 0, (120, 120, 120, 255) ) );
-		_instances[ 2 ].Write( new Line3SceneData( vC, width, vA, width, normal, 0, 1, (-1, 0, 1), 0, (120, 120, 120, 255) ) );
+		_instances[ 0 ].Write( new Line3SceneData( vA, width, vB, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, (120, 120, 120, 255) ) );
+		_instances[ 1 ].Write( new Line3SceneData( vB, width, vC, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, (120, 120, 120, 255) ) );
+		_instances[ 2 ].Write( new Line3SceneData( vC, width, vA, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, (120, 120, 120, 255) ) );
 		_instances[ 0 ].SetActive( true );
 		_instances[ 1 ].SetActive( true );
 		_instances[ 2 ].SetActive( true );
@@ -111,9 +111,9 @@ public sealed class WorldSelectedTileRenderBehaviour : DependentRenderBehaviourB
 		float magnitude = cross.Magnitude<Vector3<float>, float>();
 		Vector3<float> normal = cross.Normalize<Vector3<float>, float>();
 		float width = magnitude * 2;
-		_instances[ 6 ].Write( new Line3SceneData( vA, width, vB, width, normal, 0, 1, (-1, 0, 1), 0, col1B, col2B ) );
-		_instances[ 7 ].Write( new Line3SceneData( vB, width, vC, width, normal, 0, 1, (-1, 0, 1), 0, col2B, col3B ) );
-		_instances[ 8 ].Write( new Line3SceneData( vC, width, vA, width, normal, 0, 1, (-1, 0, 1), 0, col3B, col1B ) );
+		_instances[ 6 ].Write( new Line3SceneData( vA, width, vB, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col1B, col2B ) );
+		_instances[ 7 ].Write( new Line3SceneData( vB, width, vC, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col2B, col3B ) );
+		_instances[ 8 ].Write( new Line3SceneData( vC, width, vA, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col3B, col1B ) );
 		_instances[ 6 ].SetActive( true );
 		_instances[ 7 ].SetActive( true );
 		_instances[ 8 ].SetActive( true );
@@ -141,9 +141,9 @@ public sealed class WorldSelectedTileRenderBehaviour : DependentRenderBehaviourB
 		float magnitude = cross.Magnitude<Vector3<float>, float>();
 		Vector3<float> normal = cross.Normalize<Vector3<float>, float>();
 		float width = magnitude * 3;
-		_instances[ 3 ].Write( new Line3SceneData( vA, width, vB, width, normal, 0, 1, (-1, 0, 1), 0, col1B, col2B ) );
-		_instances[ 4 ].Write( new Line3SceneData( vB, width, vC, width, normal, 0, 1, (-1, 0, 1), 0, col2B, col3B ) );
-		_instances[ 5 ].Write( new Line3SceneData( vC, width, vA, width, normal, 0, 1, (-1, 0, 1), 0, col3B, col1B ) );
+		_instances[ 3 ].Write( new Line3SceneData( vA, width, vB, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col1B, col2B ) );
+		_instances[ 4 ].Write( new Line3SceneData( vB, width, vC, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col2B, col3B ) );
+		_instances[ 5 ].Write( new Line3SceneData( vC, width, vA, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col3B, col1B ) );
 		_instances[ 3 ].SetActive( true );
 		_instances[ 4 ].SetActive( true );
 		_instances[ 5 ].SetActive( true );

@@ -120,7 +120,7 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 		sliceUvOffsets[ 8 ] = (1 - EdgeWidth, 1 - EdgeWidth);
 		sliceUvDimensions[ 8 ] = (EdgeWidth, EdgeWidth);
 
-		var scale = TransformInterface.GlobalScale.CastSaturating<double, float>();
+		Vector2<float> scale = TransformInterface.GlobalScale.CastSaturating<double, float>();
 		float lowestScale = scale.X < scale.Y ? scale.X : scale.Y;
 
 		Span<Vector2<float>> sliceOffsets = stackalloc Vector2<float>[ _sceneInstances.Length ];

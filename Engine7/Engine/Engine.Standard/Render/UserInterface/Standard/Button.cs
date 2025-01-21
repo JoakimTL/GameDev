@@ -45,7 +45,7 @@ public sealed class Button : UserInterfaceComponentBase {
 		if (!_collision.Evaluate())
 			this.LogWarning( "Collision calculation failed." );
 		_hovering = _collision.CollisionResult.IsColliding;
-		var color = _hoveringAtPress
+		Vector4<double> color = _hoveringAtPress
 			? PressedColor
 			: _hovering
 				? HoverColor

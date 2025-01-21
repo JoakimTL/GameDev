@@ -9,11 +9,13 @@ public sealed class Tile : IOcTreeLeaf<float> {
 		this.Globe = globe;
 		this.RenderModel = new( this, indices, color );
 		this._neighbours = new( this );
+		Area = RenderModel.Area * Globe.GeneratedSurfaceArea / (4 * double.Pi);
 	}
 
 	public IReadOnlyList<Edge> Edges => _neighbours.Edges;
 	public IReadOnlyList<Tile> Neighbours => _neighbours.GetNeighbours();
 	public AABB<Vector3<float>> Bounds => RenderModel.GetBounds();
+	public double Area { get; }
 
 	internal void AddEdge( Edge edge ) {
 		_neighbours.AddEdge( edge );

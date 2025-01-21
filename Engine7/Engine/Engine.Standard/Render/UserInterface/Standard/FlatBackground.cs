@@ -28,7 +28,7 @@ public sealed class FlatBackground : UserInterfaceComponentBase {
 	}
 
 	private SceneInstance<Entity2SceneData> CreateSceneInstance() {
-		var sceneInstance = Element.UserInterfaceServiceAccess.RequestSceneInstance<SceneInstance<Entity2SceneData>>( RenderLayer );
+		SceneInstance<Entity2SceneData> sceneInstance = Element.UserInterfaceServiceAccess.RequestSceneInstance<SceneInstance<Entity2SceneData>>( RenderLayer );
 		sceneInstance.SetVertexArrayObject( Element.UserInterfaceServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2SceneData>() );
 		sceneInstance.SetShaderBundle( Element.UserInterfaceServiceAccess.ShaderBundleProvider.GetShaderBundle<FlatShade2ShaderBundle>() );
 		sceneInstance.SetMesh( Element.UserInterfaceServiceAccess.Get<PrimitiveMesh2Provider>().Get( Meshing.Primitive2.Rectangle ) );

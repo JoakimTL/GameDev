@@ -11,14 +11,14 @@ layout(location = 5) in vec3 iLineNormal;		//xyz
 //layout(location = 7) in vec4 iFill;			//Rectangle on the uv which is filled. x = xStart, y = yStart, z = xEnd, w = yEnd
 layout(location = 6) in vec2 iFillAnchors;		//Where x is the negativeAnchor and y is the positiveAnchor
 layout(location = 7) in vec4 iFillQuadratic;	//x = quadratic, y = linear, z = constant, w = gradientSharpness. The quadratic equation y is on the width of the line, while the x = 0 is at (iFill.z + iFill.x) / 2, and x = -1 at iFillLayout.x, and x = 1 at iFillLayout.z. 
-layout(location = 8) in vec4 iColorStart;
-layout(location = 9) in vec4 iColorEnd;
+layout(location = 8) in vec2 iDistanceGradient;
+layout(location = 9) in vec4 iColorStart;
+layout(location = 10) in vec4 iColorEnd;
 
 //Let's map vUv.x to a with this function: a = (2 * (iFillLayout.x + a * (iFillLayout.y - iFillLayout.x) - iFillLayout.z) / (iFillLayout.w - iFillLayout.z)) - 1
 //The line is filled if vUv.y < f(vUv.x) {iFillQuadratic.x * iFillQuadratic.x * a + iFillQuadratic.y * a + iFillQuadratic.z}
 
 //Alpha is a factor if iFillQuadratic.w is greater than 0. At 0 the separation between fill and unfilled is at f(x). iFillQuadratic.w is the width of the gradient between filled and unfilled.
-
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -32,6 +32,8 @@ layout(location = 0) out PerVertex {
 	float FillPositiveAnchor;
 	vec3 FillQuadratic;
 	float FillGradient;
+	float InvisibleAtDistance;
+	float DistanceGradient;
 } OUT;
 
 layout (std140) uniform SceneCameraBlock
@@ -62,5 +64,7 @@ void main(void){
 	OUT.FillPositiveAnchor = iFillAnchors.y;
 	OUT.FillQuadratic = iFillQuadratic.xyz;
 	OUT.FillGradient = iFillQuadratic.w;
+	OUT.InvisibleAtDistance = iDistanceGradient.x;
+	OUT.DistanceGradient = iDistanceGradient.y;
 	gl_Position = OUT.Position;
 }

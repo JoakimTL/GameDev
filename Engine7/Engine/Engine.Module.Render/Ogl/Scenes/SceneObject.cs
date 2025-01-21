@@ -8,41 +8,25 @@ namespace Engine.Module.Render.Ogl.Scenes;
 /// <summary>
 /// Instances here might not have a mesh, but they do have matching a bind index and renderlayer.
 /// </summary>
-public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObject> {
+public sealed class SceneObject( uint layer, OglVertexArrayObjectBase vertexArrayObject, ShaderBundleBase shaderBundle, BufferService bufferService, uint baseInstanceCount ) : IndirectCommandProviderBase( layer, vertexArrayObject, shaderBundle ) {
 
 	/// <summary>
 	/// The number of instances that are expected to be in each collection if there are only one collection. If another collection is added, this number is multiplied by the number of collections + 1.
 	/// </summary>
-	private readonly uint _baseInstanceCount;
-	public OglVertexArrayObjectBase VertexArrayObject { get; }
-	public ShaderBundleBase ShaderBundle { get; }
-	public ulong BindIndex { get; }
-	public uint RenderLayer { get; }
-	private readonly HashSet<SceneInstanceBase> _unmeshedSceneInstances;
-	private readonly Dictionary<(IMesh, Type), List<SceneObjectSceneInstanceCollection>> _sceneInstanceCollectionsByMeshByInstanceDataType;
-	private readonly BufferService _bufferService;
+	private readonly uint _baseInstanceCount = baseInstanceCount;
+	private readonly HashSet<SceneInstanceBase> _unmeshedSceneInstances = [];
+	private readonly Dictionary<(IMesh, Type), List<SceneObjectSceneInstanceCollection>> _sceneInstanceCollectionsByMeshByInstanceDataType = [];
+	private readonly BufferService _bufferService = bufferService;
 
 	public event Action<SceneInstanceBase>? OnInstanceRemoved;
-	public event Action? OnChanged;
 
-	public SceneObject( uint layer, BufferService bufferService, OglVertexArrayObjectBase vertexArrayObject, ShaderBundleBase shaderBundle, uint baseInstanceCount ) {
-		this._sceneInstanceCollectionsByMeshByInstanceDataType = [];
-		this._unmeshedSceneInstances = [];
-		this.VertexArrayObject = vertexArrayObject;
-		this.ShaderBundle = shaderBundle;
-		this._baseInstanceCount = baseInstanceCount;
-		this.BindIndex = this.VertexArrayObject.GetBindIndexWith( this.ShaderBundle ) ?? throw new ArgumentException( "Unable to establish bind index" );
-		this.RenderLayer = layer;
-		this._bufferService = bufferService;
-	}
-
-	public void AddIndirectCommands( List<IndirectCommand> commandList ) {
+	public override void AddIndirectCommands( List<IndirectCommand> commandList ) {
 		foreach (KeyValuePair<(IMesh, Type), List<SceneObjectSceneInstanceCollection>> kvp in this._sceneInstanceCollectionsByMeshByInstanceDataType) {
 			if (kvp.Value.Count == 0)
 				continue;
 			IMesh mesh = kvp.Key.Item1;
 			foreach (SceneObjectSceneInstanceCollection collection in kvp.Value)
-				if (collection.InstanceCount > 0) 
+				if (collection.InstanceCount > 0)
 					commandList.Add( new( mesh.ElementCount, collection.InstanceCount, mesh.ElementOffset, mesh.VertexOffset, collection.BaseInstance ) );
 		}
 	}
@@ -106,7 +90,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 	}
 
 	private void OnMeshOffsetChanged( SceneInstanceBase changedInstance ) {
-		OnChanged?.Invoke();
+		InvokeChanged();
 	}
 
 	private bool TryAddingToCollection( List<SceneObjectSceneInstanceCollection> collectionList, SceneInstanceBase instance ) {
@@ -146,7 +130,7 @@ public sealed class SceneObject : DisposableIdentifiable, IComparable<SceneObjec
 		OnInstanceRemoved?.Invoke( sceneInstance );
 	}
 
-	private void OnSceneCollectionChanged() => OnChanged?.Invoke();
+	private void OnSceneCollectionChanged() => InvokeChanged();
 
 	private void OnMeshChanged( SceneInstanceBase changedInstance, IMesh? oldMesh ) {
 		if (changedInstance.Mesh is null)

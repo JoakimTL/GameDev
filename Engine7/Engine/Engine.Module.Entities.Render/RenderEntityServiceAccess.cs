@@ -19,7 +19,6 @@ public sealed class RenderEntityServiceAccess( RenderServiceAccess renderService
 	public CameraProvider CameraProvider => this._cameraProvider;
 	public RenderEntityInput Input => this._input;
 
-
 	public T Get<T>() where T : IRenderServiceProvider => _renderServiceAccess.Get<T>();
 
 	protected override bool InternalDispose() {

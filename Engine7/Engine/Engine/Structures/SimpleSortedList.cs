@@ -39,6 +39,13 @@ public class SimpleSortedList<T>() where T : IComparable<T> {
 		this._underlying.Insert( index, item );
 	}
 
+	public void Remove( T item ) {
+		int index = FindIndex( 0, this._underlying.Count, item );
+		if (index < 0 || index >= this._underlying.Count)
+			return;
+		this._underlying.RemoveAt( index );
+	}
+
 	[MethodImpl( MethodImplOptions.AggressiveInlining )]
 	private int FindIndex( int start, int end, T item ) {
 		int middle;

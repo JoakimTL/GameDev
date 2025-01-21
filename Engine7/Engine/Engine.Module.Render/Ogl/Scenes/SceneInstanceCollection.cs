@@ -15,7 +15,7 @@ public sealed class SceneInstanceCollection<TVertexData, TInstanceData>( Scene s
 	public ShaderBundleBase ShaderBundle { get; } = shaderBundle;
 	public uint RenderLayer { get; } = renderLayer;
 
-	public bool Removed => throw new NotImplementedException();
+	public bool Removed { get; private set; }
 
 	private readonly RemovableList _removables = new();
 	private readonly Scene _scene = scene;
@@ -37,6 +37,7 @@ public sealed class SceneInstanceCollection<TVertexData, TInstanceData>( Scene s
 
 	public void Remove() {
 		_removables.Clear( true );
+		Removed = true;
 		OnRemoved?.Invoke( this );
 	}
 

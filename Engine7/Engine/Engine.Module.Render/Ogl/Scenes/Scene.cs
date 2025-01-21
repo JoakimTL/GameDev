@@ -1,8 +1,10 @@
-﻿using Engine.Module.Render.Ogl.OOP.Shaders;
+﻿using Engine.Buffers;
+using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Structures;
 using OpenGL;
+using System.Runtime.CompilerServices;
 
 namespace Engine.Module.Render.Ogl.Scenes;
 
@@ -35,7 +37,6 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 			this._sceneLayersByLayer.Add( renderLayer, layer = new( renderLayer, this._bufferService ) );
 			this._sortedLayers.Add( layer );
 			layer.OnChanged += OnLayerChanged;
-			//TODO: handle scene instances moving between layers
 		}
 		layer.AddSceneInstance( instance );
 		return instance;
@@ -46,6 +47,19 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 		where TInstanceData : unmanaged {
 		return new( this, layer, vertexArrayObject, shaderBundle );
 	}
+
+
+	public SceneObjectFixedCollection<TVertexData, TInstanceData> CreateFixedCollection<TVertexData, TInstanceData>( uint renderLayer, OglVertexArrayObjectBase vao, ShaderBundleBase shaderBundle, IMesh mesh, uint count )
+		where TVertexData : unmanaged
+		where TInstanceData : unmanaged {
+		if (!this._sceneLayersByLayer.TryGetValue( renderLayer, out SceneLayer? layer )) {
+			this._sceneLayersByLayer.Add( renderLayer, layer = new( renderLayer, this._bufferService ) );
+			this._sortedLayers.Add( layer );
+			layer.OnChanged += OnLayerChanged;
+		}
+		return layer.CreateFixedCollection<TVertexData, TInstanceData>( vao, shaderBundle, mesh, count );
+	}
+
 
 	private void OnLayerChanged() {
 		this._needsUpdate = true;

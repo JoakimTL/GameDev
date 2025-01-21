@@ -21,7 +21,7 @@ public sealed class SceneRender : DisposableIdentifiable, ISceneRender {
 		this._indirectCommands.Clear();
 		this._stages.Clear();
 		foreach (SceneLayer layer in layers)
-			foreach (SceneObject sceneObject in layer.SceneObjects) {
+			foreach (IndirectCommandProviderBase sceneObject in layer.CommandProviders) {
 				uint countBeforeAddition = (uint) this._indirectCommands.Count;
 				sceneObject.AddIndirectCommands( this._indirectCommands );
 				int numberOfCommandsInStage = this._indirectCommands.Count - (int) countBeforeAddition;

@@ -34,7 +34,7 @@ public sealed class TextureRenderingService( ShaderBundleService shaderBundleSer
 	}
 
 	public void RenderTexture( ulong textureHandle ) {
-		var shaderPipeline = this._shaderBundle.Get( "default" ) ?? throw new( "Failed to get shader pipeline" );
+		OglShaderPipelineBase shaderPipeline = this._shaderBundle.Get( "default" ) ?? throw new( "Failed to get shader pipeline" );
 		shaderPipeline.Bind();
 		_vao.Bind();
 		_uniformBlock.Buffer.Write( 0u, new SingleTextureRenderingBlock( textureHandle ) );
