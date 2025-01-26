@@ -107,7 +107,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 		=> (renderBehaviour = null) is null && this._behaviours.TryGetValue( typeof( T ), out RenderBehaviourBase? baseBehaviour ) && (renderBehaviour = baseBehaviour as T) is not null;
 
 	public void Update( double time, double deltaTime ) {
-		var types = _initializationTree.GetTypes();
+		IReadOnlyList<Type> types = _initializationTree.GetTypes();
 		for (int i = 0; i < types.Count; i++) {
 			_initializationQueue.First( p => p.GetType() == types[ i ] ).Initialize();
 		}

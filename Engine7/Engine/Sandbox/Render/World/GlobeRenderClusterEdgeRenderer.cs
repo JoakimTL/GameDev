@@ -11,11 +11,11 @@ public sealed class GlobeRenderClusterEdgeRenderer {
 		Line3SceneData[] data = new Line3SceneData[ cluster.Edges.Count ];
 		int i = 0;
 		foreach (Edge edge in cluster.Edges) {
-			var a = edge.VectorA;
-			var b = edge.VectorB;
-			var length = (b - a).Magnitude<Vector3<float>, float>();
-			var thickness = length * 0.01f;
-			var normal = edge.Normal;
+			Vector3<float> a = edge.VectorA;
+			Vector3<float> b = edge.VectorB;
+			float length = (b - a).Magnitude<Vector3<float>, float>();
+			float thickness = length * 0.01f;
+			Vector3<float> normal = edge.Normal;
 			data[ i++ ] = new Line3SceneData( a, thickness, b, thickness, normal, 0, 1, (-1, 0, 1), 0.5f, 0.75f, 0.5f, (90, 90, 90, 255) );
 		}
 		lineCollection.WriteRange( 0, data );

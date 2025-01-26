@@ -6,10 +6,10 @@ public abstract class TerrainBase {
 
 	static TerrainBase() {
 		_terrainTypes = [];
-		var terrainTypes = TypeManager.Registry.ImplementationTypes.Where( p => p.BaseType == typeof( TerrainBase ) );
+		IEnumerable<Type> terrainTypes = TypeManager.Registry.ImplementationTypes.Where( p => p.BaseType == typeof( TerrainBase ) );
 
-		foreach (var terrainType in terrainTypes) {
-			var instance = terrainType.CreateInstance( null ) as TerrainBase ?? throw new InvalidOperationException( "Failed to construct terrain instance. Must have a parameterless constructor." );
+		foreach (Type? terrainType in terrainTypes) {
+			TerrainBase instance = terrainType.CreateInstance( null ) as TerrainBase ?? throw new InvalidOperationException( "Failed to construct terrain instance. Must have a parameterless constructor." );
 			if (instance is IInitializable initializable)
 				initializable.Initialize();
 			if (_terrainTypes.TryGetValue( instance.Id, out TerrainBase? existing ))

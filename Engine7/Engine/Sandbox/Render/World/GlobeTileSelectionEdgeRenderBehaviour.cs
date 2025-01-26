@@ -41,8 +41,8 @@ public sealed class GlobeTileSelectionEdgeRenderBehaviour : DependentRenderBehav
 		if (_edgeCollection is null)
 			return;
 
-		var selectedTile = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "selectedTile" );
-		var hoveredTile = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "hoveringTile" );
+		Tile? selectedTile = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "selectedTile" );
+		Tile? hoveredTile = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "hoveringTile" );
 
 		if (_currentlyDisplayedSelectedTile == selectedTile && _currentlyDisplayedHoveredTile == hoveredTile)
 			return;
@@ -61,11 +61,11 @@ public sealed class GlobeTileSelectionEdgeRenderBehaviour : DependentRenderBehav
 	private void AddSelectionEdges( Tile? tile, ref uint activeEdges, Span<Line3SceneData> edges ) {
 		if (tile is null)
 			return;
-		foreach (var edge in tile.Edges) {
-			var a = edge.VectorA;
-			var b = edge.VectorB;
-			var length = (a - b).Magnitude<Vector3<float>, float>();
-			var thickness = length * 0.025f;
+		foreach (Edge edge in tile.Edges) {
+			Vector3<float> a = edge.VectorA;
+			Vector3<float> b = edge.VectorB;
+			float length = (a - b).Magnitude<Vector3<float>, float>();
+			float thickness = length * 0.025f;
 			edges[ (int) activeEdges++ ] = new( edge.VectorA, thickness, edge.VectorB, thickness, edge.Normal, 0, 1, (-1, 0, 1), .25f, 0, 0, 255 );
 		}
 	}
@@ -73,11 +73,11 @@ public sealed class GlobeTileSelectionEdgeRenderBehaviour : DependentRenderBehav
 	private void AddHoveredEdges( Tile? tile, ref uint activeEdges, Span<Line3SceneData> edges ) {
 		if (tile is null)
 			return;
-		foreach (var edge in tile.Edges) {
-			var a = edge.VectorA;
-			var b = edge.VectorB;
-			var length = (a - b).Magnitude<Vector3<float>, float>();
-			var thickness = length * 0.025f;
+		foreach (Edge edge in tile.Edges) {
+			Vector3<float> a = edge.VectorA;
+			Vector3<float> b = edge.VectorB;
+			float length = (a - b).Magnitude<Vector3<float>, float>();
+			float thickness = length * 0.025f;
 			edges[ (int) activeEdges++ ] = new( edge.VectorA, thickness, edge.VectorB, thickness, edge.Normal, 0, 1, (-1, 0, 1), .25f, 0, 0, (120, 120, 120, 50) );
 		}
 	}

@@ -15,15 +15,15 @@ public sealed class TileRenderModel {
 	public Vector3<float> VectorC => _tile.Globe.Vertices[ _indices.C ];
 	public Vector3<float> Normal {
 		get {
-			var ab = VectorB - VectorA;
-			var ac = VectorC - VectorA;
+			Vector3<float> ab = VectorB - VectorA;
+			Vector3<float> ac = VectorC - VectorA;
 			return ab.Cross( ac ).Normalize<Vector3<float>, float>();
 		}
 	}
 	public float Area {
 		get {
-			var ab = VectorB - VectorA;
-			var ac = VectorC - VectorA;
+			Vector3<float> ab = VectorB - VectorA;
+			Vector3<float> ac = VectorC - VectorA;
 			return ab.Cross( ac ).Magnitude<Vector3<float>, float>() / 2;
 		}
 	}

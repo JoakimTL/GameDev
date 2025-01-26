@@ -13,3 +13,18 @@ public abstract class TechnologyBase {
 
 	public string DisplayName { get; }
 }
+
+public enum TechnologyKind {
+	/// <summary>
+	/// The first initial discovery of a technology.
+	/// </summary>
+	Discovery,
+	/// <summary>
+	/// The research of a discovery to uncover its secrets.
+	/// </summary>
+	Research,
+	/// <summary>
+	/// The improvement of a technology to make it more efficient.
+	/// </summary>
+	Improvement,
+}
