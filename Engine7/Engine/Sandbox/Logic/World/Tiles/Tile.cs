@@ -1,4 +1,6 @@
-﻿namespace Sandbox.Logic.World.Tiles;
+﻿using Sandbox.Logic.World.Tiles.Terrain;
+
+namespace Sandbox.Logic.World.Tiles;
 
 public sealed class Tile : IOcTreeLeaf<float> {
 	public GlobeComponent Globe { get; }
@@ -19,5 +21,42 @@ public sealed class Tile : IOcTreeLeaf<float> {
 
 	internal void AddEdge( Edge edge ) {
 		_neighbours.AddEdge( edge );
+	}
+
+	internal void SetTerrain( TerrainBase type ) {
+
+	}
+}
+
+
+
+public sealed class TileDataModel {
+
+}
+
+public abstract class TileDataBase {
+	
+	public abstract string DataCode { get; }
+	public abstract int DataCodeId { get; }
+	public Tile Tile { get; private set; }
+
+	protected TileDataBase() {
+		Tile = null!;
+	}
+
+	internal void SetTile(Tile tile) {
+		if (Tile is not null)
+			throw new InvalidOperationException( "Tile already set." );
+		Tile = tile;
+	}
+}
+
+public sealed class TileData : TileDataBase {
+	private const string _dataCode = "0000";
+	private static readonly int _dataCodeId = _dataCode.ToIntCode();
+
+	public override string DataCode => _dataCode;
+	public override int DataCodeId => _dataCodeId;
+	public TileData() : base() {
 	}
 }

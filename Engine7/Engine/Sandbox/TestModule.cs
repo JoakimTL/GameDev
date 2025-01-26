@@ -14,6 +14,7 @@ using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.UserInterface;
 using Sandbox.Logic.OldWorld;
 using Sandbox.Logic.World;
+using Sandbox.Logic.World.Tiles.Terrain;
 using Sandbox.Render;
 using Sandbox.Render.Ui;
 
@@ -37,6 +38,7 @@ internal sealed class GameLogicModule : ModuleBase {
 	}
 
 	private void Init() {
+		new DeepWater();
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
 		this._entity = container.CreateEntity();
 		_entity.AddComponent<RenderComponent>();

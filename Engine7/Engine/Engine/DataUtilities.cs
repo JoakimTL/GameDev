@@ -25,4 +25,6 @@ public static class DataUtilities {
 
 		return new string( ptr, 0, len, encoding );
 	}
+
+	public static unsafe int ToIntCode( this string code ) => unchecked(((byte) code[ 0 ] << 24) | ((byte) code[ 1 ] << 16) | ((byte) code[ 2 ] << 8) | (byte) code[ 3 ]);
 }
