@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace Engine;
 
@@ -12,6 +13,7 @@ public sealed class ResolvedType {
 	private readonly Dictionary<Type, object> _attributesByType = [];
 	private readonly Dictionary<BindingFlags, List<PropertyInfo>> _propertiesByBindingFlags = [];
 	private readonly TypeInstanceFactory _instanceFactory;
+	private readonly ConcurrentDictionary<PropertyInfo, TypePropertyAccessor> _propertyAccessors = [];
 
 	public ResolvedType( Type type ) {
 		this.Type = type;
@@ -41,4 +43,12 @@ public sealed class ResolvedType {
 	}
 
 	public object? CreateInstance( object[]? parameters ) => this._instanceFactory.CreateInstance( parameters );
+
+	public TypePropertyAccessor GetPropertyAccessor( PropertyInfo property ) {
+		if (this._propertyAccessors.TryGetValue( property, out TypePropertyAccessor? accessor ))
+			return accessor;
+		accessor = new TypePropertyAccessor( property );
+		this._propertyAccessors.TryAdd( property, accessor );
+		return accessor;
+	}
 }

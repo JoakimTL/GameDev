@@ -1,4 +1,6 @@
-﻿namespace Engine;
+﻿using System.Reflection;
+
+namespace Engine;
 
 public static class ResolvedTypeExtensions {
 	/// <summary>
@@ -16,4 +18,12 @@ public static class ResolvedTypeExtensions {
 	/// </summary>
 	/// <returns>Null if no constructor for the parameter list was found.</returns>
 	public static object? CreateInstance( this Type type, object[]? parameters ) => TypeManager.ResolveType( type ).CreateInstance( parameters );
+	/// <summary>
+	/// Gets the property accessor for the specified property.
+	/// </summary>
+	public static TypePropertyAccessor GetPropertyAccessor( this ResolvedType type, BindingFlags bindingFlags, string propertyName ) {
+		IReadOnlyList<PropertyInfo> properties = type.GetProperties( bindingFlags );
+		PropertyInfo property = properties.FirstOrDefault( p => p.Name == propertyName ) ?? throw new InvalidOperationException( $"Property {propertyName} not found." );
+		return type.GetPropertyAccessor( property );
+	}
 }

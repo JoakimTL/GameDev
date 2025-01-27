@@ -2,6 +2,7 @@
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
 using Sandbox.Logic.World.Tiles;
+using Sandbox.Logic.World.Tiles.Data;
 
 namespace Sandbox.Render.Ui;
 
@@ -22,7 +23,7 @@ public sealed class TileDataDisplay : UserInterfaceElementBase {
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		_lblTileName.Text = $"{GameStateProvider.Get<Tile>( "selectedTile" )?.Area:N5}km^2";
+		_lblTileName.Text = $"{GameStateProvider.Get<Tile>( "selectedTile" )?.Area:N5}km^2\n{GameStateProvider.Get<Tile>( "hoveringTile" )?.DataModel.GetData<TileResourceData>().Get("IRON_ORE")}";
 	}
 
 	protected override bool ShouldDisplay() {
