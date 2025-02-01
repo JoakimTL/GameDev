@@ -6,30 +6,32 @@ using System.Threading.Tasks;
 
 namespace Sandbox.Logic.Research;
 public abstract class TechnologyBase {
-
-	protected TechnologyBase( string displayName, TechnologyKind kind ) {
+	protected TechnologyBase( string displayName, TechnologyKind kind, float requiredDiscoveryProgress, params TechnologyFieldBase[] technologyFields ) {
 		this.DisplayName = displayName;
 		this.Kind = kind;
+		this.RequiredDiscoveryProgress = requiredDiscoveryProgress;
+		this.TechnologyFields = technologyFields.ToHashSet();
 	}
 
 	public string DisplayName { get; }
 	public TechnologyKind Kind { get; }
-}
+	public IReadOnlySet<TechnologyFieldBase> TechnologyFields { get; }
+	public float RequiredDiscoveryProgress { get; }
 
-public enum TechnologyKind {
 	/// <summary>
-	/// Research performed after a discovery of the potential new technology.
+	/// Discovery can't happen unless the prerequisites are met.
 	/// </summary>
-	Research,
+	public abstract bool HasPrerequisites( TileTechnologyHolder techHolder );
 	/// <summary>
-	/// A larger research project which needs planning and coordination. This needs to be initialized by the player, and are available as a result of research prior.<br/>
-	/// An example would be nuclear explosives. A requirement would be nuclear fission researched. The player can determine how many resources to pool into research projects.
+	/// The chance of discovering the technology each day per person working within the field of this technology. This is a value between 0 and 1.<br/>
+	/// Discovery happens either by pure luck through hitting the discovery chance or by progressing discovery to 100% through <see cref="GetDiscoveryProgression(TileTechnologyHolder)"/>.
 	/// </summary>
-	Project,
+	public abstract float GetDiscoveryChance( TileTechnologyHolder techHolder );
 	/// <summary>
-	/// The improvement of a technology to make it more efficient.
+	/// The progression of discovery for this technology each day per person working within the field of this technology. This is a value between 0 and 1.<br/>
+	/// Discovery happens either by pure luck through hitting the <see cref="GetDiscoveryChance(TileTechnologyHolder)"/> or by progressing discovery to 100%.
 	/// </summary>
-	Improvement,
+	public abstract float GetDiscoveryProgression( TileTechnologyHolder techHolder );
 }
 
 //We need to have the list of tech, and also the ongoing research per player.

@@ -3,7 +3,7 @@
 namespace Sandbox.Logic.World.Tiles.Data;
 
 public sealed class TileResourceData : TileDataBase, ITileData {
-	private const string _dataCode = "000R";
+	private const string _dataCode = "0RES";
 	public static int CodeId { get; } = _dataCode.ToIntCode();
 
 	/// <summary>

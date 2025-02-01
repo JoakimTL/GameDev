@@ -47,14 +47,9 @@ public sealed class GlobeComponent : ComponentBase, IInitializable {
 		Icosphere icosphere = new( GeneratedLayers );
 		_vertices.AddRange( icosphere.Vertices );
 		GenerateMosaic( icosphere );
-
-		Console.WriteLine( GeneratedSurfaceArea / _tiles.Count );
 	}
 
 	private void GenerateMosaic( Icosphere icosphere ) {
-		//Generate world tiles.
-		//Here we can try to reduce how many tiles we have. Oceans for example might not need as much detail as land.
-
 		IReadOnlyList<uint> indices = icosphere.GetIndices( icosphere.Subdivisions - 1 );
 		Random r = new();
 		for (int i = 0; i < indices.Count; i += 3) {
@@ -81,13 +76,5 @@ public sealed class GlobeComponent : ComponentBase, IInitializable {
 				tile.AddEdge( edge );
 			}
 		}
-
-		double a = 0;
-		foreach (Tile tile in _tiles)
-			a += tile.Area;
-		Console.WriteLine( a );
-
-		//Display octree branches as meshes. Only have them active when the camera is on the right side of the globe. Meaning when the center of the bounds dotted with the camera translation (globe is a origin) is positive.
-
 	}
 }
