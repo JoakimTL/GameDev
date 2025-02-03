@@ -21,17 +21,17 @@ public abstract class TechnologyBase {
 	/// <summary>
 	/// Discovery can't happen unless the prerequisites are met.
 	/// </summary>
-	public abstract bool HasPrerequisites( TileTechnologyHolder techHolder );
+	public abstract bool HasPrerequisites( TechnologyResearcher techHolder );
 	/// <summary>
 	/// The chance of discovering the technology each day per person working within the field of this technology. This is a value between 0 and 1.<br/>
-	/// Discovery happens either by pure luck through hitting the discovery chance or by progressing discovery to 100% through <see cref="GetDiscoveryProgression(TileTechnologyHolder)"/>.
+	/// Discovery happens either by pure luck through hitting the discovery chance or by progressing discovery to 100% through <see cref="GetDiscoveryProgression(TechnologyResearcher)"/>.
 	/// </summary>
-	public abstract float GetDiscoveryChance( TileTechnologyHolder techHolder );
+	public abstract float GetDiscoveryChance( TechnologyResearcher techHolder );
 	/// <summary>
 	/// The progression of discovery for this technology each day per person working within the field of this technology. This is a value between 0 and 1.<br/>
-	/// Discovery happens either by pure luck through hitting the <see cref="GetDiscoveryChance(TileTechnologyHolder)"/> or by progressing discovery to 100%.
+	/// Discovery happens either by pure luck through hitting the <see cref="GetDiscoveryChance(TechnologyResearcher)"/> or by progressing discovery to 100%.
 	/// </summary>
-	public abstract float GetDiscoveryProgression( TileTechnologyHolder techHolder );
+	public abstract float GetDiscoveryProgression( TechnologyResearcher techHolder );
 }
 
 //We need to have the list of tech, and also the ongoing research per player.
