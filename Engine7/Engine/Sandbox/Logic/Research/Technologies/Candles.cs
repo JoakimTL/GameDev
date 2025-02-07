@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sandbox.Logic.Research.TechnologyFields;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,69 +7,45 @@ using System.Threading.Tasks;
 
 namespace Sandbox.Logic.Research.Technologies;
 
-public sealed class Wheel() : TechnologyBase( "Wheel", TechnologyKind.Research ) {
-	public override float GetDiscoveryChance( PlayerComponent player ) {
-		throw new NotImplementedException();
-	}
-
-	public override float GetDiscoveryProgression( PlayerComponent player ) {
-		return 1f;
-	}
-
-	public override bool HasPrerequisites( PlayerComponent player ) {
-		return true;
-	}
+[Do<TechnologyBase>.After<Fire>]
+[Do<TechnologyBase>.After<StoneTools>]
+public sealed class Firewood() : TechnologyBase( "Firewood", TechnologyKind.Improvement, 0, TechnologyFieldList.GetTechField<FireKeeping>() ) {
+	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
+	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
 }
-public sealed class Geometrics() : TechnologyBase( "Geometrics", TechnologyKind.Research ) {
-	public override bool HasPrerequisites( PlayerComponent player ) {
-		return player.Technology.HasResearched<Wheel>();
-	}
+
+[Do<TechnologyBase>.After<Firewood>]
+[Do<TechnologyBase>.After<FlintKnapping>]
+public sealed class FireStarting() : TechnologyBase( "Fire Starting", TechnologyKind.Improvement, 0, TechnologyFieldList.GetTechField<FireKeeping>() ) {
+	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
+	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
 }
-//public sealed class Candles() : TechnologyBase( "Candles", TechnologyKind.Research ) {
-//}
 
-//public sealed class Agriculture() : TechnologyBase( "Agriculture", TechnologyKind.Research ) {
-//}
+[Do<TechnologyBase>.After<StoneTools>]
+public sealed class SpearFishing() : TechnologyBase( "Spear Fishing", TechnologyKind.Research, 0, TechnologyFieldList.GetTechField<Fishing>() ) {
+	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
+	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
+}
 
-//public sealed class AnimalHusbandry() : TechnologyBase( "Animal Husbandry", TechnologyKind.Research ) {
-//}
+[Do<TechnologyBase>.After<StoneTools>]
+public sealed class Weaving() : TechnologyBase( "Weaving", TechnologyKind.Research, 0, TechnologyFieldList.GetTechField<Fishing>() ) {
+	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
+	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
+}
 
-//public sealed class Archery() : TechnologyBase( "Archery", TechnologyKind.Research ) {
-//}
-
-//public sealed class BronzeWorking() : TechnologyBase( "Bronze Working", TechnologyKind.Research ) {
-//}
-
-//public sealed class Calendar() : TechnologyBase( "Calendar", TechnologyKind.Research ) {
-//}
-
-//public sealed class Construction() : TechnologyBase( "Construction", TechnologyKind.Research ) {
-//}
-
-//public sealed class Currency() : TechnologyBase( "Currency", TechnologyKind.Research ) {
-//}
-
-//public sealed class Engineering() : TechnologyBase( "Engineering", TechnologyKind.Research ) {
-//}
-
-//public sealed class HorsebackRiding() : TechnologyBase( "Horseback Riding", TechnologyKind.Research ) {
-//}
-
-//public sealed class IronWorking() : TechnologyBase( "Iron Working", TechnologyKind.Research ) {
-//}
-
-//public sealed class Masonry() : TechnologyBase( "Masonry", TechnologyKind.Research ) {
-//}
-
-//public sealed class Mathematics() : TechnologyBase( "Mathematics", TechnologyKind.Research ) {
-//}
-
-//public sealed class MetalCasting() : TechnologyBase( "Metal Casting", TechnologyKind.Research ) {
-//}
-
-//public sealed class Monarchy() : TechnologyBase( "Monarchy", TechnologyKind.Research ) {
-//}
+[Do<TechnologyBase>.After<StoneTools>]
+public sealed class NetFishing() : TechnologyBase( "Net Fishing", TechnologyKind.Research, 0, TechnologyFieldList.GetTechField<Fishing>() ) {
+	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
+	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
+}
 
 
+public sealed class Foraging() : TechnologyBase( "Foraging", TechnologyKind.Research, 0, TechnologyFieldList.GetTechField<Gathering>() ) {
+	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
+	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
+}
 
-
+public sealed class Hunting() : TechnologyBase( "Hunting", TechnologyKind.Research, 0, TechnologyFieldList.GetTechField<Animal>() ) {
+	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
+	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
+}

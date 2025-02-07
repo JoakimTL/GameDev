@@ -23,3 +23,12 @@ public static class TechnologyFieldList {
 //We need to have the list of tech, and also the ongoing research per player.
 
 //Research is performed by having an educated populace. In the beginning many techs are "simple" enough that they will eventually be found anyways. Research progress ever so slowly as long as someone works with the related tech field. If someone work with crops, then crop rotation will eventually be discovered. For brand new research then a "eureka moment" might be necessary?
+
+/// <summary>
+/// When technologies in a group are researched, they excert a linearly scaling bonus for the city that has them researched.<br/>
+/// 
+/// Say a tech hub has researched stone tools and flint knapping and bone tools, they then get to experience say a 6% bonus to all production. (2% from each tech)<br/>
+/// </summary>
+public abstract class TechnologyGroupBase {
+
+}

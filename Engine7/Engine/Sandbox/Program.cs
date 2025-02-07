@@ -49,3 +49,4 @@ Startup.BeginInit()
 //TODO: Add diplomacy
 
 //TODO: Add disease
+//TODO: Add natural disasters

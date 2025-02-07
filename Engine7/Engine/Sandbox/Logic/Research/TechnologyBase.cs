@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Sandbox.Logic.Research;
 public abstract class TechnologyBase {
-	protected TechnologyBase( string displayName, TechnologyKind kind, float requiredDiscoveryProgress, params TechnologyFieldBase[] technologyFields ) {
+	protected TechnologyBase( string displayName, TechnologyKind kind, float requiredResearchProgress, params TechnologyFieldBase[] technologyFields ) {
 		this.DisplayName = displayName;
 		this.Kind = kind;
-		this.RequiredDiscoveryProgress = requiredDiscoveryProgress;
+		this.RequiredDiscoveryProgress = requiredResearchProgress;
 		this.TechnologyFields = technologyFields.ToHashSet();
 	}
 
@@ -19,19 +19,13 @@ public abstract class TechnologyBase {
 	public float RequiredDiscoveryProgress { get; }
 
 	/// <summary>
-	/// Discovery can't happen unless the prerequisites are met.
+	/// Modifies the discovery chance of the technology. Default value is <c>1</c>.
 	/// </summary>
-	public abstract bool HasPrerequisites( TechnologyResearcher techHolder );
+	public abstract float GetDiscoveryChanceModifier( TechnologyResearcher techHolder );
 	/// <summary>
-	/// The chance of discovering the technology each day per person working within the field of this technology. This is a value between 0 and 1.<br/>
-	/// Discovery happens either by pure luck through hitting the discovery chance or by progressing discovery to 100% through <see cref="GetDiscoveryProgression(TechnologyResearcher)"/>.
+	/// Modifies the discovery progression rate of the technology. Default value is <c>1</c>.
 	/// </summary>
-	public abstract float GetDiscoveryChance( TechnologyResearcher techHolder );
-	/// <summary>
-	/// The progression of discovery for this technology each day per person working within the field of this technology. This is a value between 0 and 1.<br/>
-	/// Discovery happens either by pure luck through hitting the <see cref="GetDiscoveryChance(TechnologyResearcher)"/> or by progressing discovery to 100%.
-	/// </summary>
-	public abstract float GetDiscoveryProgression( TechnologyResearcher techHolder );
+	public abstract float GetResearchProgressionModifier( TechnologyResearcher techHolder );
 }
 
 //We need to have the list of tech, and also the ongoing research per player.

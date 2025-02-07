@@ -64,6 +64,7 @@
 
   <ItemGroup>
     <Folder Include="Logic\OldWorld\Render\" />
+    <Folder Include="Logic\Research\TechnologyFields\Subsistence\" />
   </ItemGroup>
 
 </Project>
