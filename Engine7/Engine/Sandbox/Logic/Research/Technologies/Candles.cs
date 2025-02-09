@@ -9,14 +9,14 @@ namespace Sandbox.Logic.Research.Technologies;
 
 [Do<TechnologyBase>.After<Fire>]
 [Do<TechnologyBase>.After<StoneTools>]
-public sealed class Firewood() : TechnologyBase( "Firewood", TechnologyKind.Improvement, 0, TechnologyFieldList.GetTechField<FireKeeping>() ) {
+public sealed class Firewood() : TechnologyBase( "Firewood", TechnologyKind.Improvement, 0, TechnologyFieldList.GetTechField<Subsistence>() ) {
 	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
 	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
 }
 
 [Do<TechnologyBase>.After<Firewood>]
 [Do<TechnologyBase>.After<FlintKnapping>]
-public sealed class FireStarting() : TechnologyBase( "Fire Starting", TechnologyKind.Improvement, 0, TechnologyFieldList.GetTechField<FireKeeping>() ) {
+public sealed class FireStarting() : TechnologyBase( "Fire Starting", TechnologyKind.Improvement, 0, TechnologyFieldList.GetTechField<Subsistence>() ) {
 	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
 	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
 }
@@ -40,12 +40,12 @@ public sealed class NetFishing() : TechnologyBase( "Net Fishing", TechnologyKind
 }
 
 
-public sealed class Foraging() : TechnologyBase( "Foraging", TechnologyKind.Research, 0, TechnologyFieldList.GetTechField<Gathering>() ) {
+public sealed class Foraging() : TechnologyBase( "Foraging", TechnologyKind.Research, 0, TechnologyFieldList.GetTechField<Subsistence>() ) {
 	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
 	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
 }
 
-public sealed class Hunting() : TechnologyBase( "Hunting", TechnologyKind.Research, 0, TechnologyFieldList.GetTechField<Animal>() ) {
+public sealed class Hunting() : TechnologyBase( "Hunting", TechnologyKind.Research, 0, TechnologyFieldList.GetTechField<Subsistence>() ) {
 	public override float GetDiscoveryChanceModifier( TechnologyResearcher techHolder ) => 1;
 	public override float GetResearchProgressionModifier( TechnologyResearcher techHolder ) => 1;
 }
