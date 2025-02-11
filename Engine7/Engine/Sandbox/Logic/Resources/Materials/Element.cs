@@ -123,7 +123,7 @@ public sealed class Element {
 
 	static Element() {
 		Hydrogen = new Element( "Hydrogen", "H", 1, 1.008, 14.01, 20.28, 0.08988 );
-		//Helium = new Element( "Helium", 2, 4.0026, 0.95, 4.22, 0.1785 );
+		Helium = new Element( "Helium", "He", 2, 4.0026, 0.95, 4.22, 0.1785 );
 		//Lithium = new Element( "Lithium", 3, 6.94, 453.65, 1615, 0.534 );
 		//Beryllium = new Element( "Beryllium", 4, 9.0122, 1560, 2742, 1.85 );
 		//Boron = new Element( "Boron", 5, 10.81, 2349, 4200, 2.34 );
@@ -175,6 +175,16 @@ public sealed class Element {
 	public double Density { get; }
 	//public IReadOnlyList<Isotope> Isotopes { get; private set; }
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="name"></param>
+	/// <param name="shorthand"></param>
+	/// <param name="atomicNumber"></param>
+	/// <param name="atomicMass"><c>dimensionless</c></param>
+	/// <param name="meltingPoint"><c>K</c></param>
+	/// <param name="boilingPoint"><c>K</c></param>
+	/// <param name="density"><c>g/L</c></param>
 	private Element( string name, string shorthand, int atomicNumber, double atomicMass, double meltingPoint, double boilingPoint, double density ) {
 		this.Name = name;
 		this.AtomicNumber = atomicNumber;
