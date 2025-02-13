@@ -25,7 +25,7 @@ public sealed class ShaderBundleService : Identifiable, IInitializable {
 	}
 
 	private Dictionary<string, Type> LoadBundleIdentities() {
-		Dictionary<string, Type> bundleTypes = new();
+		Dictionary<string, Type> bundleTypes = [];
 		foreach (Type type in TypeManager.IdentityRegistry.TypesWithIdentity.Where( q => !q.IsAbstract && q.IsAssignableTo( typeof( ShaderBundleBase ) ) )) {
 			IdentityAttribute identity = TypeManager.ResolveType( type ).GetAttribute<IdentityAttribute>();
 			if (bundleTypes.TryGetValue( identity.Identity, out Type? occupyingType ))

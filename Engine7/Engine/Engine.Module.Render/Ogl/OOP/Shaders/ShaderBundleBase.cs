@@ -12,7 +12,7 @@ public abstract class ShaderBundleBase : Identifiable {
 
 	protected ShaderBundleBase() {
 		this.BundleID = GetNextUniqueId();
-		this._pipelines = new();
+		this._pipelines = [];
 	}
 
 	internal void CreateBundle( ShaderPipelineService pipelineService ) => AddPipelines( pipelineService );

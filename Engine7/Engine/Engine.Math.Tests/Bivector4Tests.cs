@@ -181,7 +181,7 @@ public sealed class Bivector4Tests
     {
         Bivector4<int> vectorA = new(3, 4, 5, 6, 7, 8);
 
-        Bivector4<int> expected = new Bivector4<int>(6, 8, 10, 12, 14, 16);
+        Bivector4<int> expected = new(6, 8, 10, 12, 14, 16);
         Assert.That(vectorA * 2, Is.EqualTo(expected));
         Assert.That(2 * vectorA, Is.EqualTo(expected));
     }

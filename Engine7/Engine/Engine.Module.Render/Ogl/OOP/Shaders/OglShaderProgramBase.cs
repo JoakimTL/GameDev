@@ -18,7 +18,7 @@ public abstract class OglShaderProgramBase : DisposableIdentifiable {
 
 	protected OglShaderProgramBase( bool separable = true ) {
 		this.Separable = separable;
-		this._sources = new Dictionary<ShaderType, OglShaderSource>();
+		this._sources = [];
 		this.ProgramID = Gl.CreateProgram();
 		if (separable)
 			Gl.ProgramParameter( this.ProgramID, ProgramParameterPName.ProgramSeparable, Gl.TRUE );

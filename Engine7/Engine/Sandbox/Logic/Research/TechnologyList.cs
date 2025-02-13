@@ -35,7 +35,7 @@ public sealed class TechnologyHub {
 
 	public TechnologyHub( TechnologyHub? derivedFrom, Tile originTile ) {
 		_tilesInHub = [ originTile ];
-		_researcher = new TechnologyResearcher( derivedFrom?._researcher.ResearchedTechnologyTypes.ToHashSet() );
+		_researcher = new TechnologyResearcher( derivedFrom?._researcher.ResearchedTechnologyTypes.ToHashSet(), null );
 	}
 
 	public void AddTile( Tile tile ) {
@@ -149,7 +149,7 @@ public sealed class TechnologyResearch : IInitializable {
 		CheckIfResearching();
 	}
 
-	public void CheckIfResearching() => ActivelyResearching = Technology.HasPrerequisites( TechHolder ) && !ResearchCompleted;
+	public void CheckIfResearching() => ActivelyResearching = /*Technology.HasPrerequisites( TechHolder )*/ /*&&*/ !ResearchCompleted;
 
 	public bool UpdateProgress( double deltaTime ) {
 		DiscoveryProgress += Technology.GetResearchProgressionModifier( TechHolder ) * (float) deltaTime;

@@ -19,7 +19,7 @@ public sealed class ShaderSourceService : DisposableIdentifiable {
 	private readonly Dictionary<string, OglShaderSource> _sources;
 
 	public ShaderSourceService() {
-		this._sources = new();
+		this._sources = [];
 	}
 
 	public OglShaderSource? Get( string path ) {
@@ -58,7 +58,7 @@ public sealed class ShaderSourceService : DisposableIdentifiable {
 	}
 
 	public void LoadAll( string directory ) {
-		List<string> shaderFiles = new();
+		List<string> shaderFiles = [];
 		SearchDirectory( shaderFiles, directory );
 		foreach (string filePath in shaderFiles)
 			Add( filePath );

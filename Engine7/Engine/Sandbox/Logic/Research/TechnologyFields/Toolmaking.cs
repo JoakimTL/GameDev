@@ -1,3 +1,3 @@
 ﻿namespace Sandbox.Logic.Research.TechnologyFields;
 
-public sealed class Toolmaking() : TechnologyFieldBase( "Toolmaking" );
+//public sealed class Toolmaking() : TechnologyFieldBase( "Toolmaking" );

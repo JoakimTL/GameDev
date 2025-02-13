@@ -13,6 +13,7 @@ using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.UserInterface;
 using Sandbox.Logic.OldWorld;
+using Sandbox.Logic.Resources.Materials;
 using Sandbox.Logic.World;
 using Sandbox.Logic.World.Tiles.Terrain;
 using Sandbox.Render;
@@ -39,6 +40,8 @@ internal sealed class GameLogicModule : ModuleBase {
 
 	private void Init() {
 		new DeepWater();
+		ChemicalList.GetMineral( "aBRAKZAN" );
+		var aaa = ChemicalList._chemicalsContainingElement;
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
 		this._entity = container.CreateEntity();
 		_entity.AddComponent<RenderComponent>();

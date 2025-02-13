@@ -1,6 +1,9 @@
-﻿namespace Sandbox.Logic.Resources.Materials;
+﻿
+namespace Sandbox.Logic.Resources.Materials;
 
 public sealed class Element {
+
+	private static readonly Dictionary<string, Element> _elementsBySymbol;
 
 	public static Element Hydrogen { get; }
 	public static Element Helium { get; }
@@ -122,6 +125,7 @@ public sealed class Element {
 	public static Element Oganesson { get; }
 
 	static Element() {
+		_elementsBySymbol = [];
 		//https://pubchem.ncbi.nlm.nih.gov/periodic-table/#view=list
 		Hydrogen		= new Element( "Hydrogen",			"H",	1,		1.008,		14.01,		20.28,		0.00008988 );
 		Helium			= new Element( "Helium",			"He",	2,		4.0026,		0.95,		4.22,		0.0001785 );
@@ -243,6 +247,10 @@ public sealed class Element {
 		Oganesson		= new Element( "Oganesson",			"Og",	118,	294,		0,			0,			0 );
 	}
 
+	public static Element? GetBySymbol( string value ) => _elementsBySymbol.TryGetValue( value, out Element? element ) ? element : null;
+
+	public static IReadOnlyCollection<Element> AllElements => _elementsBySymbol.Values;
+
 	public string Name { get; }
 	public string Symbol { get; }
 	public int AtomicNumber { get; }
@@ -266,5 +274,12 @@ public sealed class Element {
 		MeltingPoint = meltingPoint;
 		BoilingPoint = boilingPoint;
 		Density = density;
+		_elementsBySymbol.Add(symbol, this);
 	}
+
+	public override string ToString() => Symbol;
+
+	public override int GetHashCode() => AtomicNumber;
+
+	public override bool Equals( object? obj ) => obj is Element element && element.AtomicNumber == AtomicNumber;
 }

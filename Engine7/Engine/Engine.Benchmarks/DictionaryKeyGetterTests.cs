@@ -17,10 +17,10 @@ public class DictionaryKeyGetterTests {
 
 	[GlobalSetup]
 	public void Setup() {
-		this._intKey = new();
-		this._stringKey = new();
-		this._typeKey = new();
-		this._guidKey = new();
+		this._intKey = [];
+		this._stringKey = [];
+		this._typeKey = [];
+		this._guidKey = [];
 		this._intsToAdd = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		this._stringsToAdd = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 		this._typesToAdd = new Type[] { typeof( int ), typeof( string ), typeof( float ), typeof( double ), typeof( long ), typeof( short ), typeof( byte ), typeof( char ), typeof( bool ), typeof( sbyte ) };

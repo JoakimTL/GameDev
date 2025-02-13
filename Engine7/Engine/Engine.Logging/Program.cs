@@ -25,7 +25,7 @@ try {
 			unsafe {
 				fixed (byte* ptr = data) {
 					char* charPtr = (char*) ptr;
-					string logString = new string( charPtr, 0, read / sizeof( char ) );
+					string logString = new( charPtr, 0, read / sizeof( char ) );
 					LogString( path, logString );
 				}
 			}
