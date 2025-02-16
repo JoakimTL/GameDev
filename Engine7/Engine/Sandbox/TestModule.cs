@@ -42,6 +42,7 @@ internal sealed class GameLogicModule : ModuleBase {
 		new DeepWater();
 		ChemicalList.GetMineral( "aBRAKZAN" );
 		var aaa = ChemicalList._chemicalsContainingElement;
+		var bbb = ChemicalList._chemicalsByTag;
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
 		this._entity = container.CreateEntity();
 		_entity.AddComponent<RenderComponent>();

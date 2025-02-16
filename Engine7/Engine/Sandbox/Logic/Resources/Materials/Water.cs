@@ -6,3 +6,4 @@ public sealed class GroundWater() : ResourceBase( 0x0001_0004, "GROUND_WATER", R
 public sealed class SeaWater() : ResourceBase( 0x0001_0005, "SEA_WATER", ResourceTags.WATER );
 public sealed class SewageWater() : ResourceBase( 0x0001_0006, "SEWAGE_WATER", ResourceTags.WATER );
 public sealed class HolyWater() : ResourceBase( 0x0001_0007, "HOLY_WATER", ResourceTags.WATER );
+public sealed class AnimalProducts() : ResourceBase( 0x0001_0008, "ANIMAL_PRODUCTS", ResourceTags.ANIMAL );

@@ -5,6 +5,7 @@ public static class ResourceTags {
 	public const string METAL = "METAL";
 	public const string IRON = "IRON";
 	public const string WATER = "WATER";
+	public const string ANIMAL = "ANIMAL";
 }
 
 //public sealed  class IronMetal() : ResourceBase( 0x0001_0001, "IRON_METAL", "Iron Metal", "Refined iron metal" );

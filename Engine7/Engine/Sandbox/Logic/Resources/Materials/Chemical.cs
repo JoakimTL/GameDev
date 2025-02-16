@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
@@ -6,15 +7,19 @@ using System.Xml.Linq;
 namespace Sandbox.Logic.Resources.Materials;
 
 public sealed class Chemical {
-	public Chemical( string name, string condensedFormula/*params (Element, uint)[] elements*/ ) {
+	public Chemical( string name, string condensedFormula, string description, params Span<string> tags ) {
 		Name = name;
 		CondensedFormula = condensedFormula;
+		Description = description;
+		Tags = tags.ToArray().ToHashSet();
 		ElementCount = ParseFormula( condensedFormula );
 		ElementMassPercentage = GetMassPercentagesOfElements( ElementCount );
 	}
 
 	public string Name { get; }
 	public string CondensedFormula { get; }
+	public string Description { get; }
+	public IReadOnlySet<string> Tags { get; }
 	public IReadOnlyDictionary<Element, uint> ElementCount { get; }
 	public IReadOnlyDictionary<Element, double> ElementMassPercentage { get; }
 
@@ -98,7 +103,7 @@ public sealed class Chemical {
 			index++;
 		}
 		// If the number is immediately before a '+' or '-', it's part of a charge
-		if (index < formula.Length && (formula[ index ] == '+' || formula[ index ] == '-' || formula[index] == '−')) {
+		if (index < formula.Length && (formula[ index ] == '+' || formula[ index ] == '-' || formula[ index ] == '−')) {
 			index++;
 			return -1;
 		}
@@ -112,26 +117,41 @@ public sealed class Chemical {
 
 public static class ChemicalList {
 
-	private static readonly List<Chemical> _chemicals;
+	private static readonly Dictionary<string, Chemical> _chemicalByName;
+	public static readonly Dictionary<string, List<Chemical>> _chemicalsByTag;
 	public static readonly Dictionary<Element, List<Chemical>> _chemicalsContainingElement;
 
 	static ChemicalList() {
-		_chemicals = [];
+		_chemicalByName = [];
+		_chemicalsByTag = [];
+		_chemicalsContainingElement = [];
 
 		IEnumerable<Type> mineralProviders = TypeManager.Registry.ImplementationTypes.Where( t => t.IsAssignableTo( typeof( IChemicalProvider ) ) );
 		foreach (Type mineralProvider in mineralProviders) {
 			TypePropertyAccessor propertyAccessor = TypeManager.ResolveType( mineralProvider ).GetPropertyAccessor( BindingFlags.Public | BindingFlags.Static, nameof( IChemicalProvider.Chemicals ) );
 			IReadOnlyList<Chemical>? chemicalList = propertyAccessor.ReadProperty( null ) as IReadOnlyList<Chemical> ?? throw new InvalidCastException( $"Unable to read mineral information from {mineralProvider.Name}." );
-			_chemicals.AddRange( chemicalList );
+			foreach (Chemical chemical in chemicalList) {
+				if (_chemicalByName.ContainsKey( chemical.Name ))
+					throw new InvalidOperationException( $"Duplicate mineral name: {chemical.Name}" );
+				_chemicalByName.Add( chemical.Name, chemical );
+			}
 		}
 
-		_chemicalsContainingElement = [];
 		foreach (Element element in Element.AllElements) {
-			_chemicalsContainingElement[ element ] = _chemicals.Where( m => m.ElementCount.ContainsKey( element ) ).ToList();
+			_chemicalsContainingElement[ element ] = _chemicalByName.Values.Where( m => m.ElementCount.ContainsKey( element ) ).ToList();
+		}
+
+		foreach (Chemical chemical in _chemicalByName.Values) {
+			foreach (string tag in chemical.Tags) {
+				if (!_chemicalsByTag.TryGetValue( tag, out List<Chemical>? chemicalsWithTag ))
+					_chemicalsByTag.Add( tag, chemicalsWithTag = [] );
+				chemicalsWithTag.Add( chemical );
+			}
 		}
 	}
 
-	public static Chemical? GetMineral( string name ) => _chemicals.FirstOrDefault( m => m.Name == name );
+	public static Chemical? GetMineral( string name ) => _chemicalByName.GetValueOrDefault( name );
 
 	public static IReadOnlyList<Chemical> GetChemicalsContainingElement( Element element ) => _chemicalsContainingElement[ element ];
+	public static IReadOnlyList<Chemical> GetChemicalsWithTag( string tag ) => _chemicalsByTag.GetValueOrDefault( tag ) ?? [];
 }
