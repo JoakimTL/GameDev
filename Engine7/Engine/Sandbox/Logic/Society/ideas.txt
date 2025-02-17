@@ -2,11 +2,14 @@
 [
 	Have a barometer which says how sedentary the tribe is. The more sedentary the faster you research sedentary living technologies, but the more unrest you get. If the tribe is very sedentary you can't move the tribe as often, as you now have a need to stay at the same place.
 
-	At some period in time you can cycle between tiles which have crops that need harvesting, sort of like manual crop rotation.
+	We will go with the model of population density being the reason for sedentary living. The more people learn of animal husbandry and plant cultivation the more food they produce, but the more sedentary they become. In the beginning this will take the shape of longer and longer travel time for the tribe, and eventually it will become a system of semi permanent settlements the tribe moves between. Eventually the tribe grows to a size which can no longer be sustained by hunting and gathering and the switch to agriculture must happen, otherwise people will starve to death.
+	If the move doesn't happen that time the tribe shrinks and becomes more mobile.
+	If the move happens the tribe transitions to a sedentary settlement.
 ]
 
 [
 	Society grows because of the needs of people. When people are fed, they might yearn for shelter. When people have shelter they might yearn for religion.
+
 ]
 
 [
