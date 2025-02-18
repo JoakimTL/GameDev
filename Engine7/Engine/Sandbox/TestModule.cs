@@ -12,12 +12,14 @@ using Engine.Standard;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.UserInterface;
+using Sandbox.Logic;
 using Sandbox.Logic.OldWorld;
 using Sandbox.Logic.Resources.Materials;
 using Sandbox.Logic.World;
 using Sandbox.Logic.World.Tiles.Terrain;
 using Sandbox.Render;
 using Sandbox.Render.Ui;
+using System.Globalization;
 
 namespace Sandbox;
 
@@ -43,11 +45,26 @@ internal sealed class GameLogicModule : ModuleBase {
 		ChemicalList.GetMineral( "aBRAKZAN" );
 		var aaa = ChemicalList._chemicalsContainingElement;
 		var bbb = ChemicalList._chemicalsByTag;
+
+		LinearTimescaleProvider timescaleProvider = new( new( 0, 70 ), new( 5000, 28 ), new( 7500, 21 ), new( 9000, 14 ), new( 10000, 7 ), new( 10500, 4 ), new( 11000, 2 ), new( 11300, 1 ), new( 11750, 0.5 ), new( 11850, 0.25 ) );
+		GameClock gameClock = new();
+		gameClock.Start( timescaleProvider );
+
+		List<string> lines = [];
+		double lastDay = gameClock.DaysSinceStart;
+		for (int i = 0; i < 1000000; i++) {
+			gameClock.Update();
+			double delta = gameClock.DaysSinceStart - lastDay;
+			lastDay = gameClock.DaysSinceStart;
+			lines.Add( $"{i},{gameClock.YearsSinceStart.ToString( "N4", CultureInfo.InvariantCulture ).Replace( ",", "" )},{gameClock.DaysSinceStart.ToString( "N4", CultureInfo.InvariantCulture ).Replace( ",", "" )},{delta.ToString( "N4", CultureInfo.InvariantCulture ).Replace( ",", "" )}" );
+		}
+		File.WriteAllLines( ".\\timescale.csv", lines );
+
 		EntityContainer container = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
 		this._entity = container.CreateEntity();
 		_entity.AddComponent<RenderComponent>();
 		Transform3Component t3c = this._entity.AddComponent<Transform3Component>();
-		_entity.AddComponent<GlobeComponent>(p => {
+		_entity.AddComponent<GlobeComponent>( p => {
 			p.Layers = 9;
 			p.SimulatedSurfaceArea = 509600000;
 			p.Initialize();

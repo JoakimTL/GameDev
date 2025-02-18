@@ -20,7 +20,7 @@ public sealed class Census : IUpdateable {
 	public void Update( double time, double deltaTime ) {
 		_totalPopulation = 0;
 		foreach (Tile tile in _populationCenter.Tiles) {
-			_totalPopulation += tile.DataModel.GetData<TilePopulationData>().Population;
+			//_totalPopulation += tile.DataModel.GetData<TilePopulationData>().Population;
 		}
 	}
 }

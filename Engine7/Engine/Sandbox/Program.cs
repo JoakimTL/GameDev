@@ -50,3 +50,4 @@ Startup.BeginInit()
 
 //TODO: Add disease
 //TODO: Add natural disasters
+//TODO: Add skybox with stars and sun, make the planet rotate and "orbit" the sun. This is just to make the seasons felt
