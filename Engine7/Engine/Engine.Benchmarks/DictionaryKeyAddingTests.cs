@@ -7,10 +7,12 @@ namespace Engine.Benchmarks;
 public class DictionaryKeyAddingTests {
 
 	private Dictionary<int, string> _intKey;
+	private Dictionary<long, string> _longKey;
 	private Dictionary<string, string> _stringKey;
 	private Dictionary<Type, string> _typeKey;
 	private Dictionary<Guid, string> _guidKey;
 	private int[] _intsToAdd;
+	private long[] _longsToAdd;
 	private string[] _stringsToAdd;
 	private Type[] _typesToAdd;
 	private Guid[] _guidsToAdd;
@@ -18,10 +20,12 @@ public class DictionaryKeyAddingTests {
 	[GlobalSetup]
 	public void Setup() {
 		this._intKey = [];
+		this._longKey = [];
 		this._stringKey = [];
 		this._typeKey = [];
 		this._guidKey = [];
 		this._intsToAdd = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+		this._longsToAdd = new long[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 		this._stringsToAdd = new string[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 		this._typesToAdd = new Type[] { typeof( int ), typeof( string ), typeof( float ), typeof( double ), typeof( long ), typeof( short ), typeof( byte ), typeof( char ), typeof( bool ), typeof( sbyte ) };
 		this._guidsToAdd = new Guid[] {
@@ -45,6 +49,16 @@ public class DictionaryKeyAddingTests {
 		}
 		for (int i = 0; i < 10; i++) {
 			this._intKey.Remove( _intsToAdd[ i ] );
+		}
+	}
+
+	[Benchmark]
+	public void AddRemoveTestLong() {
+		for (int i = 0; i < 10; i++) {
+			this._longKey.Add( _longsToAdd[ i ], i.ToString() );
+		}
+		for (int i = 0; i < 10; i++) {
+			this._longKey.Remove( _longsToAdd[ i ] );
 		}
 	}
 

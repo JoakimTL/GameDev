@@ -8,8 +8,8 @@ using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Render;
 using Engine.Transforms.Camera;
 using OpenGL;
-using Sandbox.Logic.OldWorld;
-using Sandbox.Logic.OldWorld.Tiles;
+using Sandbox.Logic.Old.OldWorld;
+using Sandbox.Logic.Old.OldWorld.Tiles;
 using System.Runtime.InteropServices;
 
 namespace Sandbox.Render.Oldworld;

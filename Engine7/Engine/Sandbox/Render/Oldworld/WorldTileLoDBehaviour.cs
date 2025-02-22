@@ -1,6 +1,6 @@
 ﻿using Engine.Module.Render.Entities;
-using Sandbox.Logic.OldWorld;
-using Sandbox.Logic.OldWorld.Tiles;
+using Sandbox.Logic.Old.OldWorld;
+using Sandbox.Logic.Old.OldWorld.Tiles;
 
 namespace Sandbox.Render.Oldworld;
 

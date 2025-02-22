@@ -1,3 +1,3 @@
 ﻿namespace Engine.Processing;
 
-internal interface IProcessLast : IProcessDirection;
+public interface IProcessLast : IProcessDirection;

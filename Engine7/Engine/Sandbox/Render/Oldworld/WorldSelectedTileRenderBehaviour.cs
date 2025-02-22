@@ -2,8 +2,8 @@
 using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard;
-using Sandbox.Logic.OldWorld;
-using Sandbox.Logic.OldWorld.Tiles;
+using Sandbox.Logic.Old.OldWorld;
+using Sandbox.Logic.Old.OldWorld.Tiles;
 
 namespace Sandbox.Render.Oldworld;
 

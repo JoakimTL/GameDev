@@ -1,4 +1,4 @@
-﻿using Sandbox.Logic.Resources;
+﻿using Sandbox.Logic.Old.OldCiv.Resources;
 
 namespace Sandbox.Logic.World.Tiles.Data;
 

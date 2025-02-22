@@ -1,0 +1,9 @@
+
+A population center has:
+- Research
+- Resources
+- Culture
+- Buildings
+- Population
+
+

@@ -1,7 +1,7 @@
 ﻿using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render;
-using Sandbox.Logic.OldWorld;
+using Sandbox.Logic.Old.OldWorld;
 
 namespace Sandbox.Render.Oldworld;
 

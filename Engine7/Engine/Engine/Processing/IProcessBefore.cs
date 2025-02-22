@@ -1,6 +1,6 @@
 ﻿namespace Engine.Processing;
 
-internal interface IProcessBefore : IProcessDirection {
+public interface IProcessBefore : IProcessDirection {
 	/// <summary>
 	/// The type to process before.
 	/// </summary>
