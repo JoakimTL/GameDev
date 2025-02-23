@@ -1,5 +1,4 @@
 ﻿using Engine.Module.Render.Input;
-using System.Runtime.CompilerServices;
 
 namespace Engine.Standard.Render.UserInterface;
 

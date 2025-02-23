@@ -1,6 +1,4 @@
-﻿using Sandbox.Logic.Old.OldCiv.Society;
-
-namespace Sandbox.Logic.Old.OldCiv.Society.Laws;
+﻿namespace Sandbox.Logic.Old.OldCiv.Society.Laws;
 public sealed class Monarchy() : LawBase( LawCategory.Political, "Monarchy" ) { }
 public sealed class Democracy() : LawBase( LawCategory.Political, "Democracy" ) { }
 public sealed class Republic() : LawBase( LawCategory.Political, "Republic" ) { }

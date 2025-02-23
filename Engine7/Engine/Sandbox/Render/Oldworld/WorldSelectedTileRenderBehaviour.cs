@@ -1,5 +1,4 @@
-﻿using Engine.Module.Entities.Container;
-using Engine.Module.Render.Entities;
+﻿using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard;
 using Sandbox.Logic.Old.OldWorld;

@@ -1,6 +1,4 @@
-﻿using Sandbox.Logic.Old.OldWorld.Tiles;
-
-namespace Sandbox.Logic.Old.OldWorld.Tiles.Generation;
+﻿namespace Sandbox.Logic.Old.OldWorld.Tiles.Generation;
 
 public sealed class TileTerrainGenerationLandscapeData( Tile tile, float rng, float height ) {
 	public Tile Tile { get; } = tile;

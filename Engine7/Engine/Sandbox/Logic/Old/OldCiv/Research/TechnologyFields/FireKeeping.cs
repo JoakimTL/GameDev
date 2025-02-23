@@ -1,5 +1,4 @@
-﻿using Sandbox.Logic.Old.OldCiv.Research;
-using Sandbox.Logic.Old.OldCiv.Research.TechnologyFields.Science;
+﻿using Sandbox.Logic.Old.OldCiv.Research.TechnologyFields.Science;
 
 namespace Sandbox.Logic.Old.OldCiv.Research.TechnologyFields;
 

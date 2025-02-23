@@ -1,13 +1,70 @@
 ﻿namespace Sandbox.Logic.Setup;
 
 public abstract class BuildingTypeBase : SelfIdentifyingBase {
-	protected BuildingTypeBase( string name, bool permanentBuilding = true ) {
+	protected BuildingTypeBase( string name, ResourceTable constructionCost, bool permanentBuilding = true ) {
 		this.Name = name;
+		this.ConstructionCost = constructionCost;
 		this.IsPermanent = permanentBuilding;
 	}
 
 	public string Name { get; }
+	public ResourceTable ConstructionCost { get; }
 	public bool IsPermanent { get; }
+}
+
+public sealed class ResourceTable {
+	private readonly List<ResourceAmount> _resources;
+
+	public ResourceTable( params List<ResourceAmount> resources ) {
+		this._resources = resources;
+	}
+
+	public void AddResource( ResourceAmount resourceAmount ) => _resources.Add( resourceAmount );
+
+	public IReadOnlyList<ResourceAmount> Resources => _resources;
+}
+
+public sealed class ResourceContainer {
+
+	private readonly Dictionary<ResourceBase, double> _resources;
+
+	public ResourceContainer() {
+		_resources = [];
+	}
+
+	public void ChangeResourceAmount( ResourceBase resource, double amount ) {
+		if (amount == 0)
+			return;
+		if (!_resources.ContainsKey( resource ))
+			_resources.Add( resource, 0 );
+		_resources[ resource ] += amount;
+	}
+
+	public void SetResourceAmount( ResourceBase resource, double amount ) => _resources[ resource ] = amount;
+
+	public double GetResourceAmount( ResourceBase resource ) => _resources.TryGetValue( resource, out double amount ) ? amount : 0;
+
+	public void ConsumeResources( ResourceTable consumption ) {
+		foreach (ResourceAmount resourceAmount in consumption.Resources)
+			ChangeResourceAmount( resourceAmount.Resource, -resourceAmount.AmountKg );
+	}
+	public void AddResources( ResourceTable addition ) {
+		foreach (ResourceAmount resourceAmount in addition.Resources)
+			ChangeResourceAmount( resourceAmount.Resource, resourceAmount.AmountKg );
+	}
+
+	public ResourceTable GetAllResources() => new( _resources.Select( p => new ResourceAmount( p.Key, p.Value ) ).ToList() );
+
+	public void UpdateTableValues( ResourceTable table ) {
+		foreach (KeyValuePair<ResourceBase, double> kvp in _resources) {
+			ResourceAmount? resourceAmount = table.Resources.FirstOrDefault( p => p.Resource == kvp.Key );
+			if (resourceAmount == null)
+				table.AddResource( new( kvp.Key, kvp.Value ) );
+			else
+				resourceAmount.AmountKg = kvp.Value;
+		}
+	}
+
 }
 
 public static class BuildingTypeList {
@@ -41,7 +98,7 @@ public abstract class BuildingBase<T> where T : BuildingTypeBase {
 	/// </summary>
 	public float BuildingCondition { get; protected set; }
 	/// <summary>
-	/// Decay rate in percent each year.
+	/// Decay rate in percent each year when left empty.
 	/// </summary>
 	public float BuildingDecayRate { get; protected set; }
 

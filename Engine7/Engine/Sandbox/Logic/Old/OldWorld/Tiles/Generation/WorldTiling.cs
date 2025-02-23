@@ -1,7 +1,6 @@
 ﻿using Engine.Logging;
 using Engine.Standard.Render.Meshing;
 using ImageMagick;
-using Sandbox.Logic.Old.OldWorld.Tiles;
 
 namespace Sandbox.Logic.Old.OldWorld.Tiles.Generation;
 

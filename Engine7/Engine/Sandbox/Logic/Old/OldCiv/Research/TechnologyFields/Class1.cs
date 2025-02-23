@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Sandbox.Logic.Old.OldCiv.Research.TechnologyFields;
+﻿namespace Sandbox.Logic.Old.OldCiv.Research.TechnologyFields;
 internal class Class1 {
 }
 

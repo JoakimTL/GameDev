@@ -1,6 +1,4 @@
-﻿using Sandbox.Logic.Old.OldCiv.Research;
-
-namespace Sandbox.Logic.Old.OldCiv.Research.TechnologyFields;
+﻿namespace Sandbox.Logic.Old.OldCiv.Research.TechnologyFields;
 
 public sealed class Agriculture() : TechnologyFieldBase( "Agriculture" );
 //[SubfieldOf<Agriculture>]

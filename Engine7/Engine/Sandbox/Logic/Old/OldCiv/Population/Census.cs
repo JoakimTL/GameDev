@@ -1,11 +1,5 @@
 ﻿using Sandbox.Logic.Old.OldCiv.Research;
 using Sandbox.Logic.World.Tiles;
-using Sandbox.Logic.World.Tiles.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sandbox.Logic.Old.OldCiv.Population;
 public sealed class Census : IUpdateable {

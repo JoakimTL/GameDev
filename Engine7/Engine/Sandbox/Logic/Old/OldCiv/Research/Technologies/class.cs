@@ -1,5 +1,4 @@
-﻿using Sandbox.Logic.Old.OldCiv.Research;
-using Sandbox.Logic.Old.OldCiv.Resources.Materials;
+﻿using Sandbox.Logic.Old.OldCiv.Resources.Materials;
 
 namespace Sandbox.Logic.Old.OldCiv.Research.Technologies;
 

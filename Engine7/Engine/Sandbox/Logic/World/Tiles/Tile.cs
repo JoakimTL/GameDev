@@ -1,9 +1,4 @@
-﻿using Sandbox.Logic.OldWorld.Tiles.Generation;
-using Sandbox.Logic.Research.Technologies;
-using Sandbox.Logic.World.Tiles.Terrain;
-using System.Collections.ObjectModel;
-
-namespace Sandbox.Logic.World.Tiles;
+﻿namespace Sandbox.Logic.World.Tiles;
 
 public sealed class Tile : IOcTreeLeaf<float> {
 	public GlobeComponent Globe { get; }

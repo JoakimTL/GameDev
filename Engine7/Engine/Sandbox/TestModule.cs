@@ -12,15 +12,11 @@ using Engine.Standard;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.UserInterface;
-using Sandbox.Logic;
 using Sandbox.Logic.Old.OldCiv.Resources.Materials;
-using Sandbox.Logic.OldWorld;
-using Sandbox.Logic.Research;
 using Sandbox.Logic.World;
 using Sandbox.Logic.World.Tiles.Terrain;
 using Sandbox.Render;
 using Sandbox.Render.Ui;
-using System.Globalization;
 
 namespace Sandbox;
 
@@ -47,7 +43,7 @@ internal sealed class GameLogicModule : ModuleBase {
 		var aaa = ChemicalList._chemicalsContainingElement;
 		var bbb = ChemicalList._chemicalsByTag;
 
-		var technologyResearcher = new TechnologyResearcher( null, null );
+		//var technologyResearcher = new TechnologyResearcher( null, null );
 
 		//LinearTimescaleProvider timescaleProvider = new( new( 0, 70 ), new( 5000, 28 ), new( 7500, 21 ), new( 9000, 14 ), new( 10000, 7 ), new( 10500, 4 ), new( 11000, 2 ), new( 11300, 1 ), new( 11750, 0.5 ), new( 11850, 0.25 ) );
 		//GameClock gameClock = new();

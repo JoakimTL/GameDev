@@ -1,6 +1,4 @@
-﻿using Sandbox.Logic.Old.OldCiv.Resources;
-
-namespace Sandbox.Logic.Old.OldCiv.Resources.Materials;
+﻿namespace Sandbox.Logic.Old.OldCiv.Resources.Materials;
 
 public sealed class FreshWater() : ResourceBase( 0x0001_0002, "FRESH_WATER", ResourceTags.WATER );
 public sealed class DrinkingWater() : ResourceBase( 0x0001_0003, "DRINKING_WATER", ResourceTags.WATER );

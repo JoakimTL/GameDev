@@ -1,6 +1,4 @@
-﻿using Sandbox.Logic.World.Tiles.Terrain;
-
-namespace Sandbox.Logic.Old.OldCiv.Resources;
+﻿namespace Sandbox.Logic.Old.OldCiv.Resources;
 
 public static class ResourceList {
 

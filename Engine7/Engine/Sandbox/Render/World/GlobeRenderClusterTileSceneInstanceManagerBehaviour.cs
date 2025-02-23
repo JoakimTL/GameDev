@@ -2,7 +2,6 @@
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render;
 using Sandbox.Logic.World;
-using Sandbox.Render.Oldworld;
 
 namespace Sandbox.Render.World;
 

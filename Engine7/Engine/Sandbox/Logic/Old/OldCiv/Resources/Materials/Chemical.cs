@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
+﻿using System.Reflection;
 
 namespace Sandbox.Logic.Old.OldCiv.Resources.Materials;
 

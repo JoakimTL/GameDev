@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Iced.Intel;
 using System.Collections.Concurrent;
 
 namespace Engine.Benchmarks;

@@ -1,6 +1,4 @@
-﻿using Sandbox.Logic.Old.OldCiv.Resources;
-
-namespace Sandbox.Logic.Old.OldCiv.Resources.Materials;
+﻿namespace Sandbox.Logic.Old.OldCiv.Resources.Materials;
 
 public sealed class IronOre() : ResourceBase( 0x0001_0000, "IRON_ORE", ResourceTags.ORE, ResourceTags.IRON );
 public sealed class IronMetal() : ResourceBase( 0x0001_0001, "IRON_METAL", ResourceTags.METAL, ResourceTags.IRON );

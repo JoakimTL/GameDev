@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Pipelines;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Sandbox.Logic.Old.OldCiv.Research;
+﻿namespace Sandbox.Logic.Old.OldCiv.Research;
 public abstract class TechnologyBase {
 	protected TechnologyBase( string displayName, TechnologyKind kind, float requiredResearchProgress, params TechnologyFieldBase[] technologyFields ) {
 		this.DisplayName = displayName;

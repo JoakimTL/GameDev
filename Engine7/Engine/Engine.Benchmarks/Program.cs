@@ -6,7 +6,7 @@ using Engine.Benchmarks;
 //BenchmarkRunner.Run<EventsVsAbstractMethod>();
 //BenchmarkRunner.Run<DictionaryKeyAddingTests>();
 //BenchmarkRunner.Run<CodeMark>();
-BenchmarkRunner.Run( [ typeof( DictionaryKeyAddingTests ), typeof( DictionaryKeyGetterTests ) ], ManualConfig.Create( DefaultConfig.Instance ).WithOptions( ConfigOptions.JoinSummary ).KeepBenchmarkFiles() );
+BenchmarkRunner.Run( [ typeof( ReferenceEqualsVsGuid ) ], ManualConfig.Create( DefaultConfig.Instance ).WithOptions( ConfigOptions.JoinSummary ).KeepBenchmarkFiles() );
 //BenchmarkRunner.Run( typeof( Program ).Assembly, ManualConfig.Create( DefaultConfig.Instance ).WithOptions( ConfigOptions.JoinSummary ).KeepBenchmarkFiles() );
 
 Console.WriteLine( "Press any key to exit..." );
@@ -39,6 +39,13 @@ Console.ReadKey();
 | DictionaryKeyGetterTests | GetTestType           |  82.87 ns | 1.001 ns | 0.937 ns |      - |         - |
 | DictionaryKeyAddingTests | AddRemoveTestGuid     | 106.99 ns | 0.810 ns | 0.757 ns |      - |         - |
 | DictionaryKeyGetterTests | GetTestGuid           |  47.38 ns | 0.758 ns | 0.709 ns |      - |         - |
+
+| Method                                    | Mean      | Error     | StdDev    | Allocated |
+|------------------------------------------ |----------:|----------:|----------:|----------:|
+| Bench_Reference_ReferenceEquals           |  9.296 ns | 0.0695 ns | 0.0616 ns |         - |
+| Bench_Reference_ReferenceEqualityOperator |  9.091 ns | 0.0283 ns | 0.0265 ns |         - |
+| Bench_Guid_ReferenceEquals                |  9.149 ns | 0.0357 ns | 0.0334 ns |         - |
+| Bench_Guid_ReferenceEqualityOperator      | 11.199 ns | 0.0494 ns | 0.0438 ns |         - |
  * 
  * 
  * 

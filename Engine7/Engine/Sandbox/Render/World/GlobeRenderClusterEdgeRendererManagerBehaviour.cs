@@ -1,7 +1,6 @@
 ﻿using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Sandbox.Logic.World;
-using System.Diagnostics.Metrics;
 
 namespace Sandbox.Render.World;
 

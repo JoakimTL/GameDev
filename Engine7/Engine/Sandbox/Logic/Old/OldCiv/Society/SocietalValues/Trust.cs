@@ -1,11 +1,4 @@
-﻿using Sandbox.Logic.Old.OldCiv.Society;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Sandbox.Logic.Old.OldCiv.Society.SocietalValues;
+﻿namespace Sandbox.Logic.Old.OldCiv.Society.SocietalValues;
 public sealed class Trust() : SocietalValueBase( "Trust" ) { }
 
 public sealed class Equality() : SocietalValueBase( "Equality" ) { }

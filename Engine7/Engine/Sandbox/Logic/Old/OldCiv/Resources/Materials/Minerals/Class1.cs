@@ -1,11 +1,4 @@
-﻿using Sandbox.Logic.Old.OldCiv.Resources.Materials;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Sandbox.Logic.Old.OldCiv.Resources.Materials.Minerals;
+﻿namespace Sandbox.Logic.Old.OldCiv.Resources.Materials.Minerals;
 internal class Class1 {
 }
 
