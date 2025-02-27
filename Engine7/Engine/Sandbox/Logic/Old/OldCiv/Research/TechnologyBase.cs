@@ -5,7 +5,7 @@ public abstract class TechnologyBase {
 		this.Kind = kind;
 		this.RequiredDiscoveryProgress = requiredResearchProgress;
 		this.TechnologyFields = technologyFields.ToHashSet();
-		var requirements = TypeManager.ResolveType( GetType() ).GetAttributes<IProcessDirection>().Where( p => p.ProcessType.IsAssignableTo( typeof( ResearchRequirementBase ) ) );
+		IEnumerable<IProcessDirection> requirements = TypeManager.ResolveType( GetType() ).GetAttributes<IProcessDirection>().Where( p => p.ProcessType.IsAssignableTo( typeof( ResearchRequirementBase ) ) );
 
 	}
 

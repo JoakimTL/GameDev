@@ -72,6 +72,8 @@ public static class TypeManager {
 		return resolvedType;
 	}
 
+	public static ResolvedType Resolve( this Type type ) => ResolveType( type );
+
 	public static int? SizeOf( Type t ) {
 		if (!t.IsValueType)
 			return null;

@@ -1,60 +1,77 @@
 ﻿using Sandbox.Logic.Setup;
+using Sandbox.Logic.World.Tiles;
+using Sandbox.Logic.World.Tiles.Data;
 
 namespace Sandbox.Logic.Nations;
-public sealed class PopulationCenter {
+public sealed class PopulationCenter : ITickable {
 	/*
 	 * Has people, resources, buildings, culture and technology
 	 */
 
-	private readonly Dictionary<PartOfPopulationKey, PartOfPopulation> _population;
+	private readonly Census _census;
+	private readonly ResourceContainer _resources;
+	private readonly List<Tile> _tiles;
+	private readonly HashSet<BuildingBase> _buildings;
 
+	public event Action<Tile>? TileAdded;
+	public event Action<Tile>? TileRemoved;
+	public event Action<BuildingBase>? BuildingAdded;
+	public event Action<BuildingBase>? BuildingRemoved;
+
+	public PopulationCenter() {
+		_census = new();
+		_resources = new();
+		_tiles = [];
+		_buildings = [];
+		TileAdded += OnTileAdded;
+		TileRemoved += OnTileRemoved;
+	}
+
+	private void OnTileAdded( Tile tile ) {
+		TileBuildings tileBuildings = tile.DataModel.GetData<TileBuildings>();
+		foreach (BuildingBase building in tileBuildings.Buildings)
+			AddBuilding( building );
+		tileBuildings.BuildingAdded += OnBuildingAdded;
+		tileBuildings.BuildingRemoved += OnBuildingRemoved;
+	}
+
+	private void OnTileRemoved( Tile tile ) {
+		TileBuildings tileBuildings = tile.DataModel.GetData<TileBuildings>();
+		foreach (BuildingBase building in tileBuildings.Buildings)
+			RemoveBuilding( building );
+		tileBuildings.BuildingAdded -= OnBuildingAdded;
+		tileBuildings.BuildingRemoved -= OnBuildingRemoved;
+	}
+
+	private void OnBuildingAdded( BuildingBase building ) => AddBuilding( building );
+
+	private void OnBuildingRemoved( BuildingBase building ) => RemoveBuilding( building );
+
+	public void MoveTile( Tile tile, PopulationCenter otherPopulationCenter ) {
+		RemoveTile( tile );
+		otherPopulationCenter.AddTile( tile );
+	}
+
+	private void RemoveBuilding( BuildingBase building ) {
+		_buildings.Remove( building );
+		BuildingRemoved?.Invoke( building );
+	}
+
+	public void AddTile( Tile tile ) {
+		_tiles.Add( tile );
+		TileAdded?.Invoke( tile );
+	}
+
+	public void RemoveTile( Tile tile ) {
+		_tiles.Remove( tile );
+		TileRemoved?.Invoke( tile );
+	}
+	private void AddBuilding( BuildingBase building ) {
+		_buildings.Add( building );
+		BuildingAdded?.Invoke( building );
+	}
+
+	public void Tick( GameClock gameClock ) {
+		gameClock.
+	}
 }
-
-public sealed class PartOfPopulationKey {
-	/// <param name="profession">Which profession this pop has.</param>
-	/// <param name="gender">Which gender this pop has.</param>
-	/// <param name="intelligenceLevel">The intelligence level of this pop. 0 means base level, 100 grants a 100% efficiency boost from their work.</param>
-	/// <param name="educationYears">Number of years this pop has been educated in their profession.</param>
-	/// <param name="birthYear">Year of birth, used to determine age.</param>
-	/// <param name="living">Whether this pop is alive or dead. Dead pops don't do anything and is used mostly for historical statistics.</param>
-	public PartOfPopulationKey( ProfessionBase profession, Gender gender, int intelligenceLevel, int educationYears, int birthYear, bool living ) {
-		this.Profession = profession;
-		this.Gender = gender;
-		this.IntelligenceLevel = intelligenceLevel;
-		this.EducationYears = educationYears;
-		this.BirthYear = birthYear;
-		this.Living = living;
-	}
-
-	public ProfessionBase Profession { get; }
-	public Gender Gender { get; }
-	public int IntelligenceLevel { get; }
-	public int EducationYears { get; }
-	public int BirthYear { get; }
-	public bool Living { get; }
-}
-
-public sealed class PartOfPopulation {
-
-	public PartOfPopulation( PartOfPopulationKey key, int count ) {
-		this.Key = key;
-		this.Count = count;
-	}
-
-	public PartOfPopulationKey Key { get; }
-	public int Count { get; private set; }
-
-	public void AddPeople( int count ) {
-		this.Count += count;
-	}
-
-	public void TransferPeople( PartOfPopulation target, int count ) {
-		if (this.Count < count)
-			throw new InvalidOperationException( "Not enough people to transfer." );
-		this.Count -= count;
-		target.AddPeople( count );
-	}
-
-}
-
-public enum Gender { Male, Female }

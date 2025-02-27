@@ -40,8 +40,8 @@ internal sealed class GameLogicModule : ModuleBase {
 	private void Init() {
 		new DeepWater();
 		ChemicalList.GetMineral( "aBRAKZAN" );
-		var aaa = ChemicalList._chemicalsContainingElement;
-		var bbb = ChemicalList._chemicalsByTag;
+		Dictionary<Element, List<Chemical>> aaa = ChemicalList._chemicalsContainingElement;
+		Dictionary<string, List<Chemical>> bbb = ChemicalList._chemicalsByTag;
 
 		//var technologyResearcher = new TechnologyResearcher( null, null );
 

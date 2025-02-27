@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using Sandbox.Logic.Setup.Vocations.Subsistence;
+using System.Runtime.InteropServices;
 
 namespace Sandbox.Logic.Setup.Buildings;
 internal class Class1 {
@@ -8,11 +9,25 @@ internal class Class1 {
 public sealed class TribalSiteType() : BuildingTypeBase( "Tribal Site", null, true );
 
 public sealed class TribalSiteBuilding : BuildingBase<TribalSiteType> {
+
+	private readonly Dictionary<ProfessionTypeBase, int> _wantedEmployment;
+
+	public TribalSiteBuilding() {
+		_wantedEmployment = [];
+	}
+
+	public void SetHunters( int count ) => SetMaxEmployment<HunterProfession>( count );
+	public void SetForagers( int count ) => SetMaxEmployment<ForagerProfession>( count );
+
+	private void SetMaxEmployment<TProfession>(int count) where TProfession : ProfessionTypeBase {
+		if (count < 0)
+			throw new ArgumentOutOfRangeException( nameof( count ), "Employment count must be positive." );
+		_wantedEmployment.Add( Definitions.Professions.Get<TProfession>(), count );
+	}
+
 	public override int GetCurrentEmployment<TProfession>() {
 		return 0;
 	}
 
-	public override int GetMaxEmployment<TProfession>() {
-		return 0; 
-	}
+	public override int GetMaxEmployment<TProfession>() => _wantedEmployment.GetValueOrDefault( Definitions.Professions.Get<TProfession>() );
 }

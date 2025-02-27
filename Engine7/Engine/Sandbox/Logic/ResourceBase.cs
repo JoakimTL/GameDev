@@ -8,4 +8,8 @@ public abstract class SelfIdentifyingBase {
 		string guidString = guidAttribute.Value;
 		this.Id = new( guidString );
 	}
+
+	public override string ToString() => GetType().Name;
+	public override bool Equals( object? obj ) => obj is SelfIdentifyingBase other && other.Id == Id;
+	public override int GetHashCode() => Id.GetHashCode();
 }
