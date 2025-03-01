@@ -1,4 +1,4 @@
-﻿using Sandbox.Logic;
+﻿using Sandbox.Logic.World.Time;
 
 namespace Sandbox;
 

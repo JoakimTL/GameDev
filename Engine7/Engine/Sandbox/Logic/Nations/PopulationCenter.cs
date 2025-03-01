@@ -1,6 +1,7 @@
 ﻿using Sandbox.Logic.Setup;
 using Sandbox.Logic.World.Tiles;
 using Sandbox.Logic.World.Tiles.Data;
+using Sandbox.Logic.World.Time;
 
 namespace Sandbox.Logic.Nations;
 public sealed class PopulationCenter : ITickable {
