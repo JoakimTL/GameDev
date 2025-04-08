@@ -1,0 +1,13 @@
+Buildings are the cornerstone of a city.
+
+Cuildings can be constructed either by the ruler or by the people. Laws regarding construction can require a request to the ruler be made before construction. If the laws permit then private owners can construct their buildings without consulting the rulers. This allows for a dynamic and growing city without a lot of micromanaging. Buildings are often constructed when the service, commodity or good is in demand. This means that the city will grow organically and not be planned by the ruler. The ruler can however influence the growth of the city by constructing buildings themselves, or by changing laws.
+
+Building types
+ - Inn
+	- Increases cultural and technological spread, dimishes as printing press, radio and other communication technologies are invented.
+	- Increases trade
+	- Increases population growth
+	- Profits diminish as motorized vehicles are introduced and eventually the inn will be replaced by hotels.
+- Hotel
+	- Increases trade
+	- Increases culture

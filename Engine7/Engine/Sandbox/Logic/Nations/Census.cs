@@ -12,8 +12,9 @@ public sealed class Census : IUpdateable {
 		_deleteQueue = new();
 	}
 
-	public PartOfPopulation GetPoP( ProfessionTypeBase? profession, Sex sex, byte educationLevel, ushort ageYears ) {
-		var key = new PartOfPopulationKey( profession, sex, educationLevel, ageYears );
+	public PartOfPopulation Get( ProfessionTypeBase? profession, Sex sex, byte educationLevel, ushort ageYears ) => Get( new( profession, sex, educationLevel, ageYears ) );
+
+	public PartOfPopulation Get( PartOfPopulationKey key ) {
 		if (!_population.TryGetValue( key, out PartOfPopulation? pop )) {
 			_population.Add( key, pop = new( key, 0 ) );
 			pop.CountChanged += PopCountChanged;
@@ -29,8 +30,8 @@ public sealed class Census : IUpdateable {
 	}
 
 	public void TransferPeople( PartOfPopulationKey from, PartOfPopulationKey to, int count ) {
-		var fromPop = _population[ from ];
-		var toPop = _population[ to ];
+		PartOfPopulation fromPop = Get( from );
+		PartOfPopulation toPop = Get( to );
 		if (fromPop.Count < count)
 			throw new InvalidOperationException( "Not enough people to transfer." );
 		fromPop.RemovePeople( count );

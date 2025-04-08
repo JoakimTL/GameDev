@@ -5,6 +5,7 @@ public abstract class ProfessionTypeBase : SelfIdentifyingBase {
 		this.Vocation = vocation;
 		this.Name = name;
 	}
+
 	public VocationTypeBase Vocation { get; }
 	public string Name { get; }
 }

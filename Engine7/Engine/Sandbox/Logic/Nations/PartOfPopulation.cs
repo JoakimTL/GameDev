@@ -4,22 +4,22 @@ public sealed class PartOfPopulation {
 
 	public event Action<PartOfPopulation>? CountChanged;
 
-	public PartOfPopulation( PartOfPopulationKey key, int count ) {
+	public PartOfPopulation( PartOfPopulationKey key, long count ) {
 		this.Key = key;
 		this.Count = count;
 	}
 
 	public PartOfPopulationKey Key { get; }
-	public int Count { get; private set; }
+	public long Count { get; private set; }
 
-	public void AddPeople( int count ) => ChangeCount( count );
+	public void AddPeople( long count ) => ChangeCount( count );
 
-	public void RemovePeople( int count ) => ChangeCount( -count );
+	public void RemovePeople( long count ) => ChangeCount( -count );
 
-	private void ChangeCount( int count ) {
+	private void ChangeCount( long count ) {
 		if (count == 0)
 			return;
-		int newCount = Count + count;
+		long newCount = Count + count;
 		if (newCount < 0)
 			throw new InvalidOperationException( "Not enough people to remove." );
 		this.Count += count;

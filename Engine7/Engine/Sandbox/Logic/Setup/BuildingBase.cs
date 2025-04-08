@@ -1,9 +1,11 @@
-﻿namespace Sandbox.Logic.Setup;
+﻿using Sandbox.Logic.Old.OldCiv.Population;
+
+namespace Sandbox.Logic.Setup;
 
 public abstract class BuildingBase( BuildingTypeBase buildingType ) : Identifiable {
 
 	private readonly BuildingTypeBase _buildingType = buildingType;
-	private readonly Dictionary<ProfessionTypeBase, int> _currentEmployeeCount = [];
+	public Employer Employer { get; } = new();
 
 	public BuildingTypeBase BuildingType => _buildingType;
 
@@ -15,9 +17,23 @@ public abstract class BuildingBase( BuildingTypeBase buildingType ) : Identifiab
 	/// Decay rate in percent each year when left empty.
 	/// </summary>
 	public float BuildingDecayRate { get; protected set; }
-
-	public abstract int GetCurrentEmployment<TProfession>() where TProfession : ProfessionTypeBase;
-	public abstract int GetMaxEmployment<TProfession>() where TProfession : ProfessionTypeBase;
 }
 
 public abstract class BuildingBase<T>() : BuildingBase( Definitions.BuildingTypes.Get<T>() ) where T : BuildingTypeBase;
+
+public sealed class Employer {
+	private readonly Dictionary<ProfessionTypeBase, int> _maximumEmployment;
+	private readonly Dictionary<ProfessionTypeBase, int> _wantedEmployment;
+	private readonly Dictionary<ProfessionTypeBase, int> _currentEmployment;
+	private readonly double _currentRevenue;
+	private readonly double _currentExpenses;
+
+	public Employer() {
+		_maximumEmployment = [];
+		_wantedEmployment = [];
+		_currentEmployment = [];
+	}
+
+	public void SetMaxEmployment( ProfessionTypeBase professionType, int count ) => _maximumEmployment[ professionType ] = count;
+	public void SetWantedEmployment( ProfessionTypeBase professionType, int count ) => _wantedEmployment[ professionType ] = count;
+}

@@ -1,0 +1,4 @@
+Diseases impact the population, economy and wars. In the game we can use known diseases, but perhaps also invent a few new ones for each game.
+
+Diseases can be native to humans or transferred from animals to humans. Most diseases native to humans are mild and can cause productivity loss, but not permanent damage.
+Once animals are domesticated more severe diseases might appear. Before the game starts the list of diseases are predetermined and which animal bears them.

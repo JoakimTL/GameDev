@@ -63,9 +63,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Logic\Nations\Corporations\" />
     <Folder Include="Logic\Old\OldWorld\Render\" />
     <Folder Include="Logic\Old\OldCiv\Research\TechnologyFields\Subsistence\" />
     <Folder Include="Logic\Old\OldCiv\Resources\Materials\Elements\" />
+    <Folder Include="Logic\Setup\MarketSectors\Agriculture\" />
+    <Folder Include="Logic\Setup\MarketSectors\Industry\" />
+    <Folder Include="Logic\Setup\MarketSectors\Military\" />
+    <Folder Include="Logic\Setup\MarketSectors\Services\" />
   </ItemGroup>
 
 </Project>

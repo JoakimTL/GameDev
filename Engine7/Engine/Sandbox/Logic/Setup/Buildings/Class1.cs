@@ -1,4 +1,4 @@
-﻿using Sandbox.Logic.Setup.Vocations.Subsistence;
+﻿using Sandbox.Logic.Setup.MarketSectors.GatheringAndCultivation.FishingAndGathering;
 using System.Runtime.InteropServices;
 
 namespace Sandbox.Logic.Setup.Buildings;
@@ -25,9 +25,9 @@ public sealed class TribalSiteBuilding : BuildingBase<TribalSiteType> {
 		_wantedEmployment.Add( Definitions.Professions.Get<TProfession>(), count );
 	}
 
-	public override int GetCurrentEmployment<TProfession>() {
+	public override int GetCurrentEmployment( ProfessionTypeBase professionType ) {
 		return 0;
 	}
 
-	public override int GetMaxEmployment<TProfession>() => _wantedEmployment.GetValueOrDefault( Definitions.Professions.Get<TProfession>() );
+	public override int GetMaxEmployment( ProfessionTypeBase professionType ) => _wantedEmployment.GetValueOrDefault( professionType );
 }
