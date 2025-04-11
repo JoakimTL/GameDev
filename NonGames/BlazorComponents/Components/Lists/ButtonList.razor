@@ -1,0 +1,35 @@
+﻿@typeparam TItem
+
+@if (Items is null || Items.Count == 0 || GetButtonText is null) {
+    <Label Text="@(GetButtonText is null ? "No GetButtonText delegate available!" : "No items available")" />
+} else {
+    <ul class="button-list @GetWidthClass()">
+        @foreach (var item in Items) {
+            <li class="button-list-item" @onclick="() => OnClick.InvokeAsync(item)">
+                @GetButtonText( item )
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public IReadOnlyList<TItem>? Items { get; set; }
+
+    [Parameter]
+    public EventCallback<TItem> OnClick { get; set; }
+
+    [Parameter]
+    public Func<TItem, string> GetButtonText { get; set; } = default!;
+
+    [Parameter]
+    public Thickness? Width { get; set; }
+
+    public string GetWidthClass()
+        => Width switch {
+            Thickness.Slim => "thickness-slim",
+            Thickness.Normal => "thickness-normal",
+            Thickness.Thick => "thickness-thick",
+            _ => ""
+        };
+}

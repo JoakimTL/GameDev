@@ -1,4 +1,5 @@
-﻿using Sandbox.Logic.Setup;
+﻿using Sandbox.Logic.Nations.People;
+using Sandbox.Logic.Setup;
 using Sandbox.Logic.World.Tiles;
 using Sandbox.Logic.World.Tiles.Data;
 using Sandbox.Logic.World.Time;
@@ -9,6 +10,9 @@ public sealed class PopulationCenter : ITickable {
 	 * Has people, resources, buildings, culture and technology
 	 */
 
+	private static ushort _currentAvailableId = 0;
+
+	public ushort Id { get; }
 	private readonly Census _census;
 	private readonly ResourceContainer _resources;
 	private readonly List<Tile> _tiles;
@@ -20,6 +24,9 @@ public sealed class PopulationCenter : ITickable {
 	public event Action<BuildingBase>? BuildingRemoved;
 
 	public PopulationCenter() {
+		if (_currentAvailableId == ushort.MaxValue)
+			throw new InvalidOperationException( "No more available IDs for PopulationCenter." );
+		Id = _currentAvailableId++;
 		_census = new();
 		_resources = new();
 		_tiles = [];

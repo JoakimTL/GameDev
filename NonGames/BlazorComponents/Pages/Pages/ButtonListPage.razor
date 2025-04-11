@@ -1,0 +1,18 @@
+﻿<ButtonList Width="Thickness.Slim" Items="Messages" GetButtonText="(string item) => item" OnClick="(string item) => Message = item" />
+
+@Message
+
+@code {
+    public string[] Messages { get; set; } = [
+        "Message 1",
+        "Message 2",
+        "Message 3"
+    ];
+
+    public string Message { get; set; } = "No message yet.";
+
+    private void ShowMessage( string message ) {
+        Message = message;
+    }
+
+}

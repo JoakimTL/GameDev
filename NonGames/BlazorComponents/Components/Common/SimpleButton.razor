@@ -1,0 +1,16 @@
+﻿<button class="btn-outer" @onclick="OnClick" disabled="@Disabled">
+    <div class="btn-inner">
+        @Text
+    </div>
+</button>
+
+@code {
+    [Parameter]
+    public string Text { get; set; } = "Click me!";
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; } = default!;
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+}

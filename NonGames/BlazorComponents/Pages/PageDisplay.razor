@@ -1,0 +1,29 @@
+﻿@using System.Reflection
+@using Components.Layout
+
+@if (PageTypes is not null) {
+    <FlexLayout>
+        <Layout>
+            <Sidebar Placement="SidebarPlacement.Left" Width="Thickness.Slim">
+                <ButtonList Items="PageTypes" GetButtonText="(Type type) => type.Name" OnClick="(Type type) => _currentType = type" />
+            </Sidebar>
+        </Layout>
+        <Content>
+            @if (_currentType is not null) {
+                <DynamicComponent Type="_currentType" />
+            }
+        </Content>
+    </FlexLayout>
+}
+
+@code {
+    private Type? _currentType;
+
+    public List<Type>? PageTypes { get; set; }
+
+    protected override void OnInitialized() {
+        base.OnInitialized();
+        PageTypes = typeof( PageDisplay ).Assembly.GetTypes().Where( p => p.BaseType == typeof( ComponentBase ) && (p.Namespace?.StartsWith( "Pages.Pages" ) ?? false) ).OrderBy( p => p.Name ).ToList();
+    }
+
+}

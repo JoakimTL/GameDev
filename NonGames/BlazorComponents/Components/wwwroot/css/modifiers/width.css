@@ -1,0 +1,14 @@
+﻿.thickness-slim {
+    max-width: 200px;
+    width: 100%;
+}
+
+.thickness-normal {
+    max-width: 400px;
+    width: 100%;
+}
+
+.thickness-thick {
+    max-width: 600px;
+    width: 100%;
+}

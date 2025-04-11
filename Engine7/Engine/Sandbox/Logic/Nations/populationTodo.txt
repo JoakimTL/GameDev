@@ -27,11 +27,10 @@ Maybe storing people in 2 ways. One as just general population and as working po
 
 General population:
 	Key:
-	 - Year of birth
-	 - Sex
-	 - Culture (Id for active culture that year)
-	 - Genetic Clade
+	 - Sex & Phenotype
 	 - Birthcenter (Id for population center that year)
+	 - Culture (Id for active culture that year)
+	 - Year of birth
 	Data:
 	 - Number of people born in this group
 	 - Number of people in this group that died
@@ -46,17 +45,11 @@ General population:
 		- Affected by laws governing retirement
 	 - Is of general eduction age
 		- Affected by laws governing education
-Educated population:
+Professional population:
 	Key:
 	 - Age
 	 - Sex
 	 - Education Level
-	Data:
-	 - Number of people in this group
-Working population:
-	Key:
-	 - Age
-	 - Sex
 	 - Profession
 	Data:
 	 - Number of people in this group

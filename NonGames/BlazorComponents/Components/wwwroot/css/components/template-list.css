@@ -1,0 +1,26 @@
+﻿ul.template-list {
+    background-color: #f9f9f9;
+    list-style-type: none;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 0;
+}
+
+li.template-list-item {
+    background-color: #eee;
+    padding: 5px 5px;
+    margin: 0;
+    line-height: 1;
+}
+
+ul.template-list li.template-list-item:nth-child(even) {
+    background-color: #fff;
+}
+
+ul.template-list li.template-list-item:first-child {
+    border-radius: 10px 10px 0px 0px;
+}
+
+ul.template-list li.template-list-item:last-child {
+    border-radius: 0px 0px 10px 10px;
+}

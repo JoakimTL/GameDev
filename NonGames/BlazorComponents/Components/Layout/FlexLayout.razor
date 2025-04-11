@@ -1,0 +1,13 @@
+﻿<div class="flex-layout">
+    @Layout
+    <div class="content">
+        @Content
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? Layout { get; set; }
+    [Parameter]
+    public RenderFragment? Content { get; set; }
+}

@@ -1,0 +1,22 @@
+﻿<div class="@(Placement == SidebarPlacement.Left ? "sidebar-left" : "sidebar-right") @GetWidthClass()">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public Thickness Width { get; set; } = Thickness.Slim;
+
+    [Parameter]
+    public SidebarPlacement Placement { get; set; } = SidebarPlacement.Left;
+
+    public string GetWidthClass()
+        => Width switch {
+            Thickness.Slim => "thickness-slim",
+            Thickness.Normal => "thickness-normal",
+            Thickness.Thick => "thickness-thick",
+            _ => ""
+        };
+}

@@ -1,0 +1,27 @@
+﻿<TemplateList Items="_items">
+    <Template>
+        @context.FirstName @context.LastName is @context.Age years old!
+    </Template>
+</TemplateList>
+
+@code {
+    private readonly List<Person> _items = [
+        new Person("John", "Doe", 30),
+        new Person("Jane", "Smith", 25),
+        new Person("Alice", "Johnson", 28),
+        new Person("Bob", "Brown", 35),
+    ];
+
+    public sealed class Person {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public int Age { get; set; }
+
+        public Person( string firstName, string lastName, int age ) {
+            FirstName = firstName;
+            LastName = lastName;
+            Age = age;
+        }
+    }
+
+}
