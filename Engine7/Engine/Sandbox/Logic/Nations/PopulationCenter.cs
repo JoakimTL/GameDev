@@ -80,6 +80,6 @@ public sealed class PopulationCenter : ITickable {
 	}
 
 	public void Tick( GameClock gameClock ) {
-		gameClock.
+		double deltaDays = gameClock.DeltaDays;
 	}
 }

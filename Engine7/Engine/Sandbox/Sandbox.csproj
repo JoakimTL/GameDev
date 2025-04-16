@@ -71,6 +71,7 @@
     <Folder Include="Logic\Setup\MarketSectors\Industry\" />
     <Folder Include="Logic\Setup\MarketSectors\Military\" />
     <Folder Include="Logic\Setup\MarketSectors\Services\" />
+    <Folder Include="Logic\Setup\Social\Politics\" />
   </ItemGroup>
 
 </Project>

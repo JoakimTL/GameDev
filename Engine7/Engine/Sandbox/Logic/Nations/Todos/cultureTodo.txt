@@ -1,0 +1,20 @@
+Culture evolves over time from player actions, events and environment.
+ - Food types
+ - Event choices
+ - Unwritten rules (from events or public "coercion" (The player willingly changes the unwritten rules of the land, which can cause friction if done to fast))
+ - Religion
+ - Language
+ - Traditions
+ - Engrained laws
+ - Technology
+
+As a tribe you have a cohesive culture among your tribesmen. This is your starting culture, which will be named after your tribe's name (which the player can choose).
+As your population grows your culture evolves. When encountering new cultures you gain relations based on how well your cultures fit eachother. An egalitarian society will not look kindly upon an authoritarian society. This can lead to friction and even war. If you have immigrants their culture's fit with your local population will determine how well people receive the immigrants.
+
+Immigration and trade brings with them culture, which means the player have choices to make which affect their own culture or economy. These choices basically boil down to adopting a newer way of thinking, or closing off and rejecting new cultural ideas.
+
+It's possible to be xenophillic or xenophobic. This is cultivated over many decisions, events and laws, as is every other cultural trait.
+
+In essence culture starts as a clean slate, and as the game progresses your culture slowly becomes complex and nouanced based on choices, events, laws, environment, religion and technology.
+
+Religion in itself is an extension of your culture, but a potent way to change your culture for better or worse.

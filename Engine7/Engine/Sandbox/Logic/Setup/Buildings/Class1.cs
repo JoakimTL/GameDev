@@ -1,5 +1,4 @@
 ﻿using Sandbox.Logic.Setup.MarketSectors.GatheringAndCultivation.FishingAndGathering;
-using System.Runtime.InteropServices;
 
 namespace Sandbox.Logic.Setup.Buildings;
 internal class Class1 {
@@ -16,18 +15,8 @@ public sealed class TribalSiteBuilding : BuildingBase<TribalSiteType> {
 		_wantedEmployment = [];
 	}
 
-	public void SetHunters( int count ) => SetMaxEmployment<HunterProfession>( count );
-	public void SetForagers( int count ) => SetMaxEmployment<ForagerProfession>( count );
+	public void SetHunters( int count ) => this.Employer.SetWantedEmployment<HunterProfession>( count );
+	public void SetForagers( int count ) => this.Employer.SetWantedEmployment<ForagerProfession>( count );
 
-	private void SetMaxEmployment<TProfession>(int count) where TProfession : ProfessionTypeBase {
-		if (count < 0)
-			throw new ArgumentOutOfRangeException( nameof( count ), "Employment count must be positive." );
-		_wantedEmployment.Add( Definitions.Professions.Get<TProfession>(), count );
-	}
 
-	public override int GetCurrentEmployment( ProfessionTypeBase professionType ) {
-		return 0;
-	}
-
-	public override int GetMaxEmployment( ProfessionTypeBase professionType ) => _wantedEmployment.GetValueOrDefault( professionType );
 }

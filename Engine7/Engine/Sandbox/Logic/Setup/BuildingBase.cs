@@ -1,6 +1,4 @@
-﻿using Sandbox.Logic.Old.OldCiv.Population;
-
-namespace Sandbox.Logic.Setup;
+﻿namespace Sandbox.Logic.Setup;
 
 public abstract class BuildingBase( BuildingTypeBase buildingType ) : Identifiable {
 
@@ -36,4 +34,6 @@ public sealed class Employer {
 
 	public void SetMaxEmployment( ProfessionTypeBase professionType, int count ) => _maximumEmployment[ professionType ] = count;
 	public void SetWantedEmployment( ProfessionTypeBase professionType, int count ) => _wantedEmployment[ professionType ] = count;
+	public void SetMaxEmployment<TProfession>( int count ) where TProfession : ProfessionTypeBase => _maximumEmployment[ Definitions.Professions.Get<TProfession>() ] = count;
+	public void SetWantedEmployment<TProfession>( int count ) where TProfession : ProfessionTypeBase => _wantedEmployment[ Definitions.Professions.Get<TProfession>() ] = count;
 }

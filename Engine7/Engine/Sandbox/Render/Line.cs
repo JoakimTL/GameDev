@@ -3,7 +3,6 @@ using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
 using OpenGL;
-using System.Runtime.InteropServices;
 
 namespace Sandbox.Render;
 

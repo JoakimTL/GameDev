@@ -28,8 +28,20 @@ public sealed class TileRenderModel {
 		}
 	}
 
-	public Vector4<float> Color { get; internal set; }
+	public Vector4<float> Color { get; private set; }
+
+	private Vector4<float> GetColor() {
+		return 1;
+	}
 
 	public AABB<Vector3<float>> GetBounds()
 		=> AABB.Create( [ VectorA, VectorB, VectorC ] );
+
+	internal bool UpdateRenderingProperties() {
+		Vector4<float> newColor = GetColor();
+		if (newColor == Color)
+			return false;
+		Color = newColor;
+		return true;
+	}
 }

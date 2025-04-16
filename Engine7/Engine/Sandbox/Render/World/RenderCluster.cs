@@ -12,6 +12,7 @@ public sealed class RenderCluster {
 	public readonly AABB<Vector3<float>> ClusterBounds;
 
 	public bool IsVisible { get; private set; }
+	public bool NeedsUpdate { get; private set; } = true;
 
 	public event Action? VisibilityChanged;
 
@@ -19,6 +20,14 @@ public sealed class RenderCluster {
 		this._tilesInCluster = tilesInCluster.ToList();
 		this._edgesInCluster = edgesInCluster.ToList();
 		this.ClusterBounds = AABB.Create<Vector3<float>>( _tilesInCluster.Select( t => t.Bounds ).ToArray() );
+
+		foreach (Tile tile in _tilesInCluster) {
+			tile.RenderingChanged += OnTileRenderingChanged;
+		}
+	}
+
+	private void OnTileRenderingChanged( Tile tile ) {
+		NeedsUpdate = true;
 	}
 
 	public void SetVisibility( bool visible ) {

@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Sandbox.Logic.Setup.Resources;
+﻿namespace Sandbox.Logic.Setup.Resources;
 internal class Class1 {
 }
 

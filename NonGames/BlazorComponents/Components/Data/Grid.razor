@@ -1,0 +1,17 @@
+﻿@typeparam TItem
+
+@if (Items is null || Items.Count == 0) {
+    <Label Text="No items available" />
+} else {
+    <table>
+
+    </table>
+}
+
+
+@code {
+
+    [Parameter]
+    public IList<TItem>? Items { get; set; }
+
+}

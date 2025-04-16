@@ -36,6 +36,20 @@ General population:
 	 - Number of people in this group that died
 	 - Number of people in this group that emmigrated
 	 - Number of people in this group that immigrated
+	 - Professional population {
+		Key:
+		 - Education Level
+		 - Vocation Education
+		 - Profession
+		Data:
+		 - Number of people in this group
+	}
+	 - Political population {
+		Key:
+		 - Political Alignment
+		Data:
+		 - Number of people in this group
+	}
 	Projected Data:
 	 - Age
 	 - Is of working age
@@ -45,18 +59,4 @@ General population:
 		- Affected by laws governing retirement
 	 - Is of general eduction age
 		- Affected by laws governing education
-Professional population:
-	Key:
-	 - Age
-	 - Sex
-	 - Education Level
-	 - Profession
-	Data:
-	 - Number of people in this group
-Political population:
-	Key:
-	 - Age
-	 - Sex
-	 - Political Alignment
-	Data:
-	 - Number of people in this group
+
