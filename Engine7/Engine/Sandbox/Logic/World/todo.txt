@@ -1,0 +1,17 @@
+﻿
+Tiles should have a terrain type.
+ - Plains
+ - Forest
+ - Mountain
+ - Water
+ - Desert
+ - Swamp
+ ...
+
+Tiles should have names, these should be randomly generated based on the terrain type.
+ - Plains: Green Hills, Rolling Hills, Flatlands
+ - Forest: Dark Woods, Enchanted Forest, Ancient Grove
+ - Mountain: Snowy Peaks, Rocky Mountains, Craggy Hills
+ - Water: Crystal Lake, Serene River, Deep Ocean
+ - Desert: Sandy Dunes, Rocky Wastes, Dry Plains
+ - Swamp: Murky Marshes, Boggy Lowlands, Wetlands

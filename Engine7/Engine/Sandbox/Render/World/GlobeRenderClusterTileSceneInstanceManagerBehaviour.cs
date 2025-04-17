@@ -31,3 +31,5 @@ public sealed class GlobeRenderClusterTileSceneInstanceManagerBehaviour : Depend
 		return true;
 	}
 }
+
+//public sealed class PopulationCenterRenderingBehaviour : DependentRenderBehaviourBase<PopulationCenterComponent>

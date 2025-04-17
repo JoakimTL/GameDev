@@ -6,7 +6,7 @@ public sealed class Tile : IOcTreeLeaf<float> {
 	public GlobeComponent Globe { get; }
 	public TileRenderModel RenderModel { get; }
 	public TileDataModel DataModel { get; }
-	public PopulationCenter? PopulationCenter { get; set; }
+	public PopulationCenterComponent? PopulationCenter { get; set; }
 	public PlayerComponent? Owner { get; set; }
 	private readonly TileNeighboursModel _neighbours;
 

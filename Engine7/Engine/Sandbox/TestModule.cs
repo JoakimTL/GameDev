@@ -12,6 +12,7 @@ using Engine.Standard;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render.UserInterface;
+using Sandbox.Logic;
 using Sandbox.Logic.Old.OldCiv.Resources.Materials;
 using Sandbox.Logic.World;
 using Sandbox.Logic.World.Tiles.Terrain;
@@ -25,7 +26,10 @@ internal sealed class GameLogicModule : ModuleBase {
 	private Entity? _textEntity;
 	private Entity? _entity;
 
+	private List<Entity> _players;
+
 	public GameLogicModule() : base( false, 20 ) {
+		_players = [];
 		OnInitialize += Init;
 		OnUpdate += Update;
 	}
@@ -38,10 +42,10 @@ internal sealed class GameLogicModule : ModuleBase {
 	}
 
 	private void Init() {
-		new DeepWater();
-		ChemicalList.GetMineral( "aBRAKZAN" );
-		Dictionary<Element, List<Chemical>> aaa = ChemicalList._chemicalsContainingElement;
-		Dictionary<string, List<Chemical>> bbb = ChemicalList._chemicalsByTag;
+		//new DeepWater();
+		//ChemicalList.GetMineral( "aBRAKZAN" );
+		//Dictionary<Element, List<Chemical>> aaa = ChemicalList._chemicalsContainingElement;
+		//Dictionary<string, List<Chemical>> bbb = ChemicalList._chemicalsByTag;
 
 		//var technologyResearcher = new TechnologyResearcher( null, null );
 
@@ -72,6 +76,8 @@ internal sealed class GameLogicModule : ModuleBase {
 			p.SimulatedSurfaceArea = 509600000;
 			p.Initialize();
 		} );
+
+		_players.Add( CreatePlayerEntity(container) );
 
 		//this._entity = container.CreateEntity();
 		//_entity.AddComponent<RenderComponent>();
@@ -104,6 +110,13 @@ internal sealed class GameLogicModule : ModuleBase {
 		//_textEntity.AddComponent<ButtonComponent>();
 		//TextJumblerComponent aa = _textEntity.AddComponent<TextJumblerComponent>();
 		//aa.Offset = 1;
+	}
+
+	private Entity CreatePlayerEntity( EntityContainer container ) {
+		var player = container.CreateEntity();
+		player.AddComponent<RenderComponent>();
+		player.AddComponent<PlayerComponent>();
+		return player;
 	}
 }
 

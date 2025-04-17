@@ -1,11 +1,12 @@
-﻿using Sandbox.Logic.Nations.People;
+﻿using Engine.Module.Entities.Container;
+using Sandbox.Logic.Nations.People;
 using Sandbox.Logic.Setup;
 using Sandbox.Logic.World.Tiles;
 using Sandbox.Logic.World.Tiles.Data;
 using Sandbox.Logic.World.Time;
 
 namespace Sandbox.Logic.Nations;
-public sealed class PopulationCenter : ITickable {
+public sealed class PopulationCenterComponent : ComponentBase, ITickable {
 	/*
 	 * Has people, resources, buildings, culture and technology
 	 */
@@ -18,12 +19,14 @@ public sealed class PopulationCenter : ITickable {
 	private readonly List<Tile> _tiles;
 	private readonly HashSet<BuildingBase> _buildings;
 
+	public PlayerComponent? Owner { get; set; }
+
 	public event Action<Tile>? TileAdded;
 	public event Action<Tile>? TileRemoved;
 	public event Action<BuildingBase>? BuildingAdded;
 	public event Action<BuildingBase>? BuildingRemoved;
 
-	public PopulationCenter() {
+	public PopulationCenterComponent() {
 		if (_currentAvailableId == ushort.MaxValue)
 			throw new InvalidOperationException( "No more available IDs for PopulationCenter." );
 		Id = _currentAvailableId++;
@@ -36,6 +39,7 @@ public sealed class PopulationCenter : ITickable {
 	}
 
 	private void OnTileAdded( Tile tile ) {
+		tile.PopulationCenter = this;
 		TileBuildings tileBuildings = tile.DataModel.GetData<TileBuildings>();
 		foreach (BuildingBase building in tileBuildings.Buildings)
 			AddBuilding( building );
@@ -44,6 +48,7 @@ public sealed class PopulationCenter : ITickable {
 	}
 
 	private void OnTileRemoved( Tile tile ) {
+		tile.PopulationCenter = null;
 		TileBuildings tileBuildings = tile.DataModel.GetData<TileBuildings>();
 		foreach (BuildingBase building in tileBuildings.Buildings)
 			RemoveBuilding( building );
@@ -55,7 +60,7 @@ public sealed class PopulationCenter : ITickable {
 
 	private void OnBuildingRemoved( BuildingBase building ) => RemoveBuilding( building );
 
-	public void MoveTile( Tile tile, PopulationCenter otherPopulationCenter ) {
+	public void MoveTile( Tile tile, PopulationCenterComponent otherPopulationCenter ) {
 		RemoveTile( tile );
 		otherPopulationCenter.AddTile( tile );
 	}
@@ -74,6 +79,7 @@ public sealed class PopulationCenter : ITickable {
 		_tiles.Remove( tile );
 		TileRemoved?.Invoke( tile );
 	}
+
 	private void AddBuilding( BuildingBase building ) {
 		_buildings.Add( building );
 		BuildingAdded?.Invoke( building );
