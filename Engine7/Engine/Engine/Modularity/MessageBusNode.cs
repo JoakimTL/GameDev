@@ -12,11 +12,12 @@ public sealed class MessageBusNode : DisposableIdentifiable {
 
 	public event Action<Message>? OnMessageReceived;
 
-	public MessageBusNode(int index, string? address) {
+	public MessageBusNode( int index, string? address ) {
 		this._messageQueue = [];
 		this._interface = new( this );
 		this.Index = index;
 		this.Address = address;
+		this.Nickname = $"{address}#{index}";
 	}
 
 	internal void ReceiveMessage( Message message ) => this._messageQueue.Enqueue( message );
@@ -27,41 +28,17 @@ public sealed class MessageBusNode : DisposableIdentifiable {
 			OnMessageReceived?.Invoke( message );
 	}
 
-	public void Publish( object content ) {
+	public void Publish( object content, string? address ) {
 		ObjectDisposedException.ThrowIf( this.Disposed, this );
-		MessageBus.Publish( new( this._interface, content ) );
+		MessageBus.Publish( new( this._interface, content, address ) );
 	}
 
 	public void SendMessageTo( MessageQueueInterface messageQueue, object content ) {
 		ObjectDisposedException.ThrowIf( this.Disposed, this );
-		messageQueue.LeaveMessageAtNode( new( this._interface, content ) );
+		messageQueue.LeaveMessageAtNode( new( this._interface, content, null ) );
 	}
 
 	protected override bool InternalDispose() => true;
-}
 
-public sealed class Message( MessageQueueInterface? sender, object content, string? address = default ) {
-	public readonly MessageQueueInterface? Sender = sender;
-	public readonly object Content = content;
-	public readonly string? Address = address;
-}
-
-public sealed class MessageQueueInterface {
-	private readonly MessageBusNode _manager;
-
-	public MessageQueueInterface( MessageBusNode manager ) {
-		this._manager = manager;
-	}
-
-	public void LeaveMessageAtNode( Message message ) {
-		this._manager.ReceiveMessage( message );
-	}
-}
-
-public static class MessageExtensions {
-	public static void SendResponseFrom( this Message message, MessageBusNode node, object content ) {
-		if (message.Sender is null)
-			throw new InvalidOperationException( "Cannot respond to a message without a known sender!" );
-		node.SendMessageTo( message.Sender, content );
-	}
+	public bool IsSenderOf( Message message ) => message.Sender == this._interface;
 }

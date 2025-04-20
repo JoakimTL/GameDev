@@ -1,5 +1,8 @@
 ﻿
+using Engine.Logging;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace Engine.Modularity;
 
@@ -7,9 +10,10 @@ public static class MessageBus {
 	private static int _currentIndex;
 	private static readonly ConcurrentDictionary<int, MessageBusNode> _nodes = [];
 
-	public static MessageBusNode CreateNode(string? address) {
+	public static MessageBusNode CreateNode( string? address ) {
+		Log.Line( $"Created {nameof( MessageBusNode )} with address {address}!" );
 		int index = Interlocked.Increment( ref _currentIndex );
-		MessageBusNode receiver = new( index , address);
+		MessageBusNode receiver = new( index, address );
 		_nodes.TryAdd( index, receiver );
 		receiver.OnDisposed += ReceiverDisposed;
 		return receiver;
@@ -26,15 +30,29 @@ public static class MessageBus {
 
 	//TODO: finish stuff. (addresses being simple regex, etc...) Make naming scheme understandable...
 	public static void Publish( Message message ) {
-		if (message == null)
-			throw new ArgumentNullException( nameof( message ) );
-		if (message.Address == null) {
-			foreach (MessageBusNode receiver in _nodes.Values)
+		Log.Line( $"Publishing {message.Content}{(!string.IsNullOrEmpty( message.Address ) ? $" to {message.Address}" : "")}..." );
+		if (string.IsNullOrEmpty( message.Address )) {
+			foreach (MessageBusNode receiver in _nodes.Values) {
+				if (receiver.IsSenderOf( message ))
+					continue;
 				receiver.ReceiveMessage( message );
-		} else {
-			foreach (MessageBusNode receiver in _nodes.Values)
-				if (receiver.Address == message.Address)
-					receiver.ReceiveMessage( message );
+			}
+			return;
+		}
+
+		Regex regex = new( message.Address, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant );
+
+		foreach (MessageBusNode receiver in _nodes.Values) {
+			if (receiver.IsSenderOf( message ))
+				continue;
+
+			if (string.IsNullOrEmpty( receiver.Address )) {
+				receiver.ReceiveMessage( message );
+				continue;
+			}
+
+			if (regex.IsMatch( receiver.Address ))
+				receiver.ReceiveMessage( message );
 		}
 	}
 }

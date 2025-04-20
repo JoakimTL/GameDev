@@ -6,14 +6,14 @@ public class HostClientSynchronizedBufferPair<THostBuffer> : DisposableIdentifia
 	where THostBuffer : ICopyableBuffer<ulong>, IObservableBuffer<ulong>, IVariableLengthBuffer<ulong> {
 
 	public THostBuffer HostBuffer { get; }
-	private readonly OglDynamicBuffer _clientBuffer;
+	private OglDynamicBuffer? _clientBuffer;
 	private readonly BufferChangeTracker<THostBuffer, ulong> _changeTracker;
 	private readonly List<BufferChangeTracker<THostBuffer, ulong>.ChangedSection> _currentChanges;
 	private bool _hostResized;
 
-	public uint ClientBufferId => this._clientBuffer.BufferId;
+	public uint? ClientBufferId => this._clientBuffer?.BufferId;
 
-	public HostClientSynchronizedBufferPair( THostBuffer hostBuffer, OglDynamicBuffer clientBuffer ) {
+	public HostClientSynchronizedBufferPair( THostBuffer hostBuffer, OglDynamicBuffer? clientBuffer ) {
 		this.HostBuffer = hostBuffer;
 		this.HostBuffer.OnBufferResized += OnHostBufferResized;
 		this._clientBuffer = clientBuffer;
@@ -24,7 +24,15 @@ public class HostClientSynchronizedBufferPair<THostBuffer> : DisposableIdentifia
 
 	private void OnHostBufferResized( IBuffer<ulong> buffer ) => this._hostResized = true;
 
+	public void SetClientBuffer( OglDynamicBuffer clientBuffer ) {
+		if (this._clientBuffer is not null)
+			throw new InvalidOperationException( "Client buffer is already set." );
+		this._clientBuffer = clientBuffer;
+	}
+
 	public void Synchronize() {
+		if (_clientBuffer is null)
+			throw new InvalidOperationException( "Client buffer is not set." );
 		this._hostResized |= this.HostBuffer.LengthBytes != this._clientBuffer.LengthBytes;
 		if (!this._changeTracker.HasChanges && !this._hostResized)
 			return;

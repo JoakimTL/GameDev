@@ -13,11 +13,58 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Engine.Standard\Engine.Standard.csproj" />
+    <None Remove="assets\fonts\COUR.TTF" />
+    <None Remove="assets\fonts\COURBD.TTF" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="assets\" />
+    <Content Include="assets\fonts\calibri.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\fonts\calibrib.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\fonts\COUR.TTF">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\geometry3.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\line.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\line3.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\test.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\test.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\shaders\text.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\earthHeightmapLow.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\sampleTexture.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\test.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+		<Content Include="assets\fonts\COURBD.TTF">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine.Module.Entities\Engine.Module.Entities.csproj" />
+    <ProjectReference Include="..\Engine.Module.Render.Domain\Engine.Module.Render.Domain.csproj" />
+    <ProjectReference Include="..\Engine.Module.Render\Engine.Module.Render.csproj" />
+    <ProjectReference Include="..\Engine.Standard\Engine.Standard.csproj" />
+    <ProjectReference Include="..\Engine\Engine.csproj" />
   </ItemGroup>
 
   <ItemGroup>

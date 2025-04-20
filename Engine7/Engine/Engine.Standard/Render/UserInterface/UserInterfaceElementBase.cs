@@ -1,8 +1,7 @@
 ﻿using Engine.Module.Render.Input;
 
 namespace Engine.Standard.Render.UserInterface;
-
-public abstract class UserInterfaceElementBase(uint baseLayer = 0) : DisposableIdentifiable {
+public abstract class UserInterfaceElementBase( uint baseLayer = 0 ) : DisposableIdentifiable {
 
 	private readonly List<UserInterfaceComponentBase> _components = [];
 
@@ -26,6 +25,7 @@ public abstract class UserInterfaceElementBase(uint baseLayer = 0) : DisposableI
 		this.IsDisplayed = this.ShouldDisplay();
 		return oldValue != this.IsDisplayed;
 	}
+
 	protected void AddComponent( UserInterfaceComponentBase component )
 		=> this._components.Add( component );
 
@@ -93,7 +93,7 @@ public abstract class UserInterfaceElementBase(uint baseLayer = 0) : DisposableI
 	}
 
 	internal void Update( double time, double deltaTime ) {
-		OnUpdate(time, deltaTime);
+		OnUpdate( time, deltaTime );
 		foreach (UserInterfaceComponentBase component in this._components)
 			component.Update( time, deltaTime );
 	}

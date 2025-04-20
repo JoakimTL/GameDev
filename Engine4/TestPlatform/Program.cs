@@ -32,22 +32,22 @@
 //Console.WriteLine( "VAR: " + variance );
 //Console.WriteLine( "SD:  " + Math.Sqrt( variance ) );
 
-Random r1 = new Random( 55 );
-byte[][] segments = new byte[ 6 ][];
-segments[ 0 ] = new byte[ 32 ];
-segments[ 1 ] = new byte[ 64 ];
-segments[ 2 ] = new byte[ 128 ];
-segments[ 3 ] = new byte[ 512 ];
-segments[ 4 ] = new byte[ 2048 ];
-segments[ 5 ] = new byte[ 65536 ];
-unchecked {
-	for ( int j = 0; j < segments.Length; j++ )
-		for ( int i = 0; i < segments[ j ].Length; i++ )
-			segments[ j ][ i ] = (byte) r1.Next();
-}
+//Random r1 = new Random( 55 );
+//byte[][] segments = new byte[ 6 ][];
+//segments[ 0 ] = new byte[ 32 ];
+//segments[ 1 ] = new byte[ 64 ];
+//segments[ 2 ] = new byte[ 128 ];
+//segments[ 3 ] = new byte[ 512 ];
+//segments[ 4 ] = new byte[ 2048 ];
+//segments[ 5 ] = new byte[ 65536 ];
+//unchecked {
+//	for ( int j = 0; j < segments.Length; j++ )
+//		for ( int i = 0; i < segments[ j ].Length; i++ )
+//			segments[ j ][ i ] = (byte) r1.Next();
+//}
 
-byte[]? o = Engine.Data.Segmentation.Segment( segments );
-byte[][]? p = Engine.Data.Segmentation.Parse( o );
+//byte[]? o = Engine.Data.Segmentation.Segment( segments );
+//byte[][]? p = Engine.Data.Segmentation.Parse( o );
 
 /*
 Console.WriteLine( "out" );

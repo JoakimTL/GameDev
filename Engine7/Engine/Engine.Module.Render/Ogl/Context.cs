@@ -73,6 +73,7 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 
 		this.InstanceProvider.Get<ViewportStateService>().Set( 0, window.Size );
 
+		Gl.Clear( ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit );
 		this._pipelineExecuterExtension.DrawToScreen();
 
 		window.SwapBuffer();

@@ -40,6 +40,8 @@ public sealed class SceneRender : DisposableIdentifiable, ISceneRender {
 				}
 				return;
 			}
+			if (this._indirectCommands.Count == 0)
+				return;
 			if (this._indirectCommands.Count < 32768) {
 				Span<IndirectCommand> commands = stackalloc IndirectCommand[ this._indirectCommands.Count ];
 				this._indirectCommands.CopyTo( commands );

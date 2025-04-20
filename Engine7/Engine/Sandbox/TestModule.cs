@@ -27,7 +27,7 @@ internal sealed class GameLogicModule : ModuleBase {
 
 	private List<Entity> _players;
 
-	public GameLogicModule() : base( false, 20 ) {
+	public GameLogicModule() : base( false, 20, "gamelogic" ) {
 		_players = [];
 		OnInitialize += Init;
 		OnUpdate += Update;
@@ -71,12 +71,12 @@ internal sealed class GameLogicModule : ModuleBase {
 		_entity.AddComponent<RenderComponent>();
 		Transform3Component t3c = this._entity.AddComponent<Transform3Component>();
 		_entity.AddComponent<GlobeComponent>( p => {
-			p.Layers = 9;
+			p.Layers = 7;
 			p.SimulatedSurfaceArea = 509600000;
 			p.Initialize();
 		} );
 
-		_players.Add( CreatePlayerEntity(container) );
+		_players.Add( CreatePlayerEntity( container ) );
 
 		//this._entity = container.CreateEntity();
 		//_entity.AddComponent<RenderComponent>();
@@ -113,7 +113,6 @@ internal sealed class GameLogicModule : ModuleBase {
 
 	private Entity CreatePlayerEntity( EntityContainer container ) {
 		Entity player = container.CreateEntity();
-		player.AddComponent<RenderComponent>();
 		player.AddComponent<PlayerComponent>();
 		return player;
 	}
@@ -145,7 +144,7 @@ public sealed class TextJumblerSystem : SystemBase<TextJumblerArchetype> {
 
 internal class SandboxRenderModule : RenderModuleBase {
 
-	public SandboxRenderModule() : base() {
+	public SandboxRenderModule() : base( "render" ) {
 		OnUpdate += Update;
 	}
 

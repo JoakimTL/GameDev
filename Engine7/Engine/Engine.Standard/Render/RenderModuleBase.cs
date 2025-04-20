@@ -9,7 +9,7 @@ namespace Engine.Standard.Render;
 
 public abstract class RenderModuleBase : ModuleBase {
 
-	public RenderModuleBase() : base( true, double.PositiveInfinity ) {
+	public RenderModuleBase( string address ) : base( true, double.PositiveInfinity, address ) {
 		OnInitialize += InitializeModule;
 		OnUpdate += CheckShutdownConditions;
 	}

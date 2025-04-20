@@ -14,16 +14,18 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	public double ExecutionFrequency { get; private set; }
 	private double _lastTickTime;
 	protected Clock<double, StopwatchTickSupplier> ModuleClock { get; }
+	protected MessageBusNode MessageBusNode { get; }
 
 	internal event Action? FrequencyAltered;
 
 	protected event Action? OnInitialize;
 	protected event UpdateHandler? OnUpdate;
 	protected event Action? OnDisposing;
+	protected event Action<Message>? OnMessageReceived;
 
 	/// <param name="important">Determines if this module keeps the application running</param>
 	/// <param name="frequency">The number of ticks per second. If <see cref="ExecutionFrequency"/> is <see cref="double.PositiveInfinity"/> (or any high enough number), there is no delay between ticks.</param>
-	public ModuleBase( bool important, double frequency ) {
+	public ModuleBase( bool important, double frequency, string address ) {
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero( frequency );
 		this.InstanceProvider = InstanceManagement.CreateProvider();
 		this._instanceUpdaterExtension = this.InstanceProvider.CreateUpdater();
@@ -32,7 +34,11 @@ public abstract class ModuleBase : DisposableIdentifiable {
 		this.ExecutionFrequency = frequency;
 		this.ModuleClock = Clock<double, StopwatchTickSupplier>.ReferenceClock;
 		this.Running = true;
+		MessageBusNode = MessageBus.CreateNode( address );
+		MessageBusNode.OnMessageReceived += OnMessageReceivedInternal;
 	}
+
+	private void OnMessageReceivedInternal( Message message ) => OnMessageReceived?.Invoke( message );
 
 	/// <param name="frequency">The number of ticks per second. If <see cref="TimeBetweenTicksMs"/> is 0, there is no delay between ticks.</param>
 	/// <exception cref="ArgumentOutOfRangeException"></exception>
@@ -58,6 +64,7 @@ public abstract class ModuleBase : DisposableIdentifiable {
 			double currentTime = this.ModuleClock.Time;
 			double timeSinceLastTick = currentTime - this._lastTickTime;
 			this._lastTickTime = currentTime;
+			MessageBusNode.ProcessQueue();
 			this._instanceInitializerExtension.Update( currentTime, timeSinceLastTick );
 			this._instanceUpdaterExtension.Update( currentTime, timeSinceLastTick );
 			OnUpdate?.Invoke( currentTime, timeSinceLastTick );

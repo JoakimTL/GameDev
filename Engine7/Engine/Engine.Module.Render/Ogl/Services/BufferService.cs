@@ -14,8 +14,7 @@ public sealed class BufferService : DisposableIdentifiable, IInitializable, IUpd
 
 	private readonly Dictionary<Type, SegmentedSystemBuffer> _buffers;
 	private readonly Dictionary<Type, HostClientSynchronizedBufferPair<SegmentedSystemBuffer>> _synchronizers;
-
-	private HostClientSynchronizedBufferPair<SegmentedSystemBuffer>? _elementBufferSynchronizer;
+	private readonly HostClientSynchronizedBufferPair<SegmentedSystemBuffer> _elementBufferSynchronizer;
 
 	public SegmentedSystemBuffer ElementBuffer { get; }
 
@@ -24,14 +23,15 @@ public sealed class BufferService : DisposableIdentifiable, IInitializable, IUpd
 		this._buffers = [];
 		this._synchronizers = [];
 		this.ElementBuffer = new( 65_536u, BufferAutoResizeMode.DOUBLE ) { Nickname = "ElementBuffer" };
+		this._elementBufferSynchronizer = new( this.ElementBuffer, null );
 	}
 
 	public void Initialize() {
-		this._elementBufferSynchronizer = new( this.ElementBuffer, (OglDynamicBuffer) this._oglBufferService.ElementBuffer );
+		_elementBufferSynchronizer.SetClientBuffer( (OglDynamicBuffer) this._oglBufferService.ElementBuffer );
 	}
 
 	public void Update( double time, double deltaTime ) {
-		this._elementBufferSynchronizer!.Synchronize();
+		this._elementBufferSynchronizer.Synchronize();
 		foreach (HostClientSynchronizedBufferPair<SegmentedSystemBuffer> synchronizer in this._synchronizers.Values)
 			synchronizer.Synchronize();
 	}
@@ -49,7 +49,7 @@ public sealed class BufferService : DisposableIdentifiable, IInitializable, IUpd
 		this.ElementBuffer.Dispose();
 		foreach (SegmentedSystemBuffer buffer in this._buffers.Values)
 			buffer.Dispose();
-		this._elementBufferSynchronizer?.Dispose();
+		this._elementBufferSynchronizer.Dispose();
 		foreach (HostClientSynchronizedBufferPair<SegmentedSystemBuffer> synchronizer in this._synchronizers.Values)
 			synchronizer.Dispose();
 		return true;

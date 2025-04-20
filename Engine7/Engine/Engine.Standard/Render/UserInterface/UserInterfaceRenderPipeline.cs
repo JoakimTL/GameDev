@@ -16,6 +16,7 @@ public sealed class UserInterfaceRenderPipeline( SceneService sceneService, Data
 	private readonly FramebufferStateService _framebufferStateService = framebufferStateService;
 	private readonly WindowService _windowService = windowService;
 	private readonly TextureRenderingService _textureRenderingService = textureRenderingService;
+
 	private UniformBlock _uiSceneCamera = null!;
 	private Scene _uiScene = null!;
 	private CameraSuite _cameraSuite = null!;
@@ -43,17 +44,18 @@ public sealed class UserInterfaceRenderPipeline( SceneService sceneService, Data
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
+		Gl.Enable( EnableCap.Multisample );
 		Gl.Enable( EnableCap.Blend );
+		Gl.Disable( EnableCap.CullFace );
 		Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
 		Gl.BlendEquation( BlendEquationMode.FuncAdd );
 		Gl.Disable( EnableCap.DepthTest );
 		Gl.DepthMask( false );
-		Gl.Enable( EnableCap.Multisample );
 		Vector2<float> cameraRotationRight = new( float.Cos( this._cameraSuite.View2.Rotation ), float.Sin( this._cameraSuite.View2.Rotation ) );
 		Vector2<float> cameraRotationUp = new( -cameraRotationRight.Y, cameraRotationRight.X );
 		_uiSceneCamera.Buffer.Write( 0u, new SceneCameraBlock( _cameraSuite.Camera2.Matrix, (cameraRotationUp.X, cameraRotationUp.Y, 0), (cameraRotationRight.X, cameraRotationRight.Y, 0) ) );
 		_framebufferStateService.BindFramebuffer( FramebufferTarget.Framebuffer, _framebuffer );
-		_framebuffer.Clear( OpenGL.Buffer.Color, 0, [ 0 ] );
+		_framebuffer.Clear( OpenGL.Buffer.Color, 0, [ 0, 0, 0, 0 ] );
 		_uiScene.Render( "default", _dataBlockCollection, null, PrimitiveType.Triangles );
 		_framebufferStateService.UnbindFramebuffer( FramebufferTarget.Framebuffer );
 		_framebufferStateService.BlitToFrameBuffer( _framebuffer, _displayedFramebuffer, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear );
@@ -62,6 +64,7 @@ public sealed class UserInterfaceRenderPipeline( SceneService sceneService, Data
 	public void DrawToScreen() {
 		//Draw the framebuffer to the screen.
 		Gl.Enable( EnableCap.Blend );
+		Gl.Disable( EnableCap.CullFace );
 		Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
 		Gl.BlendEquation( BlendEquationMode.FuncAdd );
 		Gl.Disable( EnableCap.DepthTest );

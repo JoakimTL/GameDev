@@ -1,3 +1,1 @@
-﻿namespace Civs;
-
-global using Engine;
+﻿global using Engine;

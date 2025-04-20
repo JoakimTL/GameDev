@@ -5,14 +5,14 @@ namespace Engine.Standard.Render.Entities.Services;
 
 public class RenderBehaviourEntityContainerEventReceiverService : DisposableIdentifiable, IUpdateable {
 
-	private readonly MessageBusNode _messageBusStop;
+	private readonly MessageBusNode _messageBusNode;
 	private readonly RenderEntityContainerService _renderEntityContainerService;
 
 	public RenderBehaviourEntityContainerEventReceiverService( RenderEntityContainerService renderEntityContainerService ) {
-		this._messageBusStop = MessageBus.CreateNode();
-		this._messageBusStop.OnMessageReceived += OnMessageReceived;
+		this._messageBusNode = MessageBus.CreateNode("render_ecs");
+		this._messageBusNode.OnMessageReceived += OnMessageReceived;
 		this._renderEntityContainerService = renderEntityContainerService;
-		this._messageBusStop.Publish( new EntityContainerListRequest() );
+		this._messageBusNode.Publish( new EntityContainerListRequest(), null );
 	}
 
 	private void OnMessageReceived( Message obj ) {
@@ -23,11 +23,11 @@ public class RenderBehaviourEntityContainerEventReceiverService : DisposableIden
 	}
 
 	public void Update( double time, double deltaTime ) {
-		this._messageBusStop.ProcessQueue();
+		this._messageBusNode.ProcessQueue();
 	}
 
 	protected override bool InternalDispose() {
-		this._messageBusStop.Dispose();
+		this._messageBusNode.Dispose();
 		return true;
 	}
 }

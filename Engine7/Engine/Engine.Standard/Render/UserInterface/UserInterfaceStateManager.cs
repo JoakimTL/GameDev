@@ -18,7 +18,7 @@ public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userIn
 			object? instance = type.Resolve().CreateInstance( null ) ?? throw new InvalidOperationException( $"Type {type.Name} does not have a parameterless constructor." );
 			if (instance is not UserInterfaceElementBase element)
 				throw new InvalidOperationException( $"Type {type.Name} does not inherit from {nameof( UserInterfaceElementBase )}." );
-			this.LogLine( $"Adding UI element {type.Name}.", Log.Level.VERBOSE );
+			this.LogLine( $"Adding UI element {type.Name}.", Log.Level.NORMAL );
 			AddElement( element );
 		}
 	}

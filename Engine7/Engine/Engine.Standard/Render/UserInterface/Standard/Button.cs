@@ -18,11 +18,12 @@ public sealed class Button : UserInterfaceComponentBase {
 
 	public Label Label { get; }
 
-	public Vector4<double> DefaultColor { get; set; }
-	public Vector4<double> HoverColor { get; set; }
-	public Vector4<double> PressedColor { get; set; }
+	private bool _stateChanged = false;
+	public Action<Button> NoHoverAction { get; set; }
+	public Action<Button> HoverAction { get; set; }
+	public Action<Button> PressedAction { get; set; }
 
-	public Button( UserInterfaceElementBase element, string text, string fontName, Vector4<double> defaultColor, Vector4<double> hoverColor, Vector4<double> pressedColor ) : base( element ) {
+	public Button( UserInterfaceElementBase element, string text, string fontName, Action<Button> noHoverAction, Action<Button> hoverAction, Action<Button> pressedAction ) : base( element ) {
 		_collider = new Collider2Shape();
 		_collider.SetBaseVertices( [ (-1, -1), (1, -1), (1, 1), (-1, 1) ] );
 		_collider.SetTransform( TransformInterface );
@@ -36,22 +37,33 @@ public sealed class Button : UserInterfaceComponentBase {
 			HorizontalAlignment = Alignment.Center,
 			VerticalAlignment = Alignment.Center
 		};
-		this.DefaultColor = defaultColor;
-		this.HoverColor = hoverColor;
-		this.PressedColor = pressedColor;
+		NoHoverAction = noHoverAction;
+		HoverAction = hoverAction;
+		PressedAction = pressedAction;
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
 		if (!_collision.Evaluate())
 			this.LogWarning( "Collision calculation failed." );
+		bool wasHovering = _hovering;
 		_hovering = _collision.CollisionResult.IsColliding;
-		Vector4<double> color = _hoveringAtPress
-			? PressedColor
-			: _hovering
-				? HoverColor
-				: DefaultColor;
+		_stateChanged |= wasHovering != _hovering;
+		if (_stateChanged) {
+			StateChanged();
+			_stateChanged = false;
+		}
+	}
 
-		Background.Color = color;
+	private void StateChanged() {
+		if (_hoveringAtPress) {
+			PressedAction?.Invoke( this );
+			return;
+		}
+		if (_hovering) {
+			HoverAction?.Invoke( this );
+			return;
+		}
+		NoHoverAction?.Invoke( this );
 	}
 
 	protected override void OnPlacementChanged() { }
@@ -59,12 +71,14 @@ public sealed class Button : UserInterfaceComponentBase {
 	protected override bool DoOnMouseButton( MouseButtonEvent @event ) {
 		if (@event.InputType == TactileInputType.Press && _hovering) {
 			_hoveringAtPress = _hovering;
+			_stateChanged = true;
 			return true;
 		}
 		if (@event.InputType == TactileInputType.Release && _hoveringAtPress) {
 			if (_hovering)
 				ButtonClicked?.Invoke();
 			_hoveringAtPress = false;
+			_stateChanged = true;
 			return true;
 		}
 		return false;

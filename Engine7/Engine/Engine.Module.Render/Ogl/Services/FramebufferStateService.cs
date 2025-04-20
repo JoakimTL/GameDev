@@ -107,7 +107,7 @@ public sealed class FramebufferStateService( ViewportStateService viewport ) : I
 }
 
 
-public sealed class TextureAssetService {
+public sealed class Temporary_TextureAssetService {
 	private readonly Dictionary<string, OglTexture> _textures = [];
 
 	public event Action? TextureAdded;
@@ -152,8 +152,8 @@ public sealed class TextureAssetService {
 }
 
 //TODO: REMOVE and replace with a better system for asset handling
-public sealed class TextureAssetProvider( TextureAssetService textureAssetService ) : IRenderServiceProvider {
-	private readonly TextureAssetService _textureAssetService = textureAssetService;
+public sealed class TextureAssetProvider( Temporary_TextureAssetService textureAssetService ) : IRenderServiceProvider {
+	private readonly Temporary_TextureAssetService _textureAssetService = textureAssetService;
 
 	public OglTexture Get( string name ) => _textureAssetService.Get( Path.Combine( "assets\\textures", $"{name}.png" ));
 }

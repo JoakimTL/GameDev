@@ -10,7 +10,7 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 
 	public EntityContainerService() {
 		this._containers = [];
-		this._messageBusStop = MessageBus.CreateNode();
+		this._messageBusStop = MessageBus.CreateNode("ecs");
 		this._messageBusStop.OnMessageReceived += OnMessageReceived;
 	}
 
@@ -24,7 +24,7 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 		EntityContainer container = new();
 		this._containers.Add( container );
 		container.OnDisposed += OnContainerDisposed;
-		this._messageBusStop.Publish( new EntityContainerCreatedEvent( container ) );
+		this._messageBusStop.Publish( new EntityContainerCreatedEvent( container ), null );
 		return container;
 	}
 

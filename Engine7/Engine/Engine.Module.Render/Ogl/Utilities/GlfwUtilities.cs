@@ -13,6 +13,8 @@ public static class GlfwUtilities {
 		WindowUtilities.WindowHint( Hint.Samples, samples );
 		WindowUtilities.WindowHint( Hint.ContextVersionMajor, majorVersion );
 		WindowUtilities.WindowHint( Hint.ContextVersionMinor, minorVersion );
+		WindowUtilities.WindowHint( Hint.ContextCreationApi, (int) ContextApi.Native );
+		WindowUtilities.WindowHint( Hint.ClientApi, (int) ClientApi.OpenGL );
 		WindowUtilities.WindowHint( Hint.OpenglForwardCompatible, (int) forwardCompatible );
 		WindowUtilities.WindowHint( Hint.OpenglProfile, (int) oglProfile );
 		WindowUtilities.WindowHint( Hint.OpenglDebugContext, (int) (debug ? Constants.True : Constants.False) );

@@ -1,8 +1,16 @@
-﻿using Engine;
+﻿using Civs.Messages;
+using Engine;
+using Engine.Logging;
+using Engine.Modularity;
 using Engine.Module.Render;
 using Engine.Module.Render.Domain;
 using Engine.Module.Render.Ogl;
+using Engine.Module.Render.Ogl.OOP.DataBlocks;
+using Engine.Module.Render.Ogl.OOP.Shaders;
+using Engine.Module.Render.Ogl.OOP.VertexArrays;
+using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
+using Engine.Module.Render.Ogl.Utilities;
 using Engine.Standard;
 using Engine.Standard.Render;
 using Engine.Standard.Render.SingleTextureRendering;
@@ -13,15 +21,18 @@ namespace Civs.Render;
 
 public sealed class CivsRenderModule : RenderModuleBase {
 
-	public CivsRenderModule() : base() {
+	public CivsRenderModule() : base( "render" ) {
 		OnUpdate += Update;
+		OnMessageReceived += MessageReceived;
 	}
 
 	protected override void ContextAdded( Context context ) {
 		context.InstanceProvider.Catalog.Host<Render3Pipeline>();
+		//context.InstanceProvider.Catalog.Host<ContextTest>();
 		context.InstanceProvider.Catalog.Host<UserInterfaceRenderPipeline>();
 		UserInterfaceService ui = context.InstanceProvider.Get<UserInterfaceService>();
 		ui.UserInterfaceStateManager.AddAllElements();
+		InstanceProvider.Get<GameStateProvider>().Set( "showStartMenu", true );
 		context.OnInitialized += OnContextInitialized;
 	}
 
@@ -29,11 +40,24 @@ public sealed class CivsRenderModule : RenderModuleBase {
 		Gl.Enable( EnableCap.Multisample );
 	}
 
-	private void Update( double time, double deltaTime ) {
-		if (InstanceProvider.Get<GameStateProvider>().Get<bool>( "closegame" ))
+	private void MessageReceived( Message message ) {
+		if ( message.Content is ExitGameMessage) {
 			InstanceProvider.Get<ContextManagementService>().CloseAll();
+		}
+	}
+
+	private void Update( double time, double deltaTime ) {
+
 	}
 }
+
+//public sealed class ContextTest( WindowService windowService ) : Identifiable, IUpdateable {
+//	private readonly WindowService _windowService = windowService;
+
+//	public void Update( double time, double deltaTime ) {
+//		this._windowService.Window.Title = $"Time: {time:#,##0.###}s, DeltaTime: {deltaTime:#,##0.###}s, FPS: {(1 / deltaTime):#,##0.###}f/s";
+//	}
+//}
 
 
 public sealed class Render3Pipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, CameraService cameraService, TextureRenderingService textureRenderingService, FramebufferStateService framebufferStateService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
@@ -78,15 +102,15 @@ public sealed class Render3Pipeline( WindowService windowService, DataBlockServi
 	public void DrawToScreen() {
 		if (_state is null)
 			throw new InvalidOperationException( $"{nameof( Render3Pipeline )} not initialized" );
-		Gl.Enable( EnableCap.Blend );
-		Gl.Disable( EnableCap.DepthTest );
-		Gl.DepthMask( false );
-		Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
-		Gl.BlendEquation( BlendEquationMode.FuncAdd );
+		//Gl.Enable( EnableCap.Blend );
+		//Gl.Disable( EnableCap.DepthTest );
+		//Gl.DepthMask( false );
+		//Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
+		//Gl.BlendEquation( BlendEquationMode.FuncAdd );
 
-		_textureRenderingService.RenderTexture( _state.TerrainSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
-		_textureRenderingService.RenderTexture( _state.GameObjectSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
-		_textureRenderingService.RenderTexture( _state.GridSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
+		//_textureRenderingService.RenderTexture( _state.TerrainSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
+		//_textureRenderingService.RenderTexture( _state.GameObjectSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
+		//_textureRenderingService.RenderTexture( _state.GridSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
 
 	}
 

@@ -12,13 +12,13 @@ using OpenGL;
 
 namespace Sandbox;
 
-public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, OldFontService fontService, UserInputEventService userInputEventService, CameraService cameraService, TextureAssetService textureAssetService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
+public sealed class TestPipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, OldFontService fontService, UserInputEventService userInputEventService, CameraService cameraService, Temporary_TextureAssetService textureAssetService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
 	private readonly WindowService _windowService = windowService;
 	private readonly DataBlockService _dataBlockService = dataBlockService;
 	private readonly SceneService _sceneService = sceneService;
 	private readonly OldFontService _fontService = fontService;
 	private readonly CameraService _cameraService = cameraService;
-	private readonly TextureAssetService _textureAssetService = textureAssetService;
+	private readonly Temporary_TextureAssetService _textureAssetService = textureAssetService;
 	private UniformBlock _testUniforms = null!;
 	private ShaderStorageBlock _testShaderStorage = null!;
 	private DataBlockCollection _dataBlocks = null!;
