@@ -1,0 +1,13 @@
+Currency is in modern terms FIAT money. Money with no real tangible commodity or material backing.
+
+In the game however currency will take many forms. Money may have backing in a commodity, say chairs, cows, porcelain, gold, etc... or exist as FIAT money. The only requirement for currencies in the game is that they are fungible. A resource can be currency, or a piece of paper can be curreny, but not land. Land can be exchanged for currency but not used as currency. 
+
+Currency as a concept is really mid to late game though. Early trade will be done through barter and barter-loans (with or without interest). How items are valued during bartering depends on the traders, usually the seller. The seller may value different materials differently compared to the item sold. Say a toolmaker "sells" his stone ax to a foreign tribe. He might not value flint, but perhaps he values food? 
+
+Bartering in the game will most likely happen between buildings and nations. Until currencies and wages are introduced the function for material needs must be fulfilled manually. This means compensation for work will likely be in the form of actual goods, which the employers must either barter with other buildings or nations for or produce themselves.
+
+A farm can compensate workers with food, but a toolsmith must barter tools for food. This means the living standard for most farmers will be high, but living standard for specialized workers will fluctuate depending on the market. If crops yields are low the farms might not be as willing to trade away food for tools or other goods.
+
+Currencies are exchanged between eachother. This allows for copper -> silver -> gold currencies, as an example.
+Exchanges between national currencies are done at banks, unless the currencies have the same backing resource (except for fiat currency!).
+The exchange rate between commodity based currencies are able to follow market dynamics, or can be controlled by the state. For fiat currencies the exchange rate is determined by many economic factors (needs to be elaborated) or again simply by the government.

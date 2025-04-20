@@ -55,7 +55,7 @@ public sealed class OldFont {
 		Span<uint> glyphLocations = stackalloc uint[ numGlyphs ];
 		GetAllGlyphLocations( srcPtr, glyphLocations, numBytesPerLocationLookup, locaTable.Offset, glyfTable.Offset );
 
-		GlyphMap[] mappings = GetUnicodeToGlyphIndexMappings( srcPtr, this._tables[ Tag_Cmap ] ).ToArray();
+		GlyphMap[] mappings = [ .. GetUnicodeToGlyphIndexMappings( srcPtr, this._tables[ Tag_Cmap ] ) ];
 
 		for (int i = 0; i < mappings.Length; i++) {
 			IOldGlyph glyph = ReadGlyph( srcPtr, glyphLocations, mappings[ i ], mappings, _unitsPerEm );
@@ -381,6 +381,6 @@ public sealed class OldFont {
 		if (!hasReadMissingCharGlyph)
 			glyphMaps.Add( new( 0, 65535 ) );
 
-		return glyphMaps.ToArray();
+		return [ .. glyphMaps ];
 	}
 }

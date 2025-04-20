@@ -79,7 +79,7 @@ public sealed class OldFontGlyph : Identifiable, IOldGlyph {
 					allPoints.Add( point );
 				}
 			}
-			result.Add( new OldContour( contourStart, contourPoints.ToArray() ) );
+			result.Add( new OldContour( contourStart, [ .. contourPoints ] ) );
 		}
 
 		//if (Mapping.Unicode == 48)
@@ -124,7 +124,7 @@ public sealed class OldFontGlyph : Identifiable, IOldGlyph {
 
 		AddOffCurveTriangles( result );
 
-		return result.ToArray();
+		return [ .. result ];
 	}
 
 	private Triangle2<float> CreateTriangle( Vector2<int> a, Vector2<int> b, Vector2<int> c, out bool flipped ) {
@@ -212,12 +212,12 @@ public sealed class OldFontGlyph : Identifiable, IOldGlyph {
 		foreach (OldContour contour in this._contours)
 			for (int i = 0; i < contour.Points.Count; i++)
 				result.Add( (contour.Points[ i ].Coordinate.CastSaturating<int, float>(), (uint) i, contour.Points[ i ].OnCurve) );
-		return result.ToArray();
+		return [ .. result ];
 	}
 
 	private bool ShouldDisplayTriangle( Triangle2<int> triangle ) {
 		OldContourPoint[] points = [ GetPoint( triangle.A ), GetPoint( triangle.B ), GetPoint( triangle.C ) ];
-		OldContour[] contours = points.Select( p => p.ContourIndex ).Distinct().Select( p => this._contours[ p ] ).ToArray();
+		OldContour[] contours = [ .. points.Select( p => p.ContourIndex ).Distinct().Select( p => this._contours[ p ] ) ];
 		int windingSum = 0;
 		for (int i = 0; i < contours.Length; i++)
 			windingSum += contours[ i ].ContourWindsClockWise ? 1 : -1;

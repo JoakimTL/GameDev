@@ -6,7 +6,7 @@ public sealed class TileDataModel {
 	private static readonly List<(int, ResolvedType)> _tileDataTypes;
 
 	static TileDataModel() {
-		List<ResolvedType> tileDataTypes = TypeManager.Registry.ImplementationTypes.Where( p => p.BaseType == typeof( TileDataBase ) && p.IsAssignableTo( typeof( ITileData ) ) ).Select( TypeManager.ResolveType ).ToList();
+		List<ResolvedType> tileDataTypes = [ .. TypeManager.Registry.ImplementationTypes.Where( p => p.BaseType == typeof( TileDataBase ) && p.IsAssignableTo( typeof( ITileData ) ) ).Select( TypeManager.ResolveType ) ];
 
 		_tileDataTypes = [];
 		HashSet<int> codeIds = [];

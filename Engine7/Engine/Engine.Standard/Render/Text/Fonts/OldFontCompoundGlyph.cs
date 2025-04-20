@@ -21,6 +21,6 @@ public sealed class OldFontCompoundGlyph : IOldGlyph {
 		List<GlyphTriangle> result = [];
 		foreach (IOldGlyph glyph in this._glyphs)
 			result.AddRange( glyph.TriangulateGlyph() );
-		return result.ToArray();
+		return [ .. result ];
 	}
 }

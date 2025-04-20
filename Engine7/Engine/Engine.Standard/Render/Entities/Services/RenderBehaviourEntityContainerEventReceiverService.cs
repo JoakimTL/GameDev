@@ -5,11 +5,11 @@ namespace Engine.Standard.Render.Entities.Services;
 
 public class RenderBehaviourEntityContainerEventReceiverService : DisposableIdentifiable, IUpdateable {
 
-	private readonly MessageBusStop _messageBusStop;
+	private readonly MessageBusNode _messageBusStop;
 	private readonly RenderEntityContainerService _renderEntityContainerService;
 
 	public RenderBehaviourEntityContainerEventReceiverService( RenderEntityContainerService renderEntityContainerService ) {
-		this._messageBusStop = MessageBus.CreateManager();
+		this._messageBusStop = MessageBus.CreateNode();
 		this._messageBusStop.OnMessageReceived += OnMessageReceived;
 		this._renderEntityContainerService = renderEntityContainerService;
 		this._messageBusStop.Publish( new EntityContainerListRequest() );

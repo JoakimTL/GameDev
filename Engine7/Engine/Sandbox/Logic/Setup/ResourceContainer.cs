@@ -29,7 +29,7 @@ public sealed class ResourceContainer {
 			ChangeResourceAmount( resourceAmount.Resource, resourceAmount.AmountKg );
 	}
 
-	public ResourceTable GetAllResources() => new( _resources.Select( p => new ResourceAmount( p.Key, p.Value ) ).ToList() );
+	public ResourceTable GetAllResources() => new( [ .. _resources.Select( p => new ResourceAmount( p.Key, p.Value ) ) ] );
 
 	public void UpdateTableValues( ResourceTable table ) {
 		foreach (KeyValuePair<ResourceTypeBase, double> kvp in _resources) {

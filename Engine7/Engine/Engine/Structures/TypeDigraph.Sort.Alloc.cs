@@ -24,7 +24,7 @@ public sealed partial class TypeDigraph {
 				Dictionary<Type, Node> nodes = unorderedTypes.Select( p => new Node( p ) ).ToDictionary( p => p.ResolvedType.Type );
 
 				foreach (Node? node in nodes.Values) {
-					List<IProcessDirection> relevantAttributes = node.ResolvedType.GetAttributes<IProcessDirection>().Where( p => p.ProcessType == processType ).ToList();
+					List<IProcessDirection> relevantAttributes = [ .. node.ResolvedType.GetAttributes<IProcessDirection>().Where( p => p.ProcessType == processType ) ];
 					foreach (IProcessBefore beforeAttribute in relevantAttributes.OfType<IProcessBefore>()) {
 						if (!nodes.TryGetValue( beforeAttribute.BeforeType, out Node? beforeNode ))
 							continue;

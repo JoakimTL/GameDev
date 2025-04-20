@@ -50,9 +50,9 @@ public abstract class InstanceProviderExtensionBase<TProcess, TInstanceType> : I
 					this._digraph.Remove( instanceType );
 
 				this._sortedInstances.Clear();
-				List<Type> types = this._digraph.GetTypes().ToList();
-				List<object> instances = types.Select( this._instanceProvider.Get ).ToList();
-				List<TInstanceType> filtered = instances.OfType<TInstanceType>().ToList();
+				List<Type> types = [ .. this._digraph.GetTypes() ];
+				List<object> instances = [ .. types.Select( this._instanceProvider.Get ) ];
+				List<TInstanceType> filtered = [ .. instances.OfType<TInstanceType>() ];
 				this._sortedInstances.AddRange( filtered );
 			}
 			return this._sortedInstances;

@@ -22,7 +22,7 @@ public sealed class RenderEntityContainerService( RenderEntityServiceAccess rend
 	}
 
 	private void OnContainerDisposed( IListenableDisposable disposable ) {
-		List<EntityContainer> containersToRemove = this._containerPairs.Keys.Where( p => p.Disposed ).ToList();
+		List<EntityContainer> containersToRemove = [ .. this._containerPairs.Keys.Where( p => p.Disposed ) ];
 
 		foreach (EntityContainer container in containersToRemove)
 			this._containerPairs.Remove( container );

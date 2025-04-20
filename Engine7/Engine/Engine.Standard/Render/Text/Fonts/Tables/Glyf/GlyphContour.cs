@@ -20,7 +20,7 @@ public sealed class GlyphContour( ushort startIndex, GlyphContourPoint[] points 
 		AABB<Vector2<int>> otherBounds = AABB.Create( other.Points.Select( p => p.Coordinate ).ToArray().AsSpan() );
 		if (!myBounds.Intersects( otherBounds ))
 			return;
-		Vector2<int>[] points = Points.Select( p => p.Coordinate ).Distinct().ToArray();
+		Vector2<int>[] points = [ .. Points.Select( p => p.Coordinate ).Distinct() ];
 		for (int i = 0; i < other.Points.Count; i++)
 			if (other.Points[ i ].Coordinate.PointInPolygon( points, (1, 0) )) {
 				other._containedWithin.Add( this );

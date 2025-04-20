@@ -45,7 +45,7 @@ public sealed class ElementalGlyphData : IGlyphData {
 					allPoints.Add( point );
 				}
 			}
-			result.Add( new GlyphContour( contourStart, contourPoints.ToArray() ) );
+			result.Add( new GlyphContour( contourStart, [ .. contourPoints ] ) );
 		}
 
 		//if (Mapping.Unicode == 48)

@@ -1,0 +1,34 @@
+﻿using Engine;
+using Engine.Module.Render.Ogl.OOP.DataBlocks;
+using Engine.Module.Render.Ogl.OOP.Framebuffers;
+using Engine.Module.Render.Ogl.OOP.Textures;
+using Engine.Module.Render.Ogl.Scenes;
+using Engine.Module.Render.Ogl.Services;
+using Engine.Standard.Render;
+using Engine.Standard.Render.SingleTextureRendering;
+using OpenGL;
+
+namespace Civs.Render;
+
+public sealed class Render3PipelineState : DisposableIdentifiable {
+
+	public readonly UniformBlock SceneCamera;
+	public readonly DataBlockCollection DataBlocks;
+
+	public readonly BufferedSceneRenderer TerrainSceneRenderer;
+	public readonly BufferedSceneRenderer GameObjectSceneRenderer;
+	public readonly BufferedMultisampledSceneRenderer GridSceneRenderer;
+
+	public Render3PipelineState( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, CameraService cameraService, TextureRenderingService textureRenderingService, FramebufferStateService framebufferStateService ) {
+		SceneCamera = dataBlockService.CreateUniformBlockOrThrow( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ] );
+		this.DataBlocks = new DataBlockCollection( this.SceneCamera );
+
+		TerrainSceneRenderer = new BufferedSceneRenderer( sceneService.GetScene( RenderConstants.TerrainSceneName ), windowService, framebufferStateService );
+		GameObjectSceneRenderer = new BufferedSceneRenderer( sceneService.GetScene( RenderConstants.GameObjectSceneName ), windowService, framebufferStateService );
+		GridSceneRenderer = new BufferedMultisampledSceneRenderer( sceneService.GetScene( RenderConstants.GridSceneName ), windowService, framebufferStateService );
+	}
+
+	protected override bool InternalDispose() {
+		return true;
+	}
+}

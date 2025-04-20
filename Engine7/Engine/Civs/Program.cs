@@ -1,2 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine( "Hello, World!" );
+﻿using Engine.Modularity;
+
+Startup.BeginInit()
+	//.WithModule<CivsGameLogicModule>()
+	.WithModule<Civs.Render.CivsRenderModule>()
+	.Start();

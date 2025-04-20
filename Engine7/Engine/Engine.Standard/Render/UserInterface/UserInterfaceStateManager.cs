@@ -1,4 +1,6 @@
-﻿using Engine.Module.Render.Input;
+﻿using Engine.Logging;
+using Engine.Module.Render.Input;
+using System.Reflection;
 
 namespace Engine.Standard.Render.UserInterface;
 public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userInterfaceServiceAccess, GameStateProvider gameStateProvider ) : DisposableIdentifiable, ICapturingUserInputListener, IUpdateable {
@@ -10,8 +12,21 @@ public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userIn
 
 	private Vector2<float> _aspectRatioVector = 0;
 
-	public void AddElement<T>() where T : UserInterfaceElementBase, new() {
-		UserInterfaceElementBase element = new T();
+	public void AddAllElements() {
+		IEnumerable<Type> types = TypeManager.Registry.ImplementationTypes.Where( type => type.IsAssignableTo( typeof( UserInterfaceElementBase ) ) );
+		foreach (Type type in types) {
+			object? instance = type.Resolve().CreateInstance( null ) ?? throw new InvalidOperationException( $"Type {type.Name} does not have a parameterless constructor." );
+			if (instance is not UserInterfaceElementBase element)
+				throw new InvalidOperationException( $"Type {type.Name} does not inherit from {nameof( UserInterfaceElementBase )}." );
+			this.LogLine( $"Adding UI element {type.Name}.", Log.Level.VERBOSE );
+			AddElement( element );
+		}
+	}
+
+	public void AddElement<T>() where T : UserInterfaceElementBase, new()
+		=> this.AddElement( new T() );
+
+	private void AddElement( UserInterfaceElementBase element ) {
 		this._baseElements.Add( element );
 		this._elementsToInitialize.Enqueue( element );
 		element.SetServices( _userInterfaceServiceAccess, _gameStateProvider );

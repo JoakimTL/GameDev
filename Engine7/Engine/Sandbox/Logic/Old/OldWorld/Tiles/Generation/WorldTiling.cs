@@ -18,7 +18,7 @@ public sealed class WorldTiling {
 		_worldIcosphere = new Icosphere( Levels, normalizeUpTo: RootLevel );
 		this.LogLine( $"Icosphere created with {_worldIcosphere.Vertices.Count} vertices", Log.Level.VERBOSE );
 		this.LogLine( $"Icosphere created with {_worldIcosphere.GetIndices( Levels - 1 ).Count / 3} faces", Log.Level.VERBOSE );
-		List<Vector3<float>> normalizedVectors = _worldIcosphere.Vertices.Select( v => v.Normalize<Vector3<float>, float>() ).ToList();
+		List<Vector3<float>> normalizedVectors = [ .. _worldIcosphere.Vertices.Select( v => v.Normalize<Vector3<float>, float>() ) ];
 		//_worldIcosphere.GetIndices( 5 ).Count / 3;
 		_rootTiles = CreateTiles();
 
@@ -56,7 +56,7 @@ public sealed class WorldTiling {
 		bool texturesDir = Directory.Exists( "assets\\textures" );
 		bool fileExists = File.Exists( "assets\\textures\\earthHeightmapLow.png" );
 		MagickImage image = new( "assets\\textures\\earthHeightmapLow.png" );
-		float[] heights = image.GetPixels().Select( p => p.GetChannel( 0 ) * (1f / ushort.MaxValue) ).ToArray();
+		float[] heights = [ .. image.GetPixels().Select( p => p.GetChannel( 0 ) * (1f / ushort.MaxValue) ) ];
 		int imageWidth = (int) image.Width;
 		int imageHeight = heights.Length / imageWidth;
 		image.Dispose();
@@ -109,11 +109,10 @@ public sealed class WorldTiling {
 		int tiled = 0;
 		int lowestPossible = int.MaxValue;
 		foreach (CompositeTile rootTile in tilesToGenerateFor) {
-			List<TileTerrainGenerationLandscapeData> tileTerrainGenerationDatasInRoot = rootTile
+			List<TileTerrainGenerationLandscapeData> tileTerrainGenerationDatasInRoot = [ .. rootTile
 				.GetAllTiles()
 				.Select( t => t.TerrainGenData )
-				.OfType<TileTerrainGenerationLandscapeData>()
-				.ToList();
+				.OfType<TileTerrainGenerationLandscapeData>() ];
 
 			while (tileTerrainGenerationDatasInRoot.Count > 0) {
 				int numberOfAvailable = 0;
@@ -208,7 +207,7 @@ public sealed class WorldTiling {
 			int indexC = (int) indices[ i + 2 ];
 
 			CompositeTile tile = new( _worldIcosphere, null, indexA, indexB, indexC, RootLevel );
-			tile.SetSubTiles( GetSubTiles( tile, indexA, indexB, indexC ).ToArray() );
+			tile.SetSubTiles( [ .. GetSubTiles( tile, indexA, indexB, indexC ) ] );
 			tiles.Add( tile );
 
 		}
@@ -230,7 +229,7 @@ public sealed class WorldTiling {
 				int subIndexC = (int) indices[ i + 2 ];
 
 				Region region = new( _worldIcosphere, containingCompositeTile, subIndexA, subIndexB, subIndexC, containingCompositeTile.Layer + 1 );
-				region.SetSubTiles( GetTiles( region, subIndexA, subIndexB, subIndexC ).ToArray() );
+				region.SetSubTiles( [ .. GetTiles( region, subIndexA, subIndexB, subIndexC ) ] );
 				tiles.Add( region );
 			}
 
@@ -243,7 +242,7 @@ public sealed class WorldTiling {
 			int subIndexC = (int) indices[ i + 2 ];
 
 			CompositeTile tile = new( _worldIcosphere, containingCompositeTile, subIndexA, subIndexB, subIndexC, nextLayer );
-			tile.SetSubTiles( GetSubTiles( tile, subIndexA, subIndexB, subIndexC ).ToArray() );
+			tile.SetSubTiles( [ .. GetSubTiles( tile, subIndexA, subIndexB, subIndexC ) ] );
 			tiles.Add( tile );
 		}
 

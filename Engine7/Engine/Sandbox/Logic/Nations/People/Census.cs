@@ -31,18 +31,18 @@ public sealed class Census {
 	}
 
 	public IEnumerable<PopulationWithKey> GetWhere( Func<PhysicalTrait, bool>? physicalTraitPredicate, Func<ushort, bool>? populationCenterPredicate, Func<ushort, bool>? culturePredicate, Func<ushort, bool>? birthYearPredicate ) {
-		var physicalTraitKvps = physicalTraitPredicate is not null ? _popsByPhysicalTraits.Where( p => physicalTraitPredicate( p.Key ) ) : _popsByPhysicalTraits;
+		IEnumerable<KeyValuePair<PhysicalTrait, Dictionary<ushort, Dictionary<ushort, Dictionary<ushort, Population>>>>> physicalTraitKvps = physicalTraitPredicate is not null ? _popsByPhysicalTraits.Where( p => physicalTraitPredicate( p.Key ) ) : _popsByPhysicalTraits;
 
-		foreach (var physicalTraitKvp in physicalTraitKvps) {
-			var populationCenterKvps = populationCenterPredicate is not null ? physicalTraitKvp.Value.Where( p => populationCenterPredicate( p.Key ) ) : physicalTraitKvp.Value;
+		foreach (KeyValuePair<PhysicalTrait, Dictionary<ushort, Dictionary<ushort, Dictionary<ushort, Population>>>> physicalTraitKvp in physicalTraitKvps) {
+			IEnumerable<KeyValuePair<ushort, Dictionary<ushort, Dictionary<ushort, Population>>>> populationCenterKvps = populationCenterPredicate is not null ? physicalTraitKvp.Value.Where( p => populationCenterPredicate( p.Key ) ) : physicalTraitKvp.Value;
 
-			foreach (var populationCenterKvp in populationCenterKvps) {
-				var cultureKvps = culturePredicate is not null ? populationCenterKvp.Value.Where( p => culturePredicate( p.Key ) ) : populationCenterKvp.Value;
+			foreach (KeyValuePair<ushort, Dictionary<ushort, Dictionary<ushort, Population>>> populationCenterKvp in populationCenterKvps) {
+				IEnumerable<KeyValuePair<ushort, Dictionary<ushort, Population>>> cultureKvps = culturePredicate is not null ? populationCenterKvp.Value.Where( p => culturePredicate( p.Key ) ) : populationCenterKvp.Value;
 
-				foreach (var cultureKvp in cultureKvps) {
-					var birthYearKvps = birthYearPredicate is not null ? cultureKvp.Value.Where( p => birthYearPredicate( p.Key ) ) : cultureKvp.Value;
+				foreach (KeyValuePair<ushort, Dictionary<ushort, Population>> cultureKvp in cultureKvps) {
+					IEnumerable<KeyValuePair<ushort, Population>> birthYearKvps = birthYearPredicate is not null ? cultureKvp.Value.Where( p => birthYearPredicate( p.Key ) ) : cultureKvp.Value;
 
-					foreach (var birthYearKvp in birthYearKvps) {
+					foreach (KeyValuePair<ushort, Population> birthYearKvp in birthYearKvps) {
 						yield return new PopulationWithKey( birthYearKvp.Value, new PopulationKey( physicalTraitKvp.Key, populationCenterKvp.Key, cultureKvp.Key, birthYearKvp.Key ) );
 					}
 				}
@@ -51,10 +51,10 @@ public sealed class Census {
 	}
 
 	public IEnumerable<PopulationWithKey> GetAll() {
-		foreach (var physicalTraitKvp in _popsByPhysicalTraits) {
-			foreach (var populationCenterKvp in physicalTraitKvp.Value) {
-				foreach (var cultureKvp in populationCenterKvp.Value) {
-					foreach (var birthYearKvp in cultureKvp.Value) {
+		foreach (KeyValuePair<PhysicalTrait, Dictionary<ushort, Dictionary<ushort, Dictionary<ushort, Population>>>> physicalTraitKvp in _popsByPhysicalTraits) {
+			foreach (KeyValuePair<ushort, Dictionary<ushort, Dictionary<ushort, Population>>> populationCenterKvp in physicalTraitKvp.Value) {
+				foreach (KeyValuePair<ushort, Dictionary<ushort, Population>> cultureKvp in populationCenterKvp.Value) {
+					foreach (KeyValuePair<ushort, Population> birthYearKvp in cultureKvp.Value) {
 						yield return new PopulationWithKey( birthYearKvp.Value, new PopulationKey( physicalTraitKvp.Key, populationCenterKvp.Key, cultureKvp.Key, birthYearKvp.Key ) );
 					}
 				}

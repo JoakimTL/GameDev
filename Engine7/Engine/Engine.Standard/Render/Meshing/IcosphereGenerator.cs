@@ -66,7 +66,7 @@ public static class IcosphereGenerator {
 		}
 	}
 
-	public static void GenerateIcosphereVectors<TScalar>( int subdivisions, out List<Vector3<TScalar>> vectors, out List<List<uint>> indices )
+	public static void GenerateSubdividedIcosphere<TScalar>( int subdivisions, out List<Vector3<TScalar>> vectors, out List<List<uint>> indices )
 		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
 		CreateIcosphere( out vectors, out indices );
 		for (int i = 0; i < subdivisions; i++)

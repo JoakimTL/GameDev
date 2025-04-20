@@ -11,11 +11,10 @@ using Engine.Module.Render.Ogl.Utilities;
 using Engine.Standard;
 using Engine.Standard.Entities.Components;
 using Engine.Standard.Entities.Components.Rendering;
+using Engine.Standard.Render;
 using Engine.Standard.Render.UserInterface;
 using Sandbox.Logic;
-using Sandbox.Logic.Old.OldCiv.Resources.Materials;
 using Sandbox.Logic.World;
-using Sandbox.Logic.World.Tiles.Terrain;
 using Sandbox.Render;
 using Sandbox.Render.Ui;
 
@@ -113,7 +112,7 @@ internal sealed class GameLogicModule : ModuleBase {
 	}
 
 	private Entity CreatePlayerEntity( EntityContainer container ) {
-		var player = container.CreateEntity();
+		Entity player = container.CreateEntity();
 		player.AddComponent<RenderComponent>();
 		player.AddComponent<PlayerComponent>();
 		return player;
@@ -151,13 +150,14 @@ internal class SandboxRenderModule : RenderModuleBase {
 	}
 
 	protected override void ContextAdded( Context context ) {
-		context.InstanceProvider.Inject( InstanceProvider.Get<GameStateProvider>(), true );
+		//context.InstanceProvider.Inject( InstanceProvider.Get<GameStateProvider>(), true );
 		context.InstanceProvider.Catalog.Host<ContextTest>();
 		context.InstanceProvider.Catalog.Host<Render3Pipeline>();
 		context.InstanceProvider.Catalog.Host<UserInterfaceRenderPipeline>();
 		UserInterfaceService ui = context.InstanceProvider.Get<UserInterfaceService>();
-		ui.UserInterfaceStateManager.AddElement<StartMenu>(); //TODO: Automate. Assume all element types that exists should be included. There are only custom element types.
-		ui.UserInterfaceStateManager.AddElement<TileDataDisplay>();
+		ui.UserInterfaceStateManager.AddAllElements();
+		//ui.UserInterfaceStateManager.AddElement<StartMenu>(); //TODO: Automate. Assume all element types that exists should be included. There are only custom element types.
+		//ui.UserInterfaceStateManager.AddElement<TileDataDisplay>();
 	}
 
 	private void Update( double time, double deltaTime ) {

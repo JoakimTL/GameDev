@@ -16,8 +16,8 @@ public sealed class RenderCluster {
 	public event Action? VisibilityChanged;
 
 	public RenderCluster( IEnumerable<Tile> tilesInCluster, IEnumerable<Edge> edgesInCluster ) {
-		this._tilesInCluster = tilesInCluster.ToList();
-		this._edgesInCluster = edgesInCluster.ToList();
+		this._tilesInCluster = [ .. tilesInCluster ];
+		this._edgesInCluster = [ .. edgesInCluster ];
 		this.ClusterBounds = AABB.Create<Vector3<float>>( _tilesInCluster.Select( t => t.Bounds ).ToArray() );
 	}
 

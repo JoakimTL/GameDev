@@ -24,7 +24,7 @@ internal static class ModuleManager {
 		_moduleMonitoringThread.Start();
 		Log.Line( "Scanning for module modifications...", Log.Level.VERBOSE );
 		IReadOnlyList<ModuleBase> modules = _moduleOverseers.Select( overseer => overseer.Module ).ToList().AsReadOnly();
-		List<Type> mods = TypeManager.Registry.ImplementationTypes.Where( p => p.IsAssignableTo( typeof( IModuleModification ) ) && p.HasParameterlessConstructor( false ) ).ToList();
+		List<Type> mods = [ .. TypeManager.Registry.ImplementationTypes.Where( p => p.IsAssignableTo( typeof( IModuleModification ) ) && p.HasParameterlessConstructor( false ) ) ];
 		Log.Line( mods.Count == 0 ? "Found no module mods." : $"Found {mods.Count} module mod{(mods.Count > 1 ? "s" : "")}! Initializing..." );
 		foreach (Type? mod in mods) {
 			IModuleModification? moduleModification = (IModuleModification?) mod.CreateInstance( null );

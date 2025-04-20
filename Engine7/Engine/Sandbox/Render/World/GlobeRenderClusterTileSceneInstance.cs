@@ -63,6 +63,6 @@ public sealed class GlobeRenderClusterTileSceneInstance : SceneInstanceCollectio
 
 		}
 
-		return meshProvider.CreateMesh( vertices.ToArray(), indices.ToArray() );
+		return meshProvider.CreateMesh( vertices.ToArray(), [ .. indices ] );
 	}
 }

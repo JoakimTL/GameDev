@@ -113,7 +113,7 @@ public sealed class FontElementalGlyph : IGlyph {
 
 	private bool ShouldDisplayTriangle( Triangle2<int> triangle ) {
 		GlyphContourPoint[] points = [ GetPoint( triangle.A ), GetPoint( triangle.B ), GetPoint( triangle.C ) ];
-		GlyphContour[] contours = points.Select( p => p.ContourIndex ).Distinct().Select( p => this._glyphData.Contours[ p ] ).ToArray();
+		GlyphContour[] contours = [ .. points.Select( p => p.ContourIndex ).Distinct().Select( p => this._glyphData.Contours[ p ] ) ];
 		int windingSum = 0;
 		for (int i = 0; i < contours.Length; i++)
 			windingSum += contours[ i ].ContourWindsClockWise ? 1 : -1;

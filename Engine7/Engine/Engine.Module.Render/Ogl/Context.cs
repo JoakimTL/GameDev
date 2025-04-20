@@ -17,6 +17,8 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 	//TODO: allow values to be edited in the windowsettings. We can listen to changes and update the window accordingly.
 	internal WindowSettings WindowSettings { get; }
 
+	public event Action<Context>? OnInitialized;
+
 	public Context( WindowSettings settings ) {
 		this.InstanceProvider = InstanceManagement.CreateProvider();
 		this._serviceProviderUpdater = this.InstanceProvider.CreateUpdater();
@@ -45,6 +47,7 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 		Log.Line( $"Max color texture samples: {maxSamples}", Log.Level.NORMAL, ConsoleColor.Blue );
 		this.InstanceProvider.Get<GlDebugMessageService>().BindErrorCallback();
 		this.InstanceProvider.Catalog.Host<UserInputService>();
+		OnInitialized?.Invoke( this );
 	}
 
 	public void Update( double time, double deltaTime ) {
@@ -73,27 +76,6 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 		this._pipelineExecuterExtension.DrawToScreen();
 
 		window.SwapBuffer();
-
-		//if (WindowUtilities.ShouldWindowClose( Pointer )) {
-		//	WindowUtilities.SetTitle( Pointer, "Closing!" );
-		//	Dispose();
-		//	Closed = true;
-		//	Closing?.Invoke( this );
-		//	return;
-		//}
-
-		//_context.Bind();
-		//Glfw.GetWindowSize( Pointer, out int w, out int h );
-		//if (Size.X != w || Size.Y != h) {
-		//	Size = (w, h);
-		//	UpdateAspectRatio();
-		//	Resized?.Invoke( this );
-		//}
-
-		//_context.Update( time, deltaTime );
-		//SetTitle( $"{(1f / deltaTime):N2} FPS " );
-		//WindowUtilities.SetTitle( Pointer, _title );
-		//WindowUtilities.SwapBuffer( Pointer );
 	}
 
 	private void Bind() {

@@ -48,7 +48,7 @@ public sealed class MeshedFont : DisposableIdentifiable {
 			indices.Add( index + 1 );
 			indices.Add( index + 2 );
 		}
-		return this._meshService.CreateMesh( vertices.ToArray(), indices.ToArray(), name );
+		return this._meshService.CreateMesh( vertices.ToArray(), [ .. indices ], name );
 	}
 
 	protected override bool InternalDispose() {

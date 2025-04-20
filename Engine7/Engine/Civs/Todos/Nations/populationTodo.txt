@@ -1,0 +1,62 @@
+PoPs represent the population in a given population center.
+
+The problem is I want to keep track of data that makes the simulation as realistic as possible, while also not requiring several terabytes of memory just to run the game in the late game.
+
+PoPs have multiple data points:
+ - Age (together with professions it determines health)
+ - Sex
+ - General Education Level
+ - Professions (can be multiple, determines wealth level)
+ - Culture (includes religion)
+ - Political Alignment
+ - Contentment?
+
+There is a difference between general population and working population. Most people don't have several jobs in different professions. However most people have the education or experience to be able to work in one of multiple professions.
+
+
+
+Maybe population don't need to be that detailed? I need to know the general population size per age in years.
+From there a need to know the sex, education, 
+
+Data can't be independent of each other. So we need to find ways to cut down the number of points.
+
+I propose storing the number of people born each year, and the number of people that died each year and the year they were born (to keep a count of how many people are still alive from a given year).
+
+
+Maybe storing people in 2 ways. One as just general population and as working population.
+
+General population:
+	Key:
+	 - Sex & Phenotype
+	 - Birthcenter (Id for population center that year)
+	 - Culture (Id for active culture that year)
+	 - Year of birth
+	Data:
+	 - Number of people born in this group
+	 - Number of people in this group that died
+	 - Number of people in this group that emmigrated
+	 - Number of people in this group that immigrated
+	 - Professional population {
+		Key:
+		 - Education Level
+		 - Vocation Education
+		 - Profession
+		Data:
+		 - Number of people in this group
+	}
+	 - Political population {
+		Key:
+		 - Political Alignment
+		Data:
+		 - Number of people in this group
+	}
+	Projected Data:
+	 - Age
+	 - Is of working age
+		- Affected by laws governing work
+			- Child labor legality
+	 - Is of retirement age
+		- Affected by laws governing retirement
+	 - Is of general eduction age
+		- Affected by laws governing education
+

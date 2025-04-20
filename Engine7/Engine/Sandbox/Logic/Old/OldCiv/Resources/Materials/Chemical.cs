@@ -132,7 +132,7 @@ public static class ChemicalList {
 		}
 
 		foreach (Element element in Element.AllElements)
-			_chemicalsContainingElement[ element ] = _chemicalByName.Values.Where( m => m.ElementCount.ContainsKey( element ) ).ToList();
+			_chemicalsContainingElement[ element ] = [ .. _chemicalByName.Values.Where( m => m.ElementCount.ContainsKey( element ) ) ];
 
 		foreach (Chemical chemical in _chemicalByName.Values)
 			foreach (string tag in chemical.Tags) {

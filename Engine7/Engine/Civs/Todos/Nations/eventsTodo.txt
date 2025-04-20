@@ -1,0 +1,3 @@
+Events are either static happenings or dynamic happenings which influence both the world, nations and people. They can alter policies, traditions, religions, technologies, laws, and more. Events can be triggered by the player or by the game itself. Events can be either positive or negative, and can have a wide range of effects on the world and its inhabitants. They can be used to create interesting scenarios, challenges, and opportunities for players to explore and interact with.
+
+Compromises are the most common events in the game. It changes laws, and before laws traditions. Compromises usually revolve around taxes. Because of compromises the nations in game sometimes need to reform the tax code to simplify it again.

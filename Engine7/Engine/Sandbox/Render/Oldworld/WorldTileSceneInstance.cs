@@ -71,6 +71,6 @@ public sealed class WorldTileSceneInstance : SceneInstanceCollection<Vertex3, En
 
 		}
 
-		return meshProvider.CreateMesh( vertices.ToArray(), indices.ToArray() );
+		return meshProvider.CreateMesh( vertices.ToArray(), [ .. indices ] );
 	}
 }

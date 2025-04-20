@@ -24,8 +24,7 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	/// <param name="important">Determines if this module keeps the application running</param>
 	/// <param name="frequency">The number of ticks per second. If <see cref="ExecutionFrequency"/> is <see cref="double.PositiveInfinity"/> (or any high enough number), there is no delay between ticks.</param>
 	public ModuleBase( bool important, double frequency ) {
-		if (frequency <= 0)
-			throw new ArgumentOutOfRangeException( "Execution frequency must be a non-zero positive number." );
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero( frequency );
 		this.InstanceProvider = InstanceManagement.CreateProvider();
 		this._instanceUpdaterExtension = this.InstanceProvider.CreateUpdater();
 		this._instanceInitializerExtension = this.InstanceProvider.CreateInitializer();
@@ -38,8 +37,7 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	/// <param name="frequency">The number of ticks per second. If <see cref="TimeBetweenTicksMs"/> is 0, there is no delay between ticks.</param>
 	/// <exception cref="ArgumentOutOfRangeException"></exception>
 	protected void SetExecutionFrequency( double frequency ) {
-		if (frequency <= 0)
-			throw new ArgumentOutOfRangeException( "Execution frequency must be a non-zero positive number." );
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero( frequency );
 		this.ExecutionFrequency = frequency;
 		FrequencyAltered?.Invoke();
 	}

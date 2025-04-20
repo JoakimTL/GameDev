@@ -38,7 +38,7 @@ public sealed class TypeRegistry {
 
 		AggregateCatalog aggregateCatalog = new( catalogs );
 
-		List<Assembly> assemblies = aggregateCatalog.Catalogs.OfType<AssemblyCatalog>().Select( p => p.Assembly ).ToList();
+		List<Assembly> assemblies = [ .. aggregateCatalog.Catalogs.OfType<AssemblyCatalog>().Select( p => p.Assembly ) ];
 		this.LogLine( $"Found {assemblies.Count} assembl{(assemblies.Count == 1 ? "y" : "ies")}!", Log.Level.NORMAL );
 		foreach (Assembly assembly in assemblies)
 			this.LogLine( $"- {assembly.GetName().Name}", Log.Level.VERBOSE );

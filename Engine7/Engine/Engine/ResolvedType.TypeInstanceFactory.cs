@@ -21,15 +21,13 @@ public sealed class TypeInstanceFactory {
 		Dictionary<Type[], Func<object[]?, object?>> factories = [];
 		foreach (ConstructorInfo constructor in t.GetConstructors()) {
 			ParameterInfo[] parameters = constructor.GetParameters();
-			Type[] parameterTypes = parameters.Select( p => p.ParameterType ).ToArray();
+			Type[] parameterTypes = [ .. parameters.Select( p => p.ParameterType ) ];
 
 			// Create the lambda expression to invoke this constructor
 			ParameterExpression parameterArray = Expression.Parameter( typeof( object[] ), "ctorArgs" );
 
 			// Create expressions to cast array elements to constructor parameter types
-			UnaryExpression[] constructorArgs = parameters
-				.Select( ( param, index ) => Expression.Convert( Expression.ArrayIndex( parameterArray, Expression.Constant( index ) ), param.ParameterType ) )
-				.ToArray();
+			UnaryExpression[] constructorArgs = [ .. parameters.Select( ( param, index ) => Expression.Convert( Expression.ArrayIndex( parameterArray, Expression.Constant( index ) ), param.ParameterType ) ) ];
 
 			// Create a "new T(...)" expression
 			NewExpression newExpression = Expression.New( constructor, constructorArgs );

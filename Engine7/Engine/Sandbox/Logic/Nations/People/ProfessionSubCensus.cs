@@ -7,7 +7,7 @@ public sealed class ProfessionSubCensus {
 
 	public (ProfessionKey, uint) GetPeople( ProfessionTypeBase profession, ushort educationLevel ) {
 		ProfessionKey key = new( educationLevel, profession );
-		return (key, _populationByProfession.TryGetValue( key, out var population ) ? population : 0);
+		return (key, _populationByProfession.TryGetValue( key, out uint population ) ? population : 0);
 	}
 
 	public void AddPeople( ProfessionKey key, uint count ) {
