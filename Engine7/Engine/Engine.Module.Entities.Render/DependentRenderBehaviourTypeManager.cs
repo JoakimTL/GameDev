@@ -60,6 +60,8 @@ public static class DependentRenderBehaviourTypeManager {
 		if (allDependentTypes is null)
 			return;
 		foreach (Type dependentType in allDependentTypes) {
+			if (renderEntity.HasBehaviour( dependentType ))
+				continue;
 			RenderBehaviourBase behaviour = CreateBehaviour( dependentType, archetype );
 			behaviour.SetRenderEntity( renderEntity );
 			renderEntity.AddBehaviour( behaviour );

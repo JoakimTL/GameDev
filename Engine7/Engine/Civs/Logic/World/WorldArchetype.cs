@@ -3,7 +3,7 @@ using Engine.Standard.Entities.Components;
 
 namespace Civs.Logic.World;
 
-public sealed class WorldClusterArchetype : ArchetypeBase {
-	public TileEdgeClusterComponent ClusterComponent { get; set; } = null!;
+public sealed class WorldArchetype : ArchetypeBase {
+	public GlobeComponent GlobeComponent { get; set; } = null!;
 	public Transform3Component Transform { get; set; } = null!;
 }

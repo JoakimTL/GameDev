@@ -47,17 +47,20 @@ public sealed class CivsRenderModule : RenderModuleBase {
 	}
 
 	private void Update( double time, double deltaTime ) {
-
 	}
 }
 
-//public sealed class ContextTest( WindowService windowService ) : Identifiable, IUpdateable {
-//	private readonly WindowService _windowService = windowService;
+public sealed class ContextTest( WindowService windowService, CameraService cameraService ) : Identifiable, IUpdateable, IInitializable {
+	private readonly WindowService _windowService = windowService;
 
-//	public void Update( double time, double deltaTime ) {
-//		this._windowService.Window.Title = $"Time: {time:#,##0.###}s, DeltaTime: {deltaTime:#,##0.###}s, FPS: {(1 / deltaTime):#,##0.###}f/s";
-//	}
-//}
+	public void Initialize() {
+		cameraService.Main.View3.Translation = (0, 0, -2);
+	}
+
+	public void Update( double time, double deltaTime ) {
+		//this._windowService.Window.Title = $"Time: {time:#,##0.###}s, DeltaTime: {deltaTime:#,##0.###}s, FPS: {(1 / deltaTime):#,##0.###}f/s";
+	}
+}
 
 
 public sealed class Render3Pipeline( WindowService windowService, DataBlockService dataBlockService, SceneService sceneService, CameraService cameraService, TextureRenderingService textureRenderingService, FramebufferStateService framebufferStateService ) : DisposableIdentifiable, IRenderPipeline, IInitializable {
@@ -102,15 +105,15 @@ public sealed class Render3Pipeline( WindowService windowService, DataBlockServi
 	public void DrawToScreen() {
 		if (_state is null)
 			throw new InvalidOperationException( $"{nameof( Render3Pipeline )} not initialized" );
-		//Gl.Enable( EnableCap.Blend );
-		//Gl.Disable( EnableCap.DepthTest );
-		//Gl.DepthMask( false );
-		//Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
-		//Gl.BlendEquation( BlendEquationMode.FuncAdd );
+		Gl.Enable( EnableCap.Blend );
+		Gl.Disable( EnableCap.DepthTest );
+		Gl.DepthMask( false );
+		Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
+		Gl.BlendEquation( BlendEquationMode.FuncAdd );
 
-		//_textureRenderingService.RenderTexture( _state.TerrainSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
-		//_textureRenderingService.RenderTexture( _state.GameObjectSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
-		//_textureRenderingService.RenderTexture( _state.GridSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
+		_textureRenderingService.RenderTexture( _state.TerrainSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
+		_textureRenderingService.RenderTexture( _state.GameObjectSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
+		_textureRenderingService.RenderTexture( _state.GridSceneRenderer.DisplayTexture.TextureReference.GetHandle() );
 
 	}
 

@@ -26,6 +26,7 @@ public sealed class BufferedMultisampledSceneRenderer : Identifiable {
 		MultisampledFramebuffer = framebufferStateService.CreateAutoscalingFramebuffer( windowService.Window, 1 );
 		MultisampledFramebufferGenerator = new( MultisampledFramebuffer );
 		MultisampledFramebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglMultisampledTexture( $"{this.FullName}MultisampledColor", TextureTarget.Texture2dMultisample, dimensions, samples, InternalFormat.Rgba8, true ) );
+		MultisampledFramebufferGenerator.AddRenderBuffer( FramebufferAttachment.DepthAttachment, InternalFormat.DepthComponent, samples );
 
 		Framebuffer = framebufferStateService.CreateAutoscalingFramebuffer( windowService.Window, 1 );
 		FramebufferGenerator = new( Framebuffer );
@@ -35,6 +36,7 @@ public sealed class BufferedMultisampledSceneRenderer : Identifiable {
 	public void Render( string shaderIndex, IDataBlockCollection? dataBlocks, Action<bool>? blendActivationFunction, PrimitiveType primitiveType ) {
 		_framebufferStateService.BindFramebuffer( FramebufferTarget.Framebuffer, MultisampledFramebuffer );
 		MultisampledFramebuffer.Clear( OpenGL.Buffer.Color, 0, [ 0 ] );
+		MultisampledFramebuffer.Clear( OpenGL.Buffer.Depth, 0, [ 1f ] );
 		Scene.Render( shaderIndex, dataBlocks, blendActivationFunction, primitiveType );
 		_framebufferStateService.UnbindFramebuffer( FramebufferTarget.Framebuffer );
 		_framebufferStateService.BlitToFrameBuffer( MultisampledFramebuffer, Framebuffer, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear );

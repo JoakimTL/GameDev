@@ -5,6 +5,7 @@ using Engine;
 using Engine.Modularity;
 using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Services;
+using Engine.Module.Render.Entities.Components;
 using Engine.Standard.Entities.Components;
 
 namespace Civs.Logic;
@@ -30,12 +31,20 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		if (message.Content is CreateWorldMessage createWorldMessage) {
 			this.InstanceProvider.Get<WorldProviderService>().GenerateWorld( createWorldMessage.SubdivisionCount, createWorldMessage.SurfaceArea );
 			_entities = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
+
+			var worldEntity = _entities.CreateEntity();
+			worldEntity.AddComponent<Transform3Component>();
+			worldEntity.AddComponent<GlobeComponent>();
+			worldEntity.AddComponent<RenderComponent>();
+
 			_clusters = [];
-			foreach (var cluster in this.InstanceProvider.Get<WorldProviderService>().CurrentGlobe!.Clusters) {
-				var entity = _entities.CreateEntity();
-				entity.AddComponent<Transform3Component>( p => p.Transform.Translation = cluster.Bounds.GetCenter().CastSaturating<float, double>() ); //TODO: might need to scale!
+			foreach (BoundedTileEdgeCluster cluster in this.InstanceProvider.Get<WorldProviderService>().CurrentGlobe!.Clusters) {
+				Entity entity = _entities.CreateEntity();
+				entity.SetParent(worldEntity.EntityId);
+				entity.AddComponent<Transform3Component>();
 				entity.AddComponent<TileEdgeClusterComponent>( p => p.SetCluster( cluster ) );
 				_clusters.Add( entity );
+				entity.AddComponent<RenderComponent>();
 			}
 			message.SendResponseFrom( MessageBusNode, new CreateWorldMessageResponse( this.InstanceProvider.Get<WorldProviderService>().CurrentGlobe ) );
 			return;
@@ -43,10 +52,11 @@ public sealed class CivsGameLogicModule : ModuleBase {
 	}
 
 	private void Init() {
-		var worldProviderService = InstanceProvider.Get<WorldProviderService>();
+
 	}
 
 	private void Update( double time, double deltaTime ) {
+
 	}
 }
 

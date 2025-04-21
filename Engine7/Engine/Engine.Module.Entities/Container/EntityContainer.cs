@@ -31,7 +31,7 @@ public sealed class EntityContainer : DisposableIdentifiable {
 	/// Adds a handler to listen for entity list changes. When created the <see cref="EntityContainerListChangeEventHandler"/> also runs the <see cref="entityAddedHandler"/> for all existing entities.
 	/// </summary>
 	/// <param name="entityAddedHandler">Called when an entity is added to the container. Use this method to listen for entity events, or other things related to the entity which will persist until the entity is removed and needs to be cleaned up in <see cref="entityRemovedHandler"/>.</param>
-	/// <param name="entityRemovedHandler">Called when an entity is removed from the container (and for each entity when the handler is disposed). Use this method to clean up any resources or references to the entity that were created in <see cref="entityAddedHandler"/>."/></param>
+	/// <param name="entityRemovedHandler">Called when an entity is removed from the container (and for each entity when the handler is disposed). Use this method to clean up any resources or references to the entity that were created in <see cref="entityAddedHandler"/>.</param>
 	/// <returns>The event handler object. If you have no use for it anymore make sure to use <see cref="RemoveHandler(EntityContainerListChangeEventHandler)"/>.</returns>
 	public EntityContainerListChangeEventHandler CreateListChangeHandler( EntityListChangedHandler entityAddedHandler, EntityListChangedHandler entityRemovedHandler ) {
 		EntityContainerListChangeEventHandler handler = new( this, entityAddedHandler, entityRemovedHandler );

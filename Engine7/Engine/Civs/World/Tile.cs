@@ -11,12 +11,13 @@ public sealed class Tile : IOcTreeLeaf<float> {
 	public readonly TileIndices Indices;
 	private readonly Edge[] _edges;
 
-	public Tile( IcosphereVectorContainer vectors, double simulatedSurfaceArea, uint tileId, TileIndices indices ) {
+	public Tile( IcosphereVectorContainer vectors, double simulatedSurfaceArea, uint tileId, TileIndices indices, Vector4<float> color ) {
 		this.Id = tileId;
 		this.Vectors = vectors;
 		this.Indices = indices;
 		_edges = new Edge[ 3 ];
 		Area = GetArea( simulatedSurfaceArea );
+		Color = color;
 	}
 
 	public Vector3<float> VectorA => Vectors.GetVector( Indices.A );
@@ -25,6 +26,8 @@ public sealed class Tile : IOcTreeLeaf<float> {
 
 	public IReadOnlyList<Edge> Edges => _edges;
 	public AABB<Vector3<float>> Bounds => AABB.Create( [ VectorA, VectorB, VectorC ] );
+
+	public Vector4<float> Color { get; set; }
 
 	internal void AddEdge( Edge edge ) {
 		for (int i = 0; i < 3; i++)

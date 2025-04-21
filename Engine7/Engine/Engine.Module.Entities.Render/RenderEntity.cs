@@ -73,7 +73,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 
 	public bool AddBehaviour( RenderBehaviourBase renderBehaviour ) {
 		if (!this._behaviours.TryAdd( renderBehaviour.GetType(), renderBehaviour ))
-			return this.LogWarningThenReturn( $"Behaviour of type {renderBehaviour.GetType().Name} already exists.", false );
+			throw new InvalidOperationException( $"Behaviour of type {renderBehaviour.GetType().Name} already exists." );
 		_disposables.Add( renderBehaviour );
 		if (renderBehaviour is IInitializable initializable) {
 			_initializationQueue.Add( initializable );
@@ -104,6 +104,8 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 
 	public bool TryGetBehaviour<T>( [NotNullWhen( true )] out T? renderBehaviour ) where T : RenderBehaviourBase
 		=> (renderBehaviour = null) is null && this._behaviours.TryGetValue( typeof( T ), out RenderBehaviourBase? baseBehaviour ) && (renderBehaviour = baseBehaviour as T) is not null;
+
+	public bool HasBehaviour( Type behaviourType ) => this._behaviours.ContainsKey( behaviourType );
 
 	public void Update( double time, double deltaTime ) {
 		IReadOnlyList<Type> types = _initializationTree.GetTypes();

@@ -1,6 +1,7 @@
 ﻿using Civs.Messages;
 using Engine;
 using Engine.Modularity;
+using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
 
@@ -19,12 +20,16 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "ui
 		_btnCreateWorld.ButtonClicked += OnNewGameButtonClicked;
 	}
 
-	private void OnNewGameButtonClicked() => Publish( new CreateWorldMessage( 509600000, 9 ), "gamelogic" );
+	private void OnNewGameButtonClicked() => Publish( new CreateWorldMessage( 509600000, 7 ), "gamelogic" );
 
 	protected override bool ShouldDisplay() {
 		return GameStateProvider.Get<bool>( "showNewGameMenu" ); //TODO: Create a more complex state machine for ui?
 	}
 
 	protected override void OnMessageReceived( Message message ) {
+		if (message.Content is CreateWorldMessageResponse createWorldMessageResponse) {
+			GameStateProvider.Set( "showNewGameMenu", false );
+
+		}
 	}
 }
