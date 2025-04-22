@@ -110,7 +110,6 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 
 	private void OnProviderChanged() => OnChanged?.Invoke();
 
-
 	private void OnProviderRemoval( IRemovable removable ) {
 		if (removable is not IndirectCommandProviderBase indirectCommandProvider)
 			throw new ArgumentException( "Removable is not an IndirectCommandProviderBase" );
@@ -132,6 +131,9 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 	protected override bool InternalDispose() {
 		foreach (SceneObject sceneObject in this._sceneObjectsByBindIndex.Values)
 			sceneObject.Dispose();
+		var removableIndirectCommandProviders = this._indirectCommandProviders.AsReadOnly().OfType<IRemovable>().ToArray();
+		foreach (IRemovable removable in removableIndirectCommandProviders)
+			removable.Remove();
 		this._indirectCommandProviders.Clear();
 		this._sceneObjectsByBindIndex.Clear();
 		this._unboundSceneInstances.Clear();

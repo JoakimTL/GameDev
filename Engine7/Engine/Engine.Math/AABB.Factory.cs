@@ -34,4 +34,17 @@ public static partial class AABB {
 		where TVector :
 			unmanaged, IInEqualityOperators<TVector, TVector, bool>, IEntrywiseMinMaxOperations<TVector>, ILinearAlgebraVectorOperations<TVector>
 		=> new( basis, basis );
+
+	public static AABB<TVector> CreateBounds<TVector>( this TVector basis, TVector size )
+		where TVector :
+			unmanaged, IInEqualityOperators<TVector, TVector, bool>, IEntrywiseMinMaxOperations<TVector>, ILinearAlgebraVectorOperations<TVector>
+		=> new( basis.Subtract( size ), basis.Add( size ) );
+
+	public static AABB<TVector> ScaleBy<TVector>( in this AABB<TVector> bounds, TVector scale )
+		where TVector :
+			unmanaged, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>, ILinearAlgebraVectorOperations<TVector>, IVectorIdentities<TVector>, IEntrywiseProductOperations<TVector> {
+		var size = bounds.GetLengths().MultiplyEntrywise(scale);
+		var center = bounds.GetCenter();
+		return new( center.Subtract( size ), center.Add( size ) );
+	}
 }

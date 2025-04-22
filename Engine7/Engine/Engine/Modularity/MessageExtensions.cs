@@ -1,6 +1,4 @@
-﻿using Engine.Logging;
-
-namespace Engine.Modularity;
+﻿namespace Engine.Modularity;
 
 public static class MessageExtensions {
 	public static void SendResponseFrom( this Message message, MessageBusNode node, object content ) {

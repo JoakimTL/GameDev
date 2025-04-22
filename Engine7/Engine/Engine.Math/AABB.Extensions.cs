@@ -28,7 +28,7 @@ public static partial class AABB {
 		=> (aabb.Maxima - aabb.Minima).ProductOfParts();
 	public static TVector GetCenter<TVector>( in this AABB<TVector> aabb )
 		where TVector :
-			unmanaged, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>, ILinearAlgebraVectorOperations<TVector>, IEntrywiseComparisonOperators<TVector>, IVectorIdentities<TVector>, IEntrywiseProductOperations<TVector>
+			unmanaged, IEntrywiseMinMaxOperations<TVector>, IInEqualityOperators<TVector, TVector, bool>, ILinearAlgebraVectorOperations<TVector>, IVectorIdentities<TVector>, IEntrywiseProductOperations<TVector>
 		=> aabb.Minima.Add( aabb.Maxima.Subtract( aabb.Minima ).DivideEntrywise( TVector.Two ) );
 	public static TVector GetLengths<TVector>( in this AABB<TVector> aabb )
 		where TVector :

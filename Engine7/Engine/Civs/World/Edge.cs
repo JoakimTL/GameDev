@@ -20,6 +20,7 @@ public sealed class Edge : IOcTreeLeaf<float> {
 
 	public Vector3<float> VectorA => Vectors.GetVector( Indices.A );
 	public Vector3<float> VectorB => Vectors.GetVector( Indices.B );
+	public Vector3<float> Normal => (_tiles[ 0 ].Normal + _tiles[ 1 ].Normal) / 2;
 
 	public AABB<Vector3<float>> Bounds => AABB.Create( [ VectorA, VectorB ] );
 

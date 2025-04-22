@@ -16,7 +16,6 @@ using Engine.Standard.Render.UserInterface;
 using Sandbox.Logic;
 using Sandbox.Logic.World;
 using Sandbox.Render;
-using Sandbox.Render.Ui;
 
 namespace Sandbox;
 

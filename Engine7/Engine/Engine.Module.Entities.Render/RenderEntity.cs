@@ -125,6 +125,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 			renderBehaviour.Dispose();
 		this._behaviours.Clear();
 		_disposables.Dispose();
+		Remove();
 		return true;
 	}
 

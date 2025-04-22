@@ -1,16 +1,13 @@
 ﻿using Civs.Logic.World;
 using Civs.Render.World.Shaders;
 using Engine;
-using Engine.Logging;
-using Engine.Module.Render;
 using Engine.Module.Render.Entities;
 using Engine.Standard.Render;
-using System;
 
 namespace Civs.Render.World;
 public sealed class TileClusterRenderBehaviour : DependentRenderBehaviourBase<WorldClusterArchetype>, IInitializable {
 
-	private TileClusterSceneInstance _sceneInstance = null!;
+	private TileGroupSceneInstance _sceneInstance = null!;
 	private bool _needsMeshUpdate = false;
 
 	protected override void OnRenderEntitySet() {
@@ -18,7 +15,7 @@ public sealed class TileClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 	}
 
 	public void Initialize() {
-		_sceneInstance = RenderEntity.RequestSceneInstance<TileClusterSceneInstance>( "terrain", 0 );
+		_sceneInstance = RenderEntity.RequestSceneInstance<TileGroupSceneInstance>( "terrain", 0 );
 		_sceneInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<GlobeTerrainShaderBundle>() );
 		_sceneInstance.SetVertexArrayObject( RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity3SceneData>() );
 		_sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
@@ -26,7 +23,7 @@ public sealed class TileClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		if (!RenderEntity.TryGetBehaviour(out ClusterVisibilityRenderBehaviour? visibilityBehaviour ))
+		if (!RenderEntity.TryGetBehaviour( out ClusterVisibilityRenderBehaviour? visibilityBehaviour ))
 			return;
 		_sceneInstance.SetActive( visibilityBehaviour.IsVisible );
 		if (_sceneInstance.Active && _needsMeshUpdate) {
@@ -77,7 +74,7 @@ public sealed class ClusterVisibilityRenderBehaviour : DependentRenderBehaviourB
 		];
 
 		for (int i = 0; i < boundsCorners.Length; i++)
-			if (normalizedTranslation.Dot( boundsCorners[ i ] ) >= 0) {
+			if (normalizedTranslation.Dot( boundsCorners[ i ].Normalize<Vector3<float>, float>() ) >= 0.20629947401) {
 				shouldBeVisible = true;
 				break;
 			}

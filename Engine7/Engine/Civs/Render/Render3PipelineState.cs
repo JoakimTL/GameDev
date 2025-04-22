@@ -1,8 +1,5 @@
 ﻿using Engine;
 using Engine.Module.Render.Ogl.OOP.DataBlocks;
-using Engine.Module.Render.Ogl.OOP.Framebuffers;
-using Engine.Module.Render.Ogl.OOP.Textures;
-using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Standard.Render;
 using Engine.Standard.Render.SingleTextureRendering;

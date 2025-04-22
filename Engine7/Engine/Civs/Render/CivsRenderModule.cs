@@ -1,16 +1,10 @@
 ﻿using Civs.Messages;
 using Engine;
-using Engine.Logging;
 using Engine.Modularity;
 using Engine.Module.Render;
 using Engine.Module.Render.Domain;
 using Engine.Module.Render.Ogl;
-using Engine.Module.Render.Ogl.OOP.DataBlocks;
-using Engine.Module.Render.Ogl.OOP.Shaders;
-using Engine.Module.Render.Ogl.OOP.VertexArrays;
-using Engine.Module.Render.Ogl.Scenes;
 using Engine.Module.Render.Ogl.Services;
-using Engine.Module.Render.Ogl.Utilities;
 using Engine.Standard;
 using Engine.Standard.Render;
 using Engine.Standard.Render.SingleTextureRendering;
@@ -33,11 +27,13 @@ public sealed class CivsRenderModule : RenderModuleBase {
 		UserInterfaceService ui = context.InstanceProvider.Get<UserInterfaceService>();
 		ui.UserInterfaceStateManager.AddAllElements();
 		InstanceProvider.Get<GameStateProvider>().Set( "showStartMenu", true );
+		InstanceProvider.Get<GameStateProvider>().Set( "showFpsCounter", true );
 		context.OnInitialized += OnContextInitialized;
 	}
 
 	private void OnContextInitialized( Context context ) {
 		Gl.Enable( EnableCap.Multisample );
+		Gl.Enable( EnableCap.CullFace );
 	}
 
 	private void MessageReceived( Message message ) {
@@ -92,10 +88,12 @@ public sealed class Render3Pipeline( WindowService windowService, DataBlockServi
 
 		_state.GameObjectSceneRenderer.Render( "default", _state.DataBlocks, null, PrimitiveType.Triangles );
 
+		//_state.GridSceneRenderer.BlitDepthBuffer( _state.TerrainSceneRenderer );
+
 		Gl.Enable( EnableCap.Blend );
+		Gl.Disable( EnableCap.DepthTest );
 		Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
 		Gl.BlendEquation( BlendEquationMode.FuncAdd );
-		Gl.Disable( EnableCap.DepthTest );
 		Gl.DepthMask( false );
 
 		_state.GridSceneRenderer.Render( "default", _state.DataBlocks, null, PrimitiveType.Triangles );

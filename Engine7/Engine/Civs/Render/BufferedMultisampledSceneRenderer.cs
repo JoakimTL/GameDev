@@ -41,4 +41,8 @@ public sealed class BufferedMultisampledSceneRenderer : Identifiable {
 		_framebufferStateService.UnbindFramebuffer( FramebufferTarget.Framebuffer );
 		_framebufferStateService.BlitToFrameBuffer( MultisampledFramebuffer, Framebuffer, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear );
 	}
+
+	internal void BlitDepthBuffer( BufferedSceneRenderer sceneRenderer ) {
+		_framebufferStateService.BlitToFrameBuffer( sceneRenderer.Framebuffer, MultisampledFramebuffer, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest );
+	}
 }

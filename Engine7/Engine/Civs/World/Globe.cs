@@ -13,10 +13,13 @@ public sealed unsafe class Globe : DisposableIdentifiable {
 	private readonly List<Tile> _tiles;
 	private readonly List<BoundedTileEdgeCluster> _clusters;
 
+	public AABB<Vector3<float>> ClusterBounds { get; }
 	public double SimulatedSurfaceArea { get; }
+	public double Radius { get; }
 
-	public Globe( uint subdivisions, double surfaceArea ) {
+	public Globe( uint subdivisions, double surfaceArea, double heightspanMeters, double sealevel, double radius ) {
 		SimulatedSurfaceArea = surfaceArea;
+		Radius = radius - heightspanMeters;
 		Icosphere icosphere = new( subdivisions );
 		_icosphereVectorContainer = new( icosphere.Vertices );
 
@@ -27,10 +30,9 @@ public sealed unsafe class Globe : DisposableIdentifiable {
 
 		IReadOnlyList<uint> indices = icosphere.GetIndices( icosphere.Subdivisions - 1 );
 		Dictionary<EdgeIndices, Edge> _edges = [];
-		Random random = new( 0 );
 		for (int i = 0; i < indices.Count; i += 3) {
 			TileIndices tileIndices = new( indices[ i ], indices[ i + 1 ], indices[ i + 2 ] );
-			Tile tile = new( _icosphereVectorContainer, surfaceArea, (uint) _tiles.Count, tileIndices, (random.NextSingle(), random.NextSingle(), random.NextSingle(), 1) );
+			Tile tile = new( _icosphereVectorContainer, surfaceArea, (uint) _tiles.Count, tileIndices );
 			_tiles.Add( tile );
 			tileTree.Add( tile );
 
@@ -60,38 +62,73 @@ public sealed unsafe class Globe : DisposableIdentifiable {
 		foreach ((IReadOnlyBranch<Tile, float>, IReadOnlyBranch<Edge, float>) pair in pairs)
 			_clusters.Add( new( pair.Item1.BranchBounds, [ .. pair.Item1.Contents ], [ .. pair.Item2.Contents ] ) );
 
-		GenerateLandmass( 42 );
+		ClusterBounds = new Vector3<float>().CreateBounds(_clusters.First().Bounds.GetLengths() * 0.5f);
+
+		GenerateLandmass( 42, heightspanMeters, sealevel );
 
 		GenerateTerrain();
 
 	}
 
-	private void GenerateLandmass( int seed ) {
+	private void GenerateLandmass( int seed, double heightspanMeters, double sealevel ) {
+		double maxDepth = sealevel;
+		double maxHeight = heightspanMeters - sealevel;
+
 		Random seedProvider = new( seed );
-		Noise3 coarseHeighNoise = new( seedProvider.Next(), 5 );
+		Noise3 coarseHeightNoise = new( seedProvider.Next(), 5 );
 		Noise3 fineHeightNoise = new( seedProvider.Next(), 23 );
-		Noise3 landLargeNoise = new( seedProvider.Next(), 3 );
+		Noise3 coarseHeightNoise2 = new( seedProvider.Next(), 3 );
+		Noise3 fineHeightNoise2 = new( seedProvider.Next(), 17 );
+
+		Noise3 landLargeNoise = new( seedProvider.Next(), 2 );
 		Noise3 landFineNoise = new( seedProvider.Next(), 13 );
-		Noise3 warpNoise = new( seedProvider.Next(), 2.3f );
-		foreach (var tile in Tiles) {
-			var center = tile.Bounds.GetCenter();
-			var warpDirection = warpNoise.Noise( center ) * float.Pi * 2;
-			var warpOffset = new Vector3<float>( MathF.Cos( warpDirection ), MathF.Sin( warpDirection ), 0 );
-			var warpedCenter = center + new Vector3<float>( warpNoise.Noise( center ) * 2 - 1, warpNoise.Noise( center ) * 2 - 1, warpNoise.Noise( center ) * 2 - 1 ) * 0.1f;
-			var landmass = (landLargeNoise.Noise( center ) * 0.75f + landFineNoise.Noise( center ) * 0.25f) > 0.7;
-			var n = coarseHeighNoise.Noise( center ) * 0.85f + fineHeightNoise.Noise( center ) * 0.15f;
-			n *= n;
-			n *= coarseHeighNoise.Noise( warpedCenter ) * fineHeightNoise.Noise( warpedCenter );
-			tile.Color = (landmass ? 0.5f : 0, n, n, 1);
-			//tile.Height = n > 0.2f;
+		Noise3 landTranslationStrengthNoise = new( seedProvider.Next(), 7 );
+
+		FiniteVoronoiNoise3 voronoiTranslation = new( new( seedProvider.Next() ), 0.5f, 1 );
+		FiniteVoronoiNoise3 voronoiRidgeNoise = new( new( seedProvider.Next() ), 0.25f, 1 );
+		FiniteVoronoiNoise3 voronoiRidgeNoiseFine = new( new( seedProvider.Next() ), 0.0625f, 1 );
+		//double minPresentHeight = float.MaxValue;
+		//double maxPresentHeight = float.MinValue;
+		foreach (Tile tile in Tiles) {
+			Vector3<float> center = tile.Bounds.GetCenter();
+			Vector3<float> translation = voronoiTranslation.NoiseVector( center );
+			Vector3<float> smallTranslation = translation * 0.05f;
+			float lTs = landTranslationStrengthNoise.Noise( center );
+			float landmassN = (landLargeNoise.Noise( center + smallTranslation * lTs ) * 0.85f + landFineNoise.Noise( center + translation * lTs ) * 0.15f);
+			landmassN = float.Sqrt( landmassN );
+			bool isLand = landmassN > 0.73f;
+
+			float n = (coarseHeightNoise.Noise( center ) * 0.9f + fineHeightNoise.Noise( center ) * 0.1f) * (coarseHeightNoise2.Noise( center ) * 0.7f + fineHeightNoise2.Noise( center ) * 0.3f);
+			float rN = 1 - (voronoiRidgeNoise.Noise( center ) * 0.85f + voronoiRidgeNoiseFine.Noise( center ) * 0.15f);
+			n *= rN;
+
+			if (isLand) {
+				tile.Height = n * landmassN * maxHeight;
+			} else {
+				tile.Height = -n * landmassN * maxDepth;
+			}
+
+			//if (tile.Height < minPresentHeight)
+			//	minPresentHeight = tile.Height;
+			//if (tile.Height > maxPresentHeight)
+			//	maxPresentHeight = tile.Height;
+
+			//tile.VectorPush = 1 + (float) ((tile.Height + maxDepth) / Radius);
 		}
+
+		//double heightDiff = maxPresentHeight - minPresentHeight;
+
+		//foreach (Tile tile in Tiles) {
+		//	float h = (float) ((tile.Height - minPresentHeight) / heightDiff);
+		//	tile.Color = (tile.Height >= 0 ? 1 : 0, h, h, 1);
+		//}
 
 
 	}
 
 	private void GenerateTerrain() {
-		foreach (var tile in Tiles) {
-
+		foreach (Tile tile in Tiles) {
+			tile.Terrain = tile.Height >= 0 ? TerrainTypes.GetTerrainType<GrasslandTerrain>() : TerrainTypes.GetTerrainType<OceanTerrain>();
 		}
 	}
 
@@ -111,4 +148,26 @@ public sealed unsafe class Globe : DisposableIdentifiable {
 		_icosphereVectorContainer.Dispose();
 		return true;
 	}
+}
+
+public abstract class TerrainTypeBase {
+
+	public uint Id { get; }
+
+	public Vector4<float> Color { get; }
+
+	public TerrainTypeBase( uint id, Vector4<float> color ) {
+		Id = id;
+		Color = color;
+	}
+
+
+
+}
+
+public sealed class OceanTerrain() : TerrainTypeBase( 0, (0.07F, 0.47F, 0.97F, 1) ) {
+
+}
+public sealed class GrasslandTerrain() : TerrainTypeBase( 1, (0.47F, 0.99F, 0.17F, 1)) {
+
 }

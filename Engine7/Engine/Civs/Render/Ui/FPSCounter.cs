@@ -9,7 +9,7 @@ public sealed class FPSCounter : UserInterfaceElementBase {
 	private Label _fpsLabel = null!;
 
 	private int _sampleIndex = 0;
-	private readonly double[] _samples = new double[30];
+	private readonly double[] _samples = new double[ 30 ];
 
 	protected override void Initialize() {
 		AddComponent( _fpsLabel = new Label( this ) {
@@ -24,14 +24,14 @@ public sealed class FPSCounter : UserInterfaceElementBase {
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		_samples[_sampleIndex++] = deltaTime;
+		_samples[ _sampleIndex++ ] = deltaTime;
 		if (_sampleIndex >= _samples.Length)
 			_sampleIndex = 0;
 		double sampleSum = 0;
-		for (int i = 0; i < _samples.Length; i++) 
+		for (int i = 0; i < _samples.Length; i++)
 			sampleSum += _samples[ i ];
 		double average = sampleSum / _samples.Length;
-		_fpsLabel.Text = $"Frametime: {average*1000:#,##0.00} ms FPS: {(1 / average):#,##0.0} f/s";
+		_fpsLabel.Text = $"Frametime: {average * 1000:#,##0.00} ms FPS: {(1 / average):#,##0.0} f/s";
 	}
 
 	protected override bool ShouldDisplay() {

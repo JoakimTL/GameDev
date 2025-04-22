@@ -7,6 +7,8 @@ namespace Engine.Module.Render.Ogl.Services;
 
 public sealed class MeshService( BufferService bufferService ) : Identifiable {
 
+
+
 	public VertexMesh<TVertex> CreateEmptyMesh<TVertex>( uint vertexCount, uint elementCount, string? name = null ) where TVertex : unmanaged {
 		if (!bufferService.Get( typeof( TVertex ) ).TryAllocate( vertexCount * (uint) Marshal.SizeOf<TVertex>(), out BufferSegment? vertexSegment ))
 			throw new InvalidOperationException( "Failed to allocate vertex buffer" );

@@ -40,6 +40,10 @@ public class SimpleSortedList<T>() where T : IComparable<T> {
 	}
 
 	public void Remove( T item ) {
+		if (this.Count == 0) {
+			throw new InvalidOperationException( "Cannot remove from an empty list." );
+			return;
+		}
 		int index = FindIndex( 0, this._underlying.Count, item );
 		if (index < 0 || index >= this._underlying.Count)
 			return;

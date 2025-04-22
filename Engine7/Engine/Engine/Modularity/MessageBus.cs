@@ -1,7 +1,6 @@
 ﻿
 using Engine.Logging;
 using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace Engine.Modularity;

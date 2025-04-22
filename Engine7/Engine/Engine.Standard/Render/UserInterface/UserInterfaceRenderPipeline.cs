@@ -44,9 +44,7 @@ public sealed class UserInterfaceRenderPipeline( SceneService sceneService, Data
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
-		Gl.Enable( EnableCap.Multisample );
 		Gl.Enable( EnableCap.Blend );
-		Gl.Disable( EnableCap.CullFace );
 		Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
 		Gl.BlendEquation( BlendEquationMode.FuncAdd );
 		Gl.Disable( EnableCap.DepthTest );
@@ -64,7 +62,6 @@ public sealed class UserInterfaceRenderPipeline( SceneService sceneService, Data
 	public void DrawToScreen() {
 		//Draw the framebuffer to the screen.
 		Gl.Enable( EnableCap.Blend );
-		Gl.Disable( EnableCap.CullFace );
 		Gl.BlendFunc( BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha );
 		Gl.BlendEquation( BlendEquationMode.FuncAdd );
 		Gl.Disable( EnableCap.DepthTest );

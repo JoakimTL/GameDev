@@ -1,6 +1,5 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Input;
-using System.Reflection;
 
 namespace Engine.Standard.Render.UserInterface;
 public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userInterfaceServiceAccess, GameStateProvider gameStateProvider ) : DisposableIdentifiable, ICapturingUserInputListener, IUpdateable {
