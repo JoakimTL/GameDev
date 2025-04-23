@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace Engine;
 
@@ -10,6 +11,10 @@ public sealed class ResolvedType {
 	public bool HasParameterlessConstructor { get; }
 	public int ConstructorCount { get; }
 	public IReadOnlyList<Attribute> Attributes { get; }
+	/// <summary>
+	/// If this type has a Guid Attribute it's value is stored here.
+	/// </summary>
+	public Guid? Guid { get; }
 	private readonly Dictionary<Type, object> _attributesByType = [];
 	private readonly Dictionary<BindingFlags, List<PropertyInfo>> _propertiesByBindingFlags = [];
 	private readonly TypeInstanceFactory _instanceFactory;
@@ -22,6 +27,8 @@ public sealed class ResolvedType {
 		this.Attributes = type.GetCustomAttributes( true ).OfType<Attribute>().ToArray();
 		this._instanceFactory = new TypeInstanceFactory( type );
 		this.Identity = Attributes.OfType<IdentityAttribute>().FirstOrDefault()?.Identity;
+		var guidString = Attributes.OfType<GuidAttribute>().FirstOrDefault()?.Value;
+		Guid = guidString is not null ? new( guidString ) : null;
 	}
 
 	public IReadOnlyList<T> GetAttributes<T>() {

@@ -57,9 +57,9 @@ public sealed class WorldSelectedTileRenderBehaviour : DependentRenderBehaviourB
 
 	private void SetHoveringTriangle() {
 		if (_currentHoveringTile is null) {
-			_instances[ 0 ].SetActive( false );
-			_instances[ 1 ].SetActive( false );
-			_instances[ 2 ].SetActive( false );
+			_instances[ 0 ].SetAllocated( false );
+			_instances[ 1 ].SetAllocated( false );
+			_instances[ 2 ].SetAllocated( false );
 			return;
 		}
 
@@ -76,19 +76,19 @@ public sealed class WorldSelectedTileRenderBehaviour : DependentRenderBehaviourB
 		Vector3<float> normal = cross.Normalize<Vector3<float>, float>();
 
 		float width = magnitude * 1.75f;
+		_instances[ 0 ].SetAllocated( true );
+		_instances[ 1 ].SetAllocated( true );
+		_instances[ 2 ].SetAllocated( true );
 		_instances[ 0 ].Write( new Line3SceneData( vA, width, vB, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, (120, 120, 120, 255) ) );
 		_instances[ 1 ].Write( new Line3SceneData( vB, width, vC, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, (120, 120, 120, 255) ) );
 		_instances[ 2 ].Write( new Line3SceneData( vC, width, vA, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, (120, 120, 120, 255) ) );
-		_instances[ 0 ].SetActive( true );
-		_instances[ 1 ].SetActive( true );
-		_instances[ 2 ].SetActive( true );
 	}
 
 	private void SetSelectedRegion( double time ) {
 		if (_currentSelectedTile is null) {
-			_instances[ 6 ].SetActive( false );
-			_instances[ 7 ].SetActive( false );
-			_instances[ 8 ].SetActive( false );
+			_instances[ 6 ].SetAllocated( false );
+			_instances[ 7 ].SetAllocated( false );
+			_instances[ 8 ].SetAllocated( false );
 			return;
 		}
 
@@ -110,19 +110,19 @@ public sealed class WorldSelectedTileRenderBehaviour : DependentRenderBehaviourB
 		float magnitude = cross.Magnitude<Vector3<float>, float>();
 		Vector3<float> normal = cross.Normalize<Vector3<float>, float>();
 		float width = magnitude * 2;
+		_instances[ 6 ].SetAllocated( true );
+		_instances[ 7 ].SetAllocated( true );
+		_instances[ 8 ].SetAllocated( true );
 		_instances[ 6 ].Write( new Line3SceneData( vA, width, vB, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col1B, col2B ) );
 		_instances[ 7 ].Write( new Line3SceneData( vB, width, vC, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col2B, col3B ) );
 		_instances[ 8 ].Write( new Line3SceneData( vC, width, vA, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col3B, col1B ) );
-		_instances[ 6 ].SetActive( true );
-		_instances[ 7 ].SetActive( true );
-		_instances[ 8 ].SetActive( true );
 	}
 
 	private void SetSelectedTile( double time ) {
 		if (_currentSelectedTile is null) {
-			_instances[ 3 ].SetActive( false );
-			_instances[ 4 ].SetActive( false );
-			_instances[ 5 ].SetActive( false );
+			_instances[ 3 ].SetAllocated( false );
+			_instances[ 4 ].SetAllocated( false );
+			_instances[ 5 ].SetAllocated( false );
 			return;
 		}
 
@@ -140,12 +140,12 @@ public sealed class WorldSelectedTileRenderBehaviour : DependentRenderBehaviourB
 		float magnitude = cross.Magnitude<Vector3<float>, float>();
 		Vector3<float> normal = cross.Normalize<Vector3<float>, float>();
 		float width = magnitude * 3;
+		_instances[ 3 ].SetAllocated( true );
+		_instances[ 4 ].SetAllocated( true );
+		_instances[ 5 ].SetAllocated( true );
 		_instances[ 3 ].Write( new Line3SceneData( vA, width, vB, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col1B, col2B ) );
 		_instances[ 4 ].Write( new Line3SceneData( vB, width, vC, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col2B, col3B ) );
 		_instances[ 5 ].Write( new Line3SceneData( vC, width, vA, width, normal, 0, 1, (-1, 0, 1), 0, 1, 1, col3B, col1B ) );
-		_instances[ 3 ].SetActive( true );
-		_instances[ 4 ].SetActive( true );
-		_instances[ 5 ].SetActive( true );
 	}
 
 	protected override bool InternalDispose() {

@@ -165,11 +165,12 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 
 	protected internal override void DoHide() {
 		foreach (SceneInstance<Entity2SlicedTexturedSceneData> sceneInstance in _sceneInstances)
-			sceneInstance.SetActive( false );
+			sceneInstance.SetAllocated( false );
 	}
 
 	protected internal override void DoShow() {
 		foreach (SceneInstance<Entity2SlicedTexturedSceneData> sceneInstance in _sceneInstances)
-			sceneInstance.SetActive( true );
+			sceneInstance.SetAllocated( true );
+		UpdateInstance();
 	}
 }

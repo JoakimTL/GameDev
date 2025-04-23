@@ -9,14 +9,15 @@ using Engine.Standard.Render;
 namespace Civs.Render;
 
 public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity3SceneData ) ) {
-	public void UpdateMesh( IReadOnlyList<Tile> tiles, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
+	public void UpdateMesh( IReadOnlyCollection<Tile> tiles, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
 		Mesh?.Dispose();
 		SetMesh( CreateMesh( tiles, meshProvider, overrideColor ) );
 	}
 
-	private IMesh CreateMesh( IReadOnlyList<Tile> tiles, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
+	private IMesh CreateMesh( IReadOnlyCollection<Tile> tileCollection, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
+		List<Tile> tiles = tileCollection.ToList();
 		for (int i = 0; i < tiles.Count; i++) {
 			Vector3<float> a = tiles[ i ].VectorA;
 			Vector3<float> b = tiles[ i ].VectorB;
@@ -35,7 +36,7 @@ public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity
 
 		return meshProvider.CreateMesh( vertices.ToArray(), [ .. indices ] );
 	}
-	public new void SetActive(bool active) => base.SetActive( active );
+	public new void SetAllocated(bool allocated) => base.SetAllocated( allocated );
 	public new void SetVertexArrayObject( OglVertexArrayObjectBase? vertexArrayObject ) => base.SetVertexArrayObject( vertexArrayObject );
 	public new void SetShaderBundle( ShaderBundleBase? shaderBundle ) => base.SetShaderBundle( shaderBundle );
 

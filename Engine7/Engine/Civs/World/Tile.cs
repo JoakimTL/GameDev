@@ -55,4 +55,7 @@ public sealed class Tile : IOcTreeLeaf<float> {
 		Vector3<float> ac = VectorC - VectorA;
 		return (ab.Cross( ac ).Magnitude<Vector3<float>, float>() / 2) * simulatedSurfaceArea / (4 * double.Pi);
 	}
+
+	public override bool Equals( object? obj ) => obj is Tile tile && Id == tile.Id;
+	public override int GetHashCode() => Id.GetHashCode();
 }

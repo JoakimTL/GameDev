@@ -55,28 +55,31 @@ public sealed class CivsGameLogicModule : ModuleBase {
 			return;
 		}
 		if (message.Content is CreateNewOwnerMessage createNewOwnerMessage) {
-			var currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<PopulationCenterComponent>().OwnedTiles.Contains( createNewOwnerMessage.Tile ) );
+			var currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( createNewOwnerMessage.Tile ) );
 			if (currentOwner is not null) {
-				PopulationCenterComponent pcc = currentOwner.GetComponentOrThrow<PopulationCenterComponent>();
-				pcc.RemoveTile( createNewOwnerMessage.Tile );
-				if (pcc.OwnedTiles.Count == 0) {
+				TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
+				toc.RemoveTile( createNewOwnerMessage.Tile );
+				if (toc.OwnedTiles.Count == 0) {
 					_entities.RemoveEntity( currentOwner );
 					_populationCenters.Remove( currentOwner );
 				}
 			}
-			var newOwner = _entities.CreateEntity();
-			var populationCenter = newOwner.AddComponent<PopulationCenterComponent>();
-			populationCenter.AddTile( createNewOwnerMessage.Tile );
-			populationCenter.Color = (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1);
-			newOwner.AddComponent<RenderComponent>();
-			_populationCenters.Add( newOwner );
+			{
+				var newOwner = _entities.CreateEntity();
+				newOwner.AddComponent<PopulationCenterComponent>();
+				newOwner.AddComponent<TileOwnershipRenderComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
+				var toc = newOwner.AddComponent<TileOwnershipComponent>();
+				toc.AddTile( createNewOwnerMessage.Tile );
+				newOwner.AddComponent<RenderComponent>();
+				_populationCenters.Add( newOwner );
+			}
 		}
 		if (message.Content is RemoveOwnerMessage removeOwnerMessage) {
-			var currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<PopulationCenterComponent>().OwnedTiles.Contains( removeOwnerMessage.Tile ) );
+			var currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( removeOwnerMessage.Tile ) );
 			if (currentOwner is not null) {
-				PopulationCenterComponent pcc = currentOwner.GetComponentOrThrow<PopulationCenterComponent>();
-				pcc.RemoveTile( removeOwnerMessage.Tile );
-				if (pcc.OwnedTiles.Count == 0) {
+				TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
+				toc.RemoveTile( removeOwnerMessage.Tile );
+				if (toc.OwnedTiles.Count == 0) {
 					_entities.RemoveEntity( currentOwner );
 					_populationCenters.Remove( currentOwner );
 				}
@@ -84,21 +87,21 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		}
 		if (message.Content is SetNeighbourOwnerMessage setNeighbourOwnerMessage) {
 			var otherTile = setNeighbourOwnerMessage.Tile.Edges[ setNeighbourOwnerMessage.Index ].Tiles.First( p => p != setNeighbourOwnerMessage.Tile );
-			var currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<PopulationCenterComponent>().OwnedTiles.Contains( setNeighbourOwnerMessage.Tile ) );
-			var newOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<PopulationCenterComponent>().OwnedTiles.Contains( otherTile ) );
+			var currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( setNeighbourOwnerMessage.Tile ) );
+			var newOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( otherTile ) );
 			if (newOwner is null)
 				return;
 			if (currentOwner is not null) {
-				PopulationCenterComponent pcc = currentOwner.GetComponentOrThrow<PopulationCenterComponent>();
-				pcc.RemoveTile( setNeighbourOwnerMessage.Tile );
-				if (pcc.OwnedTiles.Count == 0) {
+				TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
+				toc.RemoveTile( setNeighbourOwnerMessage.Tile );
+				if (toc.OwnedTiles.Count == 0) {
 					_entities.RemoveEntity( currentOwner );
 					_populationCenters.Remove( currentOwner );
 				}
 			}
 			{
-				PopulationCenterComponent pcc = newOwner.GetComponentOrThrow<PopulationCenterComponent>();
-				pcc.AddTile( setNeighbourOwnerMessage.Tile );
+				TileOwnershipComponent toc = newOwner.GetComponentOrThrow<TileOwnershipComponent>();
+				toc.AddTile( setNeighbourOwnerMessage.Tile );
 			}
 		}
 	}

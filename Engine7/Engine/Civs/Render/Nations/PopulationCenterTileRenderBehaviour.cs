@@ -16,7 +16,7 @@ public sealed class PopulationCenterTileRenderBehaviour : DependentRenderBehavio
 
 	protected override void OnArchetypeSet() {
 		base.OnArchetypeSet();
-		Archetype.PopulationCenterComponent.TileOwnershipChanged += OnTileOwnershipChanged;
+		Archetype.TileOwnershipComponent.TileOwnershipChanged += OnTileOwnershipChanged;
 	}
 
 	private void OnTileOwnershipChanged() {
@@ -32,15 +32,16 @@ public sealed class PopulationCenterTileRenderBehaviour : DependentRenderBehavio
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		if (_sceneInstance.Active && _needsMeshUpdate) {
-			_sceneInstance.UpdateMesh( this.Archetype.PopulationCenterComponent.OwnedTiles, RenderEntity.ServiceAccess.MeshProvider, this.Archetype.PopulationCenterComponent.Color );
+		//TODO: properly separate logic and render in all components. If an update happens which should be rendered occurs, it's the game logic's (ecs) responsibility to serialize and ship the new components to the render system. This means behaviours can in reality only depend on serializable components.
+		if (_sceneInstance.Allocated && _needsMeshUpdate) {
+			_sceneInstance.UpdateMesh( this.Archetype.TileOwnershipComponent.OwnedTiles, RenderEntity.ServiceAccess.MeshProvider, this.Archetype.TileOwnershipRenderComponent.Color );
 			_sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
 			_needsMeshUpdate = false;
 		}
 	}
 
 	protected override bool InternalDispose() {
-		Archetype.PopulationCenterComponent.TileOwnershipChanged -= OnTileOwnershipChanged;
+		Archetype.TileOwnershipComponent.TileOwnershipChanged -= OnTileOwnershipChanged;
 		return true;
 	}
 }

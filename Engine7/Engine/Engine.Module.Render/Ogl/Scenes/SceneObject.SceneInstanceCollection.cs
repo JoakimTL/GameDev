@@ -46,7 +46,7 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 		sceneInstance.OnLayerChanged += OnLayerChanged;
 		sceneInstance.OnMeshChanged += OnMeshChanged;
 		sceneInstance.OnRemoved += OnInstanceRemoval;
-		sceneInstance.OnActiveChanged += OnActiveChanged;
+		sceneInstance.OnAllocatedChanged += OnActiveChanged;
 		sceneInstance.AssignDataSegment( slice );
 		OnChanged?.Invoke();
 		return true;
@@ -63,7 +63,7 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 		sceneInstance.OnLayerChanged -= OnLayerChanged;
 		sceneInstance.OnMeshChanged -= OnMeshChanged;
 		sceneInstance.OnRemoved -= OnInstanceRemoval;
-		sceneInstance.OnActiveChanged -= OnActiveChanged;
+		sceneInstance.OnAllocatedChanged -= OnActiveChanged;
 		OnInstanceRemoved?.Invoke( sceneInstance );
 		OnChanged?.Invoke();
 		return true;
@@ -72,7 +72,7 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 	/// If the active state changes we still want to keep the instance, it's just not going to be rendered.
 	/// </summary>
 	private void OnActiveChanged( SceneInstanceBase changedInstance, bool oldValue ) {
-		if (changedInstance.Active) {
+		if (changedInstance.Allocated) {
 			if (!this._subBufferManager.TryAllocate( this._sizePerInstanceBytes, out BufferSlice<BufferSegment>? slice ))
 				throw new InvalidOperationException( "Failed to allocate a slice." );
 			changedInstance.AssignDataSegment( slice );

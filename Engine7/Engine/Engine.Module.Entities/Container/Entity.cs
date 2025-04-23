@@ -1,5 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿using Engine.Algorithms;
+using Engine.Buffers;
+using System.Buffers;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace Engine.Module.Entities.Container;
 
@@ -20,6 +24,10 @@ public sealed class Entity : Identifiable {
 
 	public event EntityArchetypeChangeHandler? ArchetypeAdded;
 	public event EntityArchetypeChangeHandler? ArchetypeRemoved;
+
+	public event Action<object>? OnMessageSent;
+
+	//RenderEntities must hold all serializable components and listen for componentchanged events from the original entity. That way it can serialize the original entity component and deserialize it into it's own and update render behaviours as a result.
 
 	public Guid EntityId { get; }
 	public Guid? ParentId { get; private set; }
@@ -61,26 +69,14 @@ public sealed class Entity : Identifiable {
 		ArchetypeRemoved?.Invoke( archetype );
 	}
 
-	public IReadOnlyCollection<ComponentBase> Components => this._components.Values;
+	public List<ComponentBase> GetComponents() => [ .. this._components.Values ];
 
 	public IReadOnlyCollection<ArchetypeBase> CurrentArchetypes => this._archetypes.Values;
 
-	public T AddComponent<T>() where T : ComponentBase, new() {
+	public T AddComponent<T>( Action<T>? componentInitialization = null ) where T : ComponentBase, new() {
 		T component = new();
 		component.SetEntity( this );
-		this._components.Add( typeof( T ), component );
-		if (component is IMessageReadingComponent messageReader)
-			this._messageReaders.Add( messageReader );
-		ComponentAdded?.Invoke( component );
-		CheckAndAddArchetypes( typeof( T ) );
-		component.ComponentChanged += OnComponentChanged;
-		return component;
-	}
-
-	public T AddComponent<T>(Action<T> componentInitialization) where T : ComponentBase, new() {
-		T component = new();
-		component.SetEntity( this );
-		componentInitialization( component );
+		componentInitialization?.Invoke( component );
 		this._components.Add( typeof( T ), component );
 		if (component is IMessageReadingComponent messageReader)
 			this._messageReaders.Add( messageReader );
@@ -179,6 +175,9 @@ public sealed class Entity : Identifiable {
 	}
 
 	private void OnComponentChanged( ComponentBase component ) {
+		if (component is ISerializableComponent serializableComponent) {
+
+		}
 		if (component is ICleanupController cleanupController)
 			if (cleanupController.ShouldBeRemoved) {
 				ComponentRequestsRemoval();
@@ -189,9 +188,12 @@ public sealed class Entity : Identifiable {
 	public void AddMessage( object message ) => this._internalMessageQueue.Enqueue( message );
 
 	internal void ReadInternalMessages() {
-		while (this._internalMessageQueue.TryDequeue( out object? message ))
+		while (this._internalMessageQueue.TryDequeue( out object? message )) {
+			if (message is SynchronizedEntity synchronizedEntity)
+				synchronizedEntity.Synchronize();
 			foreach (IMessageReadingComponent messageReader in this._messageReaders)
 				messageReader.ReadMessage( message );
+		}
 	}
 
 	internal void ReadExternalMessage( object message ) {
@@ -200,5 +202,34 @@ public sealed class Entity : Identifiable {
 	}
 
 	private void ComponentRequestsRemoval() => OnEntityShouldBeRemoved?.Invoke( this );
+
+	public EntitySerializationResult Serialize() {
+		Span<byte> initialBuffer = stackalloc byte[ 16 ];
+		MemoryMarshal.Write( initialBuffer, this.EntityId );
+		MemoryMarshal.Write( initialBuffer[ 8.. ], this.ParentId ?? Guid.Empty );
+		Segmenter segmenter = new( initialBuffer );
+		foreach (ComponentBase component in this._components.Values) {
+			if (component is ISerializableComponent serializableComponent) {
+				Guid guid = component.GetType().Resolve().Guid ?? throw new InvalidOperationException( $"Serializable component {component.GetType().Name} does not have a GUID." );
+				ThreadedByteBuffer buffer = ThreadedByteBuffer.GetBuffer( "ecs-comp" );
+				serializableComponent.Serialize( buffer );
+				using (var data = buffer.GetData())
+					segmenter.Append( data.Payload.Span );
+			}
+		}
+		return new EntitySerializationResult( segmenter.Flush() );
+	}
+
+	public void Deserialize( EntitySerializationResult result ) => Deserialize( result.Payload );
+
+	public void Deserialize( ReadOnlyMemory<byte> data ) {
+		Desegmenter desegmenter = new( data );
+		Span<byte> output = stackalloc byte[ desegmenter.RequiredSpanLength ];
+		int read = desegmenter.ReadInto( output );
+		if ( read != 16 )
+			throw new InvalidDataException( "Expected 16 bytes of data at the start of serialized entity data." );
+		this.EntityId = MemoryMarshal.Read<Guid>( output );
+		this.ParentId = MemoryMarshal.Read<Guid>( output[ 8.. ] );...
+	}
 
 }

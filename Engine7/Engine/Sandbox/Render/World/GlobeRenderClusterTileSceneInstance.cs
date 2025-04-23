@@ -29,9 +29,9 @@ public sealed class GlobeRenderClusterTileSceneInstance : SceneInstanceCollectio
 		if (!(_visibilityChanged || _needsMeshUpdate) || _renderCluster is null)
 			return;
 		//Update the instance.
-		SetActive( _renderCluster.IsVisible );
+		SetAllocated( _renderCluster.IsVisible );
 		_visibilityChanged = false;
-		if (Active && _needsMeshUpdate) {
+		if (Allocated && _needsMeshUpdate) {
 			UpdateMesh( meshProvider );
 			Write( new Entity2SceneData( Matrix4x4<float>.MultiplicativeIdentity, new( ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue ) ) );
 			_needsMeshUpdate = false;

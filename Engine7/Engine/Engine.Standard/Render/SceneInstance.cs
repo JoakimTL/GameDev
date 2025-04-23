@@ -9,7 +9,7 @@ public sealed class SceneInstance<TInstanceData>() : SceneInstanceBase( typeof( 
 	public new void SetMesh( IMesh? mesh ) => base.SetMesh( mesh );
 	public new void SetVertexArrayObject( OglVertexArrayObjectBase? vertexArrayObject ) => base.SetVertexArrayObject( vertexArrayObject );
 	public new void SetShaderBundle( ShaderBundleBase? shaderBundle ) => base.SetShaderBundle( shaderBundle );
-	public new void SetActive( bool active ) => base.SetActive( active );
+	public new void SetAllocated( bool allocated ) => base.SetAllocated( allocated );
 
 	public bool Write( TInstanceData data ) => Write<TInstanceData>( data );
 	public bool TryRead( out TInstanceData data ) => TryRead<TInstanceData>( out data );

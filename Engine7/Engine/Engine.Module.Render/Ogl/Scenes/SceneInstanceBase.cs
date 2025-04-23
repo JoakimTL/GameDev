@@ -28,7 +28,7 @@ public abstract class SceneInstanceBase(Type instanceType) : Identifiable, IRemo
 	/// <summary>
 	/// If true the instance will be rendered on screen. When an instance is inactive it loses it's instance data segment and is not rendered, but doesn't lose it's spot in the scene. This means it's much faster to reactivate than reinsert.
 	/// </summary>
-	public bool Active { get; private set; } = true;
+	public bool Allocated { get; private set; } = true;
 	public bool Removed { get; private set; } = false;
 
 	public Type InstanceDataType { get; } = instanceType;
@@ -54,9 +54,9 @@ public abstract class SceneInstanceBase(Type instanceType) : Identifiable, IRemo
 	/// </summary>
 	public event SceneInstancePropertyChangeHandler<uint>? OnLayerChanged;
 	/// <summary>
-	/// Called when the instance layer changes.
+	/// Called when the instance is allocated (<c>true</c>) or deallocated (<c>false</c>).
 	/// </summary>
-	public event SceneInstancePropertyChangeHandler<bool>? OnActiveChanged;
+	public event SceneInstancePropertyChangeHandler<bool>? OnAllocatedChanged;
 	/// <summary>
 	/// Called when the instance should be removed from all scenes.
 	/// </summary>
@@ -107,12 +107,12 @@ public abstract class SceneInstanceBase(Type instanceType) : Identifiable, IRemo
 		OnLayerChanged?.Invoke( this, oldLayer );
 	}
 
-	protected void SetActive(bool active) {
-		if (this.Active == active)
+	protected void SetAllocated(bool allocated) {
+		if (this.Allocated == allocated)
 			return;
-		this.Active = active;
+		this.Allocated = allocated;
 		UpdateValidity();
-		OnActiveChanged?.Invoke( this, !active );
+		OnAllocatedChanged?.Invoke( this, !allocated );
 	}
 
 	public void Remove() {
@@ -141,7 +141,7 @@ public abstract class SceneInstanceBase(Type instanceType) : Identifiable, IRemo
 		return this.InstanceDataSegment?.Read<ulong, TInstanceData>( 0, out data ) ?? false;
 	}
 
-	public bool MissingDataSegment => !Removed && Active && this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is null;
+	public bool MissingDataSegment => !Removed && Allocated && this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is null;
 
-	private void UpdateValidity() => this.Valid = !Removed && Active && this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is not null;
+	private void UpdateValidity() => this.Valid = !Removed && Allocated && this.VertexArrayObject is not null && this.ShaderBundle is not null && this.Mesh is not null && this.InstanceDataSegment is not null;
 }

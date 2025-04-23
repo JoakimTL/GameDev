@@ -87,6 +87,8 @@ public sealed class EntityContainer : DisposableIdentifiable {
 		int attemptNumber = 0;
 		do {
 			Guid guid = Guid.NewGuid();
+			if (guid == Guid.Empty)
+				continue;
 			if (!this._entitiesById.ContainsKey( guid ))
 				return guid;
 			++attemptNumber;

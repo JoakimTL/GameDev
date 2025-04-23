@@ -17,7 +17,7 @@ public sealed class TileRegionBorderContainer( RenderedFoundationTile tile, Scen
 		_currentLoD = _tile.LevelOfDetail;
 		if (_currentLoD < _tile.Tile.Layer + _tile.Tile.RemainingLayers) {
 			foreach (Line3Instance instance in _instances)
-				instance.SetActive( false );
+				instance.SetAllocated( false );
 			return;
 		}
 		//Update the instance.
@@ -56,7 +56,7 @@ public sealed class TileRegionBorderContainer( RenderedFoundationTile tile, Scen
 				Line3Instance instance;
 				if (_instances.Count > instanceIndex) {
 					instance = _instances[ instanceIndex ];
-					instance.SetActive( true );
+					instance.SetAllocated( true );
 				} else {
 					instance = _sceneInstanceCollection.Create<Line3Instance>();
 					instance.SetMesh( _lineMesh );

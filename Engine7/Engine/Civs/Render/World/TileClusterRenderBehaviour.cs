@@ -25,8 +25,8 @@ public sealed class TileClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 	public override void Update( double time, double deltaTime ) {
 		if (!RenderEntity.TryGetBehaviour( out ClusterVisibilityRenderBehaviour? visibilityBehaviour ))
 			return;
-		_sceneInstance.SetActive( visibilityBehaviour.IsVisible );
-		if (_sceneInstance.Active && _needsMeshUpdate) {
+		_sceneInstance.SetAllocated( visibilityBehaviour.IsVisible );
+		if (_sceneInstance.Allocated && _needsMeshUpdate) {
 			_sceneInstance.UpdateMesh( this.Archetype.ClusterComponent.Cluster.Tiles, RenderEntity.ServiceAccess.MeshProvider );
 			_sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
 			_needsMeshUpdate = false;

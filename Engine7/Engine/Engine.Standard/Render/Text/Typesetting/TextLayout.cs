@@ -110,13 +110,15 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 	private bool _needsUpdate;
 
 	public void Show() {
-		foreach (GlyphInstance instance in _glyphInstances)
-			instance.SetActive(true);
+		foreach (GlyphInstance instance in _glyphInstances) {
+			instance.SetAllocated( true );
+			instance.UpdateInstanceData();
+		}
 	}
 
 	public void Hide() {
 		foreach (GlyphInstance instance in _glyphInstances)
-			instance.SetActive(false);
+			instance.SetAllocated(false);
 	}
 
 	public void Update( double time, double deltaTime ) {
@@ -244,70 +246,6 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 
 			cursorY -= lineHeight;
 		}
-
-		////What scale do we work at?
-		////We have a text area, which confines the glyphs into a rectangle.
-		////We have a text scale, which scales the glyphs.
-
-		////We have rotation which rotates the text area.
-
-		////Let's start the cursor at the appropriate area within the text area...
-		////What does text scale mean?
-		////It can mean:
-		////1. The size of the text in screen space
-		////2. The size of the text in text area space
-		////	This would mean the text is scaled to fit the text area. A scale of 1 would look different depending on the size of the text area.
-		////	How would we then find the sceen space size of the glyph?
-		////		We could find the lowest length of the text area axis, and scale by that. This would mean 1/text scale glyphs would fit in the axis.
-
-		////How about we mulitply the cursor by the inverse of the text scale?
-
-		//float whitespaceSize = font[ ' ' ]?.Advance ?? throw new Exception( "Font does not contain whitespace." );
-		//float lineHeight = font.ScaledLineGap;
-
-		//Vector2<float> cursor = (_textArea.Minima.X, _textArea.Maxima.Y - lineHeight);
-		//int glyphIndex = 0;
-		//for (int i = 0; i < _text.Length; i++) {
-		//	char c = _text[ i ];
-		//	if (!IsGlyphed( c )) {
-		//		if (c == ' ') {
-		//			cursor += new Vector2<float>( whitespaceSize, 0 ) * realScale;
-		//		}
-		//		continue;
-		//	}
-
-		//	GlyphInstance instance = _glyphInstances[ glyphIndex ];
-		//	GlyphMesh? mesh = meshedFont[ c ];
-		//	instance.SetGlyphMesh( mesh );
-		//	glyphIndex++;
-		//	if (mesh is null)
-		//		continue;
-		//	Matrix4x4<float> modelMatrix = Matrix.Create4x4.RotationZ( _textRotation ) * Matrix.Create4x4.Scaling( realScale, realScale ) * Matrix.Create4x4.Translation( cursor + (mesh.GlyphDefinition.LeftSideBearing * realScale, 0) );
-		//	if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix, ushort.MaxValue ) ))
-		//		this.LogLine( "Failed to write instance data." );
-		//	cursor += new Vector2<float>( mesh.GlyphDefinition.Advance, 0 ) * realScale;
-		//}
-		////for (int i = 0; i < _glyphInstances.Count; i++) {
-		////	if (i >= _text.Length) {
-		////		_glyphInstances[ i ].Dispose();
-		////		continue;
-		////	}
-
-		////	GlyphInstance instance = _glyphInstances[ i ];
-		////	GlyphMesh? mesh = meshedFont[ _text[ i ] ];
-
-		////	if (mesh is null) {
-		////		x += SpaceSizeEM;
-		////		continue;
-		////	}
-
-		////	instance.SetGlyphMesh( mesh );
-		////	Matrix4x4<float> modelMatrix = (BaseMatrix?.Matrix ?? Matrix4x4<float>.MultiplicativeIdentity) * Matrix.Create4x4.Scaling( 1f / EmsPerLine, 1f / EmsPerLine ) * Matrix.Create4x4.Translation( (x + mesh.GlyphDefinition.LeftSideBearing) / EmsPerLine, 0 );
-		////	if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix ) ))
-		////		this.LogLine( "Failed to write instance data." );
-		////	x += mesh.GlyphDefinition.Advance;
-
-		////}
 	}
 
 }
