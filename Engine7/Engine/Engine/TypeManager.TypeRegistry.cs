@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
+using System.Security.AccessControl;
 
 namespace Engine;
 public sealed class TypeRegistry {
@@ -91,15 +92,26 @@ public sealed class TypeRegistry {
 	public IEnumerable<Type> GetAllSubclassesOfGenericType( Type genericType )
 		=> this.DerivedTypes.Where( p => HasSpecificBaseType( p, genericType ) && !p.IsAbstract );
 
-	private bool HasSpecificBaseType( Type inquiringType, Type baseType ) {
-		if (inquiringType.BaseType == null)
+	/// <summary>
+	/// Used when trying to find the specific generic argument types the implementation class is derived from.
+	/// </summary>
+	public Type[] GetGenericBaseTypeGenericArguments( Type implementationType, Type genericBaseType ) {
+		if (implementationType.BaseType == null)
+			return [];
+		if (!implementationType.BaseType.IsGenericType || implementationType.BaseType.GetGenericTypeDefinition() != genericBaseType)
+			return GetGenericBaseTypeGenericArguments( implementationType.BaseType, genericBaseType );
+		return implementationType.BaseType.GetGenericArguments();
+	}
+
+	private bool HasSpecificBaseType( Type implementationType, Type baseType ) {
+		if (implementationType.BaseType == null)
 			return false;
-		if (inquiringType.BaseType.IsGenericType) {
-			if (inquiringType.BaseType.GetGenericTypeDefinition() == baseType)
+		if (implementationType.BaseType.IsGenericType) {
+			if (implementationType.BaseType.GetGenericTypeDefinition() == baseType)
 				return true;
-		} else if (inquiringType.BaseType == baseType)
+		} else if (implementationType.BaseType == baseType)
 			return true;
-		return HasSpecificBaseType( inquiringType.BaseType, baseType );
+		return HasSpecificBaseType( implementationType.BaseType, baseType );
 	}
 
 }

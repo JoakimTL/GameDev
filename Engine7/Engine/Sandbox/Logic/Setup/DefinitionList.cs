@@ -32,7 +32,7 @@ public sealed class DefinitionList<TDefinition> where TDefinition : SelfIdentify
 
 	public uint Count => (uint) _definitions.Count;
 
-	public TDefinition? Get( uint memoryId ) 
+	public TDefinition? Get( uint memoryId )
 		=> memoryId >= _definitions.Count
 			? this.LogWarningThenReturnDefault<TDefinition>( $"Definition with memory id {memoryId} not found." )
 			: _definitions[ (int) memoryId ];

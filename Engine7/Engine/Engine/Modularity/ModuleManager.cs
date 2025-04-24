@@ -58,7 +58,7 @@ internal static class ModuleManager {
 				_moduleOverseers[ i ].PeriodChanged -= UpdatePeriod;
 				_moduleOverseers.RemoveAt( i );
 			}
-			if (_moduleOverseers.Count(p => p.Module.Important) == 0)
+			if (_moduleOverseers.Count( p => p.Module.Important ) == 0)
 				foreach (ModuleOverseer overseer in _moduleOverseers)
 					overseer.Module.Stop();
 			if (_moduleOverseers.Count == 0)

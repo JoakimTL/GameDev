@@ -1,6 +1,4 @@
-﻿using Engine.Algorithms;
-using Engine.Buffers;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
@@ -16,16 +14,15 @@ public sealed class Entity : Identifiable {
 	private readonly HashSet<IMessageReadingComponent> _messageReaders;
 	private readonly ConcurrentQueue<object> _internalMessageQueue;
 
+	public event ComponentChangeHandler? ComponentChanged;
 	public event ComponentListChangedHandler? ComponentAdded;
 	public event ComponentListChangedHandler? ComponentRemoved;
 	public event EntityRelationChangedHandler? ParentChanged;
 	public event Action<Entity>? OnEntityShouldBeRemoved;
-	private readonly ParentIdChanged _parentIdChangedDelegate;
+	private readonly ParentIdChanged? _parentIdChangedDelegate;
 
 	public event EntityArchetypeChangeHandler? ArchetypeAdded;
 	public event EntityArchetypeChangeHandler? ArchetypeRemoved;
-
-	public event Action<object>? OnMessageSent;
 
 	//RenderEntities must hold all serializable components and listen for componentchanged events from the original entity. That way it can serialize the original entity component and deserialize it into it's own and update render behaviours as a result.
 
@@ -35,7 +32,7 @@ public sealed class Entity : Identifiable {
 
 	internal ComponentBase GetComponent( Type t ) => this._components[ t ];
 
-	internal Entity( Guid entityId, ParentIdChanged parentIdChangedDelegate ) {
+	internal Entity( Guid entityId, ParentIdChanged? parentIdChangedDelegate ) {
 		this.EntityId = entityId;
 		this._parentIdChangedDelegate = parentIdChangedDelegate;
 		this.ParentId = null;
@@ -48,7 +45,7 @@ public sealed class Entity : Identifiable {
 
 	public void SetParent( Guid? parentId ) {
 		this.ParentId = parentId;
-		this._parentIdChangedDelegate( this );
+		this._parentIdChangedDelegate?.Invoke( this );
 	}
 
 	internal void SetParentInternal( Entity? parentEntity ) {
@@ -69,7 +66,7 @@ public sealed class Entity : Identifiable {
 		ArchetypeRemoved?.Invoke( archetype );
 	}
 
-	public List<ComponentBase> GetComponents() => [ .. this._components.Values ];
+	internal IReadOnlyDictionary<Type, ComponentBase> ComponentsWithKeys => this._components;
 
 	public IReadOnlyCollection<ArchetypeBase> CurrentArchetypes => this._archetypes.Values;
 
@@ -77,13 +74,24 @@ public sealed class Entity : Identifiable {
 		T component = new();
 		component.SetEntity( this );
 		componentInitialization?.Invoke( component );
-		this._components.Add( typeof( T ), component );
+		AddComponent( typeof( T ), component );
+		return component;
+	}
+
+	internal ComponentBase AddComponent( Type t ) {
+		ComponentBase component = t.CreateInstance( null ) as ComponentBase ?? throw new InvalidOperationException( $"Type {t.Name} is not a component." );
+		component.SetEntity( this );
+		AddComponent( t, component );
+		return component;
+	}
+
+	private void AddComponent( Type t, ComponentBase component ) {
+		this._components.Add( t, component );
 		if (component is IMessageReadingComponent messageReader)
 			this._messageReaders.Add( messageReader );
-		ComponentAdded?.Invoke( component );
-		CheckAndAddArchetypes( typeof( T ) );
+		ComponentAdded?.Invoke( this, component );
+		CheckAndAddArchetypes( t );
 		component.ComponentChanged += OnComponentChanged;
-		return component;
 	}
 
 	public bool HasComponent( Type t )
@@ -152,8 +160,18 @@ public sealed class Entity : Identifiable {
 		if (this._components.Remove( typeof( T ), out ComponentBase? component )) {
 			if (component is IMessageReadingComponent messageReader)
 				this._messageReaders.Remove( messageReader );
-			ComponentRemoved?.Invoke( component );
+			ComponentRemoved?.Invoke( this, component );
 			RemoveArchetypes( typeof( T ) );
+			component.ComponentChanged -= OnComponentChanged;
+		}
+	}
+
+	internal void RemoveComponent( Type t ) {
+		if (this._components.Remove( t, out ComponentBase? component )) {
+			if (component is IMessageReadingComponent messageReader)
+				this._messageReaders.Remove( messageReader );
+			ComponentRemoved?.Invoke( this, component );
+			RemoveArchetypes( t );
 			component.ComponentChanged -= OnComponentChanged;
 		}
 	}
@@ -175,14 +193,12 @@ public sealed class Entity : Identifiable {
 	}
 
 	private void OnComponentChanged( ComponentBase component ) {
-		if (component is ISerializableComponent serializableComponent) {
-
-		}
 		if (component is ICleanupController cleanupController)
 			if (cleanupController.ShouldBeRemoved) {
 				ComponentRequestsRemoval();
 				return;
 			}
+		ComponentChanged?.Invoke( component );
 	}
 
 	public void AddMessage( object message ) => this._internalMessageQueue.Enqueue( message );
@@ -202,34 +218,4 @@ public sealed class Entity : Identifiable {
 	}
 
 	private void ComponentRequestsRemoval() => OnEntityShouldBeRemoved?.Invoke( this );
-
-	public EntitySerializationResult Serialize() {
-		Span<byte> initialBuffer = stackalloc byte[ 16 ];
-		MemoryMarshal.Write( initialBuffer, this.EntityId );
-		MemoryMarshal.Write( initialBuffer[ 8.. ], this.ParentId ?? Guid.Empty );
-		Segmenter segmenter = new( initialBuffer );
-		foreach (ComponentBase component in this._components.Values) {
-			if (component is ISerializableComponent serializableComponent) {
-				Guid guid = component.GetType().Resolve().Guid ?? throw new InvalidOperationException( $"Serializable component {component.GetType().Name} does not have a GUID." );
-				ThreadedByteBuffer buffer = ThreadedByteBuffer.GetBuffer( "ecs-comp" );
-				serializableComponent.Serialize( buffer );
-				using (var data = buffer.GetData())
-					segmenter.Append( data.Payload.Span );
-			}
-		}
-		return new EntitySerializationResult( segmenter.Flush() );
-	}
-
-	public void Deserialize( EntitySerializationResult result ) => Deserialize( result.Payload );
-
-	public void Deserialize( ReadOnlyMemory<byte> data ) {
-		Desegmenter desegmenter = new( data );
-		Span<byte> output = stackalloc byte[ desegmenter.RequiredSpanLength ];
-		int read = desegmenter.ReadInto( output );
-		if ( read != 16 )
-			throw new InvalidDataException( "Expected 16 bytes of data at the start of serialized entity data." );
-		this.EntityId = MemoryMarshal.Read<Guid>( output );
-		this.ParentId = MemoryMarshal.Read<Guid>( output[ 8.. ] );...
-	}
-
 }

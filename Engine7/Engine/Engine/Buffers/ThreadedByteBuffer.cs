@@ -5,18 +5,21 @@ public class ThreadedByteBuffer {
 	[ThreadStatic]
 	private static Dictionary<string, ThreadedByteBuffer>? _buffers;
 
-	public static ThreadedByteBuffer GetBuffer(string bufferIdentity) {
+	public static ThreadedByteBuffer GetBuffer( string bufferIdentity ) {
 		_buffers ??= [];
 		if (!_buffers.TryGetValue( bufferIdentity, out ThreadedByteBuffer? buffer ))
-			_buffers[ bufferIdentity ] = buffer = new();
+			_buffers[ bufferIdentity ] = buffer = new( bufferIdentity );
 		buffer._internalBuffer.Clear();
 		return buffer;
 	}
 
 	private readonly List<byte> _internalBuffer;
 
-	public ThreadedByteBuffer() {
+	public string Identity { get; }
+
+	public ThreadedByteBuffer( string identity ) {
 		_internalBuffer = [];
+		this.Identity = identity;
 	}
 
 	public void Add( ReadOnlySpan<byte> bytes ) => _internalBuffer.AddRange( bytes );
@@ -25,9 +28,10 @@ public class ThreadedByteBuffer {
 	/// Remember to dispose of the data after use!
 	/// </summary>
 	/// <returns></returns>
-	public PooledBufferData GetData(int endPadding = 0) {
-		for (int i = 0; i < endPadding; i++)
-			_internalBuffer.Add( 0 );
-		return new( _internalBuffer );
+	public PooledBufferData GetData( bool reset = true ) {
+		PooledBufferData output = new( _internalBuffer );
+		if (reset)
+			_internalBuffer.Clear();
+		return output;
 	}
 }

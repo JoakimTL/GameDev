@@ -13,7 +13,7 @@ public sealed class MouseColliderProvider : DisposableIdentifiable, IRenderServi
 	public ConvexShapeBase<Vector2<double>, double> ColliderNDC => _colliderShapeNDC;
 	public ConvexShapeBase<Vector2<double>, double> ColliderNDCA => _colliderShapeNDCA;
 
-	public MouseColliderProvider( UserInputEventService userInputEventService, ProcessedMouseInputProvider processedMouseInputProvider) {
+	public MouseColliderProvider( UserInputEventService userInputEventService, ProcessedMouseInputProvider processedMouseInputProvider ) {
 		this._userInputEventService = userInputEventService;
 		this._processedMouseInputProvider = processedMouseInputProvider;
 		_colliderShapeNDC = new();

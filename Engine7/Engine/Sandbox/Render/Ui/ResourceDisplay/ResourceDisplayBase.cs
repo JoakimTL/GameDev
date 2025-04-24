@@ -9,11 +9,11 @@ public abstract class ResourceDisplayBase {
 
 	public int ResourceId { get; }
 
-	public abstract (string TexturePath, string Name, string Description) GetDisplayInfo(PlayerComponent player);
+	public abstract (string TexturePath, string Name, string Description) GetDisplayInfo( PlayerComponent player );
 }
 
 public sealed class IronOreDisplay : ResourceDisplayBase {
-	public IronOreDisplay() : base( 0x0001_0000 ) {	}
+	public IronOreDisplay() : base( 0x0001_0000 ) { }
 
 	public override (string TexturePath, string Name, string Description) GetDisplayInfo( PlayerComponent player ) {
 		//if (player.HasTechnology<Metallurgy>())

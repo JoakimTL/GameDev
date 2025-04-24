@@ -24,7 +24,7 @@ public abstract class DisposableIdentifiable : Identifiable, IListenableDisposab
 		}
 		if (InternalDispose()) {
 			this.Disposed = true;
-			OnDisposed?.Invoke(this);
+			OnDisposed?.Invoke( this );
 		}
 		GC.SuppressFinalize( this );
 	}

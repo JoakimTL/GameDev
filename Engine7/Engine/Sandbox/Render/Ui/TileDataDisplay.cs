@@ -23,7 +23,7 @@ public sealed class TileDataDisplay : UserInterfaceElementBase {
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		_lblTileName.Text = $"{GameStateProvider.Get<Tile>( "selectedTile" )?.Area:N5}km^2\n{GameStateProvider.Get<Tile>( "hoveringTile" )?.DataModel.GetData<TileResourceData>().Get("IRON_ORE")}";
+		_lblTileName.Text = $"{GameStateProvider.Get<Tile>( "selectedTile" )?.Area:N5}km^2\n{GameStateProvider.Get<Tile>( "hoveringTile" )?.DataModel.GetData<TileResourceData>().Get( "IRON_ORE" )}";
 	}
 
 	protected override bool ShouldDisplay() {

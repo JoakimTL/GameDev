@@ -1,59 +1,92 @@
-﻿using System.Collections.Concurrent;
+﻿using Engine.Buffers;
+using Engine.Serialization;
+using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 
 namespace Engine.Module.Entities.Container;
 
 //Listens to changes in the entity and reflects them onto itself. It is essentially a copy of the entity, but with no logic. This is to allow the render entity and its behaviours to determine the behaviour, but with the newest data from the entity at this frame.
-public sealed class SynchronizedEntity : IUpdateable {
+public sealed class SynchronizedEntity : DisposableIdentifiable {
 
-	private readonly Entity _entity;
-	private readonly Dictionary<Type, ComponentBase> _components;
-	private readonly Dictionary<Type, ArchetypeBase> _archetypes;
+	private readonly EntitySerializerPair _originalPair;
+	private EntitySerializerPair? _copyPair;
 
-	private readonly ConcurrentQueue<Type> _addedComponents;
+	private PooledBufferData? _synchronizationData;
+	private readonly ConcurrentQueue<PooledBufferData> _componentSerializationResults;
 	private readonly ConcurrentQueue<Type> _removedComponents;
-	private readonly ConcurrentQueue<ComponentSerializationResult> _componentSerializationResults;
-	private EntitySerializationResult? _entitySerializationResult;
 
-	public SynchronizedEntity(Entity entity) {
-		_entity = entity;
-		_components = [];
-		_archetypes = [];
-		_addedComponents = [];
+
+	public SynchronizedEntity( EntitySerializerPair original ) {
+		_originalPair = original;
+		_synchronizationData = null;
 		_removedComponents = [];
 		_componentSerializationResults = [];
-		_entity.ComponentAdded += OnComponentAdded;
-		_entity.ComponentRemoved += OnComponentRemoved;
 	}
 
-	public void Update( double time, double deltaTime ) {
-		while (_addedComponents.TryDequeue( out Type? addedComponentType )) {
-			if (!addedComponentType.IsAssignableTo(typeof(ISerializableComponent)) || _components.ContainsKey( addedComponentType ))
-				continue;
-			ComponentBase component = addedComponentType.Resolve().CreateInstance( null ) as ComponentBase ?? throw new InvalidOperationException( $"Failed to create instance of {addedComponentType.Name}." );
-			_components.Add( addedComponentType, component );
+	public Guid EntityId => _originalPair.Entity.EntityId;
+	public Entity? EntityCopy => _copyPair?.Entity;
+
+	//Called from other thread (render thread)
+	public void Initialize( SerializerProvider serializerProvider ) {
+		_copyPair = new( new( _originalPair.Entity.EntityId, null ), serializerProvider );
+	}
+
+	//Called from other thread (render thread)
+	public void Update() {
+		if (_copyPair is null || Disposed)
+			return;
+		if (_synchronizationData is not null) {
+			ISerializer? serializer = _copyPair.SerializerProvider.GetSerializerFor<Entity>() ?? throw new InvalidOperationException( "Serializer for Entity not found." );
+			serializer.DeserializeInto( _synchronizationData.Payload.Span, _copyPair.Entity );
+			_synchronizationData.Dispose();
+			_synchronizationData = null;
 		}
-		while (_removedComponents.TryDequeue( out Type? removedComponentType )) {
-			if (!_components.Remove( removedComponentType, out ComponentBase? component ))
-				continue;
-			component.Dispose();
+		while (_componentSerializationResults.TryDequeue( out PooledBufferData? componentSerializationData )) {
+			using (componentSerializationData) {
+				ISerializer? serializer = _copyPair.SerializerProvider.GetSerializerFor( MemoryMarshal.Read<Guid>( componentSerializationData.Payload.Span[ ^16.. ] ) );
+				if (serializer is null)
+					continue;
+				if (!_copyPair.Entity.TryGetComponent( serializer.Target, out ComponentBase? component ))
+					component = _copyPair.Entity.AddComponent( serializer.Target );
+				serializer.DeserializeInto( componentSerializationData.Payload.Span, component );
+				componentSerializationData.Dispose();
+			}
 		}
-		while (_componentSerializationResults.TryDequeue( out SerializationResult? serializationResult )) {
-			if (serializationResult is null)
-				continue;
-			serializationResult.Dispose();
-		}
+		while (_removedComponents.TryDequeue( out Type? removedComponentType ))
+			_copyPair.Entity.RemoveComponent( removedComponentType );
 	}
 
 	//Called from Entity
 	internal void Synchronize() {
-		_entitySerializationResult = _entity.Serialize();
+		ISerializer serializer = _originalPair.SerializerProvider.GetSerializerFor<Entity>() ?? throw new InvalidOperationException( "Serializer for Entity not found." );
+		_originalPair.Entity.ComponentAdded += OnComponentAdded;
+		_originalPair.Entity.ComponentChanged += OnComponentChanged;
+		_originalPair.Entity.ComponentRemoved += OnComponentRemoved;
+		ThreadedByteBuffer buffer = ThreadedByteBuffer.GetBuffer( "ecs-sync" );
+		serializer.SerializeInto( buffer, _originalPair.Entity );
+		_synchronizationData = buffer.GetData();
 	}
 
-	private void OnComponentAdded( ComponentBase component ) {
-		_addedComponents.Enqueue( component.GetType() );
+	//Called from Entity
+	private void OnComponentAdded( Entity entity, ComponentBase component ) => OnComponentChanged( component );
+
+	//Called from Entity
+	private void OnComponentChanged( ComponentBase component ) {
+		ISerializer? serializer = _originalPair.SerializerProvider.GetSerializerFor( component.GetType() );
+		if (serializer is null)
+			return;
+		ThreadedByteBuffer buffer = ThreadedByteBuffer.GetBuffer( "ecs-sync" );
+		serializer.SerializeInto( buffer, component );
+		_componentSerializationResults.Enqueue( buffer.GetData() );
 	}
 
-	private void OnComponentRemoved( ComponentBase component ) {
-		_removedComponents.Enqueue( component.GetType() );
+	//Called from Entity
+	private void OnComponentRemoved( Entity entity, ComponentBase component ) => _removedComponents.Enqueue( component.GetType() );
+
+	protected override bool InternalDispose() {
+		_originalPair.Entity.ComponentAdded -= OnComponentAdded;
+		_originalPair.Entity.ComponentChanged -= OnComponentChanged;
+		_originalPair.Entity.ComponentRemoved -= OnComponentRemoved;
+		return true;
 	}
 }

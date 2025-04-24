@@ -6,7 +6,7 @@ namespace Engine.Algorithms.Triangulation;
 
 public sealed class Delaunator<TScalar, TFloatingScalar> : Identifiable
 	where TScalar : unmanaged, INumber<TScalar>
-	where TFloatingScalar : unmanaged, IFloatingPointIeee754<TFloatingScalar>{
+	where TFloatingScalar : unmanaged, IFloatingPointIeee754<TFloatingScalar> {
 
 	private readonly List<Vector2<TScalar>> _points;
 	private readonly Queue<Vector2<TScalar>> _processQueue;
@@ -45,13 +45,13 @@ public sealed class Delaunator<TScalar, TFloatingScalar> : Identifiable
 		this._triangles.Add( this._superTriangle );
 	}
 
-	public TriangulationConstrainer<TScalar, TFloatingScalar> CreateConstrainer(Span<Edge2<TScalar>> edges) => new( this, edges );
+	public TriangulationConstrainer<TScalar, TFloatingScalar> CreateConstrainer( Span<Edge2<TScalar>> edges ) => new( this, edges );
 
 	/// <returns>True if there are no more points to process.</returns>
 	public bool Process() {
 		if (this._isFinished)
 			return true;
-		if (!this._processQueue.TryDequeue( out Vector2<TScalar> point )){
+		if (!this._processQueue.TryDequeue( out Vector2<TScalar> point )) {
 			this._isFinished = true;
 			this._triangles.RemoveAll( t => t.HasVertex( this._superTriangle.A ) || t.HasVertex( this._superTriangle.B ) || t.HasVertex( this._superTriangle.C ) );
 			return true;

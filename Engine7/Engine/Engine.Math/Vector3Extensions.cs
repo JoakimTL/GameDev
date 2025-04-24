@@ -8,7 +8,7 @@ public static class Vector3Extensions {
 			unmanaged, INumber<TScalar>
 		=> l.Wedge( r ) * -Trivector3<TScalar>.One;
 
-	public static Vector2<TScalar> ToNormalizedPolar<TScalar>(in this Vector3<TScalar> vector )
+	public static Vector2<TScalar> ToNormalizedPolar<TScalar>( in this Vector3<TScalar> vector )
 		where TScalar :
 			unmanaged, IFloatingPointIeee754<TScalar> {
 		Vector3<TScalar> vNormalized = vector.Normalize<Vector3<TScalar>, TScalar>();

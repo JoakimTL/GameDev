@@ -20,5 +20,5 @@ public abstract class Identifiable {
 
 	public override bool Equals( object? obj ) => obj is Identifiable identifiable && identifiable.UniqueId == this.UniqueId;
 	public override int GetHashCode() => this._hashCode;
-	public override string ToString() => $"{GetType().Name.GetUpperCaseLettersOnly(2)}|{this.Nickname}#{this.UniqueId}";
+	public override string ToString() => $"{GetType().Name.GetUpperCaseLettersOnly( 2 )}|{this.Nickname}#{this.UniqueId}";
 }

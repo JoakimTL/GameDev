@@ -55,7 +55,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 			return;
 		}
 		if (message.Content is CreateNewOwnerMessage createNewOwnerMessage) {
-			var currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( createNewOwnerMessage.Tile ) );
+			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( createNewOwnerMessage.Tile ) );
 			if (currentOwner is not null) {
 				TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
 				toc.RemoveTile( createNewOwnerMessage.Tile );
@@ -65,17 +65,17 @@ public sealed class CivsGameLogicModule : ModuleBase {
 				}
 			}
 			{
-				var newOwner = _entities.CreateEntity();
+				Entity newOwner = _entities.CreateEntity();
 				newOwner.AddComponent<PopulationCenterComponent>();
 				newOwner.AddComponent<TileOwnershipRenderComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
-				var toc = newOwner.AddComponent<TileOwnershipComponent>();
+				TileOwnershipComponent toc = newOwner.AddComponent<TileOwnershipComponent>();
 				toc.AddTile( createNewOwnerMessage.Tile );
 				newOwner.AddComponent<RenderComponent>();
 				_populationCenters.Add( newOwner );
 			}
 		}
 		if (message.Content is RemoveOwnerMessage removeOwnerMessage) {
-			var currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( removeOwnerMessage.Tile ) );
+			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( removeOwnerMessage.Tile ) );
 			if (currentOwner is not null) {
 				TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
 				toc.RemoveTile( removeOwnerMessage.Tile );
@@ -86,9 +86,9 @@ public sealed class CivsGameLogicModule : ModuleBase {
 			}
 		}
 		if (message.Content is SetNeighbourOwnerMessage setNeighbourOwnerMessage) {
-			var otherTile = setNeighbourOwnerMessage.Tile.Edges[ setNeighbourOwnerMessage.Index ].Tiles.First( p => p != setNeighbourOwnerMessage.Tile );
-			var currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( setNeighbourOwnerMessage.Tile ) );
-			var newOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( otherTile ) );
+			Tile otherTile = setNeighbourOwnerMessage.Tile.Edges[ setNeighbourOwnerMessage.Index ].Tiles.First( p => p != setNeighbourOwnerMessage.Tile );
+			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( setNeighbourOwnerMessage.Tile ) );
+			Entity? newOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( otherTile ) );
 			if (newOwner is null)
 				return;
 			if (currentOwner is not null) {

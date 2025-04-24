@@ -36,7 +36,7 @@ public sealed class UserInterfaceRenderPipeline( SceneService sceneService, Data
 		_dataBlockCollection = new( _uiSceneCamera );
 		_framebuffer = _framebufferStateService.CreateAutoscalingFramebuffer( _windowService.Window, 1 );
 		_framebufferGenerator = new( _framebuffer );
-		_framebufferGenerator.AddTexture(FramebufferAttachment.ColorAttachment0, dimensions => new OglMultisampledTexture( "uiFramebufferColor", TextureTarget.Texture2dMultisample, dimensions, 4, InternalFormat.Rgba8, true ) );
+		_framebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglMultisampledTexture( "uiFramebufferColor", TextureTarget.Texture2dMultisample, dimensions, 4, InternalFormat.Rgba8, true ) );
 
 		_displayedFramebuffer = _framebufferStateService.CreateAutoscalingFramebuffer( _windowService.Window, 1 );
 		_displayedFramebufferGenerator = new( _displayedFramebuffer );

@@ -11,7 +11,8 @@ public sealed class EntityContainerArchetypeManager {
 	public EntityContainerArchetypeManager( EntityContainer container ) {
 		this._container = container;
 		this._archetypeDataByArchetypeType = [];
-		this._container.CreateListChangeHandler( OnEntityAdded, OnEntityRemoved );
+		this._container.OnEntityAdded += OnEntityAdded;
+		this._container.OnEntityRemoved += OnEntityRemoved;
 	}
 
 	private void OnEntityAdded( Entity entity ) {

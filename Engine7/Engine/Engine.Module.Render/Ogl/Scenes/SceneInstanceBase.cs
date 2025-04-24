@@ -4,7 +4,7 @@ using Engine.Module.Render.Ogl.OOP.VertexArrays;
 
 namespace Engine.Module.Render.Ogl.Scenes;
 
-public abstract class SceneInstanceBase(Type instanceType) : Identifiable, IRemovable {
+public abstract class SceneInstanceBase( Type instanceType ) : Identifiable, IRemovable {
 
 	public delegate void SceneInstanceBindIndexChangeHandler( SceneInstanceBase changedInstance, ulong? oldBindIndex );
 	public delegate void SceneInstancePropertyChangeHandler<T>( SceneInstanceBase changedInstance, T? oldValue );
@@ -107,7 +107,7 @@ public abstract class SceneInstanceBase(Type instanceType) : Identifiable, IRemo
 		OnLayerChanged?.Invoke( this, oldLayer );
 	}
 
-	protected void SetAllocated(bool allocated) {
+	protected void SetAllocated( bool allocated ) {
 		if (this.Allocated == allocated)
 			return;
 		this.Allocated = allocated;

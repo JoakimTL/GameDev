@@ -15,5 +15,5 @@ public enum PhenotypicCategory : byte {
 	Polynesian,             // Brown skin, large builds, straight hair
 	NativeNorthAmerican,    // Broad cheekbones, straight black hair, tan to reddish skin
 	MesoAmerican,           // Medium brown skin, straight black hair, prominent cheekbones, shorter stature; common in regions like ancient Maya and Aztec civilizations
-	NativeSouthAmerican		// Light to medium brown skin, flatter noses, wide faces, and smaller builds; common in Andean and Amazonian populations like Quechua, Aymara, and Yanomami
+	NativeSouthAmerican     // Light to medium brown skin, flatter noses, wide faces, and smaller builds; common in Andean and Amazonian populations like Quechua, Aymara, and Yanomami
 }

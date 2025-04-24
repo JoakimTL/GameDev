@@ -38,7 +38,7 @@ public sealed class OldFontGlyph : Identifiable, IOldGlyph {
 	public IReadOnlyList<(Vector2<int> coordinate, bool onCurve)> Points => this._originalPoints;
 
 	public OldFontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector2<int> coordinate, bool onCurve)[] points, ushort[] endPointsOfContours, ushort unitsPerEm ) {
-		Nickname = $"[{(char)mapping.Unicode},{mapping.Unicode}]";
+		Nickname = $"[{(char) mapping.Unicode},{mapping.Unicode}]";
 		this.Header = header;
 		this.Mapping = mapping;
 		this._originalEndPointsOfContours = endPointsOfContours;
@@ -72,7 +72,7 @@ public sealed class OldFontGlyph : Identifiable, IOldGlyph {
 					contourPoints.Add( impliedPoint );
 					allPoints.Add( impliedPoint );
 				}
-				
+
 				{
 					OldContourPoint point = new( points[ j ].coordinate, points[ j ].onCurve, false, i, pointIndex++ );
 					contourPoints.Add( point );

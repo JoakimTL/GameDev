@@ -81,6 +81,6 @@ public static class EarClipping {
 		TFloatingScalar area2 = TFloatingScalar.Abs( CrossProduct( point.CastSaturating<TScalar, TFloatingScalar>(), b.CastSaturating<TScalar, TFloatingScalar>(), c.CastSaturating<TScalar, TFloatingScalar>() ) );
 		TFloatingScalar area3 = TFloatingScalar.Abs( CrossProduct( point.CastSaturating<TScalar, TFloatingScalar>(), c.CastSaturating<TScalar, TFloatingScalar>(), a.CastSaturating<TScalar, TFloatingScalar>() ) );
 
-		return TFloatingScalar.Abs( area - (area1 + area2 + area3) ) < TFloatingScalar.CreateSaturating(0.0001);
+		return TFloatingScalar.Abs( area - (area1 + area2 + area3) ) < TFloatingScalar.CreateSaturating( 0.0001 );
 	}
 }

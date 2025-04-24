@@ -1,4 +1,5 @@
 ﻿using Engine.Modularity;
+using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Messages;
 
 namespace Engine.Standard.Render.Entities.Services;
@@ -9,17 +10,17 @@ public class RenderBehaviourEntityContainerEventReceiverService : DisposableIden
 	private readonly RenderEntityContainerService _renderEntityContainerService;
 
 	public RenderBehaviourEntityContainerEventReceiverService( RenderEntityContainerService renderEntityContainerService ) {
-		this._messageBusNode = MessageBus.CreateNode("render_ecs");
+		this._messageBusNode = MessageBus.CreateNode( "render_ecs" );
 		this._messageBusNode.OnMessageReceived += OnMessageReceived;
 		this._renderEntityContainerService = renderEntityContainerService;
-		this._messageBusNode.Publish( new EntityContainerListRequest(), null );
+		this._messageBusNode.Publish( new SynchronizedEntityContainerListRequestMessage(), null );
 	}
 
 	private void OnMessageReceived( Message obj ) {
-		if (obj.Content is EntityContainerCreatedEvent entityContainerCreatedEvent)
-			this._renderEntityContainerService.RegisterEntityContainer( entityContainerCreatedEvent.EntityContainer );
-		if (obj.Content is EntityContainerRequestResponse entityContainerRequestResponse)
-			this._renderEntityContainerService.RegisterEntityContainer( entityContainerRequestResponse.EntityContainer );
+		if (obj.Sender is not null && obj.Content is EntityContainerCreatedEventMessage entityContainerCreatedEvent)
+			_messageBusNode.SendMessageTo(obj.Sender, new SynchronizedEntityContainerRequestMessage(entityContainerCreatedEvent.EntityContainer ) );
+		if (obj.Content is SynchronizedEntityContainerRequestMessageResponse entityContainerRequestResponse)
+			this._renderEntityContainerService.RegisterEntityContainer( entityContainerRequestResponse.EntityContainerSynchronizer );
 	}
 
 	public void Update( double time, double deltaTime ) {

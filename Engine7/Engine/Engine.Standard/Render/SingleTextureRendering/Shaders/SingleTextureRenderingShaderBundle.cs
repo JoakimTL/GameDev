@@ -5,6 +5,6 @@ namespace Engine.Standard.Render.SingleTextureRendering.Shaders;
 
 public sealed class SingleTextureRenderingShaderBundle : ShaderBundleBase {
 	protected override void AddPipelines( ShaderPipelineService pipelineService ) {
-		AddPipeline( "default",  pipelineService.Get<SingleTextureRenderingShaderPipeline>() );
+		AddPipeline( "default", pipelineService.Get<SingleTextureRenderingShaderPipeline>() );
 	}
 }

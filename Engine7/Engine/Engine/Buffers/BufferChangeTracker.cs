@@ -42,7 +42,7 @@ public sealed class BufferChangeTracker<THostBuffer, THostScalar> : DisposableId
 
 		for (int i = 1; i < this._changes.Count; i++) {
 			ChangedSection change = this._changes[ i ];
-			if (change.OffsetBytes > offset + size + this._minimumHoleSizeBytes ) {
+			if (change.OffsetBytes > offset + size + this._minimumHoleSizeBytes) {
 				outputContainer.Add( new ChangedSection( offset, size ) );
 				offset = change.OffsetBytes;
 				size = change.SizeBytes;

@@ -7,7 +7,7 @@ using Engine.Standard.Render.UserInterface.Standard;
 
 namespace Civs.Render.Ui;
 
-public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithMessageNodeBase("ui_debug_popcenter") {
+public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithMessageNodeBase( "ui_debug_popcenter" ) {
 
 	private Label _ownerLabel = null!;
 	private Button[] _setNeighbourOwner = null!;
@@ -53,21 +53,21 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	}
 
 	private void OnSetNeighbourToOwner( int i ) {
-		var selectedTile = GameStateProvider.Get<Tile>( "selectedTile" );
+		Tile? selectedTile = GameStateProvider.Get<Tile>( "selectedTile" );
 		if (selectedTile is null)
 			throw new InvalidOperationException( "No tile selected" );
 		this.MessageBusNode.Publish( new SetNeighbourOwnerMessage( selectedTile, i ), "gamelogic" );
 	}
 
 	private void OnRemoveOwner() {
-		var selectedTile = GameStateProvider.Get<Tile>( "selectedTile" );
+		Tile? selectedTile = GameStateProvider.Get<Tile>( "selectedTile" );
 		if (selectedTile is null)
 			throw new InvalidOperationException( "No tile selected" );
 		this.MessageBusNode.Publish( new RemoveOwnerMessage( selectedTile ), "gamelogic" );
 	}
 
 	private void OnNewOwnerClicked() {
-		var selectedTile = GameStateProvider.Get<Tile>( "selectedTile" );
+		Tile? selectedTile = GameStateProvider.Get<Tile>( "selectedTile" );
 		if (selectedTile is null)
 			throw new InvalidOperationException( "No tile selected" );
 		this.MessageBusNode.Publish( new CreateNewOwnerMessage( selectedTile ), "gamelogic" );

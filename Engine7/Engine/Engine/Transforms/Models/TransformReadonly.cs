@@ -2,7 +2,7 @@
 
 namespace Engine.Transforms.Models;
 
-public sealed class TransformReadonly<TScalar, TTranslation, TRotation, TScale>( TransformBase<TScalar, TTranslation, TRotation, TScale> transform ) : TransformAccessBase<TScalar, TTranslation, TRotation, TScale>(transform)
+public sealed class TransformReadonly<TScalar, TTranslation, TRotation, TScale>( TransformBase<TScalar, TTranslation, TRotation, TScale> transform ) : TransformAccessBase<TScalar, TTranslation, TRotation, TScale>( transform )
 	where TScalar : unmanaged, INumber<TScalar>
 	where TTranslation : unmanaged
 	where TRotation : unmanaged

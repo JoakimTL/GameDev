@@ -116,7 +116,7 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 		this._indirectCommandProviders.Remove( indirectCommandProvider );
 		OnChanged?.Invoke();
 	}
-	
+
 	private void OnInstanceRemoval( IRemovable removable ) => RemoveInstance( (SceneInstanceBase) removable );
 
 	//If the layer of a scene instance changes, we know the scene instance is no longer compatible.
@@ -131,7 +131,7 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 	protected override bool InternalDispose() {
 		foreach (SceneObject sceneObject in this._sceneObjectsByBindIndex.Values)
 			sceneObject.Dispose();
-		var removableIndirectCommandProviders = this._indirectCommandProviders.AsReadOnly().OfType<IRemovable>().ToArray();
+		IRemovable[] removableIndirectCommandProviders = this._indirectCommandProviders.AsReadOnly().OfType<IRemovable>().ToArray();
 		foreach (IRemovable removable in removableIndirectCommandProviders)
 			removable.Remove();
 		this._indirectCommandProviders.Clear();

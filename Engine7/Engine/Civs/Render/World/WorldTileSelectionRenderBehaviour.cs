@@ -36,7 +36,7 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		var globe = Archetype.GlobeComponent.Globe;
+		Globe? globe = Archetype.GlobeComponent.Globe;
 		if (!_changed || globe is null)
 			return;
 		_changed = false;
@@ -53,7 +53,7 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
 		AABB<Vector3<float>> bounds = globe.ClusterBounds.MoveBy( intersectionPoint ).ScaleBy( 0.25f );
-		foreach (var cluster in globe.Clusters.Where( p => p.Bounds.Intersects( bounds ) )) {
+		foreach (BoundedTileEdgeCluster? cluster in globe.Clusters.Where( p => p.Bounds.Intersects( bounds ) )) {
 			foreach (Tile tile in cluster.Tiles) {
 				if (!RayIntersectsTriangle( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, tile.VectorA, tile.VectorB, tile.VectorC, out _ ))
 					continue;

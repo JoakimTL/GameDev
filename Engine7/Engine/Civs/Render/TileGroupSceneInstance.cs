@@ -36,7 +36,7 @@ public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity
 
 		return meshProvider.CreateMesh( vertices.ToArray(), [ .. indices ] );
 	}
-	public new void SetAllocated(bool allocated) => base.SetAllocated( allocated );
+	public new void SetAllocated( bool allocated ) => base.SetAllocated( allocated );
 	public new void SetVertexArrayObject( OglVertexArrayObjectBase? vertexArrayObject ) => base.SetVertexArrayObject( vertexArrayObject );
 	public new void SetShaderBundle( ShaderBundleBase? shaderBundle ) => base.SetShaderBundle( shaderBundle );
 

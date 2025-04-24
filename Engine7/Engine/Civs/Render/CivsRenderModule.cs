@@ -37,7 +37,7 @@ public sealed class CivsRenderModule : RenderModuleBase {
 	}
 
 	private void MessageReceived( Message message ) {
-		if ( message.Content is ExitGameMessage) {
+		if (message.Content is ExitGameMessage) {
 			InstanceProvider.Get<ContextManagementService>().CloseAll();
 		}
 	}

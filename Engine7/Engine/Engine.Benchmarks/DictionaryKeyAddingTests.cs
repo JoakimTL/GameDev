@@ -5,16 +5,16 @@ namespace Engine.Benchmarks;
 [MemoryDiagnoser]
 public class DictionaryKeyAddingTests {
 
-	private Dictionary<int, string> _intKey;
-	private Dictionary<long, string> _longKey;
-	private Dictionary<string, string> _stringKey;
-	private Dictionary<Type, string> _typeKey;
-	private Dictionary<Guid, string> _guidKey;
-	private int[] _intsToAdd;
-	private long[] _longsToAdd;
-	private string[] _stringsToAdd;
-	private Type[] _typesToAdd;
-	private Guid[] _guidsToAdd;
+	private Dictionary<int, string> _intKey = null!;
+	private Dictionary<long, string> _longKey = null!;
+	private Dictionary<string, string> _stringKey = null!;
+	private Dictionary<Type, string> _typeKey = null!;
+	private Dictionary<Guid, string> _guidKey = null!;
+	private int[] _intsToAdd = null!;
+	private long[] _longsToAdd = null!;
+	private string[] _stringsToAdd = null!;
+	private Type[] _typesToAdd = null!;
+	private Guid[] _guidsToAdd = null!;
 
 	[GlobalSetup]
 	public void Setup() {

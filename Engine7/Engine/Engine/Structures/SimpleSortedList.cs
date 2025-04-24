@@ -2,21 +2,6 @@
 
 namespace Engine.Structures;
 
-//public ref struct SpanSet<T>(Span<T> underlyingSpan ) where T : unmanaged {
-//	public readonly Span<T> Span = underlyingSpan;
-
-//	public void Add( T item ) {
-
-//	}
-
-//	public bool Contains( T item ) {
-
-//	}
-
-//	public bool Remove( T item ) {
-
-//	}
-//}
 public class SimpleSortedList<T>() where T : IComparable<T> {
 
 	private readonly List<T> _underlying = [];
@@ -42,7 +27,6 @@ public class SimpleSortedList<T>() where T : IComparable<T> {
 	public void Remove( T item ) {
 		if (this.Count == 0) {
 			throw new InvalidOperationException( "Cannot remove from an empty list." );
-			return;
 		}
 		int index = FindIndex( 0, this._underlying.Count, item );
 		if (index < 0 || index >= this._underlying.Count)

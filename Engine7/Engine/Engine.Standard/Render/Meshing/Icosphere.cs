@@ -77,10 +77,10 @@ public sealed class Icosphere {
 		int m1 = GetMidpoint( indexA, indexB );
 		int m2 = GetMidpoint( indexB, indexC );
 		int m3 = GetMidpoint( indexC, indexA );
-		return [ 
-			indexA, (uint) m1, (uint) m3, 
-			indexB, (uint) m2, (uint) m1, 
-			indexC, (uint) m3, (uint) m2, 
+		return [
+			indexA, (uint) m1, (uint) m3,
+			indexB, (uint) m2, (uint) m1,
+			indexC, (uint) m3, (uint) m2,
 			(uint) m1, (uint) m2, (uint) m3 ];
 	}
 }

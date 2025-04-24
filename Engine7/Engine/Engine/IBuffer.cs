@@ -62,7 +62,7 @@ public interface IWritableBuffer<TScalar> : IBuffer<TScalar> where TScalar : unm
 }
 
 public interface ICopyableBuffer<TScalar> {
-	bool CopyTo<TRecipientScalar>( IWritableBuffer<TRecipientScalar> recipient, TScalar srcOffsetBytes, TRecipientScalar dstOffsetBytes, TRecipientScalar bytesToCopy ) 
+	bool CopyTo<TRecipientScalar>( IWritableBuffer<TRecipientScalar> recipient, TScalar srcOffsetBytes, TRecipientScalar dstOffsetBytes, TRecipientScalar bytesToCopy )
 		where TRecipientScalar : unmanaged, IBinaryInteger<TRecipientScalar>, IUnsignedNumber<TRecipientScalar>;
 	bool Overwrite<TRecipientScalar>( IWriteResizableBuffer<TRecipientScalar> recipient, TScalar srcOffsetBytes, TRecipientScalar bytesToCopy )
 		where TRecipientScalar : unmanaged, IBinaryInteger<TRecipientScalar>, IUnsignedNumber<TRecipientScalar>;

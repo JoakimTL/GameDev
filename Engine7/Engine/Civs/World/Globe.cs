@@ -62,7 +62,7 @@ public sealed unsafe class Globe : DisposableIdentifiable {
 		foreach ((IReadOnlyBranch<Tile, float>, IReadOnlyBranch<Edge, float>) pair in pairs)
 			_clusters.Add( new( pair.Item1.BranchBounds, [ .. pair.Item1.Contents ], [ .. pair.Item2.Contents ] ) );
 
-		ClusterBounds = new Vector3<float>().CreateBounds(_clusters.First().Bounds.GetLengths() * 0.5f);
+		ClusterBounds = new Vector3<float>().CreateBounds( _clusters.First().Bounds.GetLengths() * 0.5f );
 
 		GenerateLandmass( 42, heightspanMeters, sealevel );
 
@@ -99,7 +99,7 @@ public sealed unsafe class Globe : DisposableIdentifiable {
 			bool isLand = landmassN > 0.73f;
 
 			float n = (coarseHeightNoise.Noise( center ) * 0.9f + fineHeightNoise.Noise( center ) * 0.1f) * (coarseHeightNoise2.Noise( center ) * 0.7f + fineHeightNoise2.Noise( center ) * 0.3f);
-			float rN = 1 - (voronoiRidgeNoise.Noise( center ) * 0.85f + voronoiRidgeNoiseFine.Noise( center ) * 0.15f);
+			float rN = voronoiRidgeNoise.Noise( center ) * 0.85f + voronoiRidgeNoiseFine.Noise( center ) * 0.15f;
 			n *= rN;
 
 			if (isLand) {
@@ -168,6 +168,6 @@ public abstract class TerrainTypeBase {
 public sealed class OceanTerrain() : TerrainTypeBase( 0, (0.07F, 0.47F, 0.97F, 1) ) {
 
 }
-public sealed class GrasslandTerrain() : TerrainTypeBase( 1, (0.47F, 0.99F, 0.17F, 1)) {
+public sealed class GrasslandTerrain() : TerrainTypeBase( 1, (0.47F, 0.99F, 0.17F, 1) ) {
 
 }

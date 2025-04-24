@@ -110,8 +110,8 @@ public sealed class FramebufferStateService( ViewportStateService viewport ) : I
 public sealed class Temporary_TextureAssetService {
 	private readonly Dictionary<string, OglTexture> _textures = [];
 
-	public event Action? TextureAdded;
-	public event Action? TextureRemoved;
+	//public event Action? TextureAdded;
+	//public event Action? TextureRemoved;
 
 	public OglTexture Get( string path ) {
 		if (_textures.TryGetValue( path, out OglTexture? texture ))
@@ -155,7 +155,7 @@ public sealed class Temporary_TextureAssetService {
 public sealed class TextureAssetProvider( Temporary_TextureAssetService textureAssetService ) : IRenderServiceProvider {
 	private readonly Temporary_TextureAssetService _textureAssetService = textureAssetService;
 
-	public OglTexture Get( string name ) => _textureAssetService.Get( Path.Combine( "assets\\textures", $"{name}.png" ));
+	public OglTexture Get( string name ) => _textureAssetService.Get( Path.Combine( "assets\\textures", $"{name}.png" ) );
 }
 
 public sealed class TextureShaderStorageService {

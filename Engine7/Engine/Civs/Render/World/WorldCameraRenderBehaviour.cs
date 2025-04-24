@@ -8,7 +8,7 @@ using Engine.Transforms.Camera;
 namespace Civs.Render.World;
 public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<WorldArchetype> {
 
-		private Vector2<float> _polarCoordinate = (0, 0);
+	private Vector2<float> _polarCoordinate = (0, 0);
 	private Vector2<float> _velocity;
 	private float _zoom = 2;
 	private float _zoomVelocity;
@@ -46,7 +46,7 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 	}
 
 	private void OnMouseWheelScrolled( MouseWheelEvent @event ) {
-		_zoomVelocity = (float) -@event.Movement.Y * (float.Exp( float.Min( float.Max(_zoom * 2 - 3f, -0.95f), float.E ) ) - .15f);
+		_zoomVelocity = (float) -@event.Movement.Y * (float.Exp( float.Min( float.Max( _zoom * 2 - 3f, -0.95f ), float.E ) ) - .15f);
 	}
 
 	private void OnKey( KeyboardEvent @event ) {

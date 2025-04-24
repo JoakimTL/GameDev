@@ -10,6 +10,7 @@ public sealed class PooledBufferData : IDisposable {
 		_memoryOwner = MemoryPool<byte>.Shared.Rent( data.Count );
 		_lengthBytes = data.Count;
 		data.CopyTo( _memoryOwner.Memory.Span );
+		this.Payload = _memoryOwner.Memory[ .._lengthBytes ];
 	}
 
 	public PooledBufferData( int lengthBytes ) {

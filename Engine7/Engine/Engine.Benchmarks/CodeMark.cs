@@ -6,7 +6,7 @@ namespace Engine.Benchmarks;
 public class CodeMark {
 
 	private int _lastInt;
-	private string[] _codesToIntify;
+	private string[] _codesToIntify = null!;
 
 	[GlobalSetup]
 	public void Setup() {

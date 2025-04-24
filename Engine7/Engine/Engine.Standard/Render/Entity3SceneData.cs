@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace Engine.Standard.Render;
 
-[ Identity( nameof( Entity3SceneData ) )]
+[Identity( nameof( Entity3SceneData ) )]
 [VAO.Setup( 0, 1, 0 ), StructLayout( LayoutKind.Explicit, Pack = 1 )]
 public readonly struct Entity3SceneData( Matrix4x4<float> modelMatrix, Vector4<ushort> color ) {
 	[VAO.Data( VertexAttribType.Float, 16 ), FieldOffset( 0 )]

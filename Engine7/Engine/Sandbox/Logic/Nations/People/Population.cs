@@ -49,5 +49,5 @@ public sealed class Population {
 
 
 public sealed class PoliticalSubCensus {
-	private readonly Dictionary<PoliticalParty, uint> _populationByParty;
+	private readonly Dictionary<PoliticalParty, uint> _populationByParty = [];
 }

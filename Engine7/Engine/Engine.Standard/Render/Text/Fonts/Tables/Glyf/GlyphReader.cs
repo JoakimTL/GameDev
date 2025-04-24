@@ -26,7 +26,7 @@ public sealed class GlyphReader {
 		caret.GoTo( _glyfTableHeader.Offset );
 		caret.MoveCaretBy( (int) _locaTable.GlyphLocationOffsetBytes[ (int) glyphIndex ] );
 
-		FontGlyphHeader header = new(caret.Read<short>(), caret.Read<short>(), caret.Read<short>(), caret.Read<short>(), caret.Read<short>() );
+		FontGlyphHeader header = new( caret.Read<short>(), caret.Read<short>(), caret.Read<short>(), caret.Read<short>(), caret.Read<short>() );
 		if (!_cmapTable.GlyphMapByGlyphIndex.TryGetValue( glyphIndex, out GlyphMap glyphMap ))
 			glyphMap = new GlyphMap( glyphIndex, 65535 );
 

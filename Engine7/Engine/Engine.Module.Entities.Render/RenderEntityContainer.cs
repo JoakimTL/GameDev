@@ -1,14 +1,14 @@
 ﻿using Engine.Module.Entities.Container;
 using Engine.Module.Render.Entities.Components;
+using Engine.Serialization;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Module.Render.Entities;
 
 public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable {
-	private readonly EntityContainer _container;
+	private readonly SerializerProvider _serializerProvider;
 	private readonly RenderEntityServiceAccess _serviceAccess;
-	private readonly EntityContainerListChangeEventHandler _handler;
 
 	private readonly Dictionary<Guid, RenderEntity> _renderEntitiesByEntityId;
 
@@ -20,17 +20,19 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 	public event Action<RenderEntity>? OnRenderEntityAdded;
 	public event Action<RenderEntity>? OnRenderEntityRemoved;
 
-	public RenderEntityContainer( EntityContainer container, RenderEntityServiceAccess serviceAccess ) {
-		this._container = container;
+	public RenderEntityContainer( SynchronizedEntityContainer synchronizedContainer, SerializerProvider serializerProvider, RenderEntityServiceAccess serviceAccess ) {
+		this.SynchronizedEntityContainer = synchronizedContainer;
+		this._serializerProvider = serializerProvider;
 		this._serviceAccess = serviceAccess;
 		this._renderEntityContainerDependentBehaviourManager = new( this );
 		this._renderEntitiesByEntityId = [];
 		this._renderEntitiesToAddQueue = [];
 		this._renderEntitiesToRemoveQueue = [];
-		this._handler = container.CreateListChangeHandler( OnEntityAdded, OnEntityRemoved );
-		this._container.ArchetypeManager.ArchetypeAdded += this._renderEntityContainerDependentBehaviourManager.OnArchetypeAdded;
-		this._container.ArchetypeManager.ArchetypeRemoved += this._renderEntityContainerDependentBehaviourManager.OnArchetypeRemoved;
+		this.SynchronizedEntityContainer.EntityAdded += OnEntityAdded;
+		this.SynchronizedEntityContainer.EntityRemoved += OnEntityRemoved;
 	}
+
+	public SynchronizedEntityContainer SynchronizedEntityContainer { get; }
 
 	public int PendingEntitiesToAdd => this._renderEntitiesToAddQueue.Count;
 	public int PendingEntitiesToRemove => this._renderEntitiesToRemoveQueue.Count;
@@ -39,38 +41,34 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 
 	public bool TryGetRenderEntity( Guid entityId, [NotNullWhen( true )] out RenderEntity? renderEntity ) => this._renderEntitiesByEntityId.TryGetValue( entityId, out renderEntity );
 
-	//Called on game logic thread
 	private void OnEntityAdded( Entity entity ) {
-		entity.ComponentAdded += OnComponentAdded;
-		entity.ComponentRemoved += OnComponentRemoved;
 		if (entity.HasComponent<RenderComponent>())
 			this._renderEntitiesToAddQueue.Enqueue( entity );
+		entity.ComponentAdded += OnComponentAdded;
+		entity.ComponentRemoved += OnComponentRemoved;
 	}
 
-	//Called on game logic thread
 	private void OnEntityRemoved( Entity entity ) {
-		entity.ComponentAdded -= OnComponentAdded;
-		entity.ComponentRemoved -= OnComponentRemoved;
 		if (entity.HasComponent<RenderComponent>())
 			this._renderEntitiesToRemoveQueue.Enqueue( entity );
+		entity.ComponentAdded -= OnComponentAdded;
+		entity.ComponentRemoved -= OnComponentRemoved;
 	}
 
-	//Called on game logic thread
-	private void OnComponentAdded( ComponentBase component ) {
+	private void OnComponentAdded( Entity entity, ComponentBase component ) {
 		if (component is not RenderComponent)
 			return;
-		this._renderEntitiesToAddQueue.Enqueue( component.Entity );
+		this._renderEntitiesToAddQueue.Enqueue( entity );
 	}
 
-	//Called on game logic thread
-	private void OnComponentRemoved( ComponentBase component ) {
+	private void OnComponentRemoved( Entity entity, ComponentBase component ) {
 		if (component is not RenderComponent)
 			return;
-		this._renderEntitiesToRemoveQueue.Enqueue( component.Entity );
+		this._renderEntitiesToRemoveQueue.Enqueue( entity );
 	}
 
 	public void Update( double time, double deltaTime ) {
-		//TODO test creating an entity here. If the entity exists paint a triangle based on it's attributes.
+		SynchronizedEntityContainer.Update( _serializerProvider );
 		while (this._renderEntitiesToAddQueue.TryDequeue( out Entity? entity ))
 			AddRenderEntity( entity );
 		while (this._renderEntitiesToRemoveQueue.TryDequeue( out Entity? entity ))
@@ -98,12 +96,10 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 	}
 
 	protected override bool InternalDispose() {
-		this._container.RemoveHandler( this._handler );
-		this._container.ArchetypeManager.ArchetypeAdded -= this._renderEntityContainerDependentBehaviourManager.OnArchetypeAdded;
-		this._container.ArchetypeManager.ArchetypeRemoved -= this._renderEntityContainerDependentBehaviourManager.OnArchetypeRemoved;
+		this.SynchronizedEntityContainer.Dispose();
+		_renderEntityContainerDependentBehaviourManager.Dispose();
 		foreach (RenderEntity renderEntity in this._renderEntitiesByEntityId.Values)
 			renderEntity.Dispose();
-		this._renderEntitiesByEntityId.Clear();
 		return true;
 	}
 }

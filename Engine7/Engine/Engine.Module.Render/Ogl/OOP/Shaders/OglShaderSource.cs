@@ -9,8 +9,6 @@ public sealed class OglShaderSource : DisposableIdentifiable {
 	public ShaderType ShaderType { get; private set; }
 	public string Filepath { get; }
 
-	public event Action? FileChanged;
-
 	public OglShaderSource( string path, ShaderType shaderType ) {
 		this.Filepath = path;
 

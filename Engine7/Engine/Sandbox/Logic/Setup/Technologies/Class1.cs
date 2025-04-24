@@ -52,13 +52,13 @@ public sealed class Domestication() : TechnologyTypeBase( "Domestication", 0 );
 [Guid( "0E64C42D-AEAD-4406-8E1B-3786EE1F0C15" )]
 public sealed class Foraging() : TechnologyTypeBase( "Foraging", 0 );
 
-[Guid("671BDBF5-69C4-45B0-8A04-1E5B5FB93A0B")]
+[Guid( "671BDBF5-69C4-45B0-8A04-1E5B5FB93A0B" )]
 public sealed class CelestialTracking() : TechnologyTypeBase( "Celestial Tracking", 0 );
 
-[Guid("B6EB3D4E-52DB-49F3-8CE8-363494748073")]
+[Guid( "B6EB3D4E-52DB-49F3-8CE8-363494748073" )]
 public sealed class Counting() : TechnologyTypeBase( "Counting", 0 );
 
-[Guid("E3DA2FA4-4EA8-4A99-9BB0-B8D403D54376")]
+[Guid( "E3DA2FA4-4EA8-4A99-9BB0-B8D403D54376" )]
 public sealed class Bartering() : TechnologyTypeBase( "Bartering", 0 );
 
 [Guid( "10A9A9DE-07EC-432A-B289-F2CE1943C9B1" )]

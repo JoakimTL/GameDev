@@ -12,11 +12,11 @@ public sealed class Line {
 		ScaledWidth = 0;
 
 		for (int i = 0; i < words.Count; i++) {
-			if (ScaledWidth + words[ i ].ScaledWidth > width && _lineWords.Count > 0) 
+			if (ScaledWidth + words[ i ].ScaledWidth > width && _lineWords.Count > 0)
 				break;
 			_lineWords.Add( words[ i ] );
 			ScaledWidth += words[ i ].ScaledWidth + whitespaceAdvance;
-			if (words[ i ].EndCharacter == '\n') 
+			if (words[ i ].EndCharacter == '\n')
 				break;
 		}
 

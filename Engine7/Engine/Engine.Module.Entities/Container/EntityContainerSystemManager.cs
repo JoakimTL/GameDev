@@ -14,17 +14,8 @@ public class EntityContainerSystemManager : IUpdateable {
 		this._systemTypesByArchetype = [];
 		this._systemUpdateTree = new();
 		this._orderedSystems = [];
-		container.CreateListChangeHandler( OnEntityAdded, OnEntityRemoved );
-	}
-
-	private void OnEntityAdded( Entity entity ) {
-		entity.ArchetypeAdded += OnArchetypeAdded;
-		entity.ArchetypeRemoved += OnArchetypeRemoved;
-	}
-
-	private void OnEntityRemoved( Entity entity ) {
-		entity.ArchetypeAdded -= OnArchetypeAdded;
-		entity.ArchetypeRemoved -= OnArchetypeRemoved;
+		container.ArchetypeManager.ArchetypeAdded += OnArchetypeAdded;
+		container.ArchetypeManager.ArchetypeRemoved += OnArchetypeRemoved;
 	}
 
 	private void OnArchetypeAdded( ArchetypeBase archetype ) {
@@ -62,6 +53,7 @@ public class EntityContainerSystemManager : IUpdateable {
 	}
 
 	public void Update( double time, double deltaTime ) {
+		ObjectDisposedException.ThrowIf( _container.Disposed, nameof( EntityContainer ) );
 		foreach (IUpdateable system in this._orderedSystems)
 			system.Update( time, deltaTime );
 	}

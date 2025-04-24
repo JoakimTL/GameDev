@@ -7,13 +7,15 @@ namespace Engine;
 public static class TypeManager {
 	private static readonly ConcurrentDictionary<Type, ResolvedType> _resolvedTypes;
 	public static readonly TypeRegistry Registry;
-	public static readonly IdentityRegistry IdentityRegistry;
+	public static readonly IdentityRegistry Identities;
+	public static readonly SerializerRegistry Serializers;
 	private static readonly Func<Type, int> _sizeOfFunc;
 
 	static TypeManager() {
 		_resolvedTypes = [];
 		Registry = new();
-		IdentityRegistry = new( Registry );
+		Identities = new( Registry );
+		Serializers = new( Registry );
 		_sizeOfFunc = CreateSizeOfResolver();
 	}
 

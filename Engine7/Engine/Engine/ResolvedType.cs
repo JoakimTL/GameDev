@@ -15,8 +15,8 @@ public sealed class ResolvedType {
 	/// If this type has a Guid Attribute it's value is stored here.
 	/// </summary>
 	public Guid? Guid { get; }
-	private readonly Dictionary<Type, object> _attributesByType = [];
-	private readonly Dictionary<BindingFlags, List<PropertyInfo>> _propertiesByBindingFlags = [];
+	private readonly ConcurrentDictionary<Type, object> _attributesByType = [];
+	private readonly ConcurrentDictionary<BindingFlags, List<PropertyInfo>> _propertiesByBindingFlags = [];
 	private readonly TypeInstanceFactory _instanceFactory;
 	private readonly ConcurrentDictionary<PropertyInfo, TypePropertyAccessor> _propertyAccessors = [];
 
@@ -27,7 +27,7 @@ public sealed class ResolvedType {
 		this.Attributes = type.GetCustomAttributes( true ).OfType<Attribute>().ToArray();
 		this._instanceFactory = new TypeInstanceFactory( type );
 		this.Identity = Attributes.OfType<IdentityAttribute>().FirstOrDefault()?.Identity;
-		var guidString = Attributes.OfType<GuidAttribute>().FirstOrDefault()?.Value;
+		string? guidString = Attributes.OfType<GuidAttribute>().FirstOrDefault()?.Value;
 		Guid = guidString is not null ? new( guidString ) : null;
 	}
 
@@ -36,7 +36,7 @@ public sealed class ResolvedType {
 			if (this._attributesByType.TryGetValue( typeof( T ), out object? list ))
 				return (IReadOnlyList<T>) list;
 			list = new List<T>( this.Attributes.OfType<T>() );
-			this._attributesByType.Add( typeof( T ), list );
+			this._attributesByType.TryAdd( typeof( T ), list );
 			return (IReadOnlyList<T>) list;
 		}
 	}
@@ -44,8 +44,8 @@ public sealed class ResolvedType {
 	public IReadOnlyList<PropertyInfo> GetProperties( BindingFlags flags ) {
 		if (this._propertiesByBindingFlags.TryGetValue( flags, out List<PropertyInfo>? list ))
 			return list;
-		list = new List<PropertyInfo>( this.Type.GetProperties( flags ) );
-		this._propertiesByBindingFlags.Add( flags, list );
+		list = [ .. this.Type.GetProperties( flags ) ];
+		this._propertiesByBindingFlags.TryAdd( flags, list );
 		return list;
 	}
 

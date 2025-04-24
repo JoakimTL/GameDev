@@ -99,7 +99,7 @@ public sealed class SceneObjectSceneInstanceCollection : DisposableIdentifiable 
 	protected override bool InternalDispose() {
 		if (!this._segment.Disposed)
 			this._segment.Dispose();
-		var currentInstances = _instances.ToArray();
+		SceneInstanceBase[] currentInstances = _instances.ToArray();
 		foreach (SceneInstanceBase instance in currentInstances)
 			instance.Remove();
 

@@ -4,7 +4,7 @@ namespace Sandbox.Logic.Nations.Taxes;
 internal class Class1 {
 }
 
-public abstract class CurrencyBasedTaxationBase( string name, CurrencyBase currency ) : TaxationBase(name) {
+public abstract class CurrencyBasedTaxationBase( string name, CurrencyBase currency ) : TaxationBase( name ) {
 	public CurrencyBase Currency { get; set; } = currency;
 }
 

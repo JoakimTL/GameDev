@@ -6,16 +6,16 @@ public abstract class UserInterfaceElementWithMessageNodeBase : UserInterfaceEle
 
 	protected readonly MessageBusNode MessageBusNode;
 
-	protected UserInterfaceElementWithMessageNodeBase(string address) {
+	protected UserInterfaceElementWithMessageNodeBase( string address ) {
 		MessageBusNode = MessageBus.CreateNode( address );
 		MessageBusNode.OnMessageReceived += OnMessageReceived;
 	}
 
 	protected abstract void OnMessageReceived( Message message );
 
-	protected void Publish( object content, string? address ) 
+	protected void Publish( object content, string? address )
 		=> MessageBusNode.Publish( content, address );
 
-	protected override void OnUpdate( double time, double deltaTime ) 
+	protected override void OnUpdate( double time, double deltaTime )
 		=> MessageBusNode.ProcessQueue();
 }

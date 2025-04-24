@@ -6,7 +6,7 @@ namespace Engine.Module.Render;
 
 public sealed class CameraSuite : Identifiable {
 
-	public CameraSuite(string name, WindowService windowService) {
+	public CameraSuite( string name, WindowService windowService ) {
 		View2 = new();
 		View3 = new();
 		Projection2 = new( windowService.Window, 1, -1, 1 );

@@ -152,7 +152,7 @@ public sealed class Collision2Calculation<TScalar>( ConvexShapeBase<Vector2<TSca
 
 		if (acPaoDot > -Epsilon) {
 			if (acaoDot > -Epsilon) {
-				_simplex.Remove(1);
+				_simplex.Remove( 1 );
 				return false;
 			}
 			if (abaoDot > -Epsilon) {

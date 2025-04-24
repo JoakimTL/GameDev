@@ -3,16 +3,20 @@ using System.Collections.Concurrent;
 
 namespace Engine.Module.Render.Entities;
 
-internal class RenderEntityContainerDependentBehaviourManager( RenderEntityContainer renderEntityContainer ) : IUpdateable {
+internal class RenderEntityContainerDependentBehaviourManager : DisposableIdentifiable, IUpdateable {
 
-	private readonly RenderEntityContainer _renderEntityContainer = renderEntityContainer;
+	private readonly RenderEntityContainer _renderEntityContainer;
 	private readonly ConcurrentQueue<ArchetypeBase> _archetypesAdded = [];
 	private readonly ConcurrentQueue<ArchetypeBase> _archetypesRemoved = [];
 
-	//Called on game logic thread
+	public RenderEntityContainerDependentBehaviourManager( RenderEntityContainer renderEntityContainer ) {
+		this._renderEntityContainer = renderEntityContainer;
+		this._renderEntityContainer.SynchronizedEntityContainer.EntityArchetypeAdded += this.OnArchetypeAdded;
+		this._renderEntityContainer.SynchronizedEntityContainer.EntityArchetypeRemoved += this.OnArchetypeRemoved;
+	}
+
 	internal void OnArchetypeAdded( ArchetypeBase archetype ) => this._archetypesAdded.Enqueue( archetype );
 
-	//Called on game logic thread
 	internal void OnArchetypeRemoved( ArchetypeBase archetype ) => this._archetypesRemoved.Enqueue( archetype );
 
 	private void ProcessAddedArchetype( ArchetypeBase archetype ) {
@@ -32,5 +36,11 @@ internal class RenderEntityContainerDependentBehaviourManager( RenderEntityConta
 			ProcessAddedArchetype( archetype );
 		while (this._archetypesRemoved.TryDequeue( out ArchetypeBase? archetype ))
 			ProcessRemovedArchetype( archetype );
+	}
+
+	protected override bool InternalDispose() {
+		this._renderEntityContainer.SynchronizedEntityContainer.EntityArchetypeAdded -= this.OnArchetypeAdded;
+		this._renderEntityContainer.SynchronizedEntityContainer.EntityArchetypeRemoved -= this.OnArchetypeRemoved;
+		return true;
 	}
 }

@@ -46,7 +46,7 @@ public abstract class InstanceProviderExtensionBase<TProcess, TInstanceType> : I
 				while (_incomingInstances.TryDequeue( out Type? instanceType ))
 					this._digraph.Add( instanceType );
 
-				while (_outgoingInstances.TryDequeue( out Type? instanceType )) 
+				while (_outgoingInstances.TryDequeue( out Type? instanceType ))
 					this._digraph.Remove( instanceType );
 
 				this._sortedInstances.Clear();

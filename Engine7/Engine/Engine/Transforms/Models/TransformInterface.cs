@@ -2,16 +2,16 @@
 
 namespace Engine.Transforms.Models;
 
-public sealed class TransformInterface<TScalar, TTranslation, TRotation, TScale>( TransformBase<TScalar, TTranslation, TRotation, TScale> transform ) : TransformAccessBase<TScalar, TTranslation, TRotation, TScale>(transform)
+public sealed class TransformInterface<TScalar, TTranslation, TRotation, TScale>( TransformBase<TScalar, TTranslation, TRotation, TScale> transform ) : TransformAccessBase<TScalar, TTranslation, TRotation, TScale>( transform )
 	where TScalar : unmanaged, INumber<TScalar>
 	where TTranslation : unmanaged
 	where TRotation : unmanaged
 	where TScale : unmanaged {
 
-	public TransformReadonly<TScalar, TTranslation, TRotation, TScale>? Parent 
+	public TransformReadonly<TScalar, TTranslation, TRotation, TScale>? Parent
 		=> this._transform.Parent?.Readonly;
 
-	public void SetData( TransformData<TTranslation, TRotation, TScale> data ) 
+	public void SetData( TransformData<TTranslation, TRotation, TScale> data )
 		=> this._transform.SetData( data );
 
 	public TTranslation Translation {

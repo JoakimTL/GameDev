@@ -10,50 +10,55 @@ public sealed class Segmenter : IDisposable {
 	private ThreadedByteBuffer? _buffer;
 
 	public Segmenter( ReadOnlySpan<byte> initialSegment ) {
-		_buffer = Segmentation.Start( initialSegment );
+		_buffer = Segmentation.StartSegmentation( initialSegment );
 	}
 
 	public void Append( ReadOnlySpan<byte> data ) {
 		if (_buffer is null)
 			throw new ObjectDisposedException( nameof( Segmenter ) );
-		_buffer.Append( data );
+		_buffer.AppendSegment( data );
 	}
 
 	public PooledBufferData Flush() {
 		if (_buffer is null)
 			throw new ObjectDisposedException( nameof( Segmenter ) );
-		return _buffer.Flush( );
+		return _buffer.FlushSegments();
 	}
 
 	public void Dispose() {
 		_buffer = null;
 	}
 }
-public sealed class Desegmenter {
-	private readonly ReadOnlyMemory<byte> _data;
+public sealed unsafe class Desegmenter {
 	private int _caret;
+	private int _readsPerformed;
 
-	public Desegmenter( ReadOnlyMemory<byte> data ) {
-		_data = data;
+	public Desegmenter() {
 		_caret = 0;
-		RequiredSpanLength = data.DetermineSpanLength();
+		_readsPerformed = 0;
 	}
 
-	public int RequiredSpanLength { get; }
+	public int Caret => _caret;
 
-	public int ReadInto( Span<byte> output ) => _data.CopySegmentInto( output, ref _caret );
+	public int ReadsPerformed => _readsPerformed;
+
+	public bool ReadInto( ReadOnlySpan<byte> segmentedData, Span<byte> output, out int readBytes ) {
+		readBytes = segmentedData.CopySegmentInto( output, ref _caret );
+		_readsPerformed++;
+		return readBytes >= 0;
+	}
 }
 
 public static class Segmentation {
 
 	//TODO write unit tests.
 
-	public static unsafe ThreadedByteBuffer Start( ReadOnlySpan<byte> data ) {
-		var buffer = ThreadedByteBuffer.GetBuffer("segmentation");
-		return buffer.Append( data );
+	public static unsafe ThreadedByteBuffer StartSegmentation( ReadOnlySpan<byte> data ) {
+		ThreadedByteBuffer buffer = ThreadedByteBuffer.GetBuffer( "segmentation" );
+		return buffer.AppendSegment( data );
 	}
 
-	public static unsafe ThreadedByteBuffer Append( this ThreadedByteBuffer buffer, ReadOnlySpan<byte> data ) {
+	public static unsafe ThreadedByteBuffer AppendSegment( this ThreadedByteBuffer buffer, ReadOnlySpan<byte> data ) {
 		byte* header = stackalloc byte[ 4 ];
 		*(int*) header = data.Length;
 		buffer.Add( new Span<byte>( header, 4 ) );
@@ -61,40 +66,33 @@ public static class Segmentation {
 		return buffer;
 	}
 
-	public static unsafe PooledBufferData Flush( this ThreadedByteBuffer buffer ) {
-		PooledBufferData result = buffer.GetData( 4 );
-		using (System.Buffers.MemoryHandle memoryHandle = result.Payload.Pin()) {
-			int currentLength;
-			int longestLength = 0;
-			int caret = 0;
-			while (caret < result.Payload.Length - 8 /*4 for reading header, 4 for last header*/) {
-				currentLength = *(int*) ((byte*) memoryHandle.Pointer + caret);
-				if (currentLength > longestLength)
-					longestLength = currentLength;
-				caret += currentLength + 4;
-			}
-			//Set the last header to the longest length, this makes it extremely easy to find out how long your buffer needs to be without allocating.
-			*(int*) ((byte*) memoryHandle.Pointer + result.Payload.Length - 4) = longestLength;
-		}
-		return result;
-	}
+	public static unsafe PooledBufferData FlushSegments( this ThreadedByteBuffer buffer ) => buffer.GetData();
 
-	public static unsafe int DetermineSpanLength( this ReadOnlyMemory<byte> segmentedData ) {
-		if (segmentedData.Length < 8)
+	public static unsafe int DetermineSpanLength( this ReadOnlySpan<byte> segmentedData ) {
+		if (segmentedData.Length < 4)
 			return -1;
-		return MemoryMarshal.Read<int>( segmentedData.Span[ ^4.. ] );
+		int caret = 0;
+		int longestLength = -1;
+		while ( caret < segmentedData.Length - 4) {
+			int lengthToCopy = ReadInt32( segmentedData[ caret..(caret + 4) ] );
+			caret += 4;
+			caret += lengthToCopy;
+			if (lengthToCopy > longestLength)
+				longestLength = lengthToCopy;
+		}
+		return longestLength;
 	}
 
-	public static unsafe int CopySegmentInto( this ReadOnlyMemory<byte> segmentedData, Span<byte> output, ref int caret ) {
+	public static unsafe int CopySegmentInto( this ReadOnlySpan<byte> segmentedData, Span<byte> output, ref int caret ) {
 		if (caret > segmentedData.Length - 4)
 			return -1;
-		int lengthToCopy = ReadInt32( segmentedData[caret..4].Span );
+		int lengthToCopy = ReadInt32( segmentedData[ caret..(caret + 4) ] );
 		caret += 4;
-		if (lengthToCopy > segmentedData.Length - 4)
+		if (lengthToCopy > segmentedData.Length)
 			return -1;
 		if (lengthToCopy > output.Length)
 			throw new ArgumentOutOfRangeException( nameof( output ), "Output buffer is too small to copy segment into." );
-		segmentedData[ caret..(caret + lengthToCopy) ].Span.CopyTo( output );
+		segmentedData[ caret..(caret + lengthToCopy) ].CopyTo( output );
 		caret += lengthToCopy;
 		return lengthToCopy;
 	}
@@ -102,6 +100,6 @@ public static class Segmentation {
 	public static int ReadInt32( ReadOnlySpan<byte> span ) {
 		if (span.Length < 4)
 			throw new ArgumentOutOfRangeException( nameof( span ), "Span is too small to read an int32." );
-		return System.Runtime.InteropServices.MemoryMarshal.Read<int>( span );
+		return MemoryMarshal.Read<int>( span );
 	}
 }

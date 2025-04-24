@@ -1,6 +1,6 @@
 ﻿namespace Sandbox.Logic.Setup;
 public abstract class ResourceTypeBase : SelfIdentifyingBase {
-	protected ResourceTypeBase(string name) {
+	protected ResourceTypeBase( string name ) {
 		this.Name = name;
 	}
 

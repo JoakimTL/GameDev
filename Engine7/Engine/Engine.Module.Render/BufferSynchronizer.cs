@@ -19,7 +19,7 @@ public sealed class BufferSynchronizer<TSource, TDestination> where TSource : IR
 	}
 
 	public void Synchronize() {
-		while (this._changedSegments.TryDequeue(out (uint, uint) segment))
+		while (this._changedSegments.TryDequeue( out (uint, uint) segment ))
 			WriteSegment( segment );
 	}
 

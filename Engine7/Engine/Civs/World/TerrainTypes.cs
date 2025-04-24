@@ -18,7 +18,7 @@ public static class TerrainTypes {
 		foreach (ResolvedType? type in resolvedTypes) {
 			if (!type.HasParameterlessConstructor)
 				throw new InvalidOperationException( $"Terrain type {type} does not have a parameterless constructor." );
-			TerrainTypeBase terrainType = type.CreateInstance(null) as TerrainTypeBase ?? throw new InvalidOperationException( $"Terrain type {type} is not a valid TerrainTypeBase." );
+			TerrainTypeBase terrainType = type.CreateInstance( null ) as TerrainTypeBase ?? throw new InvalidOperationException( $"Terrain type {type} is not a valid TerrainTypeBase." );
 			if (terrainTypesById.ContainsKey( terrainType.Id ))
 				throw new InvalidOperationException( $"Terrain type {terrainType.Id} is already registered." );
 			terrainTypesById[ terrainType.Id ] = terrainType;

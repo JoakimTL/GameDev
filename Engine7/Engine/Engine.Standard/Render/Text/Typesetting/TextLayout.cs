@@ -118,7 +118,7 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 
 	public void Hide() {
 		foreach (GlyphInstance instance in _glyphInstances)
-			instance.SetAllocated(false);
+			instance.SetAllocated( false );
 	}
 
 	public void Update( double time, double deltaTime ) {

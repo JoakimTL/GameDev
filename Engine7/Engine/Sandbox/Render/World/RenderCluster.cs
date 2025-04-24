@@ -46,7 +46,7 @@ public sealed class RenderCluster {
 			(max.X, max.Y, min.Z)
 		];
 
-		for (int i = 0; i < boundsCorners.Length; i++) 
+		for (int i = 0; i < boundsCorners.Length; i++)
 			if (normalizedTranslation.Dot( boundsCorners[ i ] ) >= 0) {
 				shouldBeVisible = true;
 				break;
