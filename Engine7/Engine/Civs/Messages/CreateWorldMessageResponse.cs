@@ -1,5 +1,5 @@
-﻿using Civs.World;
+﻿//using Civs.World;
 
-namespace Civs.Messages;
+//namespace Civs.Messages;
 
-public sealed record CreateWorldMessageResponse( Globe? CreatedWorld );
+//public sealed record CreateWorldMessageResponse( Globe? CreatedWorld );

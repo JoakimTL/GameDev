@@ -9,20 +9,20 @@ using Engine.Standard.Render;
 namespace Civs.Render;
 
 public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity3SceneData ) ) {
-	public void UpdateMesh( IReadOnlyCollection<Tile> tiles, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
+	public void UpdateMesh( GlobeModel globe, IReadOnlyCollection<FaceRenderModelWithId> faces, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
 		Mesh?.Dispose();
-		SetMesh( CreateMesh( tiles, meshProvider, overrideColor ) );
+		SetMesh( CreateMesh( globe, faces, meshProvider, overrideColor ) );
 	}
 
-	private IMesh CreateMesh( IReadOnlyCollection<Tile> tileCollection, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
+	private IMesh CreateMesh( GlobeModel globe, IReadOnlyCollection<FaceRenderModelWithId> faces, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
-		List<Tile> tiles = tileCollection.ToList();
-		for (int i = 0; i < tiles.Count; i++) {
-			Vector3<float> a = tiles[ i ].VectorA;
-			Vector3<float> b = tiles[ i ].VectorB;
-			Vector3<float> c = tiles[ i ].VectorC;
-			Vector4<byte> color = ((overrideColor ?? tiles[ i ].Color) * 255).Clamp<Vector4<float>, float>( 0, 255 ).CastSaturating<float, byte>();
+		List<FaceRenderModelWithId> faceList = faces.ToList();
+		for (int i = 0; i < faceList.Count; i++) {
+			Vector3<float> a = globe.Blueprint.GetVertex( faceList[ i ].Model.IndexA );
+			Vector3<float> b = globe.Blueprint.GetVertex( faceList[ i ].Model.IndexB );
+			Vector3<float> c = globe.Blueprint.GetVertex( faceList[ i ].Model.IndexC );
+			Vector4<byte> color = ((overrideColor ?? 1f/*faceList[ i ].Color*/) * 255).Clamp<Vector4<float>, float>( 0, 255 ).CastSaturating<float, byte>();
 
 			//Create mesh
 			indices.Add( (uint) vertices.Count );

@@ -8,7 +8,7 @@ public abstract class UserInterfaceElementWithMessageNodeBase : UserInterfaceEle
 
 	protected UserInterfaceElementWithMessageNodeBase( string address ) {
 		MessageBusNode = MessageBus.CreateNode( address );
-		MessageBusNode.OnMessageReceived += OnMessageReceived;
+		MessageBusNode.OnMessageProcessed += OnMessageReceived;
 	}
 
 	protected abstract void OnMessageReceived( Message message );

@@ -11,7 +11,7 @@ public class RenderBehaviourEntityContainerEventReceiverService : DisposableIden
 
 	public RenderBehaviourEntityContainerEventReceiverService( RenderEntityContainerService renderEntityContainerService ) {
 		this._messageBusNode = MessageBus.CreateNode( "render_ecs" );
-		this._messageBusNode.OnMessageReceived += OnMessageReceived;
+		this._messageBusNode.OnMessageProcessed += OnMessageReceived;
 		this._renderEntityContainerService = renderEntityContainerService;
 		this._messageBusNode.Publish( new SynchronizedEntityContainerListRequestMessage(), null );
 	}

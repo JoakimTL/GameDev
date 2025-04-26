@@ -20,13 +20,15 @@ public abstract class SerializerBase<TTarget> : ISerializer {
 	public int SerializeInto( ThreadedByteBuffer buffer, object t ) {
 		if (t is not TTarget target)
 			throw new InvalidOperationException( $"Invalid type {t.GetType()} for serialization using {this.GetType()}." );
-		int bytesAdded = PerformSerialization( buffer, target );
+		int bytesBefore = buffer.Count;
+		PerformSerialization( buffer, target );
+		int bytesAdded = buffer.Count - bytesBefore;
 		Span<byte> guidBytes = stackalloc byte[ 16 ];
 		MemoryMarshal.Write( guidBytes, Guid );
 		buffer.Add( guidBytes );
 		return bytesAdded + 16;
 	}
-	protected abstract int PerformSerialization( ThreadedByteBuffer buffer, TTarget t );
+	protected abstract void PerformSerialization( ThreadedByteBuffer buffer, TTarget t );
 
 	public bool DeserializeInto( ReadOnlyMemory<byte> serializedData, object t ) => DeserializeInto( serializedData.Span, t );
 	public bool DeserializeInto( ReadOnlySpan<byte> serializedData, object t ) {

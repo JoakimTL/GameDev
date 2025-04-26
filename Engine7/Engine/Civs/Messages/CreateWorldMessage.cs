@@ -1,4 +1,6 @@
-﻿namespace Civs.Messages;
+﻿using Civs.World;
+
+namespace Civs.Messages;
 public sealed class CreateWorldMessage {
 	public double SurfaceArea { get; }
 	public uint SubdivisionCount { get; }
@@ -14,3 +16,6 @@ public sealed class CreateWorldMessage {
 		SubdivisionCount = subdivisionCount;
 	}
 }
+
+public sealed record CreateNewWorldRequestMessage( WorldGenerationParameters Parameters );
+public sealed record CreateNewWorldRequestMessageResponse( GlobeModel Globe );

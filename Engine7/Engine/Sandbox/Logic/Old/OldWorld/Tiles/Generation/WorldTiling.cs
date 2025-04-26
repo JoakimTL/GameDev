@@ -15,9 +15,9 @@ public sealed class WorldTiling {
 	public IReadOnlyList<CompositeTile> Tiles => _rootTiles;
 
 	public WorldTiling() {
-		_worldIcosphere = new Icosphere( Levels, normalizeUpTo: RootLevel );
+		_worldIcosphere = new Icosphere( Levels );
 		this.LogLine( $"Icosphere created with {_worldIcosphere.Vertices.Count} vertices", Log.Level.VERBOSE );
-		this.LogLine( $"Icosphere created with {_worldIcosphere.GetIndices( Levels - 1 ).Count / 3} faces", Log.Level.VERBOSE );
+		this.LogLine( $"Icosphere created with {_worldIcosphere.GetIndices().Count / 3} faces", Log.Level.VERBOSE );
 		List<Vector3<float>> normalizedVectors = [ .. _worldIcosphere.Vertices.Select( v => v.Normalize<Vector3<float>, float>() ) ];
 		//_worldIcosphere.GetIndices( 5 ).Count / 3;
 		_rootTiles = CreateTiles();
@@ -199,7 +199,7 @@ public sealed class WorldTiling {
 
 	private List<CompositeTile> CreateTiles() {
 		List<CompositeTile> tiles = [];
-		IReadOnlyList<uint> indices = _worldIcosphere.GetIndices( RootLevel );
+		IReadOnlyList<uint> indices = _worldIcosphere.GetIndices();
 
 		for (int i = 0; i < indices.Count; i += 3) {
 			int indexA = (int) indices[ i ];

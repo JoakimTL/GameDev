@@ -14,7 +14,7 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 	public EntityContainerService( SerializerProvider serializerProvider ) {
 		this._containers = [];
 		this._messageBusNode = MessageBus.CreateNode( "ecs" );
-		this._messageBusNode.OnMessageReceived += OnMessageReceived;
+		this._messageBusNode.OnMessageProcessed += OnMessageReceived;
 		this._serializerProvider = serializerProvider;
 	}
 

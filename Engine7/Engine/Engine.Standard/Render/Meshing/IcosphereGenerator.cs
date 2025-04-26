@@ -3,11 +3,10 @@
 namespace Engine.Standard.Render.Meshing;
 
 public static class IcosphereGenerator {
-	public static void CreateIcosphere<TScalar>( out List<Vector3<TScalar>> vectors, out List<List<uint>> indices )
+	public static void CreateIcosphere<TScalar>( out List<Vector3<TScalar>> vectors, out List<uint> rootIndices )
 		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
 		vectors = [];
-		List<uint> rootIndices = [];
-		indices = [ rootIndices ];
+		rootIndices = [];
 
 		vectors.Add( new Vector3<TScalar>( TScalar.CreateSaturating( 0 ), TScalar.CreateSaturating( 1 ), TScalar.CreateSaturating( 0 ) ) );
 
@@ -66,64 +65,64 @@ public static class IcosphereGenerator {
 		}
 	}
 
-	public static void GenerateSubdividedIcosphere<TScalar>( int subdivisions, out List<Vector3<TScalar>> vectors, out List<List<uint>> indices )
-		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
-		CreateIcosphere( out vectors, out indices );
-		for (int i = 0; i < subdivisions; i++)
-			Subdivide( vectors, indices );
-		NormalizeVectors( vectors );
-	}
+	//public static void GenerateSubdividedIcosphere<TScalar>( int subdivisions, out List<Vector3<TScalar>> vectors, out List<uint> indices )
+	//	where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
+	//	CreateIcosphere( out vectors, out indices );
+	//	for (int i = 0; i < subdivisions; i++)
+	//		Subdivide( vectors, indices );
+	//	NormalizeVectors( vectors );
+	//}
 
-	private static void Subdivide<TScalar>( List<Vector3<TScalar>> vectors, List<List<uint>> indices )
-		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
-		List<uint> preSubdivisionIndices = indices[ ^1 ];
-		List<uint> subDivisionIndices = [];
-		for (int ind = 0; ind < preSubdivisionIndices.Count; ind += 3) {
+	//private static void Subdivide<TScalar>( List<Vector3<TScalar>> vectors, List<List<uint>> indices )
+	//	where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
+	//	List<uint> preSubdivisionIndices = indices[ ^1 ];
+	//	List<uint> subDivisionIndices = [];
+	//	for (int ind = 0; ind < preSubdivisionIndices.Count; ind += 3) {
 
-			uint ia = preSubdivisionIndices[ ind ];
-			Vector3<TScalar> a = vectors[ (int) ia ];
-			uint ib = preSubdivisionIndices[ ind + 1 ];
-			Vector3<TScalar> b = vectors[ (int) ib ];
-			uint ic = preSubdivisionIndices[ ind + 2 ];
-			Vector3<TScalar> c = vectors[ (int) ic ];
+	//		uint ia = preSubdivisionIndices[ ind ];
+	//		Vector3<TScalar> a = vectors[ (int) ia ];
+	//		uint ib = preSubdivisionIndices[ ind + 1 ];
+	//		Vector3<TScalar> b = vectors[ (int) ib ];
+	//		uint ic = preSubdivisionIndices[ ind + 2 ];
+	//		Vector3<TScalar> c = vectors[ (int) ic ];
 
-			Vector3<TScalar> ab = (a + b) / TScalar.CreateSaturating( 2 );
-			Vector3<TScalar> bc = (b + c) / TScalar.CreateSaturating( 2 );
-			Vector3<TScalar> ca = (c + a) / TScalar.CreateSaturating( 2 );
+	//		Vector3<TScalar> ab = (a + b) / TScalar.CreateSaturating( 2 );
+	//		Vector3<TScalar> bc = (b + c) / TScalar.CreateSaturating( 2 );
+	//		Vector3<TScalar> ca = (c + a) / TScalar.CreateSaturating( 2 );
 
-			uint iab = (uint) vectors.Count;
-			vectors.Add( ab );
-			uint ibc = (uint) vectors.Count;
-			vectors.Add( bc );
-			uint ica = (uint) vectors.Count;
-			vectors.Add( ca );
+	//		uint iab = (uint) vectors.Count;
+	//		vectors.Add( ab );
+	//		uint ibc = (uint) vectors.Count;
+	//		vectors.Add( bc );
+	//		uint ica = (uint) vectors.Count;
+	//		vectors.Add( ca );
 
-			subDivisionIndices.Add( ia );
-			subDivisionIndices.Add( iab );
-			subDivisionIndices.Add( ica );
+	//		subDivisionIndices.Add( ia );
+	//		subDivisionIndices.Add( iab );
+	//		subDivisionIndices.Add( ica );
 
-			subDivisionIndices.Add( ib );
-			subDivisionIndices.Add( ibc );
-			subDivisionIndices.Add( iab );
+	//		subDivisionIndices.Add( ib );
+	//		subDivisionIndices.Add( ibc );
+	//		subDivisionIndices.Add( iab );
 
-			subDivisionIndices.Add( ic );
-			subDivisionIndices.Add( ica );
-			subDivisionIndices.Add( ibc );
+	//		subDivisionIndices.Add( ic );
+	//		subDivisionIndices.Add( ica );
+	//		subDivisionIndices.Add( ibc );
 
-			subDivisionIndices.Add( iab );
-			subDivisionIndices.Add( ibc );
-			subDivisionIndices.Add( ica );
+	//		subDivisionIndices.Add( iab );
+	//		subDivisionIndices.Add( ibc );
+	//		subDivisionIndices.Add( ica );
 
-		}
-		indices.Add( subDivisionIndices );
-	}
+	//	}
+	//	indices.Add( subDivisionIndices );
+	//}
 
-	private static void NormalizeVectors<TScalar>( List<Vector3<TScalar>> vectors )
-		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
-		for (int i = 0; i < vectors.Count; i++) {
-			vectors[ i ] = vectors[ i ].Normalize<Vector3<TScalar>, TScalar>();
-		}
-	}
+	//private static void NormalizeVectors<TScalar>( List<Vector3<TScalar>> vectors )
+	//	where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
+	//	for (int i = 0; i < vectors.Count; i++) {
+	//		vectors[ i ] = vectors[ i ].Normalize<Vector3<TScalar>, TScalar>();
+	//	}
+	//}
 
 	//Project centers of triangles to polar coordinates. Use subdivision 2 or 3 here, as these will be the baseline for the icosphere anyways.
 	//Place them in an octree.

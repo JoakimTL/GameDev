@@ -10,7 +10,7 @@ public sealed class MessageBusNode : DisposableIdentifiable {
 	public int Index { get; }
 	public string? Address { get; }
 
-	public event Action<Message>? OnMessageReceived;
+	public event Action<Message>? OnMessageProcessed;
 
 	public MessageBusNode( int index, string? address ) {
 		this._messageQueue = [];
@@ -25,7 +25,7 @@ public sealed class MessageBusNode : DisposableIdentifiable {
 	public void ProcessQueue() {
 		ObjectDisposedException.ThrowIf( this.Disposed, this );
 		while (this._messageQueue.TryDequeue( out Message? message ))
-			OnMessageReceived?.Invoke( message );
+			OnMessageProcessed?.Invoke( message );
 	}
 
 	public void Publish( object content, string? address ) {

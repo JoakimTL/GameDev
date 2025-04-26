@@ -17,6 +17,8 @@ public class ThreadedByteBuffer {
 
 	public string Identity { get; }
 
+	public int Count => _internalBuffer.Count;
+
 	public ThreadedByteBuffer( string identity ) {
 		_internalBuffer = [];
 		this.Identity = identity;

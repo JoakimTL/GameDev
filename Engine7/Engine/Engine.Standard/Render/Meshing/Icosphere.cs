@@ -3,7 +3,7 @@
 public sealed class Icosphere {
 
 	private readonly List<Vector3<float>> _vertices;
-	private readonly List<List<uint>> _indicesAtEarlierSubdivisions;
+	private readonly List<uint> _indices;
 	private readonly Dictionary<(int, int), int> _edgeMidpointCache;
 
 	private bool _locked = false;
@@ -11,20 +11,19 @@ public sealed class Icosphere {
 
 	public int Subdivisions { get; }
 
-	public Icosphere( uint subdivisions, int normalizeUpTo = -1 ) {
+	public Icosphere( uint subdivisions ) {
 		Subdivisions = (int) subdivisions;
 		_locked = false;
-		IcosphereGenerator.CreateIcosphere( out _vertices, out _indicesAtEarlierSubdivisions );
+		IcosphereGenerator.CreateIcosphere( out _vertices, out _indices );
 		_edgeMidpointCache = [];
 		for (int i = 0; i < subdivisions; i++) {
 			Subdivide();
-			if (i < normalizeUpTo || normalizeUpTo == -1)
-				NormalizeVectors( _vertices );
 		}
+		NormalizeVectors( _vertices );
 		_locked = true;
 	}
 
-	public IReadOnlyList<uint> GetIndices( int level ) => _indicesAtEarlierSubdivisions[ level ];
+	public IReadOnlyList<uint> GetIndices() => _indices;
 
 	private static void NormalizeVectors( List<Vector3<float>> vectors ) {
 		for (int i = 0; i < vectors.Count; i++)
@@ -54,8 +53,7 @@ public sealed class Icosphere {
 
 	private void Subdivide() {
 		List<uint> newIndices = [];
-		List<uint> currentIndices = _indicesAtEarlierSubdivisions[ ^1 ];
-		_indicesAtEarlierSubdivisions.Add( newIndices );
+		List<uint> currentIndices = _indices;
 		for (int i = 0; i < currentIndices.Count; i += 3) {
 			uint v1 = currentIndices[ i ];
 			uint v2 = currentIndices[ i + 1 ];
@@ -71,6 +69,8 @@ public sealed class Icosphere {
 			newIndices.AddRange( [ v3, (uint) m3, (uint) m2 ] );
 			newIndices.AddRange( [ (uint) m1, (uint) m2, (uint) m3 ] );
 		}
+		_indices.Clear();
+		_indices.AddRange( newIndices );
 	}
 
 	public IReadOnlyList<uint> GetSubdivision( uint indexA, uint indexB, uint indexC ) {

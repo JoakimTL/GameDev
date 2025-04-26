@@ -5,12 +5,12 @@ using System.Collections.Frozen;
 
 namespace Civs.World;
 
-public static class TerrainTypes {
+public static class TerrainTypeList {
 
 	private static readonly FrozenDictionary<Type, TerrainTypeBase> _terrainTypesByType;
 	private static readonly FrozenDictionary<uint, TerrainTypeBase> _terrainTypesById;
 
-	static TerrainTypes() {
+	static TerrainTypeList() {
 		IEnumerable<ResolvedType> resolvedTypes = TypeManager.Registry.ImplementationTypes.Where( p => p.IsAssignableTo( typeof( TerrainTypeBase ) ) ).Select( p => p.Resolve() );
 		Dictionary<Type, TerrainTypeBase> terrainTypesByType = [];
 		Dictionary<uint, TerrainTypeBase> terrainTypesById = [];

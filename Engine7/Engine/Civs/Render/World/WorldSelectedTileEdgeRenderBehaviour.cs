@@ -12,8 +12,8 @@ public sealed class WorldSelectedTileEdgeRenderBehaviour : DependentRenderBehavi
 
 	private SceneObjectFixedCollection<LineVertex, Line3SceneData>? _lineCollection;
 
-	private Tile? _currentlyDisplayedSelectedTile;
-	private Tile? _currentlyDisplayedHoveredTile;
+	private uint? _currentlyDisplayedSelectedTile;
+	private uint? _currentlyDisplayedHoveredTile;
 
 	protected override void OnRenderEntitySet() {
 		base.OnRenderEntitySet();
@@ -44,8 +44,8 @@ public sealed class WorldSelectedTileEdgeRenderBehaviour : DependentRenderBehavi
 		if (_lineCollection is null)
 			return;
 
-		Tile? selectedTile = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "selectedTile" );
-		Tile? hoveredTile = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "hoveringTile" );
+		uint? selectedTile = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<uint>( "selectedTile" );
+		uint? hoveredTile = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<uint>( "hoveringTile" );
 
 		if (_currentlyDisplayedSelectedTile == selectedTile && _currentlyDisplayedHoveredTile == hoveredTile)
 			return;
@@ -53,18 +53,21 @@ public sealed class WorldSelectedTileEdgeRenderBehaviour : DependentRenderBehavi
 		_currentlyDisplayedSelectedTile = selectedTile;
 		_currentlyDisplayedHoveredTile = hoveredTile;
 
+		FaceRenderModelWithIdAndVertices? selectedFace = selectedTile.HasValue ? Archetype.GlobeComponent.Globe?.Blueprint.GetFaceWithVertices( selectedTile.Value ) : null;
+
+
 		uint activeEdges = 0;
 		Span<Line3SceneData> edges = stackalloc Line3SceneData[ 3 ];
-		AddSelectionEdges( _currentlyDisplayedSelectedTile, ref activeEdges, edges );
+		AddSelectionEdges( selectedFace, ref activeEdges, edges );
 		//AddHoveredEdges( _currentlyDisplayedHoveredTile, ref activeEdges, edges );
 		_lineCollection.WriteRange( 0, edges );
 		_lineCollection.SetActiveElements( activeEdges );
 	}
 
-	private void AddSelectionEdges( Tile? tile, ref uint activeEdges, Span<Line3SceneData> edges ) {
-		if (tile is null)
+	private void AddSelectionEdges( FaceRenderModelWithIdAndVertices? face, ref uint activeEdges, Span<Line3SceneData> edges ) {
+		if (face is null)
 			return;
-		foreach (Edge edge in tile.Edges) {
+		foreach (Edge edge in face.Edges) {
 			Vector3<float> a = edge.VectorA;
 			Vector3<float> b = edge.VectorB;
 			float length = (a - b).Magnitude<Vector3<float>, float>();

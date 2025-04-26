@@ -50,7 +50,7 @@ public sealed class GlobeComponent : ComponentBase, IInitializable {
 	}
 
 	private void GenerateMosaic( Icosphere icosphere ) {
-		IReadOnlyList<uint> indices = icosphere.GetIndices( icosphere.Subdivisions - 1 );
+		IReadOnlyList<uint> indices = icosphere.GetIndices();
 		Random r = new();
 		for (int i = 0; i < indices.Count; i += 3) {
 			TriangleIndices triangle = new( (int) indices[ i ], (int) indices[ i + 1 ], (int) indices[ i + 2 ] );

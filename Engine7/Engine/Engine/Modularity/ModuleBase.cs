@@ -35,7 +35,7 @@ public abstract class ModuleBase : DisposableIdentifiable {
 		this.ModuleClock = Clock<double, StopwatchTickSupplier>.ReferenceClock;
 		this.Running = true;
 		MessageBusNode = MessageBus.CreateNode( address );
-		MessageBusNode.OnMessageReceived += OnMessageReceivedInternal;
+		MessageBusNode.OnMessageProcessed += OnMessageReceivedInternal;
 	}
 
 	private void OnMessageReceivedInternal( Message message ) => OnMessageReceived?.Invoke( message );
