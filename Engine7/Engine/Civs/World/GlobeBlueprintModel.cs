@@ -24,6 +24,8 @@ public sealed class GlobeBlueprintModel : DisposableIdentifiable {
 		_edgeRenderModelContainer = new( edges );
 
 		Clusters = CreateRenderClusters();
+
+		ClusterBounds = Vector3<float>.Zero.CreateBounds( Clusters.First().Bounds.GetLengths() * 0.5f );
 	}
 
 	public Guid Id { get; }
@@ -32,6 +34,7 @@ public sealed class GlobeBlueprintModel : DisposableIdentifiable {
 	public uint FaceCount => _faceRenderModelContainer.Count;
 	public uint EdgeCount => _edgeRenderModelContainer.Count;
 	public IReadOnlyList<BoundedRenderCluster> Clusters { get; }
+	public AABB<Vector3<float>> ClusterBounds { get; }
 
 	private IReadOnlyList<BoundedRenderCluster> CreateRenderClusters() {
 		OcTree<FaceRenderModelLeaf, float> faceTree = new( AABB.Create<Vector3<float>>( [ -1, 1 ] ), 3, false );
@@ -49,17 +52,21 @@ public sealed class GlobeBlueprintModel : DisposableIdentifiable {
 		List<(AABB<Vector3<float>>, IReadOnlyBranch<FaceRenderModelLeaf, float>, IReadOnlyBranch<EdgeRenderModelLeaf, float>)> pairs = PairClusters( faceBranches, edgeBranches );
 
 		List<BoundedRenderCluster> clusters = [];
-		foreach ((AABB<Vector3<float>> bounds, IReadOnlyBranch<FaceRenderModelLeaf, float> faces, IReadOnlyBranch<EdgeRenderModelLeaf, float> edges) pair in pairs)
-			clusters.Add( new( (uint) clusters.Count, pair.bounds, [ .. pair.faces.Contents.Select( p => p.Id ) ], [ .. pair.edges.Contents.Select( p => p.Id ) ] ) );
+		foreach ((AABB<Vector3<float>> bounds, IReadOnlyBranch<FaceRenderModelLeaf, float> faces, IReadOnlyBranch<EdgeRenderModelLeaf, float>? edges) pair in pairs)
+			clusters.Add( new( (uint) clusters.Count, pair.bounds, [ .. pair.faces.Contents.Select( p => p.Id ) ], pair.edges is not null ? [ .. pair.edges.Contents.Select( p => p.Id ) ] : [] ) );
 		return clusters.AsReadOnly();
 	}
 
 	private List<(AABB<Vector3<float>>, IReadOnlyBranch<FaceRenderModelLeaf, float>, IReadOnlyBranch<EdgeRenderModelLeaf, float>)> PairClusters( IReadOnlyList<IReadOnlyBranch<FaceRenderModelLeaf, float>> faceClusters, IReadOnlyList<IReadOnlyBranch<EdgeRenderModelLeaf, float>> edgeClusters ) {
 		List<(AABB<Vector3<float>>, IReadOnlyBranch<FaceRenderModelLeaf, float>, IReadOnlyBranch<EdgeRenderModelLeaf, float>)> result = [];
-		foreach (IReadOnlyBranch<FaceRenderModelLeaf, float> faceCluster in faceClusters)
+		foreach (IReadOnlyBranch<FaceRenderModelLeaf, float> faceCluster in faceClusters) {
+			int pairs = result.Count;
 			foreach (IReadOnlyBranch<EdgeRenderModelLeaf, float> edgeCluster in edgeClusters)
 				if (faceCluster.BranchBounds == edgeCluster.BranchBounds)
 					result.Add( (faceCluster.BranchBounds, faceCluster, edgeCluster) );
+			if (result.Count == pairs)
+				result.Add( (faceCluster.BranchBounds, faceCluster, null) );
+		}
 		return result;
 	}
 

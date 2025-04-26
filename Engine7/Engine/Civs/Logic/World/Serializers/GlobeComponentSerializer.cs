@@ -39,7 +39,7 @@ public sealed class BoundedRenderClusterComponentSerializer( SerializerProvider 
 	protected override void PerformSerialization( ThreadedByteBuffer buffer, BoundedRenderClusterComponent t ) {
 		Span<byte> data = stackalloc byte[ 20 ];
 		MemoryMarshal.Write( data, t.Globe?.Id ?? Guid.Empty );
-		MemoryMarshal.Write( data, t.ClusterIndex );
+		MemoryMarshal.Write( data[16..], t.ClusterIndex );
 		buffer.Add( data );
 	}
 

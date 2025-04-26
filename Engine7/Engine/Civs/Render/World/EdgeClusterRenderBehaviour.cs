@@ -1,4 +1,5 @@
 ﻿using Civs.Logic.World;
+using Civs.Render.Services;
 using Civs.Render.World.Lines;
 using Civs.World;
 using Engine;
@@ -16,6 +17,8 @@ public sealed class EdgeClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 	}
 
 	public void Initialize() {
+		if (Archetype.ClusterComponent.Globe.Blueprint.Clusters[ Archetype.ClusterComponent.ClusterIndex ].EdgeIds.Count == 0)
+			return;
 
 		VertexMesh<LineVertex> lineInstanceMesh = RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
 			[
@@ -33,19 +36,31 @@ public sealed class EdgeClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 			]
 		);
 
-		_lineCollection = RenderEntity.RequestSceneInstanceFixedCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( RenderConstants.GridSceneName, 0, lineInstanceMesh, (uint) Archetype.ClusterComponent.Cluster.Edges.Count );
+		_lineCollection = RenderEntity.RequestSceneInstanceFixedCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( RenderConstants.GridSceneName, 0, lineInstanceMesh, (uint) Archetype.ClusterComponent.Globe.Blueprint.Clusters[ Archetype.ClusterComponent.ClusterIndex ].EdgeIds.Count );
 
-		Span<Line3SceneData> data = stackalloc Line3SceneData[ Archetype.ClusterComponent.Cluster.Edges.Count ];
-		int i = 0;
-		foreach (Edge edge in Archetype.ClusterComponent.Cluster.Edges) {
-			Vector3<float> a = edge.VectorA;
-			Vector3<float> b = edge.VectorB;
-			float length = (b - a).Magnitude<Vector3<float>, float>();
-			float thickness = length * 0.02f;
-			Vector3<float> normal = edge.Normal;
-			data[ i++ ] = new Line3SceneData( a, thickness, b, thickness, normal, 0, 1, (-1, 0, 1), 0.5f, 0.75f, 0.5f, (90, 90, 90, 120) );
+		int elementsPerSpan = int.Min( (int) _lineCollection.MaxElements, 8192 );
+		Span<Line3SceneData> data = stackalloc Line3SceneData[ elementsPerSpan ];
+		int offset = 0;
+		var edgeIds = Archetype.ClusterComponent.Globe.Blueprint.Clusters[ Archetype.ClusterComponent.ClusterIndex ].EdgeIds;
+		var blueprint = Archetype.ClusterComponent.Globe.Blueprint;
+		while (offset < _lineCollection.MaxElements) {
+			int i = 0;
+			for (; i < elementsPerSpan; i++) {
+				int index = offset + i;
+				if (index >= edgeIds.Count)
+					break;
+				EdgeRenderModelWithIdAndVertices edge = blueprint.GetEdgeWithVertices( edgeIds[ index ] );
+				Vector3<float> a = edge.VertexA;
+				Vector3<float> b = edge.VertexB;
+				float length = (b - a).Magnitude<Vector3<float>, float>();
+				float thickness = length * 0.02f;
+				Vector3<float> right = (b - a).Cross( -a ).Normalize<Vector3<float>, float>();
+				Vector3<float> normal = (b - a).Cross( right ).Normalize<Vector3<float>, float>();
+				data[ i ] = new Line3SceneData( a, thickness, b, thickness, normal, 0, 1, (-1, 0, 1), 0.5f, 0.75f, 0.5f, (90, 90, 90, 120) );
+			}
+			_lineCollection.WriteRange( (uint) offset, data[ ..i ] );
+			offset += i;
 		}
-		_lineCollection.WriteRange( 0, data );
 	}
 
 	public override void Update( double time, double deltaTime ) {

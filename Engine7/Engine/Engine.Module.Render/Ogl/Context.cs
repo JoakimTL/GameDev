@@ -1,5 +1,6 @@
 ﻿using Engine.Logging;
 using Engine.Module.Render.Domain;
+using Engine.Module.Render.Glfw;
 using Engine.Module.Render.Ogl.OOP;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
@@ -47,6 +48,7 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 		Log.Line( $"Max color texture samples: {maxSamples}", Log.Level.NORMAL, ConsoleColor.Blue );
 		this.InstanceProvider.Get<GlDebugMessageService>().BindErrorCallback();
 		this.InstanceProvider.Catalog.Host<UserInputService>();
+		GLFW.SwapInterval( (int) WindowSettings.VSyncLevel );
 		OnInitialized?.Invoke( this );
 	}
 

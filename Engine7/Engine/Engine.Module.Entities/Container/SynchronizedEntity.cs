@@ -46,10 +46,13 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 				ISerializer? serializer = _copyPair.SerializerProvider.GetSerializerFor( MemoryMarshal.Read<Guid>( componentSerializationData.Payload.Span[ ^16.. ] ) );
 				if (serializer is null)
 					continue;
-				if (!_copyPair.Entity.TryGetComponent( serializer.Target, out ComponentBase? component ))
-					component = _copyPair.Entity.AddComponent( serializer.Target );
-				serializer.DeserializeInto( componentSerializationData.Payload.Span, component );
-				componentSerializationData.Dispose();
+				if (!_copyPair.Entity.TryGetComponent( serializer.Target, out ComponentBase? component )) {
+					component = _copyPair.Entity.CreateComponent( serializer.Target );
+					serializer.DeserializeInto( componentSerializationData.Payload.Span, component );
+					_copyPair.Entity.AddComponent( serializer.Target, component );
+				} else {
+					serializer.DeserializeInto( componentSerializationData.Payload.Span, component );
+				}
 			}
 		}
 		while (_removedComponents.TryDequeue( out Type? removedComponentType ))

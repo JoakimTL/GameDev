@@ -1,5 +1,6 @@
 ﻿using Civs.Logic.World;
 using Civs.Render.World.Shaders;
+using Civs.World;
 using Engine;
 using Engine.Module.Render.Entities;
 using Engine.Standard.Render;
@@ -27,7 +28,10 @@ public sealed class TileClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 			return;
 		_sceneInstance.SetAllocated( visibilityBehaviour.IsVisible );
 		if (_sceneInstance.Allocated && _needsMeshUpdate) {
-			_sceneInstance.UpdateMesh( this.Archetype.ClusterComponent.Cluster.Tiles, RenderEntity.ServiceAccess.MeshProvider );
+			var clusterComponent = Archetype.ClusterComponent;
+			var globeBlueprint = clusterComponent.Globe.Blueprint;
+			List<FaceRenderModelWithId> faces = [ .. globeBlueprint.Clusters[ clusterComponent.ClusterIndex ].FaceIds.Select( globeBlueprint.GetFace ) ];
+			_sceneInstance.UpdateMesh( clusterComponent.Globe, faces, RenderEntity.ServiceAccess.MeshProvider );
 			_sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
 			_needsMeshUpdate = false;
 		}
@@ -37,51 +41,4 @@ public sealed class TileClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 		return true;
 	}
 
-}
-
-public sealed class ClusterVisibilityRenderBehaviour : DependentRenderBehaviourBase<WorldClusterArchetype> {
-	public bool IsVisible { get; private set; } = false;
-
-	public event Action? VisibilityChanged;
-
-	public override void Update( double time, double deltaTime ) {
-		CheckVisibilityAgainstCameraTranslation( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation.Normalize<Vector3<float>, float>() );
-	}
-
-	public void SetVisibility( bool visible ) {
-		if (IsVisible == visible)
-			return;
-		IsVisible = visible;
-		VisibilityChanged?.Invoke();
-	}
-
-	public void CheckVisibilityAgainstCameraTranslation( Vector3<float> normalizedTranslation ) {
-		bool shouldBeVisible = false;
-
-		Vector3<float> min = Archetype.ClusterComponent.Cluster.Bounds.Minima;
-		Vector3<float> max = Archetype.ClusterComponent.Cluster.Bounds.Maxima;
-
-		Span<Vector3<float>> boundsCorners =
-		[
-			(min.X, min.Y, min.Z),
-			(min.X, min.Y, max.Z),
-			(min.X, max.Y, max.Z),
-			(min.X, max.Y, min.Z),
-			(max.X, min.Y, min.Z),
-			(max.X, min.Y, max.Z),
-			(max.X, max.Y, max.Z),
-			(max.X, max.Y, min.Z)
-		];
-
-		for (int i = 0; i < boundsCorners.Length; i++)
-			if (normalizedTranslation.Dot( boundsCorners[ i ].Normalize<Vector3<float>, float>() ) >= 0.20629947401) {
-				shouldBeVisible = true;
-				break;
-			}
-
-		SetVisibility( shouldBeVisible );
-	}
-	protected override bool InternalDispose() {
-		return true;
-	}
 }

@@ -22,7 +22,9 @@ public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity
 			Vector3<float> a = globe.Blueprint.GetVertex( faceList[ i ].Model.IndexA );
 			Vector3<float> b = globe.Blueprint.GetVertex( faceList[ i ].Model.IndexB );
 			Vector3<float> c = globe.Blueprint.GetVertex( faceList[ i ].Model.IndexC );
-			Vector4<byte> color = ((overrideColor ?? 1f/*faceList[ i ].Color*/) * 255).Clamp<Vector4<float>, float>( 0, 255 ).CastSaturating<float, byte>();
+			Vector4<byte> color = ((overrideColor ?? (globe.State.GetHeight( faceList[ i ].Id) >= 0 ? (0.37f, 0.97f, 0.2f, 1) : (0.06f, 0.27f, 1.0f, 1))) * 255)
+				.Clamp<Vector4<float>, float>( 0, 255 )
+				.CastSaturating<float, byte>();
 
 			//Create mesh
 			indices.Add( (uint) vertices.Count );

@@ -74,18 +74,22 @@ public sealed class Entity : Identifiable {
 		T component = new();
 		component.SetEntity( this );
 		componentInitialization?.Invoke( component );
-		AddComponent( typeof( T ), component );
+		InternalAddComponent( typeof( T ), component );
 		return component;
 	}
 
-	internal ComponentBase AddComponent( Type t ) {
+	internal ComponentBase CreateComponent( Type t ) {
 		ComponentBase component = t.CreateInstance( null ) as ComponentBase ?? throw new InvalidOperationException( $"Type {t.Name} is not a component." );
 		component.SetEntity( this );
-		AddComponent( t, component );
 		return component;
 	}
 
-	private void AddComponent( Type t, ComponentBase component ) {
+	internal ComponentBase AddComponent( Type t, ComponentBase component ) {
+		InternalAddComponent( t, component );
+		return component;
+	}
+
+	private void InternalAddComponent( Type t, ComponentBase component ) {
 		this._components.Add( t, component );
 		if (component is IMessageReadingComponent messageReader)
 			this._messageReaders.Add( messageReader );

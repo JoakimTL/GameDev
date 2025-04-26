@@ -7,7 +7,7 @@ namespace Engine.Module.Entities.Container;
 
 [Guid( "F78140DD-DC4D-46A5-BA8B-BA57F0570813" )]
 public sealed class EntitySerializer( SerializerProvider serializerProvider ) : SerializerBase<Entity>( serializerProvider ) {
-	protected override int PerformSerialization( ThreadedByteBuffer buffer, Entity entity ) {
+	protected override void PerformSerialization( ThreadedByteBuffer buffer, Entity entity ) {
 		const string ecsBufferName = "ecs-comp";
 		if (buffer.Identity == ecsBufferName)
 			throw new InvalidOperationException( $"Buffer name cannot be '{ecsBufferName}'." );
@@ -25,10 +25,8 @@ public sealed class EntitySerializer( SerializerProvider serializerProvider ) : 
 			using (PooledBufferData data = ecsBuffer.GetData())
 				segmenter.Append( data.Payload.Span );
 		}
-		using (PooledBufferData output = segmenter.Flush()) {
+		using (PooledBufferData output = segmenter.Flush()) 
 			buffer.Add( output.Payload.Span );
-			return output.Payload.Length;
-		}
 	}
 
 	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, Entity target ) {
@@ -47,8 +45,9 @@ public sealed class EntitySerializer( SerializerProvider serializerProvider ) : 
 			ISerializer? serializer = SerializerProvider.GetSerializerFor( MemoryMarshal.Read<Guid>( output[ (readBytes - 16)..readBytes ] ) );
 			if (serializer is null)
 				continue;
-			ComponentBase component = target.AddComponent( serializer.Target );
+			ComponentBase component = target.CreateComponent( serializer.Target );
 			serializer.DeserializeInto( output[ ..readBytes ], component );
+			target.AddComponent( serializer.Target, component );
 		}
 		return true;
 	}

@@ -3,66 +3,111 @@
 namespace Engine.Standard.Render.Meshing;
 
 public static class IcosphereGenerator {
+	public const double GoldenRatio = 1.618033988749894;
+
 	public static void CreateIcosphere<TScalar>( out List<Vector3<TScalar>> vectors, out List<uint> rootIndices )
 		where TScalar : unmanaged, IFloatingPointIeee754<TScalar> {
+
 		vectors = [];
 		rootIndices = [];
 
-		vectors.Add( new Vector3<TScalar>( TScalar.CreateSaturating( 0 ), TScalar.CreateSaturating( 1 ), TScalar.CreateSaturating( 0 ) ) );
+		TScalar phi = TScalar.CreateSaturating( GoldenRatio );
+		TScalar scaling = TScalar.Sqrt( TScalar.One + phi * phi );
+		TScalar scalingInverse = TScalar.One / scaling;
 
-		TScalar H_ANGLE = TScalar.Pi / TScalar.CreateSaturating( 180 ) * TScalar.CreateSaturating( 72 );    // 72 degree = 360 / 5
-		TScalar V_ANGLE = TScalar.Atan( TScalar.CreateSaturating( 1 ) / TScalar.CreateSaturating( 2 ) );  // elevation = 26.565 degree
+		vectors.Add( (phi, TScalar.One, TScalar.Zero) );  // 0			|
+		vectors.Add( (phi, -TScalar.One, TScalar.Zero) ); // 1			|
+		vectors.Add( (-phi, TScalar.One, TScalar.Zero) ); // 2			|
+		vectors.Add( (-phi, -TScalar.One, TScalar.Zero) );// 3			|
+		vectors.Add( (TScalar.One, TScalar.Zero, phi) );  // 4			|
+		vectors.Add( (-TScalar.One, TScalar.Zero, phi) ); // 5			|
+		vectors.Add( (TScalar.One, TScalar.Zero, -phi) ); // 6			|
+		vectors.Add( (-TScalar.One, TScalar.Zero, -phi) );// 7			|
+		vectors.Add( (TScalar.Zero, phi, TScalar.One) );  // 8			|
+		vectors.Add( (TScalar.Zero, phi, -TScalar.One) ); // 9			|
+		vectors.Add( (TScalar.Zero, -phi, TScalar.One) ); // 10			|
+		vectors.Add( (TScalar.Zero, -phi, -TScalar.One) );// 11			|
 
-		TScalar hAngle1 = (-TScalar.Pi / TScalar.CreateSaturating( 2 )) - (H_ANGLE / TScalar.CreateSaturating( 2 ));  // start from -126 deg at 1st row
-		TScalar hAngle2 = -TScalar.Pi / TScalar.CreateSaturating( 2 );                // start from -90 deg at 2nd row
+		for (int i = 0; i < vectors.Count; i++)
+			vectors[ i ] *= scalingInverse;
 
-		for (int i = 1; i <= 5; ++i) {
-			int i1 = i;
+		rootIndices.AddRange( [ 8, 0, 9 ] );        // 1
+		rootIndices.AddRange( [ 8, 9, 2 ] );        // 2
+		rootIndices.AddRange( [ 11, 1, 10 ] );      // 3
+		rootIndices.AddRange( [ 11, 10, 3 ] );      // 4
+		rootIndices.AddRange( [ 0, 1, 6 ] );        // 5
+		rootIndices.AddRange( [ 0, 4, 1 ] );        // 6
+		rootIndices.AddRange( [ 3, 2, 7 ] );        // 7
+		rootIndices.AddRange( [ 3, 5, 2 ] );        // 8
+		rootIndices.AddRange( [ 4, 5, 10 ] );       // 9
+		rootIndices.AddRange( [ 4, 8, 5 ] );        // 10
+		rootIndices.AddRange( [ 7, 6, 11 ] );       // 11
+		rootIndices.AddRange( [ 7, 9, 6 ] );        // 12
+		
+		rootIndices.AddRange( [ 8, 4, 0 ] );        // 13
+		rootIndices.AddRange( [ 8, 2, 5 ] );        // 14
+		rootIndices.AddRange( [ 10, 1, 4 ] );       // 15
+		rootIndices.AddRange( [ 10, 5, 3 ] );       // 16
+		rootIndices.AddRange( [ 9, 0, 6 ] );        // 17
+		rootIndices.AddRange( [ 9, 7, 2 ] );        // 18
+		rootIndices.AddRange( [ 11, 6, 1 ] );       // 19
+		rootIndices.AddRange( [ 11, 3, 7 ] );       // 20
 
-			TScalar y = TScalar.Sin( V_ANGLE );
-			TScalar xz = TScalar.Cos( V_ANGLE );
+		//vectors.Add( new Vector3<TScalar>( TScalar.CreateSaturating( 0 ), TScalar.CreateSaturating( 1 ), TScalar.CreateSaturating( 0 ) ) );
 
-			vectors.Add( new Vector3<TScalar>( xz * TScalar.Cos( hAngle1 ), y, xz * TScalar.Sin( hAngle1 ) ) );
+		//TScalar H_ANGLE = TScalar.Pi / TScalar.CreateSaturating( 180 ) * TScalar.CreateSaturating( 72 );    // 72 degree = 360 / 5
+		//TScalar V_ANGLE = TScalar.Atan( TScalar.CreateSaturating( 1 ) / TScalar.CreateSaturating( 2 ) );  // elevation = 26.565 degree
 
-			hAngle1 += H_ANGLE;
-		}
+		//TScalar hAngle1 = (-TScalar.Pi / TScalar.CreateSaturating( 2 )) - (H_ANGLE / TScalar.CreateSaturating( 2 ));  // start from -126 deg at 1st row
+		//TScalar hAngle2 = -TScalar.Pi / TScalar.CreateSaturating( 2 );                // start from -90 deg at 2nd row
 
-		for (int i = 1; i <= 5; ++i) {
-			int i2 = i + 5;
+		//for (int i = 1; i <= 5; ++i) {
+		//	int i1 = i;
 
-			TScalar y = TScalar.Sin( V_ANGLE );
-			TScalar xz = TScalar.Cos( V_ANGLE );
+		//	TScalar y = TScalar.Sin( V_ANGLE );
+		//	TScalar xz = TScalar.Cos( V_ANGLE );
 
-			vectors.Add( new Vector3<TScalar>( xz * TScalar.Cos( hAngle2 ), -y, xz * TScalar.Sin( hAngle2 ) ) );
+		//	vectors.Add( new Vector3<TScalar>( xz * TScalar.Cos( hAngle1 ), y, xz * TScalar.Sin( hAngle1 ) ) );
 
-			hAngle2 += H_ANGLE;
-		}
+		//	hAngle1 += H_ANGLE;
+		//}
 
-		vectors.Add( new Vector3<TScalar>( TScalar.CreateSaturating( 0 ), TScalar.CreateSaturating( -1 ), TScalar.CreateSaturating( 0 ) ) );
+		//for (int i = 1; i <= 5; ++i) {
+		//	int i2 = i + 5;
 
-		for (uint i = 0; i < 5; i++) {
-			rootIndices.Add( 0 );
-			rootIndices.Add( ((i + 1) % 5) + 1 );
-			rootIndices.Add( i + 1 );
-		}
+		//	TScalar y = TScalar.Sin( V_ANGLE );
+		//	TScalar xz = TScalar.Cos( V_ANGLE );
 
-		for (uint i = 0; i < 5; i++) {
-			rootIndices.Add( ((i + 1) % 5) + 1 );
-			rootIndices.Add( ((i + 1) % 5) + 6 );
-			rootIndices.Add( i + 6 );
-		}
+		//	vectors.Add( new Vector3<TScalar>( xz * TScalar.Cos( hAngle2 ), -y, xz * TScalar.Sin( hAngle2 ) ) );
 
-		for (uint i = 0; i < 5; i++) {
-			rootIndices.Add( i + 6 );
-			rootIndices.Add( i + 1 );
-			rootIndices.Add( ((i + 1) % 5) + 1 );
-		}
+		//	hAngle2 += H_ANGLE;
+		//}
 
-		for (uint i = 0; i < 5; i++) {
-			rootIndices.Add( 11 );
-			rootIndices.Add( 5 + i + 1 );
-			rootIndices.Add( 5 + ((i + 1) % 5) + 1 );
-		}
+		//vectors.Add( new Vector3<TScalar>( TScalar.CreateSaturating( 0 ), TScalar.CreateSaturating( -1 ), TScalar.CreateSaturating( 0 ) ) );
+
+		//for (uint i = 0; i < 5; i++) {
+		//	rootIndices.Add( 0 );
+		//	rootIndices.Add( ((i + 1) % 5) + 1 );
+		//	rootIndices.Add( i + 1 );
+		//}
+
+		//for (uint i = 0; i < 5; i++) {
+		//	rootIndices.Add( ((i + 1) % 5) + 1 );
+		//	rootIndices.Add( ((i + 1) % 5) + 6 );
+		//	rootIndices.Add( i + 6 );
+		//}
+
+		//for (uint i = 0; i < 5; i++) {
+		//	rootIndices.Add( i + 6 );
+		//	rootIndices.Add( i + 1 );
+		//	rootIndices.Add( ((i + 1) % 5) + 1 );
+		//}
+
+		//for (uint i = 0; i < 5; i++) {
+		//	rootIndices.Add( 11 );
+		//	rootIndices.Add( 5 + i + 1 );
+		//	rootIndices.Add( 5 + ((i + 1) % 5) + 1 );
+		//}
 	}
 
 	//public static void GenerateSubdividedIcosphere<TScalar>( int subdivisions, out List<Vector3<TScalar>> vectors, out List<uint> indices )

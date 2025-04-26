@@ -5,12 +5,14 @@ namespace Civs.Logic.World;
 
 public sealed class GlobeComponent : ComponentBase {
 
-	public GlobeModel? Globe { get; private set; }
+	private GlobeModel? _globe;
+
+	public GlobeModel Globe => _globe ?? throw new InvalidOperationException( "Globe is not set." );
 
 	public void SetGlobe( GlobeModel globe ) {
-		if (this.Globe is not null)
+		if (this._globe is not null)
 			throw new InvalidOperationException( "Globe is already set." );
-		this.Globe = globe;
+		this._globe = globe;
 	}
 
 }

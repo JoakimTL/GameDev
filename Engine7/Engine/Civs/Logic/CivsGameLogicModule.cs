@@ -31,7 +31,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 
 		if (message.Content is CreateNewWorldRequestMessage createNewWorldRequest) {
 			var globe = GlobeModel.Generate( createNewWorldRequest.Parameters );
-			MessageBusNode.Publish( new CreateNewWorldRequestMessageResponse( globe ), "globe-tracking" );
+			MessageBusNode.Publish( new CreateNewWorldRequestResponseMessage( globe ), "globe-tracking" );
 			return;
 		}
 

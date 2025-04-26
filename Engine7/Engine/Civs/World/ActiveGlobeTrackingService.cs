@@ -1,4 +1,4 @@
-﻿using Civs.World.Messages;
+﻿using Civs.Messages;
 using Engine;
 using Engine.Modularity;
 
@@ -35,9 +35,9 @@ public sealed class ActiveGlobeTrackingService : IUpdateable {
 	}
 
 	private void MessageProcessed( Message message ) {
-		if (message.Content is NewWorldCreatedMessage newGlobeCreated) {
+		if (message.Content is CreateNewWorldRequestResponseMessage createNewWorldRequestResponse) {
 			BeforeGlobeChange?.Invoke( CurrentGlobe );
-			CurrentGlobe = newGlobeCreated.Globe;
+			CurrentGlobe = createNewWorldRequestResponse.Globe;
 			AfterGlobeChange?.Invoke( CurrentGlobe );
 		}
 	}

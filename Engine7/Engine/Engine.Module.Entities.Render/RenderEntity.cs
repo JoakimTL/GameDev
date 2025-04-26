@@ -51,7 +51,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 		where TInstanceData : unmanaged
 		where TShaderBundle : ShaderBundleBase {
 		SceneObjectFixedCollection<TVertexData, TInstanceData> collection = this.ServiceAccess.SceneInstanceProvider.RequestSceneObjectFixedCollection<TVertexData, TInstanceData, TShaderBundle>( sceneName, layer, mesh, count );
-		this._removables.Add( collection );
+		this._disposables.Add( collection );
 		return collection;
 	}
 
