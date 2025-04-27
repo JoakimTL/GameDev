@@ -1,6 +1,6 @@
 ﻿using Civs.Logic.World;
 using Civs.Messages;
-using Civs.World;
+using Civs.World.NewWorld;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Entities.Container;
@@ -30,7 +30,8 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		}
 
 		if (message.Content is CreateNewWorldRequestMessage createNewWorldRequest) {
-			var globe = GlobeModel.Generate( createNewWorldRequest.Parameters );
+			var procGen = new ProceduralWorldTerrainGenerator( createNewWorldRequest.Parameters );
+			var globe = new GlobeModel( Guid.NewGuid(), createNewWorldRequest.Parameters.Subdivisions, procGen );
 			MessageBusNode.Publish( new CreateNewWorldRequestResponseMessage( globe ), "globe-tracking" );
 			return;
 		}
@@ -111,7 +112,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		_worldEntity.AddComponent<GlobeComponent>( p => p.SetGlobe( model ) );
 		_worldEntity.AddComponent<RenderComponent>();
 
-		foreach (BoundedRenderCluster cluster in model.Blueprint.Clusters) {
+		foreach (BoundedRenderCluster cluster in model.Clusters) {
 			Entity entity = _entities.CreateEntity();
 			entity.SetParent( _worldEntity.EntityId );
 			entity.AddComponent<Transform3Component>();

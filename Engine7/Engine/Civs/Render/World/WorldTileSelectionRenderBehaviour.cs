@@ -6,7 +6,7 @@ using Engine.Module.Render.Input;
 using Engine.Standard.Render.Input.Services;
 using Engine.Standard;
 using Engine.Transforms;
-using Civs.World;
+using Civs.World.NewWorld;
 
 namespace Civs.Render.World;
 
@@ -32,7 +32,7 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		if (@event.Button != MouseButton.Left || @event.InputType != TactileInputType.Press)
 			return;
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "selectedTile", RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<uint?>( "hoveringTile" ) );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "selectedTile", RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Face>( "hoveringTile" ) );
 	}
 
 	public override void Update( double time, double deltaTime ) {
@@ -46,24 +46,23 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		Vector3<float> pointerDirection = ndc.GetMouseWorldDirection( view.InverseMatrix, projection.InverseMatrix );
 
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
-			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<uint?>( "hoveringTile", null );
+			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Face>( "hoveringTile", null );
 			return;
 		}
 
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
-		AABB<Vector3<float>> bounds = globe.Blueprint.ClusterBounds.MoveBy( intersectionPoint ).ScaleBy( 0.25f );
-		foreach (BoundedRenderCluster cluster in globe.Blueprint.Clusters.Where( p => p.Bounds.Intersects( bounds ) )) {
-			foreach (uint tileId in cluster.FaceIds) {
-				FaceRenderModelWithIdAndVertices tile = globe.Blueprint.GetFaceWithVertices( tileId );
-				if (!RayIntersectsTriangle( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, tile.VertexA, tile.VertexB, tile.VertexC, out _ ))
+		AABB<Vector3<float>> bounds = globe.ClusterBounds.MoveBy( intersectionPoint ).ScaleBy( 0.25f );
+		foreach (BoundedRenderCluster cluster in globe.Clusters.Where( p => p.Bounds.Intersects( bounds ) )) {
+			foreach (Face face in cluster.Faces) {
+				if (!RayIntersectsTriangle( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.VertexA, face.Blueprint.VertexB, face.Blueprint.VertexC, out _ ))
 					continue;
-				RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "hoveringTile", tileId );
+				RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "hoveringTile", face );
 				return;
 			}
 		}
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<uint?>( "hoveringTile", null );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Face>( "hoveringTile", null );
 	}
 
 	protected override bool InternalDispose() {

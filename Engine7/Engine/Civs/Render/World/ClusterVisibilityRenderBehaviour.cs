@@ -40,7 +40,7 @@ public sealed class ClusterVisibilityRenderBehaviour : DependentRenderBehaviourB
 		];
 
 		for (int i = 0; i < boundsCorners.Length; i++)
-			if (normalizedTranslation.Dot( boundsCorners[ i ].Normalize<Vector3<float>, float>() ) >= -1 /*0.20629947401*/) {
+			if (normalizedTranslation.Dot( boundsCorners[ i ].Normalize<Vector3<float>, float>() ) >= 0 /*0.20629947401*/) {
 				shouldBeVisible = true;
 				break;
 			}

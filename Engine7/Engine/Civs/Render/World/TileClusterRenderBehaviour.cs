@@ -1,6 +1,6 @@
 ﻿using Civs.Logic.World;
 using Civs.Render.World.Shaders;
-using Civs.World;
+using Civs.World.NewWorld;
 using Engine;
 using Engine.Module.Render.Entities;
 using Engine.Standard.Render;
@@ -29,9 +29,8 @@ public sealed class TileClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 		_sceneInstance.SetAllocated( visibilityBehaviour.IsVisible );
 		if (_sceneInstance.Allocated && _needsMeshUpdate) {
 			var clusterComponent = Archetype.ClusterComponent;
-			var globeBlueprint = clusterComponent.Globe.Blueprint;
-			List<FaceRenderModelWithId> faces = [ .. globeBlueprint.Clusters[ clusterComponent.ClusterIndex ].FaceIds.Select( globeBlueprint.GetFace ) ];
-			_sceneInstance.UpdateMesh( clusterComponent.Globe, faces, RenderEntity.ServiceAccess.MeshProvider );
+			var globe = clusterComponent.Globe;
+			_sceneInstance.UpdateMesh( clusterComponent.Cluster.Faces, RenderEntity.ServiceAccess.MeshProvider );
 			_sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
 			_needsMeshUpdate = false;
 		}

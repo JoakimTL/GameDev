@@ -2,7 +2,7 @@
 using Engine;
 using Engine.Modularity;
 
-namespace Civs.World;
+namespace Civs.World.NewWorld;
 
 //public sealed class WorldProviderService : DisposableIdentifiable {
 

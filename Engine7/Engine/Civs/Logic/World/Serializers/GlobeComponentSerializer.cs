@@ -1,5 +1,4 @@
-﻿using Civs.World;
-using Engine;
+﻿using Civs.World.NewWorld;
 using Engine.Buffers;
 using Engine.Serialization;
 using System.Runtime.InteropServices;
@@ -39,7 +38,7 @@ public sealed class BoundedRenderClusterComponentSerializer( SerializerProvider 
 	protected override void PerformSerialization( ThreadedByteBuffer buffer, BoundedRenderClusterComponent t ) {
 		Span<byte> data = stackalloc byte[ 20 ];
 		MemoryMarshal.Write( data, t.Globe?.Id ?? Guid.Empty );
-		MemoryMarshal.Write( data[16..], t.ClusterIndex );
+		MemoryMarshal.Write( data[16..], t.Cluster.Id );
 		buffer.Add( data );
 	}
 

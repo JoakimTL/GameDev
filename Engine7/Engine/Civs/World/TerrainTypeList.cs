@@ -1,4 +1,5 @@
-﻿using Engine;
+﻿using Civs.World.TerrainTypes;
+using Engine;
 using System.Collections.Frozen;
 
 //TODO: Have tiles be outside the ECS systems. Incorporate them into the ECS system (and thus rendering) as tile collection components: Lists of tiles. These lists are gained from the octree in the globe class.
@@ -6,6 +7,8 @@ using System.Collections.Frozen;
 namespace Civs.World;
 
 public static class TerrainTypeList {
+
+	public static OceanTerrain Default { get; }
 
 	private static readonly FrozenDictionary<Type, TerrainTypeBase> _terrainTypesByType;
 	private static readonly FrozenDictionary<uint, TerrainTypeBase> _terrainTypesById;
@@ -27,6 +30,8 @@ public static class TerrainTypeList {
 
 		_terrainTypesById = terrainTypesById.ToFrozenDictionary();
 		_terrainTypesByType = terrainTypesByType.ToFrozenDictionary();
+
+		Default = GetTerrainType<OceanTerrain>();
 	}
 
 	public static TerrainTypeBase GetTerrainType( uint id ) {

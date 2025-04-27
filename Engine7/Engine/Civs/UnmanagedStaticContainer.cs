@@ -1,7 +1,7 @@
 ﻿using Engine;
 using System.Runtime.InteropServices;
 
-namespace Civs.World;
+namespace Civs;
 
 public sealed unsafe class UnmanagedStaticContainer<T> : DisposableIdentifiable where T : unmanaged {
 	private readonly uint _count;

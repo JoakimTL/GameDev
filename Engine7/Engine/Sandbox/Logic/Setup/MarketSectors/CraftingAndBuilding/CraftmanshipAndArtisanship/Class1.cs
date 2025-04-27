@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Logic.Setup.MarketSectors.CraftingAndBuilding.Artisan;
+﻿namespace Sandbox.Logic.Setup.MarketSectors.CraftingAndBuilding.CraftmanshipAndArtisanship;
 internal class Class1 {
 }
 

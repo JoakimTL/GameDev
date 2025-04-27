@@ -1,4 +1,4 @@
-﻿namespace Sandbox.Logic.Setup.MarketSectors.CraftingAndBuilding.Manufacturing;
+﻿namespace Sandbox.Logic.Setup.MarketSectors.CraftingAndBuilding.ManufacturingAndConstruction;
 
 [Guid( "B1249AC4-3C51-41C0-80E7-771ACB765294" )]
 public sealed class LaborerProfession() : ProfessionTypeBase<ManufacturingAndConstructionVocation>( "Laborer" );

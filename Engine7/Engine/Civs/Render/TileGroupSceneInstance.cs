@@ -1,4 +1,4 @@
-﻿using Civs.World;
+﻿using Civs.World.NewWorld;
 using Engine;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
@@ -9,20 +9,20 @@ using Engine.Standard.Render;
 namespace Civs.Render;
 
 public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity3SceneData ) ) {
-	public void UpdateMesh( GlobeModel globe, IReadOnlyCollection<FaceRenderModelWithId> faces, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
+	public void UpdateMesh( IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
 		Mesh?.Dispose();
-		SetMesh( CreateMesh( globe, faces, meshProvider, overrideColor ) );
+		SetMesh( CreateMesh( faces, meshProvider, overrideColor ) );
 	}
 
-	private IMesh CreateMesh( GlobeModel globe, IReadOnlyCollection<FaceRenderModelWithId> faces, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
+	private IMesh CreateMesh( IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
-		List<FaceRenderModelWithId> faceList = faces.ToList();
-		for (int i = 0; i < faceList.Count; i++) {
-			Vector3<float> a = globe.Blueprint.GetVertex( faceList[ i ].Model.IndexA );
-			Vector3<float> b = globe.Blueprint.GetVertex( faceList[ i ].Model.IndexB );
-			Vector3<float> c = globe.Blueprint.GetVertex( faceList[ i ].Model.IndexC );
-			Vector4<byte> color = ((overrideColor ?? (globe.State.GetHeight( faceList[ i ].Id) >= 0 ? (0.37f, 0.97f, 0.2f, 1) : (0.06f, 0.27f, 1.0f, 1))) * 255)
+		for (int i = 0; i < faces.Count; i++) {
+			var face = faces[i ];
+			Vector3<float> a = face.Blueprint.VertexA;
+			Vector3<float> b = face.Blueprint.VertexB;
+			Vector3<float> c = face.Blueprint.VertexC;
+			Vector4<byte> color = ((overrideColor ?? face.State.TerrainType.Color) * 255)
 				.Clamp<Vector4<float>, float>( 0, 255 )
 				.CastSaturating<float, byte>();
 
