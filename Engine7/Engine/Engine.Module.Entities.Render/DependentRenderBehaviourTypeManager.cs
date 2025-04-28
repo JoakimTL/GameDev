@@ -1,4 +1,5 @@
-﻿using Engine.Module.Entities.Container;
+﻿using Engine.Logging;
+using Engine.Module.Entities.Container;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -25,7 +26,22 @@ public static class DependentRenderBehaviourTypeManager {
 				_typesDependentOnComponent.Add( archetypeType, dependentTypes = [] );
 			dependentTypes.Add( type );
 			_dependentRenderBehaviourFactories.Add( type, CreateDependentBehaviourFactory( type, archetypeType ) );
+#if DEBUG
+			PerformDependencySerializationCheck( type, archetypeType );
+#endif
 		}
+	}
+
+	private static void PerformDependencySerializationCheck( Type dependentType, Type archetypeType ) {
+		List<Type> missingSerializers = [];
+		foreach (Type componentType in archetypeType.GetProperties().Where( p => p.CanWrite ).Select( p => p.PropertyType )) {
+			if (TypeManager.Serializers.GetSerializerType( componentType ) is not null)
+				continue;
+			missingSerializers.Add( componentType );
+		}
+		if (missingSerializers.Count == 0)
+			return;
+		Log.Warning( $"Rendering of {dependentType.Name} will not work. Reason is missing serializers for {string.Join( ", ", missingSerializers.Select( p => p.Name ) )}." );
 	}
 
 	private static Func<ArchetypeBase, RenderBehaviourBase> CreateDependentBehaviourFactory( Type dependentType, Type archetypeType ) {

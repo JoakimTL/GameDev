@@ -10,6 +10,14 @@ public sealed class Connection( Face faceA, Edge sharedEdge ) {
 	public Face FaceB => _faceB ?? throw new InvalidOperationException( "FaceB is not set." );
 	public Edge SharedEdge { get; } = sharedEdge;
 
+	public Face GetOther( Face face ) {
+		if (face == FaceA)
+			return FaceB;
+		if (face == FaceB)
+			return FaceA;
+		throw new InvalidOperationException( "Current face is not part of this connection." );
+	}
+
 	internal void SetFaceB( Face face ) {
 		if (_faceB is not null)
 			throw new InvalidOperationException( "FaceB already set." );

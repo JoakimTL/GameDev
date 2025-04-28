@@ -30,8 +30,8 @@ public class ThreadedByteBuffer {
 	/// Remember to dispose of the data after use!
 	/// </summary>
 	/// <returns></returns>
-	public PooledBufferData GetData( bool reset = true ) {
-		PooledBufferData output = new( _internalBuffer );
+	public PooledBufferData GetData( bool reset = true, object? tag = null ) {
+		PooledBufferData output = new( _internalBuffer, tag );
 		if (reset)
 			_internalBuffer.Clear();
 		return output;

@@ -12,7 +12,8 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 
 	private SceneObjectFixedCollection<LineVertex, Line3SceneData>? _lineCollection;
 
-	private readonly HashSet<Face> _faces = [];
+	private readonly Queue<(Face, int)> _faceQueue = [];
+	private readonly Dictionary<Face, int> _addedFaces = [];
 	private readonly HashSet<Connection> _connections = [];
 	private Face? _currentlyDisplayedHoveredFace;
 
@@ -38,7 +39,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 			]
 		);
 
-		_lineCollection = RenderEntity.RequestSceneInstanceFixedCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( RenderConstants.GridSceneName, 1, lineInstanceMesh, 1024 );
+		_lineCollection = RenderEntity.RequestSceneInstanceFixedCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( RenderConstants.GridSceneName, 0, lineInstanceMesh, 1024 );
 	}
 
 	public override void Update( double time, double deltaTime ) {
@@ -46,7 +47,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 			return;
 
 		Face? hoveredFace = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Face>( "hoveringTile" );
-		;
+
 		if (_currentlyDisplayedHoveredFace == hoveredFace)
 			return;
 
@@ -56,10 +57,9 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 			return;
 
 		_connections.Clear();
-		_faces.Clear();
-		AddFaces( 7, _currentlyDisplayedHoveredFace, _faces );
+		AddFaces( 9, _currentlyDisplayedHoveredFace );
 
-		foreach (var face in _faces) {
+		foreach (var face in _addedFaces.Keys) {
 			foreach (var connection in face.Blueprint.Connections) {
 				if (_connections.Contains( connection ))
 					continue;
@@ -67,11 +67,24 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 			}
 		}
 
+		Vector3<float> centerFace = _currentlyDisplayedHoveredFace.Blueprint.GetCenter();
+		Vector3<float> center = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Vector3<float>>( "mousePointerGlobeSphereIntersection" );
+
+		float maxRadius = 0;
+		foreach (var connection in _connections) {
+			var edge = connection.SharedEdge;
+			float dstSqA = (edge.VertexA - centerFace).MagnitudeSquared();
+			float dstSqB = (edge.VertexB - centerFace).MagnitudeSquared();
+			float dstSq = MathF.Min( dstSqA, dstSqB ); //Get the lowest of the two, such that lines that poke outside of the "normal" area covered don't create weird cutoffs elsewhere.
+			if (dstSq > maxRadius)
+				maxRadius = dstSq;
+		}
+
 
 		int activeEdges = 0;
 		Span<Line3SceneData> edges = stackalloc Line3SceneData[ _connections.Count ];
 		foreach (var connection in _connections)
-			AddEdge( connection, edges, ref activeEdges );
+			AddEdge( center, maxRadius, connection, edges, ref activeEdges );
 		_lineCollection.WriteRange( 0, edges );
 		_lineCollection.SetActiveElements( (uint) activeEdges );
 
@@ -101,27 +114,44 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 		 */
 	}
 
-	private void AddEdge( Connection connection, Span<Line3SceneData> edges, ref int activeEdges ) {
+	private void AddEdge( Vector3<float> center, float maxRadius, Connection connection, Span<Line3SceneData> edges, ref int activeEdges ) {
 		var edge = connection.SharedEdge;
 		Vector3<float> a = edge.VertexA;
 		Vector3<float> b = edge.VertexB;
+
+		float dstSqA = (a - center).MagnitudeSquared();
+		float dstSqB = (b - center).MagnitudeSquared();
+		float alphaModifierA = 1 - dstSqA / maxRadius;
+		float alphaModifierB = 1 - dstSqB / maxRadius;
+
 		float length = (a - b).Magnitude<Vector3<float>, float>();
 		float thickness = length * 0.02f;
 		Vector3<float> normal = Edge.GetNormal( a, b );
-		edges[ activeEdges++ ] = new( a, thickness, b, thickness, normal, 0, 1, (-1, 0, 1), 0.5f, 0.75f, 0.5f, (90, 90, 90, 120) );
+		Vector4<byte> colorA = new Vector4<float>( 90, 90, 90, 120 * alphaModifierA ).Clamp<Vector4<float>, float>( 0, 255 ).CastSaturating<float, byte>();
+		Vector4<byte> colorB = new Vector4<float>( 90, 90, 90, 120 * alphaModifierB ).Clamp<Vector4<float>, float>( 0, 255 ).CastSaturating<float, byte>();
+		edges[ activeEdges++ ] = new( a, thickness, b, thickness, normal, 0, 1, (-1, 0, 1), 0.5f, 0.75f, 0.5f, colorA, colorB );
 	}
 
-	private void AddFaces( int passes, Face face, HashSet<Face> faces ) {
-		if (passes <= 0)
-			return;
-		if (!faces.Add( face ))
-			return;
-		foreach (var connection in face.Blueprint.Connections) {
-			AddFaces( passes - 1, connection.FaceB, faces );
-			AddFaces( passes - 1, connection.FaceA, faces );
+	private void AddFaces( int passes, Face face ) {
+		_addedFaces.Clear();
+		_faceQueue.Enqueue( (face, passes) );
+
+		while (_faceQueue.TryDequeue( out (Face, int) facePass )) {
+			Face currentFace = facePass.Item1;
+			int currentPasses = facePass.Item2;
+			if (currentPasses <= 0)
+				continue;
+			int currentPassValue = _addedFaces.GetValueOrDefault( currentFace );
+			if (currentPassValue > currentPasses)
+				continue;
+			_addedFaces[ currentFace ] = currentPasses;
+			foreach (var connection in currentFace.Blueprint.Connections) {
+				Face neighbour = connection.GetOther( currentFace );
+				_faceQueue.Enqueue( (neighbour, currentPasses - 1) );
+			}
 		}
 	}
-	
+
 	protected override bool InternalDispose() {
 		return true;
 	}

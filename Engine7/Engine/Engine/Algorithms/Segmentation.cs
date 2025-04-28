@@ -19,10 +19,10 @@ public sealed class Segmenter : IDisposable {
 		_buffer.AppendSegment( data );
 	}
 
-	public PooledBufferData Flush() {
+	public PooledBufferData Flush(string? name) {
 		if (_buffer is null)
 			throw new ObjectDisposedException( nameof( Segmenter ) );
-		return _buffer.FlushSegments();
+		return _buffer.FlushSegments(name);
 	}
 
 	public void Dispose() {
@@ -66,7 +66,7 @@ public static class Segmentation {
 		return buffer;
 	}
 
-	public static unsafe PooledBufferData FlushSegments( this ThreadedByteBuffer buffer ) => buffer.GetData();
+	public static unsafe PooledBufferData FlushSegments( this ThreadedByteBuffer buffer, object? tag ) => buffer.GetData( tag: tag );
 
 	public static unsafe int DetermineSpanLength( this ReadOnlySpan<byte> segmentedData ) {
 		if (segmentedData.Length < 4)

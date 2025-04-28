@@ -1,4 +1,5 @@
-﻿using Civs.Logic.World;
+﻿using Civs.Logic.Nations;
+using Civs.Logic.World;
 using Civs.Messages;
 using Civs.World.NewWorld;
 using Engine;
@@ -36,56 +37,56 @@ public sealed class CivsGameLogicModule : ModuleBase {
 			return;
 		}
 
-		//if (message.Content is CreateNewOwnerMessage createNewOwnerMessage) {
-		//	Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( createNewOwnerMessage.Tile ) );
-		//	if (currentOwner is not null) {
-		//		TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
-		//		toc.RemoveTile( createNewOwnerMessage.Tile );
-		//		if (toc.OwnedTiles.Count == 0) {
-		//			_entities.RemoveEntity( currentOwner );
-		//			_populationCenters.Remove( currentOwner );
-		//		}
-		//	}
-		//	{
-		//		Entity newOwner = _entities.CreateEntity();
-		//		newOwner.AddComponent<PopulationCenterComponent>();
-		//		newOwner.AddComponent<TileOwnershipRenderComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
-		//		TileOwnershipComponent toc = newOwner.AddComponent<TileOwnershipComponent>();
-		//		toc.AddTile( createNewOwnerMessage.Tile );
-		//		newOwner.AddComponent<RenderComponent>();
-		//		_populationCenters.Add( newOwner );
-		//	}
-		//}
-		//if (message.Content is RemoveOwnerMessage removeOwnerMessage) {
-		//	Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( removeOwnerMessage.Tile ) );
-		//	if (currentOwner is not null) {
-		//		TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
-		//		toc.RemoveTile( removeOwnerMessage.Tile );
-		//		if (toc.OwnedTiles.Count == 0) {
-		//			_entities.RemoveEntity( currentOwner );
-		//			_populationCenters.Remove( currentOwner );
-		//		}
-		//	}
-		//}
-		//if (message.Content is SetNeighbourOwnerMessage setNeighbourOwnerMessage) {
-		//	Tile otherTile = setNeighbourOwnerMessage.Tile.Edges[ setNeighbourOwnerMessage.Index ].Tiles.First( p => p != setNeighbourOwnerMessage.Tile );
-		//	Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( setNeighbourOwnerMessage.Tile ) );
-		//	Entity? newOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedTiles.Contains( otherTile ) );
-		//	if (newOwner is null)
-		//		return;
-		//	if (currentOwner is not null) {
-		//		TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
-		//		toc.RemoveTile( setNeighbourOwnerMessage.Tile );
-		//		if (toc.OwnedTiles.Count == 0) {
-		//			_entities.RemoveEntity( currentOwner );
-		//			_populationCenters.Remove( currentOwner );
-		//		}
-		//	}
-		//	{
-		//		TileOwnershipComponent toc = newOwner.GetComponentOrThrow<TileOwnershipComponent>();
-		//		toc.AddTile( setNeighbourOwnerMessage.Tile );
-		//	}
-		//}
+		if (message.Content is CreateNewOwnerMessage createNewOwnerMessage) {
+			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Contains( createNewOwnerMessage.Face ) );
+			if (currentOwner is not null) {
+				FaceOwnershipComponent toc = currentOwner.GetComponentOrThrow<FaceOwnershipComponent>();
+				toc.RemoveFace( createNewOwnerMessage.Face );
+				if (toc.OwnedFaces.Count == 0) {
+					_entities.RemoveEntity( currentOwner );
+					_populationCenters.Remove( currentOwner );
+				}
+			}
+			{
+				Entity newOwner = _entities.CreateEntity();
+				newOwner.AddComponent<PopulationCenterComponent>();
+				newOwner.AddComponent<FaceOwnershipRenderComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
+				FaceOwnershipComponent toc = newOwner.AddComponent<FaceOwnershipComponent>();
+				toc.AddFace( createNewOwnerMessage.Face );
+				newOwner.AddComponent<RenderComponent>();
+				_populationCenters.Add( newOwner );
+			}
+		}
+		if (message.Content is RemoveOwnerMessage removeOwnerMessage) {
+			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Contains( removeOwnerMessage.Face ) );
+			if (currentOwner is not null) {
+				FaceOwnershipComponent toc = currentOwner.GetComponentOrThrow<FaceOwnershipComponent>();
+				toc.RemoveFace( removeOwnerMessage.Face );
+				if (toc.OwnedFaces.Count == 0) {
+					_entities.RemoveEntity( currentOwner );
+					_populationCenters.Remove( currentOwner );
+				}
+			}
+		}
+		if (message.Content is SetNeighbourOwnerMessage setNeighbourOwnerMessage) {
+			Face otherTile = setNeighbourOwnerMessage.Face.Blueprint.Connections[ setNeighbourOwnerMessage.Index ].GetOther( setNeighbourOwnerMessage.Face );
+			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Contains( setNeighbourOwnerMessage.Face ) );
+			Entity? newOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Contains( otherTile ) );
+			if (newOwner is null)
+				return;
+			if (currentOwner is not null) {
+				FaceOwnershipComponent toc = currentOwner.GetComponentOrThrow<FaceOwnershipComponent>();
+				toc.RemoveFace( setNeighbourOwnerMessage.Face );
+				if (toc.OwnedFaces.Count == 0) {
+					_entities.RemoveEntity( currentOwner );
+					_populationCenters.Remove( currentOwner );
+				}
+			}
+			{
+				FaceOwnershipComponent toc = newOwner.GetComponentOrThrow<FaceOwnershipComponent>();
+				toc.AddFace( setNeighbourOwnerMessage.Face );
+			}
+		}
 	}
 
 	private void Init() {

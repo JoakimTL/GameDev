@@ -2,7 +2,7 @@
 
 namespace Civs.Logic.Nations;
 public sealed class PopulationCenterArchetype : ArchetypeBase {
-	public PopulationCenterComponent PopulationCenterComponent { get; set; } = null!;
-	//public TileOwnershipComponent TileOwnershipComponent { get; set; } = null!;
-	public TileOwnershipRenderComponent TileOwnershipRenderComponent { get; set; } = null!;
+	//public PopulationCenterComponent PopulationCenterComponent { get; set; } = null!;
+	public FaceOwnershipComponent TileOwnershipComponent { get; set; } = null!;
+	public FaceOwnershipRenderComponent TileOwnershipRenderComponent { get; set; } = null!;
 }

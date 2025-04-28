@@ -67,7 +67,7 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 		_originalPair.Entity.ComponentRemoved += OnComponentRemoved;
 		ThreadedByteBuffer buffer = ThreadedByteBuffer.GetBuffer( "ecs-sync" );
 		serializer.SerializeInto( buffer, _originalPair.Entity );
-		_synchronizationData = buffer.GetData();
+		_synchronizationData = buffer.GetData( tag: $"sync-data-{_originalPair.Entity}" );
 	}
 
 	//Called from Entity
@@ -80,7 +80,7 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 			return;
 		ThreadedByteBuffer buffer = ThreadedByteBuffer.GetBuffer( "ecs-sync" );
 		serializer.SerializeInto( buffer, component );
-		_componentSerializationResults.Enqueue( buffer.GetData() );
+		_componentSerializationResults.Enqueue( buffer.GetData( tag: _originalPair.Entity ) );
 	}
 
 	//Called from Entity
@@ -90,6 +90,10 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 		_originalPair.Entity.ComponentAdded -= OnComponentAdded;
 		_originalPair.Entity.ComponentChanged -= OnComponentChanged;
 		_originalPair.Entity.ComponentRemoved -= OnComponentRemoved;
+		_synchronizationData?.Dispose();
+		_synchronizationData = null;
+		while (_componentSerializationResults.TryDequeue( out PooledBufferData? componentSerializationData ))
+			componentSerializationData.Dispose();
 		return true;
 	}
 }

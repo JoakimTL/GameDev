@@ -32,6 +32,8 @@ public sealed class FaceBlueprint {
 			}
 		throw new InvalidOperationException( "No empty connection slot available." );
 	}
+
+	public Vector3<float> GetCenter() => (VertexA + VertexB + VertexC) / 3f;
 }
 
 //public sealed class MutableFaceBlueprint {

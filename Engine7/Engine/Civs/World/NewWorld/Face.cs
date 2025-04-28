@@ -36,6 +36,11 @@ public sealed class Face : IOcTreeLeaf<float> {
 
 	internal void SetTransmission( bool enabled ) => _transmitChanges = enabled;
 
+
+	public override int GetHashCode() => unchecked((int)Id);
+
+	public override bool Equals( object? obj ) => obj is Face face && Id == face.Id;
+
 	//public static (Face, MutableFaceBlueprint) CreateFace( UnmanagedStaticContainer<PackedNormal> vectorContainer, FaceIndices face, uint id ) {
 
 	//}

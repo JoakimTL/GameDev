@@ -47,8 +47,11 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
 			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Face>( "hoveringTile", null );
+			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Vector3<float>?>( "mousePointerGlobeSphereIntersection", null );
 			return;
 		}
+
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "mousePointerGlobeSphereIntersection", intersectionPoint );
 
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 

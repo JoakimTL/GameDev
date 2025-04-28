@@ -1,4 +1,5 @@
 ﻿using Civs.World;
+using Civs.World.NewWorld;
 using Engine;
 using Engine.Module.Entities.Container;
 
@@ -7,45 +8,42 @@ public sealed class PopulationCenterComponent : ComponentBase {
 
 }
 
-//public sealed class TileOwnershipComponent : ComponentBase {
+public sealed class FaceOwnershipComponent : ComponentBase {
 
-//	private readonly HashSet<Tile> _ownedTiles;
+	private readonly HashSet<Face> _ownedTiles;
 
-//	public IReadOnlyCollection<Tile> OwnedTiles => _ownedTiles;
+	public IReadOnlyCollection<Face> OwnedFaces => _ownedTiles;
 
-//	public Vector4<float> Color { get; set; }
+	public FaceOwnershipComponent() {
+		_ownedTiles = [];
+	}
 
-//	public event Action? TileOwnershipChanged;
+	internal void ClearOwnership() {
+		_ownedTiles.Clear();
+	}
 
-//	public TileOwnershipComponent() {
-//		_ownedTiles = [];
-//		Color = (1, 1, 1, 1);
-//	}
+	public void AddFace( Face face ) {
+		ArgumentNullException.ThrowIfNull( face );
+		if (_ownedTiles.Contains( face ))
+			throw new InvalidOperationException( "Tile already owned." );
+		_ownedTiles.Add( face );
+		this.InvokeComponentChanged();
+	}
 
-//	public void AddTile( Tile tile ) {
-//		ArgumentNullException.ThrowIfNull( tile );
-//		if (_ownedTiles.Contains( tile ))
-//			throw new InvalidOperationException( "Tile already owned." );
-//		_ownedTiles.Add( tile );
-//		TileOwnershipChanged?.Invoke();
-//	}
+	public void RemoveFace( Face face ) {
+		ArgumentNullException.ThrowIfNull( face );
+		if (!_ownedTiles.Contains( face ))
+			throw new InvalidOperationException( "Tile not owned." );
+		_ownedTiles.Remove( face );
+		this.InvokeComponentChanged();
+	}
+}
 
-//	public void RemoveTile( Tile tile ) {
-//		ArgumentNullException.ThrowIfNull( tile );
-//		if (!_ownedTiles.Contains( tile ))
-//			throw new InvalidOperationException( "Tile not owned." );
-//		_ownedTiles.Remove( tile );
-//		TileOwnershipChanged?.Invoke();
-//	}
-//}
-
-public sealed class TileOwnershipRenderComponent : ComponentBase {
+public sealed class FaceOwnershipRenderComponent : ComponentBase {
 
 	public Vector4<float> Color { get; private set; }
 
-	public event Action? ColorChanged;
-
-	public TileOwnershipRenderComponent() {
+	public FaceOwnershipRenderComponent() {
 		Color = (1, 1, 1, 1);
 	}
 
@@ -53,6 +51,6 @@ public sealed class TileOwnershipRenderComponent : ComponentBase {
 		if (Color == color)
 			return;
 		Color = color;
-		ColorChanged?.Invoke();
+		this.InvokeComponentChanged();
 	}
 }

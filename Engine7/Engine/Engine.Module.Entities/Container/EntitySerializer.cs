@@ -22,10 +22,10 @@ public sealed class EntitySerializer( SerializerProvider serializerProvider ) : 
 				continue;
 			ThreadedByteBuffer ecsBuffer = ThreadedByteBuffer.GetBuffer( ecsBufferName );
 			serializer.SerializeInto( ecsBuffer, kvp.Value );
-			using (PooledBufferData data = ecsBuffer.GetData())
+			using (PooledBufferData data = ecsBuffer.GetData( tag: "ecs-segment"))
 				segmenter.Append( data.Payload.Span );
 		}
-		using (PooledBufferData output = segmenter.Flush()) 
+		using (PooledBufferData output = segmenter.Flush(name: "ecs-entity" )) 
 			buffer.Add( output.Payload.Span );
 	}
 

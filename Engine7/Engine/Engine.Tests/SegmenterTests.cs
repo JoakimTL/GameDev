@@ -20,7 +20,7 @@ public class SegmenterTests {
 		ReadOnlySpan<byte> loremIpsum = MemoryMarshal.AsBytes( loremIpsumString );
 		segmenter.Append( loremIpsum );
 
-		var result = segmenter.Flush();
+		var result = segmenter.Flush( "unit-test" );
 
 		Desegmenter desegmenter = new();
 
