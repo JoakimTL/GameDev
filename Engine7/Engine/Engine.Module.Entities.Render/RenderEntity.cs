@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 namespace Engine.Module.Render.Entities;
 
 public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovable {
-	private readonly Entity _entity;
 	private readonly DisposableList _disposables;
 	private readonly RemovableList _removables;
 	private readonly Dictionary<Type, RenderBehaviourBase> _behaviours;
@@ -17,12 +16,8 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 	public event Action<RenderBehaviourBase>? OnBehaviourRemoved;
 	public event RemovalHandler? OnRemoved;
 
-	public RenderEntityServiceAccess ServiceAccess { get; }
-
-	public bool Removed { get; private set; }
-
 	internal RenderEntity( Entity entity, RenderEntityServiceAccess serviceAccess ) {
-		this._entity = entity;
+		this.Entity = entity;
 		this.ServiceAccess = serviceAccess;
 		this._behaviours = [];
 		this._removables = new();
@@ -30,6 +25,10 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 		this._disposables = new();
 		this._initializationTree = new();
 	}
+
+	public Entity Entity { get; }
+	public RenderEntityServiceAccess ServiceAccess { get; }
+	public bool Removed { get; private set; }
 
 	public T RequestSceneInstance<T>( string sceneName, uint layer ) where T : SceneInstanceBase, new() {
 		T instance = this.ServiceAccess.SceneInstanceProvider.RequestSceneInstance<T>( sceneName, layer );
@@ -69,7 +68,7 @@ public sealed class RenderEntity : DisposableIdentifiable, IUpdateable, IRemovab
 
 	//TODO: public void ListenToEvents<T>( Action<T> action ) => this._entity.ListenToEvents( action );
 
-	public void SendMessageToEntity( object message ) => this._entity.AddMessage( message );
+	public void SendMessageToEntity( object message ) => this.Entity.AddMessage( message );
 
 	public bool AddBehaviour( RenderBehaviourBase renderBehaviour ) {
 		if (!this._behaviours.TryAdd( renderBehaviour.GetType(), renderBehaviour ))

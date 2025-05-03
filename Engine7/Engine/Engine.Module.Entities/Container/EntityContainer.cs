@@ -5,12 +5,16 @@ namespace Engine.Module.Entities.Container;
 public sealed class EntityContainer : DisposableIdentifiable {
 
 	public const int MAX_GUID_ATTEMPTS = 16777216;
+	
+	public Guid Id { get; }
+
 	private readonly Dictionary<Guid, Entity> _entitiesById;
 
 	public event EntityListChangedHandler? OnEntityAdded;
 	public event EntityListChangedHandler? OnEntityRemoved;
 
 	public EntityContainer() {
+		this.Id = Guid.NewGuid();
 		this._entitiesById = [];
 		this.ArchetypeManager = new( this );
 		this.SystemManager = new( this );
@@ -28,6 +32,11 @@ public sealed class EntityContainer : DisposableIdentifiable {
 		this._entitiesById.Add( guid, entity );
 		OnEntityAdded?.Invoke( entity );
 		return entity;
+	}
+
+	public Entity? GetEntity( Guid entityId ) {
+		ObjectDisposedException.ThrowIf( Disposed, nameof( EntityContainer ) );
+		return _entitiesById.GetValueOrDefault( entityId );
 	}
 
 	public void RemoveEntity( Entity entity ) {

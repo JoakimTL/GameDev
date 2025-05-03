@@ -34,4 +34,9 @@ internal sealed class InstanceCatalog( InstanceLibrary instanceLibrary ) : IInst
 		}
 		return false;
 	}
+
+	internal void AddSelfhostingTypes() {
+		foreach (Type type in TypeManager.Registry.ImplementationTypes.Where( p => p.IsAssignableTo( typeof( IHostedService ) ) ))
+			Host( type );
+	}
 }

@@ -13,8 +13,8 @@ public abstract class UserInterfaceElementWithMessageNodeBase : UserInterfaceEle
 
 	protected abstract void OnMessageReceived( Message message );
 
-	protected void Publish( object content, string? address )
-		=> MessageBusNode.Publish( content, address );
+	protected void Publish( object content, string? address, bool log )
+		=> MessageBusNode.Publish( content, address, log );
 
 	protected override void OnUpdate( double time, double deltaTime )
 		=> MessageBusNode.ProcessQueue();

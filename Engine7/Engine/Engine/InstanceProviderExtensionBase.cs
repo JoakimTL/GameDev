@@ -18,6 +18,8 @@ public abstract class InstanceProviderExtensionBase<TProcess, TInstanceType> : I
 		this._sortedInstances = [];
 		this._incomingInstances = [];
 		this._outgoingInstances = [];
+		foreach (Type type in (instanceProvider as InstanceProvider)?.CurrentInstanceTypes ?? [])
+			_incomingInstances.Enqueue( type );
 		this._instanceProvider.OnInstanceAdded += OnInstanceAdded;
 	}
 

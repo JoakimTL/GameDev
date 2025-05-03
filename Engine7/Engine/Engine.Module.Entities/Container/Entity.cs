@@ -118,6 +118,8 @@ public sealed class Entity : Identifiable {
 	public bool TryGetComponent<T>( [NotNullWhen( true )] out T? component ) where T : ComponentBase, new()
 		=> (component = this._components.TryGetValue( typeof( T ), out ComponentBase? baseComponent ) && baseComponent is T t ? t : null) is not null;
 
+	public T? GetComponentOrDefault<T>() where T : ComponentBase, new() => this._components.GetValueOrDefault( typeof( T ) ) as T;
+
 	/// <summary>
 	/// Tries to get the requested component, but if it's not available, returns false.<br />
 	/// Throws an <see cref="InvalidOperationException"/> if the component type is not a component or does not have a parameterless constructor.

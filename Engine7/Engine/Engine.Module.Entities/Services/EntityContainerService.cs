@@ -31,7 +31,7 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 		EntityContainer container = new();
 		this._containers.Add( container );
 		container.OnDisposed += OnContainerDisposed;
-		this._messageBusNode.Publish( new EntityContainerCreatedEventMessage( container ), null );
+		this._messageBusNode.Publish( new EntityContainerCreatedEventMessage( container ), null, true );
 		return container;
 	}
 
@@ -39,7 +39,7 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 		if (disposable is not EntityContainer container)
 			return;
 		this._containers.Remove( container );
-		this._messageBusNode.Publish( new EntityContainerRemovedEventMessage( container ), null );
+		this._messageBusNode.Publish( new EntityContainerRemovedEventMessage( container ), null, true );
 	}
 
 	protected override bool InternalDispose() {

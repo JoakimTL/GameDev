@@ -36,7 +36,7 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		if (@event.Button != MouseButton.Left || @event.InputType != TactileInputType.Press)
 			return;
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "selectedTile", RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "hoveringTile" ) );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "selectedTile", RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "hoveringTile" ) );
 	}
 
 	public override void Update( double time, double deltaTime ) {
@@ -50,7 +50,7 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 
 
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, _pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
-			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Tile>( "hoveringTile", null );
+			RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "hoveringTile", null );
 			//RenderEntity.SendMessageToEntity( new TileHoverMessage( null ) );
 			return;
 		}
@@ -60,7 +60,7 @@ public sealed class WorldTileSelectionBehaviour : DependentRenderBehaviourBase<W
 		IReadOnlyList<Vector3<float>> vertices = Archetype.WorldTilingComponent.Tiling.WorldIcosphere.Vertices;
 		CompositeTile? baseTile = Archetype.WorldTilingComponent.Tiling.Tiles.FirstOrDefault( p => RayIntersectsTriangle( 0, intersectionPoint, p.VectorA, p.VectorB, p.VectorC, out _ ) );
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "hoveringTile", FindTileSelection( baseTile, intersectionPoint ) );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "hoveringTile", FindTileSelection( baseTile, intersectionPoint ) );
 	}
 
 	private Tile? FindTileSelection( IContainingTile? baseTile, Vector3<float> intersectionPoint ) {

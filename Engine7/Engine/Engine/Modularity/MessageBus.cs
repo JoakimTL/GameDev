@@ -25,11 +25,12 @@ public static class MessageBus {
 		receiver.OnDisposed -= ReceiverDisposed;
 	}
 
-	public static void PublishAnonymously( object content, string? address = default ) => Publish( new( null, content, address ) );
+	public static void PublishAnonymously( object content, string? address = default, bool log = false ) => Publish( new( null, content, address ), log );
 
 	//TODO: finish stuff. (addresses being simple regex, etc...) Make naming scheme understandable...
-	public static void Publish( Message message ) {
-		Log.Line( $"Publishing {message.Content}{(!string.IsNullOrEmpty( message.Address ) ? $" to {message.Address}" : "")}..." );
+	public static void Publish( Message message, bool log ) {
+		if (log)
+			Log.Line( $"Publishing {message.Content}{(!string.IsNullOrEmpty( message.Address ) ? $" to {message.Address}" : "")}..." );
 		if (string.IsNullOrEmpty( message.Address )) {
 			foreach (MessageBusNode receiver in _nodes.Values) {
 				if (receiver.IsSenderOf( message ))

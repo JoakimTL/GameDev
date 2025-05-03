@@ -18,6 +18,7 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		RenderEntity.ServiceAccess.Input.OnMouseMoved += OnMouseMoved;
 		RenderEntity.ServiceAccess.Input.OnMouseButton += OnMouseButton;
 		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged += OnCameraMatrixChanged;
+
 	}
 
 	private void OnCameraMatrixChanged( IMatrixProvider<float> provider ) {
@@ -32,7 +33,7 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		if (@event.Button != MouseButton.Left || @event.InputType != TactileInputType.Press)
 			return;
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "selectedTile", RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Face>( "hoveringTile" ) );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "selectedTile", RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Face>( "hoveringTile" ) );
 	}
 
 	public override void Update( double time, double deltaTime ) {
@@ -46,12 +47,12 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		Vector3<float> pointerDirection = ndc.GetMouseWorldDirection( view.InverseMatrix, projection.InverseMatrix );
 
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
-			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Face>( "hoveringTile", null );
-			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Vector3<float>?>( "mousePointerGlobeSphereIntersection", null );
+			RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", null );
+			RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "mousePointerGlobeSphereIntersection", null );
 			return;
 		}
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "mousePointerGlobeSphereIntersection", intersectionPoint );
+		RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "mousePointerGlobeSphereIntersection", intersectionPoint );
 
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
@@ -60,12 +61,12 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 			foreach (Face face in cluster.Faces) {
 				if (!RayIntersectsTriangle( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.VertexA, face.Blueprint.VertexB, face.Blueprint.VertexC, out _ ))
 					continue;
-				RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "hoveringTile", face );
+				RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", face );
 				return;
 			}
 		}
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Face>( "hoveringTile", null );
+		RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", null );
 	}
 
 	protected override bool InternalDispose() {

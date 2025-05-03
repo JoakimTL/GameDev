@@ -28,9 +28,9 @@ public sealed class MessageBusNode : DisposableIdentifiable {
 			OnMessageProcessed?.Invoke( message );
 	}
 
-	public void Publish( object content, string? address ) {
+	public void Publish( object content, string? address, bool log ) {
 		ObjectDisposedException.ThrowIf( this.Disposed, this );
-		MessageBus.Publish( new( this._interface, content, address ) );
+		MessageBus.Publish( new( this._interface, content, address ), log );
 	}
 
 	public void SendMessageTo( MessageQueueInterface messageQueue, object content ) {

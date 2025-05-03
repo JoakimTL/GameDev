@@ -1,0 +1,6 @@
+Militaries
+
+Available tactics depend on what the player has unlocked, but genius generals may use tactics more advanced than the player has unlocked.
+
+Tactics are researched by either military training or during combat. Experience is how these tactics are researched. When a military is training the chance of discovering new tactics are higher than during combat.
+The player can influence this by having a general staff during peace times.

@@ -1,6 +1,7 @@
 ﻿using Engine.Module.Render.Input;
 using Engine.Transforms;
 using Engine.Transforms.Models;
+using System.Xml.Linq;
 
 namespace Engine.Standard.Render.UserInterface;
 
@@ -8,21 +9,21 @@ public abstract class UserInterfaceComponentBase : DisposableIdentifiable {
 	protected UserInterfaceElementBase Element { get; }
 
 	private readonly List<UserInterfaceComponentBase> _children;
-	public UserInterfaceComponentBase? Parent { get; }
+	public UserInterfaceComponentBase? Parent { get; private set; }
 
 	public UserInterfaceComponentPlacement Placement { get; }
 	protected Transform2<double> Transform { get; }
 	public TransformInterface<double, Vector2<double>, double, Vector2<double>> TransformInterface { get; }
 
-	public uint RenderLayer { get; }
+	public uint RenderLayer { get; private set; }
 
 	public AABB<Vector2<double>> PlacementBounds { get; private set; }
 	public event Action? PlacementBoundsChanged;
 
 	private bool _placementChanged = false;
 
-	public UserInterfaceComponentBase( UserInterfaceElementBase element ) {
-		this.Element = element;
+	public UserInterfaceComponentBase( UserInterfaceElementBase element) {
+		Element = element;
 		Transform = new();
 		Transform.Nickname = GetType().Name;
 		TransformInterface = Transform.Interface;
@@ -32,16 +33,24 @@ public abstract class UserInterfaceComponentBase : DisposableIdentifiable {
 		_children = [];
 		Parent = null;
 		RenderLayer = element.BaseLayer;
-	}
-
-	public UserInterfaceComponentBase( UserInterfaceComponentBase parent, uint renderLayerOffset = 1 ) : this( parent.Element ) {
-		Parent = parent;
-		parent._children.Add( this );
-		Transform.SetParent( parent.Transform, false );
-		RenderLayer = parent.RenderLayer + renderLayerOffset;
+		Element.AddComponent( this );
 	}
 
 	private void OnMatrixChanged( IMatrixProvider<double> provider ) => _placementChanged = true;
+
+	protected T AddChild<T>( T child, uint renderLayerOffset = 1 ) where T : UserInterfaceComponentBase {
+		if (child.Element != Element)
+			throw new ArgumentException( "Child must belong to the same element." );
+		child.SetParent( this, renderLayerOffset );
+		_children.Add( child );
+		return child;
+	}
+
+	private void SetParent( UserInterfaceComponentBase parent, uint renderLayerOffset = 1 ) {
+		Parent = parent;
+		Transform.SetParent( parent.Transform, false );
+		RenderLayer = parent.RenderLayer + renderLayerOffset;
+	}
 
 	internal bool OnCharacter( KeyboardCharacterEvent @event ) {
 		foreach (UserInterfaceComponentBase child in _children) {
@@ -50,6 +59,7 @@ public abstract class UserInterfaceComponentBase : DisposableIdentifiable {
 		}
 		return DoOnCharacter( @event );
 	}
+
 	internal bool OnKey( KeyboardEvent @event ) {
 		foreach (UserInterfaceComponentBase child in _children) {
 			if (child.OnKey( @event ))

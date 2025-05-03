@@ -6,21 +6,6 @@ using System.Runtime.InteropServices;
 
 namespace Civs.Logic.Nations.Serializers;
 
-[Guid( "0DCD4B16-4A22-4ED3-9EC6-5715284CCC51" )]
-public sealed class FaceOwnershipRenderComponentSerializer( SerializerProvider serializerProvider ) : SerializerBase<FaceOwnershipRenderComponent>( serializerProvider ) {
-	protected override void PerformSerialization( ThreadedByteBuffer buffer, FaceOwnershipRenderComponent t ) {
-		Span<byte> data = stackalloc byte[ 16 ];
-		MemoryMarshal.Write( data, t.Color );
-		buffer.Add( data );
-	}
-	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, FaceOwnershipRenderComponent target ) {
-		if (serializedData.Length < 16)
-			return false;
-		target.SetColor( MemoryMarshal.Read<Vector4<float>>( serializedData ) );
-		return true;
-	}
-}
-
 [Guid("38E609AB-A7AE-463F-A8E8-980CCA6ECF38")]
 public sealed class FaceOwnershipComponentSerializer( SerializerProvider serializerProvider, ActiveGlobeTrackingService activeGlobeTrackingService ) : SerializerBase<FaceOwnershipComponent>( serializerProvider ) {
 	private readonly ActiveGlobeTrackingService _activeGlobeTrackingService = activeGlobeTrackingService;
@@ -43,6 +28,31 @@ public sealed class FaceOwnershipComponentSerializer( SerializerProvider seriali
 			Face face = _activeGlobeTrackingService.CurrentGlobe.Faces[ faceId ];
 			target.AddFace( face );
 		}
+		return true;
+	}
+}
+
+[Guid("55E94D12-5E82-4858-B26C-CEC621F02A86")]
+public sealed class PopulationCenterComponentSerializer( SerializerProvider serializerProvider ) : SerializerBase<PopulationCenterComponent>( serializerProvider ) {
+	protected override void PerformSerialization( ThreadedByteBuffer buffer, PopulationCenterComponent t ) {
+		// No data to serialize
+	}
+	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, PopulationCenterComponent target ) {
+		return true;
+	}
+}
+
+[Guid("BB866BF9-FC3A-4553-9350-BF09D817F57B")]
+public sealed class PlayerComponentSerializer( SerializerProvider serializerProvider ) : SerializerBase<PlayerComponent>( serializerProvider ) {
+	protected override void PerformSerialization( ThreadedByteBuffer buffer, PlayerComponent t ) {
+		Span<byte> data = stackalloc byte[ 16 ];
+		MemoryMarshal.Write( data, t.MapColor );
+		buffer.Add( data );
+	}
+	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, PlayerComponent target ) {
+		if (serializedData.Length < 16)
+			return false;
+		target.SetColor( MemoryMarshal.Read<Vector4<float>>( serializedData ) );
 		return true;
 	}
 }

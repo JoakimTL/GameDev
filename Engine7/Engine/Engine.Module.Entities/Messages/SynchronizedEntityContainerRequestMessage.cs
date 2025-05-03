@@ -2,4 +2,4 @@
 
 namespace Engine.Module.Entities.Messages;
 
-public sealed record SynchronizedEntityContainerRequestMessage( EntityContainer EntityContainer );
+public sealed record SynchronizedEntityContainerRequestMessage( Guid ContainerId );

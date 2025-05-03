@@ -7,6 +7,7 @@ namespace Engine.Module.Entities.Container;
 /// Should be disposed by the owner of the copy.
 /// </summary>
 public sealed class SynchronizedEntityContainer : DisposableIdentifiable {
+	private readonly EntityContainer _originalContainer;
 	private readonly SerializerProvider _originalSerializerProvider;
 
 	private readonly Dictionary<Guid, SynchronizedEntity> _synchronizedEntities;
@@ -20,10 +21,10 @@ public sealed class SynchronizedEntityContainer : DisposableIdentifiable {
 	public event EntityArchetypeChangeHandler? EntityArchetypeRemoved;
 
 	public SynchronizedEntityContainer( EntityContainer originalContainer, SerializerProvider originalSerializerProvider ) {
-		OriginalContainer = originalContainer;
+		_originalContainer = originalContainer;
+		_originalContainer.OnEntityAdded += OnEntityAdded;
+		_originalContainer.OnEntityRemoved += OnEntityRemoved;
 		_originalSerializerProvider = originalSerializerProvider;
-		OriginalContainer.OnEntityAdded += OnEntityAdded;
-		OriginalContainer.OnEntityRemoved += OnEntityRemoved;
 		_synchronizedEntities = [];
 		_incomingEntities = [];
 		_outgoingEntities = [];
@@ -32,7 +33,9 @@ public sealed class SynchronizedEntityContainer : DisposableIdentifiable {
 			OnEntityAdded( entity );
 	}
 
-	public EntityContainer OriginalContainer { get; }
+	public Guid ContainerId => _originalContainer.Id;
+
+	public IReadOnlyCollection<SynchronizedEntity> SynchronizedEntities => _synchronizedEntities.Values;
 
 	public int IncomingEntities => _incomingEntities.Count;
 	public int OutgoingEntities => _outgoingEntities.Count;
@@ -42,7 +45,8 @@ public sealed class SynchronizedEntityContainer : DisposableIdentifiable {
 		if (Disposed)
 			return;
 		while (_incomingEntities.TryDequeue( out SynchronizedEntity? synchronizedEntity )) {
-			synchronizedEntity.Initialize( serializerProvider );
+			synchronizedEntity.Initialize( serializerProvider, ParentIdChanged );
+			ParentIdChanged( synchronizedEntity.EntityCopy! );
 			synchronizedEntity.EntityCopy!.ArchetypeAdded += OnArchetypeAdded;
 			synchronizedEntity.EntityCopy!.ArchetypeRemoved += OnArchetypeRemoved;
 			_synchronizedEntities.Add( synchronizedEntity.EntityId, synchronizedEntity );
@@ -60,6 +64,7 @@ public sealed class SynchronizedEntityContainer : DisposableIdentifiable {
 		}
 	}
 
+	private void ParentIdChanged( Entity entity ) => entity.SetParentInternal( entity.ParentId.HasValue && this._synchronizedEntities.TryGetValue( entity.ParentId.Value, out SynchronizedEntity? parentSynchronizedEntity ) ? parentSynchronizedEntity.EntityCopy : null );
 	private void OnArchetypeAdded( ArchetypeBase archetype ) => EntityArchetypeAdded?.Invoke( archetype );
 	private void OnArchetypeRemoved( ArchetypeBase archetype ) => EntityArchetypeRemoved?.Invoke( archetype );
 
@@ -80,8 +85,8 @@ public sealed class SynchronizedEntityContainer : DisposableIdentifiable {
 	}
 
 	protected override bool InternalDispose() {
-		OriginalContainer.OnEntityAdded -= OnEntityAdded;
-		OriginalContainer.OnEntityRemoved -= OnEntityRemoved;
+		_originalContainer.OnEntityAdded -= OnEntityAdded;
+		_originalContainer.OnEntityRemoved -= OnEntityRemoved;
 		foreach (SynchronizedEntity synchronizedEntity in _synchronizedEntities.Values)
 			synchronizedEntity.Dispose();
 		return true;

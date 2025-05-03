@@ -2,5 +2,5 @@
 
 namespace Engine.Module.Entities.Messages;
 
-public sealed record EntityContainerCreatedEventMessage( EntityContainer EntityContainer );
-public sealed record EntityContainerRemovedEventMessage( EntityContainer EntityContainer );
+public sealed record EntityContainerCreatedEventMessage( Guid ContainerId );
+public sealed record EntityContainerRemovedEventMessage( Guid ContainerId );

@@ -46,7 +46,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 		if (_lineCollection is null)
 			return;
 
-		Face? hoveredFace = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Face>( "hoveringTile" );
+		Face? hoveredFace = RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Face>( "hoveringTile" );
 
 		if (_currentlyDisplayedHoveredFace == hoveredFace)
 			return;
@@ -68,7 +68,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 		}
 
 		Vector3<float> centerFace = _currentlyDisplayedHoveredFace.Blueprint.GetCenter();
-		Vector3<float> center = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Vector3<float>>( "mousePointerGlobeSphereIntersection" );
+		Vector3<float> center = RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Vector3<float>>( "mousePointerGlobeSphereIntersection" );
 
 		float maxRadius = 0;
 		foreach (var connection in _connections) {

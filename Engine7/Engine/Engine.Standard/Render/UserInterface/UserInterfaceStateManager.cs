@@ -1,7 +1,11 @@
 ﻿using Engine.Logging;
+using Engine.Module.Render.Entities;
 using Engine.Module.Render.Input;
+using Engine.Processing;
 
 namespace Engine.Standard.Render.UserInterface;
+
+[Do<ICapturingUserInputListener>.Before<RenderEntityInput>]
 public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userInterfaceServiceAccess, GameStateProvider gameStateProvider ) : DisposableIdentifiable, ICapturingUserInputListener, IUpdateable {
 
 	private readonly List<UserInterfaceElementBase> _baseElements = [];

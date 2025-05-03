@@ -13,10 +13,13 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 	public InstanceProvider( InstanceCatalog instanceCatalog ) {
 		this._instanceCatalog = instanceCatalog;
 		instanceCatalog.OnHostedTypeAdded += OnHostedTypeAdded;
+		instanceCatalog.AddSelfhostingTypes();
 		foreach (Type hostedType in instanceCatalog.HostedTypes)
 			Get( hostedType );
 		_disposalExtension = new( this );
 	}
+
+	internal IReadOnlyCollection<Type> CurrentInstanceTypes => this._instances.Keys;
 
 	private void OnHostedTypeAdded( Type type )
 		=> Get( type );

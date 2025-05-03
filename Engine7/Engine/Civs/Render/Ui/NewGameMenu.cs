@@ -1,6 +1,7 @@
 ﻿using Civs.Messages;
 using Engine;
 using Engine.Modularity;
+using Engine.Module.Render.Input;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
 
@@ -11,15 +12,12 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "ui
 	private Button _btnCreateWorld = null!;
 
 	protected override void Initialize() {
-		AddComponent( _btnCreateWorld = new Button( this, "Create World", "calibrib",
-			( btn ) => btn.Background.Color = 1,
-			( btn ) => btn.Background.Color = (.9, .9, .9, 1),
-			( btn ) => btn.Background.Color = (.75, .75, .75, 1) ) );
+		_btnCreateWorld = new Button( this, "Create World" );
 		_btnCreateWorld.Placement.Set( new( (.3, -.15), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
-		_btnCreateWorld.ButtonClicked += OnNewGameButtonClicked;
+		_btnCreateWorld.OnClicked += OnNewGameButtonClicked;
 	}
 
-	private void OnNewGameButtonClicked() => Publish( new CreateNewWorldRequestMessage( new( 6, 6378000, 42, 25000, 17500 ) ), "gamelogic" );
+	private void OnNewGameButtonClicked( Button btn, MouseButtonEvent @event ) => Publish( new CreateNewWorldRequestMessage( new( 6, 6378000, 42, 25000, 17500 ) ), "gamelogic", true );
 
 	protected override bool ShouldDisplay() {
 		return GameStateProvider.Get<bool>( "showNewGameMenu" ); //TODO: Create a more complex state machine for ui?
@@ -27,7 +25,7 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "ui
 
 	protected override void OnMessageReceived( Message message ) {
 		if (message.Content is CreateNewWorldRequestResponseMessage) {
-			GameStateProvider.Set( "showNewGameMenu", false );
+			GameStateProvider.SetNewState( "showNewGameMenu", false );
 
 		}
 	}

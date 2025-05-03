@@ -12,14 +12,14 @@ public sealed class FPSCounter : UserInterfaceElementBase {
 	private readonly double[] _samples = new double[ 30 ];
 
 	protected override void Initialize() {
-		AddComponent( _fpsLabel = new Label( this ) {
+		_fpsLabel = new Label( this ) {
 			Text = "noupdate",
 			FontName = "COURBD",
 			TextScale = 0.15f,
 			Color = (1, 1, 1, 1),
 			HorizontalAlignment = Alignment.Negative,
 			VerticalAlignment = Alignment.Negative
-		} );
+		};
 		_fpsLabel.Placement.Set( new( (1, .1), 0, (1, .1) ), Alignment.Negative, Alignment.Negative );
 	}
 

@@ -26,76 +26,79 @@ public abstract class UserInterfaceElementBase( uint baseLayer = 0 ) : Disposabl
 		return oldValue != this.IsDisplayed;
 	}
 
-	protected void AddComponent( UserInterfaceComponentBase component )
-		=> this._components.Add( component );
+	internal void AddComponent( UserInterfaceComponentBase component ) => this._components.Add( component );
 
 	internal void Hide() {
 		foreach (UserInterfaceComponentBase component in this._components)
-			component.Hide();
+			if (component.Parent is null)
+				component.Hide();
 	}
 
 	internal void Show() {
 		foreach (UserInterfaceComponentBase component in this._components)
-			component.Show();
+			if (component.Parent is null)
+				component.Show();
 	}
 
 	internal void UiSpaceChanged( Vector2<double> newAspectVector ) {
 		foreach (UserInterfaceComponentBase component in this._components)
-			component.UiSpaceChanged( newAspectVector );
+			if (component.Parent is null)
+				component.UiSpaceChanged( newAspectVector );
 	}
 
 	internal bool OnMouseButton( MouseButtonEvent @event ) {
-		foreach (UserInterfaceComponentBase component in this._components) {
-			if (component.OnMouseButton( @event ))
-				return true;
-		}
+		foreach (UserInterfaceComponentBase component in this._components)
+			if (component.Parent is null)
+				if (component.OnMouseButton( @event ))
+					return true;
 		return false;
 	}
 
 	internal bool OnMouseWheelScrolled( MouseWheelEvent @event ) {
-		foreach (UserInterfaceComponentBase component in this._components) {
-			if (component.OnMouseWheelScrolled( @event ))
-				return true;
-		}
+		foreach (UserInterfaceComponentBase component in this._components)
+			if (component.Parent is null)
+				if (component.OnMouseWheelScrolled( @event ))
+					return true;
 		return false;
 	}
 
 	internal bool OnMouseMoved( MouseMoveEvent @event ) {
-		foreach (UserInterfaceComponentBase component in this._components) {
-			if (component.OnMouseMoved( @event ))
-				return true;
-		}
+		foreach (UserInterfaceComponentBase component in this._components)
+			if (component.Parent is null)
+				if (component.OnMouseMoved( @event ))
+					return true;
 		return false;
 	}
 
 	internal bool OnMouseEnter( MouseEnterEvent @event ) {
-		foreach (UserInterfaceComponentBase component in this._components) {
-			if (component.OnMouseEnter( @event ))
-				return true;
-		}
+		foreach (UserInterfaceComponentBase component in this._components)
+			if (component.Parent is null)
+				if (component.OnMouseEnter( @event ))
+					return true;
 		return false;
 	}
 
 	internal bool OnKey( KeyboardEvent @event ) {
-		foreach (UserInterfaceComponentBase component in this._components) {
-			if (component.OnKey( @event ))
-				return true;
-		}
+		foreach (UserInterfaceComponentBase component in this._components)
+			if (component.Parent is null)
+				if (component.OnKey( @event ))
+					return true;
 		return false;
 	}
 
 	internal bool OnCharacter( KeyboardCharacterEvent @event ) {
-		foreach (UserInterfaceComponentBase component in this._components) {
-			if (component.OnCharacter( @event ))
-				return true;
-		}
+		foreach (UserInterfaceComponentBase component in this._components)
+			if (component.Parent is null)
+				if (component.OnCharacter( @event ))
+					return true;
 		return false;
 	}
 
 	internal void Update( double time, double deltaTime ) {
 		OnUpdate( time, deltaTime );
 		foreach (UserInterfaceComponentBase component in this._components)
-			component.Update( time, deltaTime );
+			if (component.Parent is null)
+				component.Update( time, deltaTime );
 	}
 
 	internal void SetServices( UserInterfaceServiceAccess userInterfaceServiceAccess, GameStateProvider gameStateProvider ) {
@@ -105,7 +108,8 @@ public abstract class UserInterfaceElementBase( uint baseLayer = 0 ) : Disposabl
 
 	protected override bool InternalDispose() {
 		foreach (UserInterfaceComponentBase component in this._components)
-			component.Dispose();
+			if (component.Parent is null)
+				component.Dispose();
 		return true;
 	}
 }

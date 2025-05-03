@@ -26,8 +26,8 @@ public sealed class CivsRenderModule : RenderModuleBase {
 		context.InstanceProvider.Catalog.Host<UserInterfaceRenderPipeline>();
 		UserInterfaceService ui = context.InstanceProvider.Get<UserInterfaceService>();
 		ui.UserInterfaceStateManager.AddAllElements();
-		InstanceProvider.Get<GameStateProvider>().Set( "showStartMenu", true );
-		InstanceProvider.Get<GameStateProvider>().Set( "showFpsCounter", true );
+		InstanceProvider.Get<GameStateService>().SetNewState( "showStartMenu", true );
+		InstanceProvider.Get<GameStateService>().SetNewState( "showFpsCounter", true );
 		context.OnInitialized += OnContextInitialized;
 	}
 

@@ -5,5 +5,4 @@ namespace Civs.Logic.World;
 
 public sealed class WorldClusterArchetype : ArchetypeBase {
 	public BoundedRenderClusterComponent ClusterComponent { get; set; } = null!;
-	public Transform3Component Transform { get; set; } = null!;
 }

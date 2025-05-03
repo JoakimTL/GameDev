@@ -42,9 +42,8 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 
 	public SceneInstanceCollection<TVertexData, TInstanceData> CreateInstanceCollection<TVertexData, TInstanceData>( uint layer, OglVertexArrayObjectBase vertexArrayObject, ShaderBundleBase shaderBundle )
 		where TVertexData : unmanaged
-		where TInstanceData : unmanaged {
-		return new( this, layer, vertexArrayObject, shaderBundle );
-	}
+		where TInstanceData : unmanaged
+		=> new( this, layer, vertexArrayObject, shaderBundle );
 
 
 	public SceneObjectFixedCollection<TVertexData, TInstanceData> CreateFixedCollection<TVertexData, TInstanceData>( uint renderLayer, OglVertexArrayObjectBase vao, ShaderBundleBase shaderBundle, IMesh mesh, uint count )
@@ -64,8 +63,7 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 	}
 
 	public void Render( string shaderIndex, IDataBlockCollection? dataBlocks, Action<bool>? blendActivationFunction, PrimitiveType primitiveType ) {
-		if (this._sceneRender is null)
-			this._sceneRender = new();
+		this._sceneRender ??= new();
 		if (this._needsUpdate)
 			this._sceneRender.PrepareForRender( this._sortedLayersReadOnly );
 		this._needsUpdate = false;

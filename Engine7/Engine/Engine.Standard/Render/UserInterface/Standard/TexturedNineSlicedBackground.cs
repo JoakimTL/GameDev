@@ -65,11 +65,6 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 		_texture = texture;
 	}
 
-	public TexturedNineSlicedBackground( UserInterfaceComponentBase parent, OglTexture texture ) : base( parent, 0 ) {
-		_sceneInstances = CreateSceneInstances();
-		_texture = texture;
-	}
-
 	private SceneInstance<Entity2SlicedTexturedSceneData>[] CreateSceneInstances() {
 		SceneInstance<Entity2SlicedTexturedSceneData>[] result = new SceneInstance<Entity2SlicedTexturedSceneData>[ 9 ];
 		for (int i = 0; i < result.Length; i++) {

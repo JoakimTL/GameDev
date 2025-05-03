@@ -31,7 +31,7 @@ public sealed class GlobeTileSelectionBehaviour : DependentRenderBehaviourBase<G
 		if (@event.Button != MouseButton.Left || @event.InputType != TactileInputType.Press)
 			return;
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "selectedTile", RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "hoveringTile" ) );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "selectedTile", RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Tile>( "hoveringTile" ) );
 	}
 
 	public override void Update( double time, double deltaTime ) {
@@ -44,7 +44,7 @@ public sealed class GlobeTileSelectionBehaviour : DependentRenderBehaviourBase<G
 		Vector3<float> pointerDirection = ndc.GetMouseWorldDirection( view.InverseMatrix, projection.InverseMatrix );
 
 		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
-			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Tile>( "hoveringTile", null );
+			RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "hoveringTile", null );
 			//RenderEntity.SendMessageToEntity( new TileHoverMessage( null ) );
 			return;
 		}
@@ -58,11 +58,11 @@ public sealed class GlobeTileSelectionBehaviour : DependentRenderBehaviourBase<G
 		foreach (Tile tile in tilesInBounds) {
 			if (!RayIntersectsTriangle( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, tile.RenderModel.VectorA, tile.RenderModel.VectorB, tile.RenderModel.VectorC, out _ ))
 				continue;
-			RenderEntity.ServiceAccess.Get<GameStateProvider>().Set( "hoveringTile", tile );
+			RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "hoveringTile", tile );
 			return;
 		}
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().Set<Tile>( "hoveringTile", null );
+		RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "hoveringTile", null );
 	}
 
 	protected override bool InternalDispose() {

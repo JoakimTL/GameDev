@@ -27,8 +27,8 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 	public Entity? EntityCopy => _copyPair?.Entity;
 
 	//Called from other thread (render thread)
-	public void Initialize( SerializerProvider serializerProvider ) {
-		_copyPair = new( new( _originalPair.Entity.EntityId, null ), serializerProvider );
+	public void Initialize( SerializerProvider serializerProvider, ParentIdChanged parentIdChangedDelegate ) {
+		_copyPair = new( new( _originalPair.Entity.EntityId, parentIdChangedDelegate ), serializerProvider );
 	}
 
 	//Called from other thread (render thread)

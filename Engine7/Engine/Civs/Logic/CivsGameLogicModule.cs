@@ -7,6 +7,7 @@ using Engine.Modularity;
 using Engine.Module.Entities.Container;
 using Engine.Module.Entities.Services;
 using Engine.Module.Render.Entities.Components;
+using Engine.Standard;
 using Engine.Standard.Entities.Components;
 
 namespace Civs.Logic;
@@ -17,6 +18,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 	private Entity? _worldEntity = null;
 	private List<Entity> _clusters = null!;
 	private List<Entity> _populationCenters = null!;
+	private List<Entity> _players = null!;
 
 	public CivsGameLogicModule() : base( false, 40, "gamelogic" ) {
 		OnInitialize += Init;
@@ -33,11 +35,11 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		if (message.Content is CreateNewWorldRequestMessage createNewWorldRequest) {
 			var procGen = new ProceduralWorldTerrainGenerator( createNewWorldRequest.Parameters );
 			var globe = new GlobeModel( Guid.NewGuid(), createNewWorldRequest.Parameters.Subdivisions, procGen );
-			MessageBusNode.Publish( new CreateNewWorldRequestResponseMessage( globe ), "globe-tracking" );
+			MessageBusNode.Publish( new CreateNewWorldRequestResponseMessage( globe ), "globe-tracking", true );
 			return;
 		}
 
-		if (message.Content is CreateNewOwnerMessage createNewOwnerMessage) {
+		if (message.Content is CreateNewPopulationCenterMessage createNewOwnerMessage) {
 			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Contains( createNewOwnerMessage.Face ) );
 			if (currentOwner is not null) {
 				FaceOwnershipComponent toc = currentOwner.GetComponentOrThrow<FaceOwnershipComponent>();
@@ -48,9 +50,12 @@ public sealed class CivsGameLogicModule : ModuleBase {
 				}
 			}
 			{
+				var player = _entities.GetEntity( createNewOwnerMessage.PlayerGuid );
+				if (player is null)
+					return;
 				Entity newOwner = _entities.CreateEntity();
+				newOwner.SetParent( createNewOwnerMessage.PlayerGuid );
 				newOwner.AddComponent<PopulationCenterComponent>();
-				newOwner.AddComponent<FaceOwnershipRenderComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
 				FaceOwnershipComponent toc = newOwner.AddComponent<FaceOwnershipComponent>();
 				toc.AddFace( createNewOwnerMessage.Face );
 				newOwner.AddComponent<RenderComponent>();
@@ -87,12 +92,20 @@ public sealed class CivsGameLogicModule : ModuleBase {
 				toc.AddFace( setNeighbourOwnerMessage.Face );
 			}
 		}
+
+		if (message.Content is CreateNewPlayerMessage) {
+			Entity player = _entities.CreateEntity();
+			player.AddComponent<PlayerComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
+			_players.Add( player );
+			MessageBusNode.Publish( new CreateNewPlayerMessageResponse( player.EntityId ), null, true );
+		}
 	}
 
 	private void Init() {
 		_entities = this.InstanceProvider.Get<EntityContainerService>().CreateContainer();
 		_clusters = [];
 		_populationCenters = [];
+		_players = [];
 		this.InstanceProvider.Get<ActiveGlobeTrackingService>().AfterGlobeChange += OnGlobeChanged;
 	}
 
@@ -105,18 +118,26 @@ public sealed class CivsGameLogicModule : ModuleBase {
 			_entities.RemoveEntity( cluster );
 		_clusters.Clear();
 
+		foreach (Entity populationCenter in _populationCenters)
+			_entities.RemoveEntity( populationCenter );
+		_populationCenters.Clear();
+
+		foreach (Entity player in _players)
+			_entities.RemoveEntity( player );
+		_players.Clear();
+
+		InstanceProvider.Get<GameStateService>().SetNewState( "selectedTile", null );
+
 		if (model is null)
 			return;
 
 		_worldEntity = _entities.CreateEntity();
-		_worldEntity.AddComponent<Transform3Component>();
 		_worldEntity.AddComponent<GlobeComponent>( p => p.SetGlobe( model ) );
 		_worldEntity.AddComponent<RenderComponent>();
 
 		foreach (BoundedRenderCluster cluster in model.Clusters) {
 			Entity entity = _entities.CreateEntity();
 			entity.SetParent( _worldEntity.EntityId );
-			entity.AddComponent<Transform3Component>();
 			entity.AddComponent<BoundedRenderClusterComponent>( p => p.Set( model, (int) cluster.Id ) );
 			_clusters.Add( entity );
 			entity.AddComponent<RenderComponent>();
@@ -124,6 +145,5 @@ public sealed class CivsGameLogicModule : ModuleBase {
 	}
 
 	private void Update( double time, double deltaTime ) {
-
 	}
 }

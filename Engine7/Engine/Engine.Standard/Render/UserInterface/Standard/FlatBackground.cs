@@ -23,10 +23,6 @@ public sealed class FlatBackground : UserInterfaceComponentBase {
 		_sceneInstance = CreateSceneInstance();
 	}
 
-	public FlatBackground( UserInterfaceComponentBase parent ) : base( parent, 0 ) {
-		_sceneInstance = CreateSceneInstance();
-	}
-
 	private SceneInstance<Entity2SceneData> CreateSceneInstance() {
 		SceneInstance<Entity2SceneData> sceneInstance = Element.UserInterfaceServiceAccess.RequestSceneInstance<SceneInstance<Entity2SceneData>>( RenderLayer );
 		sceneInstance.SetVertexArrayObject( Element.UserInterfaceServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2SceneData>() );

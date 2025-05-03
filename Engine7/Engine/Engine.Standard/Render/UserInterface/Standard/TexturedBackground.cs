@@ -39,11 +39,6 @@ public sealed class TexturedBackground : UserInterfaceComponentBase {
 		_texture = texture;
 	}
 
-	public TexturedBackground( UserInterfaceComponentBase parent, OglTexture texture ) : base( parent, 0 ) {
-		_sceneInstance = CreateSceneInstance();
-		_texture = texture;
-	}
-
 	private SceneInstance<Entity2TexturedSceneData> CreateSceneInstance() {
 		SceneInstance<Entity2TexturedSceneData> sceneInstance = Element.UserInterfaceServiceAccess.RequestSceneInstance<SceneInstance<Entity2TexturedSceneData>>( RenderLayer );
 		sceneInstance.SetVertexArrayObject( Element.UserInterfaceServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2TexturedSceneData>() );

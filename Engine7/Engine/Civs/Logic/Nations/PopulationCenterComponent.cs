@@ -1,10 +1,25 @@
-﻿using Civs.World;
-using Civs.World.NewWorld;
+﻿using Civs.World.NewWorld;
 using Engine;
 using Engine.Module.Entities.Container;
+using System.Drawing;
 
 namespace Civs.Logic.Nations;
 public sealed class PopulationCenterComponent : ComponentBase {
+
+	public string Name { get; private set; }
+
+	public PopulationCenterComponent() {
+		Name = $"Pop {Random.Shared.Next():X4}";
+	}
+
+	public void SetName( string name ) {
+		if (string.IsNullOrWhiteSpace( name ))
+			throw new ArgumentException( "Name cannot be null or whitespace.", nameof( name ) );
+		if (name == Name)
+			return;
+		Name = name;
+		this.InvokeComponentChanged();
+	}
 
 }
 
@@ -39,18 +54,18 @@ public sealed class FaceOwnershipComponent : ComponentBase {
 	}
 }
 
-public sealed class FaceOwnershipRenderComponent : ComponentBase {
+public sealed class PlayerComponent : ComponentBase {
 
-	public Vector4<float> Color { get; private set; }
+	public Vector4<float> MapColor { get; private set; }
 
-	public FaceOwnershipRenderComponent() {
-		Color = (1, 1, 1, 1);
+	public PlayerComponent() {
+		MapColor = (1, 1, 1, 1);
 	}
 
 	public void SetColor( Vector4<float> color ) {
-		if (Color == color)
+		if (MapColor == color)
 			return;
-		Color = color;
+		MapColor = color;
 		this.InvokeComponentChanged();
 	}
 }

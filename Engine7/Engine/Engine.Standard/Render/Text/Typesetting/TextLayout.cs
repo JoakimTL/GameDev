@@ -4,7 +4,7 @@ using Engine.Standard.Render.Text.Fonts.Meshing;
 using Engine.Standard.Render.Text.Services;
 
 namespace Engine.Standard.Render.Text.Typesetting;
-public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2SceneData> sceneInstanceCollection, FontMeshingService fontMeshingService ) : Identifiable, IUpdateable {
+public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2SceneData> sceneInstanceCollection, FontMeshingService fontMeshingService ) : Identifiable, IUpdateable, IRemovable {
 
 	//The entire point of this class is to place glyphs in the correct positions, such that they fill a rectangle. The rectangle is defined by the base matrix.
 
@@ -107,7 +107,13 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		}
 	}
 
+	public uint RenderLayer => _sceneInstanceCollection.RenderLayer;
+
+	public bool Removed { get; private set; }
+
 	private bool _needsUpdate;
+
+	public event RemovalHandler? OnRemoved;
 
 	public void Show() {
 		foreach (GlyphInstance instance in _glyphInstances) {
@@ -248,4 +254,11 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		}
 	}
 
+	public void Remove() {
+		if (Removed)
+			return;
+		_sceneInstanceCollection.Remove();
+		Removed = true;
+		OnRemoved?.Invoke( this );
+	}
 }

@@ -3,7 +3,7 @@
 namespace Engine.Standard.Render.UserInterface.Standard;
 
 public sealed class Label : UserInterfaceComponentBase {
-	private readonly TextLayout _textLayout;
+	private TextLayout _textLayout;
 
 	public string Text {
 		get => _textLayout.Text;
@@ -39,11 +39,20 @@ public sealed class Label : UserInterfaceComponentBase {
 		_textLayout = Element.UserInterfaceServiceAccess.RequestTextLayout( RenderLayer );
 	}
 
-	public Label( UserInterfaceComponentBase parent ) : base( parent ) {
-		_textLayout = Element.UserInterfaceServiceAccess.RequestTextLayout( RenderLayer );
-	}
-
 	protected override void OnUpdate( double time, double deltaTime ) {
+		if (_textLayout.RenderLayer != RenderLayer) {
+			_textLayout.Remove();
+			var oldTextLayout = _textLayout;
+			_textLayout = Element.UserInterfaceServiceAccess.RequestTextLayout( RenderLayer );
+			_textLayout.Text = oldTextLayout.Text;
+			_textLayout.FontName = oldTextLayout.FontName;
+			_textLayout.TextScale = oldTextLayout.TextScale;
+			_textLayout.Color = oldTextLayout.Color;
+			_textLayout.HorizontalAlignment = oldTextLayout.HorizontalAlignment;
+			_textLayout.VerticalAlignment = oldTextLayout.VerticalAlignment;
+			_textLayout.TextArea = oldTextLayout.TextArea;
+			_textLayout.TextRotation = oldTextLayout.TextRotation;
+		}
 		_textLayout.Update( time, deltaTime );
 	}
 

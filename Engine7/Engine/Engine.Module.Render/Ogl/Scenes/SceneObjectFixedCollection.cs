@@ -72,6 +72,9 @@ public sealed class SceneObjectFixedCollection<TVertexData, TInstanceData> : Ind
 	}
 
 	protected override bool InternalDispose() {
+		if (!_segment.Disposed)
+			_segment.Dispose();
+		Remove();
 		return true;
 	}
 }
