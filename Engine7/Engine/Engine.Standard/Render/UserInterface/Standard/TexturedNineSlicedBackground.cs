@@ -156,7 +156,10 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 		}
 	}
 
-	protected override bool InternalDispose() => true;
+	protected override void InternalRemove() {
+		foreach (SceneInstance<Entity2SlicedTexturedSceneData> sceneInstance in _sceneInstances)
+			sceneInstance.Remove();
+	}
 
 	protected internal override void DoHide() {
 		foreach (SceneInstance<Entity2SlicedTexturedSceneData> sceneInstance in _sceneInstances)

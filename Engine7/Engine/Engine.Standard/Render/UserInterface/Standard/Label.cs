@@ -63,7 +63,9 @@ public sealed class Label : UserInterfaceComponentBase {
 			(TransformInterface.GlobalTranslation + TransformInterface.GlobalScale).CastSaturating<double, float>()] );
 	}
 
-	protected override bool InternalDispose() => true;
+	protected override void InternalRemove() {
+		_textLayout.Remove();
+	}
 
 	protected internal override void DoHide() {
 		_textLayout.Hide();

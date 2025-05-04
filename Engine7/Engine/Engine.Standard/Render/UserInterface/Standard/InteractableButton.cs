@@ -86,11 +86,11 @@ public abstract class InteractableUserInterfaceComponentBase<TSelf> : UserInterf
 	}
 }
 
-public sealed class Button : InteractableUserInterfaceComponentBase<Button> {
+public sealed class InteractableButton : InteractableUserInterfaceComponentBase<InteractableButton> {
 	public TexturedNineSlicedBackground Background { get; }
 	public Label Label { get; }
 
-	public Button( UserInterfaceElementBase element, string text ) : base( element ) {
+	public InteractableButton( UserInterfaceElementBase element, string text ) : base( element ) {
 		Background = AddChild( new TexturedNineSlicedBackground( element, element.UserInterfaceServiceAccess.Textures.Get( "test" ) ) );
 		Label = AddChild( new Label( element ) {
 			Text = text,
@@ -110,7 +110,6 @@ public sealed class Button : InteractableUserInterfaceComponentBase<Button> {
 
 	protected override void OnUpdate( double time, double deltaTime ) { }
 	protected override void OnPlacementChanged() { }
-	protected override bool InternalDispose() => true;
 	protected internal override void DoHide() { }
 	protected internal override void DoShow() { }
 	public void RemoveDefaultDecorations() {
@@ -121,33 +120,61 @@ public sealed class Button : InteractableUserInterfaceComponentBase<Button> {
 	}
 
 	public static string DefaultFontName => "calibrib";
-	private static void DefaultOnExit( Button button, MouseMoveEvent @event ) => button.Background.Color = 1;
-	private static void DefaultOnEnter( Button button, MouseMoveEvent @event ) => button.Background.Color = (.9, .9, .9, 1);
-	private static void DefaultOnPressed( Button button, MouseButtonEvent @event ) => button.Background.Color = (.75, .75, .75, 1);
-	private static void DefaultOnReleased( Button button, MouseButtonEvent @event ) => button.Background.Color = 1;
+	private static void DefaultOnExit( InteractableButton button, MouseMoveEvent @event ) => button.Background.Color = 1;
+	private static void DefaultOnEnter( InteractableButton button, MouseMoveEvent @event ) => button.Background.Color = (.9, .9, .9, 1);
+	private static void DefaultOnPressed( InteractableButton button, MouseButtonEvent @event ) => button.Background.Color = (.75, .75, .75, 1);
+	private static void DefaultOnReleased( InteractableButton button, MouseButtonEvent @event ) => button.Background.Color = 1;
+}
+
+public sealed class VisualButton : UserInterfaceComponentBase {
+	public TexturedNineSlicedBackground Background { get; }
+	public Label Label { get; }
+
+	public VisualButton( UserInterfaceElementBase element, string text ) : base( element ) {
+		Background = AddChild( new TexturedNineSlicedBackground( element, element.UserInterfaceServiceAccess.Textures.Get( "test" ) ) );
+		Label = AddChild( new Label( element ) {
+			Text = text,
+			FontName = DefaultFontName,
+			TextScale = 0.5f,
+			Color = (0, 0, 0, 1),
+			HorizontalAlignment = Alignment.Center,
+			VerticalAlignment = Alignment.Center
+		} );
+	}
+
+	protected override void OnUpdate( double time, double deltaTime ) { }
+	protected override void OnPlacementChanged() { }
+	protected internal override void DoHide() { }
+	protected internal override void DoShow() { }
+
+	public static string DefaultFontName => "calibrib";
 }
 
 public sealed class ListButton<TValue> : ValueDisplayComponentBase<ListButton<TValue>, TValue> where TValue : class {
-	public Button Button { get; }
+	private readonly VisualButton _visuals;
+
 	public ListButton( UserInterfaceElementBase element, TValue? value ) : base( element, value ) {
-		Button = AddChild( new Button( element, value?.ToString() ?? "No value" ) );
+		_visuals = AddChild( new VisualButton( element, value?.ToString() ?? "No value" ) );
+
+		ClickEnabled = true;
+		OnMouseEntered += DefaultOnEnter;
+		OnMouseExited += DefaultOnExit;
+		OnPressed += DefaultOnPressed;
+		OnReleased += DefaultOnReleased;
 	}
 
-	protected override void OnPlacementChanged() {
-	}
+	protected override void OnPlacementChanged() { }
 
-	protected internal override void DoHide() {
-	}
+	protected internal override void DoHide() { }
 
-	protected internal override void DoShow() {
-	}
+	protected internal override void DoShow() { }
 
-	protected override void OnUpdate( double time, double deltaTime ) {
-	}
+	protected override void OnUpdate( double time, double deltaTime ) { }
 
-	protected override bool InternalDispose() {
-		return true;
-	}
+	private static void DefaultOnExit( ListButton<TValue> button, MouseMoveEvent @event ) => button._visuals.Background.Color = 1;
+	private static void DefaultOnEnter( ListButton<TValue> button, MouseMoveEvent @event ) => button._visuals.Background.Color = (.9, .9, .9, 1);
+	private static void DefaultOnPressed( ListButton<TValue> button, MouseButtonEvent @event ) => button._visuals.Background.Color = (.75, .75, .75, 1);
+	private static void DefaultOnReleased( ListButton<TValue> button, MouseButtonEvent @event ) => button._visuals.Background.Color = 1;
 }
 
 public sealed class DropdownMenu<T> : UserInterfaceComponentBase where T : class {
@@ -157,15 +184,40 @@ public sealed class DropdownMenu<T> : UserInterfaceComponentBase where T : class
 	private bool _valueChanged = false;
 	private bool _needsUpdate = false;
 
-	private readonly Button _headerButton;
+	private readonly InteractableButton _headerButton;
 	private readonly ScrollableList<ListButton<T>, T> _selectionButtons;
+
+	public event Action<T?>? OnValueSelected;
 
 	public DropdownMenu( UserInterfaceElementBase element ) : base( element ) {
 		_dataSource = [];
-		_headerButton = AddChild( new Button( element, "Header" ) );
+		_headerButton = AddChild( new InteractableButton( element, "Header" ) );
+		_headerButton.OnClicked += OnHeaderClicked;
 		_selectionButtons = AddChild( new ScrollableList<ListButton<T>, T>( element ) );
-		_selectionButtons.Placement.Set( new( (0, -1), 0, (1, 1) ), Alignment.Center, Alignment.Negative );
+		var squaringScale = Placement.GetSquaringScale();
+		_selectionButtons.Placement.Set( new( (0, -squaringScale.Y), 0, squaringScale ), Alignment.Center, Alignment.Negative );
+		_selectionButtons.DisplayAdded += OnSelectionButtonAdded;
+		_selectionButtons.DisplayRemoved += OnSelectionButtonRemoved;
 		_dataSource.CollectionChanged += OnDataSourceChanged;
+	}
+
+
+	private void OnSelectionButtonAdded( ListButton<T> button ) {
+		button.OnClicked += ValueSelected;
+	}
+
+	private void OnSelectionButtonRemoved( ListButton<T> button ) {
+		button.OnClicked -= ValueSelected;
+	}
+
+	private void ValueSelected( ListButton<T> component, MouseButtonEvent mouseButtonEvent ) {
+		_selectedValue = component.Value;
+		_headerButton.Label.Text = _selectedValue?.ToString() ?? "Select...";
+		OnValueSelected?.Invoke( _selectedValue );
+	}
+
+	private void OnHeaderClicked( InteractableButton component, MouseButtonEvent mouseButtonEvent ) {
+		_selectionButtons.ToggleDisplayed();
 	}
 
 	private void OnDataSourceChanged( object? sender, NotifyCollectionChangedEventArgs e ) {
@@ -186,7 +238,10 @@ public sealed class DropdownMenu<T> : UserInterfaceComponentBase where T : class
 		_valueChanged = true;
 	}
 
-	protected override void OnPlacementChanged() { }
+	protected override void OnPlacementChanged() {
+		var squaringScale = Placement.GetSquaringScale();
+		_selectionButtons.Placement.Set( new( (0, -squaringScale.Y), 0, squaringScale ), Alignment.Center, Alignment.Negative );
+	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
 		if (_valueChanged) {
@@ -206,15 +261,13 @@ public sealed class DropdownMenu<T> : UserInterfaceComponentBase where T : class
 	protected internal override void DoShow() {
 
 	}
-
-	protected override bool InternalDispose() {
-		return true;
-	}
 }
 
 public sealed class ScrollableList<TDisplay, TValue> : InteractableUserInterfaceComponentBase<ScrollableList<TDisplay, TValue>> where TDisplay : ValueDisplayComponentBase<TDisplay, TValue> where TValue : class {
-	private readonly Dictionary<TValue, ValueDisplayComponentBase<TDisplay, TValue>> _displayedValues;
-	private bool _updatePlacements = false;
+	private readonly Dictionary<TValue, TDisplay> _displayedValues;
+
+	public event Action<TDisplay>? DisplayAdded;
+	public event Action<TDisplay>? DisplayRemoved;
 
 	public ScrollableList( UserInterfaceElementBase element ) : base( element ) {
 		ScrollEnabled = true;
@@ -222,19 +275,26 @@ public sealed class ScrollableList<TDisplay, TValue> : InteractableUserInterface
 		OnScrolled += DefaultOnScrolled;
 	}
 
+	public bool IsOpen { get; private set; } = false;
+
 	public void Add( TValue value ) {
 		if (_displayedValues.ContainsKey( value ))
 			return;
-		ValueDisplayComponentBase<TDisplay, TValue> display = typeof( TDisplay ).CreateInstance( [Element, value] ) as TDisplay ?? throw new InvalidOperationException( $"Unable to construct {typeof(TDisplay)}." );
-		_updatePlacements = true;
+		TDisplay display = typeof( TDisplay ).CreateInstance( [ Element, value ] ) as TDisplay ?? throw new InvalidOperationException( $"Unable to construct {typeof( TDisplay )}." );
+		AddChild( display );
+		if (!IsOpen)
+			display.Hide();
+		_displayedValues.Add( value, display );
+		SetPlacements();
+		DisplayAdded?.Invoke( display );
 	}
 
 	public void Remove( TValue value ) {
-		if (!_displayedValues.TryGetValue( value, out ValueDisplayComponentBase<TDisplay, TValue>? display ))
+		if (!_displayedValues.Remove( value, out TDisplay? display ))
 			return;
-		display.Dispose();
-		_displayedValues.Remove( value );
-		_updatePlacements = true;
+		display.Remove();
+		SetPlacements();
+		DisplayRemoved?.Invoke( display );
 	}
 
 	public void SetChoicesTo( IList<TValue> dataSource ) {
@@ -254,29 +314,34 @@ public sealed class ScrollableList<TDisplay, TValue> : InteractableUserInterface
 
 	}
 
-	protected override bool InternalDispose() {
-		return true;
-	}
-
 	protected override void OnPlacementChanged() {
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		if (!_updatePlacements)
-			return;
-		_updatePlacements = false;
+	}
 
+	private void SetPlacements() {
 		int i = 0;
 		foreach (ValueDisplayComponentBase<TDisplay, TValue> display in _displayedValues.Values) {
-			display.Placement.Set( new( (0, -i * 0.1), 0, (1, 0.1) ), Alignment.Center, Alignment.Positive );
+			display.Placement.Set( new( (0, -i * 0.25 - 0.125), 0, (1, 0.125) ), Alignment.Center, Alignment.Positive );
 			i++;
 		}
 	}
 
+	public void ToggleDisplayed() {
+		if (IsOpen) {
+			Hide();
+		} else {
+			Show();
+		}
+	}
+
 	protected internal override void DoHide() {
+		IsOpen = false;
 	}
 
 	protected internal override void DoShow() {
+		IsOpen = true;
 	}
 
 }

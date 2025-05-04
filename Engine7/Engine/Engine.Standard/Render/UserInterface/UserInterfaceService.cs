@@ -1,8 +1,12 @@
-﻿using Engine.Module.Render;
+﻿using Engine.Module.Entities.Services;
+using Engine.Module.Render;
 using Engine.Module.Render.Input;
+using Engine.Processing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Standard.Render.UserInterface;
 
+[Do<IUpdateable>.After<SynchronizedEntityContainerService>]
 public sealed class UserInterfaceService : DisposableIdentifiable, IUpdateable {
 	private readonly UserInterfaceStateManager _userInterfaceStateManager;
 	private readonly CapturableUserInputEventService _capturableUserInputEventService;

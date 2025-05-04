@@ -49,7 +49,7 @@ public sealed class TypeInstanceFactory {
 			if (x.Length != y.Length)
 				return false;
 			for (int i = 0; i < x.Length; i++)
-				if (x[ i ] != y[ i ])
+				if (!(x[ i ].IsAssignableTo( y[ i ] ) || y[ i ].IsAssignableTo( x[ i ] )))
 					return false;
 			return true;
 		}

@@ -8,15 +8,23 @@ namespace Engine.Module.Entities.Services;
 
 public sealed class SynchronizedEntityContainerService : DisposableIdentifiable, IUpdateable {
 
+	private readonly SerializerProvider _serializerProvider;
 	private readonly MessageBusNode _messageBusNode;
 	private readonly List<SynchronizedEntityContainer> _synchronizedContainers;
 	private readonly ConcurrentQueue<SynchronizedEntityContainer> _incomingContainers;
 	private readonly ConcurrentQueue<SynchronizedEntityContainer> _outgoingContainers;
 
+	/// <summary>
+	/// Happens on local thread
+	/// </summary>
 	public event Action<SynchronizedEntityContainer>? SynchronizedEntityContainerAdded;
+	/// <summary>
+	/// Happens on local thread
+	/// </summary>
 	public event Action<SynchronizedEntityContainer>? SynchronizedEntityContainerRemoved;
 
 	public SynchronizedEntityContainerService( SerializerProvider serializerProvider ) {
+		this._serializerProvider = serializerProvider;
 		this._messageBusNode = MessageBus.CreateNode( "ecs-sync" );
 		this._messageBusNode.OnMessageProcessed += OnMessageReceived;
 		this._synchronizedContainers = [];
@@ -24,6 +32,8 @@ public sealed class SynchronizedEntityContainerService : DisposableIdentifiable,
 		this._outgoingContainers = [];
 		this._messageBusNode.Publish( new SynchronizedEntityContainerListRequestMessage(), null, true );
 	}
+
+	public IReadOnlyList<SynchronizedEntityContainer> SynchronizedContainers => this._synchronizedContainers.AsReadOnly();
 
 	private void OnMessageReceived( Message message ) {
 		if (message.Content is SynchronizedEntityContainerRequestMessageResponse synchronizedEntityContainerRequestResponse)
@@ -44,6 +54,8 @@ public sealed class SynchronizedEntityContainerService : DisposableIdentifiable,
 			container.OnDisposed += OnContainerDisposed;
 			this.SynchronizedEntityContainerAdded?.Invoke( container );
 		}
+		foreach (SynchronizedEntityContainer container in this._synchronizedContainers)
+			container.Update( _serializerProvider );
 	}
 
 	private void OnContainerDisposed( IListenableDisposable disposable ) {
@@ -54,8 +66,10 @@ public sealed class SynchronizedEntityContainerService : DisposableIdentifiable,
 	}
 
 	protected override bool InternalDispose() {
-		foreach (SynchronizedEntityContainer container in this._synchronizedContainers)
+		foreach (SynchronizedEntityContainer container in this._synchronizedContainers) {
+			container.OnDisposed -= OnContainerDisposed;
 			container.Dispose();
+		}
 		return true;
 	}
 }

@@ -44,6 +44,13 @@ public sealed class UserInterfaceComponentPlacement {
 		Changed = true;
 	}
 
+	/// <returns>A vector which scaling returns this component to a square shape, however it does not remove all scaling effects.</returns>
+	public Vector2<double> GetSquaringScale() {
+		return Transform.Scale.X == 0 || Transform.Scale.Y == 0
+			? Vector2<double>.One
+			: Transform.Scale.X > Transform.Scale.Y ? (1, Transform.Scale.X / Transform.Scale.Y) : (Transform.Scale.Y / Transform.Scale.X, 1);
+	}
+
 	public void Update() {
 		if (!Changed)
 			return;

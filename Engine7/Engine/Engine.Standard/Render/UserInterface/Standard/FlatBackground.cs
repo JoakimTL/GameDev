@@ -1,5 +1,6 @@
 ﻿using Engine.Standard.Render.Meshing.Services;
 using Engine.Standard.Render.Shaders;
+using Engine.Standard.Render.Text.Typesetting;
 
 namespace Engine.Standard.Render.UserInterface.Standard;
 
@@ -46,7 +47,9 @@ public sealed class FlatBackground : UserInterfaceComponentBase {
 		_sceneInstance.Write( new Entity2SceneData( TransformInterface.Matrix.CastSaturating<double, float>(), color ) );
 	}
 
-	protected override bool InternalDispose() => true;
+	protected override void InternalRemove() {
+		_sceneInstance.Remove();
+	}
 
 	protected internal override void DoHide() {
 		_sceneInstance.SetAllocated( false );

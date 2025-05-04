@@ -8,20 +8,20 @@ using Engine.Standard.Render.UserInterface.Standard;
 namespace Civs.Render.Ui;
 public sealed class StartMenu() : UserInterfaceElementWithMessageNodeBase( "ui_startmenu" ) {
 
-	private Button _btnNewGame = null!;
-	private Button _btnExit = null!;
+	private InteractableButton _btnNewGame = null!;
+	private InteractableButton _btnExit = null!;
 
 	protected override void Initialize() {
-		_btnNewGame = new Button( this, "New Game" );
+		_btnNewGame = new InteractableButton( this, "New Game" );
 		_btnNewGame.Placement.Set( new( (.3, -.15), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
 		_btnNewGame.OnClicked += OnNewGameButtonClicked;
-		_btnExit = new Button( this, "Exit");
+		_btnExit = new InteractableButton( this, "Exit");
 		_btnExit.Placement.Set( new( (.3, -.4), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
 		_btnExit.OnClicked += OnExitButtonClicked;
 	}
 
-	private void OnNewGameButtonClicked( Button btn, MouseButtonEvent @event ) => Publish( new NewGameMessage(), "gamelogic", true );
-	private void OnExitButtonClicked( Button btn, MouseButtonEvent @event ) => Publish( new ExitGameMessage(), null, true );
+	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event ) => Publish( new NewGameMessage(), "gamelogic", true );
+	private void OnExitButtonClicked( InteractableButton btn, MouseButtonEvent @event ) => Publish( new ExitGameMessage(), null, true );
 
 	protected override bool ShouldDisplay() {
 		return GameStateProvider.Get<bool>( "showStartMenu" ); //TODO: Create a more complex state machine for ui?

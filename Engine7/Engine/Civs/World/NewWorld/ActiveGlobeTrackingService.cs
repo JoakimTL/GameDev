@@ -1,6 +1,7 @@
 ﻿using Civs.Messages;
 using Engine;
 using Engine.Modularity;
+using Engine.Module.Entities.Services;
 using Engine.Processing;
 using Engine.Standard.Render.Entities.Services;
 using System.Diagnostics.CodeAnalysis;
@@ -24,7 +25,7 @@ namespace Civs.World.NewWorld;
 //	}
 //}
 
-[Do<IUpdateable>.Before<RenderEntityContainerService>]
+[Do<IUpdateable>.Before<SynchronizedEntityContainerService>]
 public sealed class ActiveGlobeTrackingService : IUpdateable {
 
 	private readonly MessageBusNode _messageBusNode;

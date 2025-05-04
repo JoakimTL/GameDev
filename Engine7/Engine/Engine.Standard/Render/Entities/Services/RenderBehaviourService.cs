@@ -12,7 +12,7 @@ public class RenderBehaviourService : IInitializable {
 	}
 
 	private void OnContextAdded( Context context )
-		=> context.InstanceProvider.Catalog.Host<RenderBehaviourEntityContainerEventReceiverService>();
+		=> context.InstanceProvider.Catalog.Host<RenderEntityContainerService>();
 
 	public void Initialize() {
 		foreach (Context context in this._contextManagementService.Contexts)

@@ -1,13 +1,15 @@
 ﻿using Engine.Module.Entities.Container;
+using Engine.Module.Entities.Services;
 using Engine.Module.Render.Entities.Components;
+using Engine.Processing;
 using Engine.Serialization;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Module.Render.Entities;
 
+[Do<IUpdateable>.After<SynchronizedEntityContainerService>]
 public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable {
-	private readonly SerializerProvider _serializerProvider;
 	private readonly RenderEntityServiceAccess _serviceAccess;
 
 	private readonly Dictionary<Guid, RenderEntity> _renderEntitiesByEntityId;
@@ -20,9 +22,8 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 	public event Action<RenderEntity>? OnRenderEntityAdded;
 	public event Action<RenderEntity>? OnRenderEntityRemoved;
 
-	public RenderEntityContainer( SynchronizedEntityContainer synchronizedContainer, SerializerProvider serializerProvider, RenderEntityServiceAccess serviceAccess ) {
+	public RenderEntityContainer( SynchronizedEntityContainer synchronizedContainer, RenderEntityServiceAccess serviceAccess ) {
 		this.SynchronizedEntityContainer = synchronizedContainer;
-		this._serializerProvider = serializerProvider;
 		this._serviceAccess = serviceAccess;
 		this._renderEntityContainerDependentBehaviourManager = new( this );
 		this._renderEntitiesByEntityId = [];
@@ -68,7 +69,6 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 	}
 
 	public void Update( double time, double deltaTime ) {
-		SynchronizedEntityContainer.Update( _serializerProvider );
 		while (this._renderEntitiesToAddQueue.TryDequeue( out Entity? entity ))
 			AddRenderEntity( entity );
 		while (this._renderEntitiesToRemoveQueue.TryDequeue( out Entity? entity ))
@@ -96,7 +96,6 @@ public sealed class RenderEntityContainer : DisposableIdentifiable, IUpdateable 
 	}
 
 	protected override bool InternalDispose() {
-		this.SynchronizedEntityContainer.Dispose();
 		_renderEntityContainerDependentBehaviourManager.Dispose();
 		foreach (RenderEntity renderEntity in this._renderEntitiesByEntityId.Values)
 			renderEntity.Dispose();

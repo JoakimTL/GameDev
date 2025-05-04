@@ -28,19 +28,17 @@ public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpda
 	}
 
 	private void OnContainerAdded( SynchronizedEntityContainer container ) {
-		RegisterEntityContainer(container );
+		if (this._renderEntityContainersByContainerId.ContainsKey( container.ContainerId )) {
+			this.LogLine( $"{container.ContainerId} already registered.", Log.Level.VERBOSE );
+			return;
+		}
+		this._renderEntityContainersByContainerId.Add( container.ContainerId, new RenderEntityContainer( container, this._renderEntityServiceAccess ) );
 	}
 
 	private void OnContainerRemoved( SynchronizedEntityContainer container ) {
-		//throw new NotImplementedException();
-	}
-
-	internal void RegisterEntityContainer( SynchronizedEntityContainer synchronizedEntityContainer ) {
-		if (this._renderEntityContainersByContainerId.ContainsKey( synchronizedEntityContainer.ContainerId )) {
-			this.LogLine( $"{synchronizedEntityContainer.ContainerId} already registered.", Log.Level.VERBOSE );
+		if (!this._renderEntityContainersByContainerId.Remove( container.ContainerId, out RenderEntityContainer? renderEntityContainer ))
 			return;
-		}
-		this._renderEntityContainersByContainerId.Add( synchronizedEntityContainer.ContainerId, new RenderEntityContainer( synchronizedEntityContainer, _serializerProvider, this._renderEntityServiceAccess ) );
+		renderEntityContainer.Dispose();
 	}
 
 	private void OnContainerDisposed( IListenableDisposable disposable ) {

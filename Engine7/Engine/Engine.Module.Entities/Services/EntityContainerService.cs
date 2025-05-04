@@ -22,16 +22,18 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 		if (message.Content is SynchronizedEntityContainerListRequestMessage containerListRequest)
 			foreach (EntityContainer container in this._containers)
 				message.SendResponseFrom( this._messageBusNode, new SynchronizedEntityContainerRequestMessageResponse( new( container, _serializerProvider ) ) );
-		if (message.Content is SynchronizedEntityContainerRequestMessage containerRequest)
-			if (_containers.Contains( containerRequest.EntityContainer ))
-				message.SendResponseFrom( this._messageBusNode, new SynchronizedEntityContainerRequestMessageResponse( new( containerRequest.EntityContainer, _serializerProvider ) ) );
+		if (message.Content is SynchronizedEntityContainerRequestMessage containerRequest) {
+			var container = this._containers.FirstOrDefault( p => p.Id == containerRequest.ContainerId );
+			if (container is not null)
+				message.SendResponseFrom( this._messageBusNode, new SynchronizedEntityContainerRequestMessageResponse( new( container, _serializerProvider ) ) );
+		}
 	}
 
 	public EntityContainer CreateContainer() {
 		EntityContainer container = new();
 		this._containers.Add( container );
 		container.OnDisposed += OnContainerDisposed;
-		this._messageBusNode.Publish( new EntityContainerCreatedEventMessage( container ), null, true );
+		this._messageBusNode.Publish( new EntityContainerCreatedEventMessage( container.Id ), null, true );
 		return container;
 	}
 
@@ -39,7 +41,7 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 		if (disposable is not EntityContainer container)
 			return;
 		this._containers.Remove( container );
-		this._messageBusNode.Publish( new EntityContainerRemovedEventMessage( container ), null, true );
+		this._messageBusNode.Publish( new EntityContainerRemovedEventMessage( container.Id ), null, true );
 	}
 
 	protected override bool InternalDispose() {
