@@ -7,7 +7,7 @@ using Engine.Standard.Render.UserInterface.Standard;
 
 namespace Civs.Render.Ui;
 
-public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "ui_newgamemenu" ) {
+public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b(?:globe-tracking|ui_newgame)\b" ) {
 
 	private InteractableButton _btnCreateWorld = null!;
 
@@ -26,7 +26,6 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "ui
 	protected override void OnMessageReceived( Message message ) {
 		if (message.Content is CreateNewWorldRequestResponseMessage) {
 			GameStateProvider.SetNewState( "showNewGameMenu", false );
-
 		}
 	}
 }

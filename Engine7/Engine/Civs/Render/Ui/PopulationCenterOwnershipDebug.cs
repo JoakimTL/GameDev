@@ -118,13 +118,13 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 			_ownerLabel.Text = "No tile selected";
 			return;
 		}
-		var container = UserInterfaceServiceAccess.Get<RenderEntityContainerProvider>().Containers
+		var container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null) {
 			_ownerLabel.Text = "No owner";
 			return;
 		}
-		var focs = container.RenderEntities.Select( p => p.Entity.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		var focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
 		var neighbours = selectedTile.Blueprint.Connections.Select( p => p.GetOther( selectedTile ) ).ToList();
 		for (int i = 0; i < neighbours.Count; i++) {
 			var neighbourFace = neighbours[ i ];
@@ -132,7 +132,7 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 			var button = _setNeighbourOwner[ i ];
 			if (neighbourOwner is not null) {
 				button.Label.Text = $"Give";
-				button.Background.Color = neighbourOwner.Entity.GetComponentOrDefault<PlayerComponent>()?.MapColor.CastSaturating<float, double>() ?? Vector4<double>.One;
+				button.Background.Color = neighbourOwner.Entity.Parent?.GetComponentOrDefault<PlayerComponent>()?.MapColor.CastSaturating<float, double>() ?? Vector4<double>.One;
 				continue;
 			}
 			button.Label.Text = $"No neighbour";

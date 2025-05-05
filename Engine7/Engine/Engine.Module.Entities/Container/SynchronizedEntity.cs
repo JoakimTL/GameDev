@@ -8,13 +8,14 @@ namespace Engine.Module.Entities.Container;
 //Listens to changes in the entity and reflects them onto itself. It is essentially a copy of the entity, but with no logic. This is to allow the render entity and its behaviours to determine the behaviour, but with the newest data from the entity at this frame.
 public sealed class SynchronizedEntity : DisposableIdentifiable {
 
+	private bool _rewritingParentId = false;
+	private Guid? _newParent;
 	private readonly EntitySerializerPair _originalPair;
 	private EntitySerializerPair? _copyPair;
 
 	private PooledBufferData? _synchronizationData;
 	private readonly ConcurrentQueue<PooledBufferData> _componentSerializationResults;
 	private readonly ConcurrentQueue<Type> _removedComponents;
-
 
 	public SynchronizedEntity( EntitySerializerPair original ) {
 		_originalPair = original;
@@ -29,6 +30,8 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 	//Called from other thread (render thread)
 	public void Initialize( SerializerProvider serializerProvider, ParentIdChanged parentIdChangedDelegate ) {
 		_copyPair = new( new( _originalPair.Entity.EntityId, parentIdChangedDelegate ), serializerProvider );
+		_originalPair.Entity.ParentChanged += OnParentChanged;
+		_newParent = _originalPair.Entity.ParentId;
 	}
 
 	//Called from other thread (render thread)
@@ -57,6 +60,8 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 		}
 		while (_removedComponents.TryDequeue( out Type? removedComponentType ))
 			_copyPair.Entity.RemoveComponent( removedComponentType );
+		if (!_rewritingParentId && _newParent != _copyPair.Entity.ParentId)
+			_copyPair.Entity.SetParent( _newParent );
 	}
 
 	//Called from Entity
@@ -85,6 +90,13 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 
 	//Called from Entity
 	private void OnComponentRemoved( Entity entity, ComponentBase component ) => _removedComponents.Enqueue( component.GetType() );
+
+	//Called from Entity
+	private void OnParentChanged( Entity entity, Entity? oldParent, Entity? newParent ) {
+		_rewritingParentId = true;
+		_newParent = newParent?.EntityId;
+		_rewritingParentId = false;
+	}
 
 	protected override bool InternalDispose() {
 		_originalPair.Entity.ComponentAdded -= OnComponentAdded;
