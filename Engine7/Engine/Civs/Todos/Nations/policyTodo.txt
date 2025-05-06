@@ -7,16 +7,12 @@ Economic policies:
 - Socialism:
 	- The government owns the means of production and distribution. This is a more equitable system that allows for a more equal
 	- The government can control the economy and ensure that everyone has a fair share of the pie.
-	- Communism:
+- Communism:
 	- The government owns everything and there is no private property. This is a more extreme form of socialism that can lead to a lack of innovation and motivation.
-	- Capitalism:
+- Capitalism:
 	- The government has little to no control over the economy. This allows for a free market and encourages innovation and competition.
-	- Mercantilism:
-	- The government controls trade and commerce. This can lead to a lack of competition and innovation.
-	- Protectionism:
+- Protectionism:
 	- The government protects domestic industries from foreign competition. This can lead to a lack of innovation and competition.
-	- Free trade:
-	- The government allows for free trade between countries. This can lead to a lack of competition and innovation.
 
 
 Extractive or inclusive economy and policies:

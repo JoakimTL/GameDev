@@ -108,7 +108,7 @@ public class RenderEntityContainerTests {
 		Assert.That( sec.IncomingEntities, Is.EqualTo( 1 ) );
 
 		IInstanceProvider instanceProvider2 = InstanceManagement.CreateProvider();
-		RenderEntityContainer renderContainer = new( sec, instanceProvider2.Get<SerializerProvider>(), null! );
+		RenderEntityContainer renderContainer = new( sec, null! );
 
 		container.SystemManager.Update( 0, 0 );
 		renderContainer.Update( 0, 0 );

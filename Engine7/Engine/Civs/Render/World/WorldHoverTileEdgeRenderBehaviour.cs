@@ -4,7 +4,7 @@ using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Civs.Render.World.Lines;
 using Engine.Standard;
-using Civs.World.NewWorld;
+using Civs.World;
 
 namespace Civs.Render.World;
 

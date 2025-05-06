@@ -1,4 +1,4 @@
-﻿using Civs.World.NewWorld;
+﻿using Civs.World;
 using Engine;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
@@ -19,9 +19,9 @@ public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity
 		List<uint> indices = [];
 		for (int i = 0; i < faces.Count; i++) {
 			var face = faces[i ];
-			Vector3<float> a = face.Blueprint.VertexA;
-			Vector3<float> b = face.Blueprint.VertexB;
-			Vector3<float> c = face.Blueprint.VertexC;
+			Vector3<float> a = face.Blueprint.VectorA;
+			Vector3<float> b = face.Blueprint.VectorB;
+			Vector3<float> c = face.Blueprint.VectorC;
 			Vector4<byte> color = ((overrideColor ?? face.State.TerrainType.Color) * 255)
 				.Clamp<Vector4<float>, float>( 0, 255 )
 				.CastSaturating<float, byte>();

@@ -5,7 +5,7 @@
 namespace Civs.World;
 
 public sealed class WorldGenerationParameters {
-	public WorldGenerationParameters( uint subdivisions, double globeRadius, int generationSeed, double maxTerrainHeight, double sealevel ) {
+	public WorldGenerationParameters( uint subdivisions, double globeRadius, int generationSeed, double maxTerrainHeight, double sealevel, uint playerCount ) {
 		if (subdivisions < 6)
 			throw new ArgumentOutOfRangeException( nameof( subdivisions ), "Subdivision count must be at least 6." );
 		if (subdivisions > 10)
@@ -20,6 +20,7 @@ public sealed class WorldGenerationParameters {
 		this.GenerationSeed = generationSeed;
 		this.MaxTerrainHeight = maxTerrainHeight;
 		this.Sealevel = sealevel;
+		this.PlayerCount = playerCount;
 	}
 
 	public uint Subdivisions { get; }
@@ -27,4 +28,5 @@ public sealed class WorldGenerationParameters {
 	public int GenerationSeed { get; }
 	public double MaxTerrainHeight { get; }
 	public double Sealevel { get; }
+	public uint PlayerCount { get; }
 }

@@ -1,6 +1,7 @@
 ﻿using Civs.Logic.Nations;
 using Civs.Messages;
-using Civs.World.NewWorld;
+using Civs.Render.Ui.Components;
+using Civs.World;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Entities.Providers;
@@ -18,7 +19,7 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	private InteractableButton _createNewOwner = null!;
 	private InteractableButton _removeOwner = null!;
 	private InteractableButton _createPlayer = null!;
-	private DropdownMenu<PlayerChoice> _playerSelection = null!;
+	private DropdownMenu<PlayerChoiceButton, PlayerChoice> _playerSelection = null!;
 	private bool _updatePlayerSelection = false;
 
 	protected override void Initialize() {
@@ -47,7 +48,7 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 		_createPlayer = new InteractableButton( this, "Create Player" );
 		_createPlayer.Placement.Set( new( (-.35, -.1), 0, (.35, .1) ), Alignment.Positive, Alignment.Positive );
 		_createPlayer.OnClicked += CreateNewPlayer;
-		_playerSelection = new DropdownMenu<PlayerChoice>( this );
+		_playerSelection = new DropdownMenu<PlayerChoiceButton, PlayerChoice>( this );
 		_playerSelection.Placement.Set( new( (-.35, -.325), 0, (.35, .1) ), Alignment.Positive, Alignment.Positive );
 
 	}
@@ -99,7 +100,7 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 		var playerIds = players.Select( p => p.Entity.EntityId ).ToList();
 		var currentDisplayedPlayers = _playerSelection.DataSource.Select( p => p.PlayerId ).ToList();
 
-		var newPlayers = playerIds.Except(currentDisplayedPlayers);
+		var newPlayers = playerIds.Except( currentDisplayedPlayers );
 		var removedPlayers = currentDisplayedPlayers.Except( playerIds );
 
 		foreach (var playerId in removedPlayers) {
@@ -108,7 +109,8 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 				_playerSelection.DataSource.Remove( playerChoice );
 		}
 		foreach (var playerId in newPlayers) {
-			_playerSelection.DataSource.Add( new PlayerChoice( playerId, $"test{playerId}" ) );
+			var player = players.FirstOrDefault( p => p.Entity.EntityId == playerId ) ?? throw new InvalidOperationException( $"Player with id {playerId} not found" );
+			_playerSelection.DataSource.Add( new PlayerChoice( playerId, player.Name, player.MapColor ) );
 		}
 	}
 
@@ -140,8 +142,22 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 		}
 	}
 
+	private bool InternalShouldDisplay() {
+		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
+		if (selectedTile is null) 
+			return false;
+		var container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
+			.FirstOrDefault();
+		if (container is null) 
+			return false;
+		var focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		if (focs.Any(p => p.OwnedFaces.Contains( selectedTile ) ))
+			return false;
+		return true;
+	}
+
 	protected override bool ShouldDisplay() {
-		return GameStateProvider.Get<Face>( "selectedTile" ) is not null;
+		return InternalShouldDisplay();
 	}
 
 	protected override void OnMessageReceived( Message message ) {
@@ -152,13 +168,54 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	}
 }
 
-public sealed class PlayerChoice {
+public sealed class PopulationCenterMenu() : UserInterfaceElementWithMessageNodeBase( "ui_popcenter" ) {
 
-	public Guid PlayerId { get; }
-	public string PlayerName { get; }
-	public PlayerChoice( Guid playerId, string playerName ) {
-		PlayerId = playerId;
-		PlayerName = playerName;
+	private Label _populationCenterNameLabel = null!;
+
+	protected override void Initialize() {
+		_populationCenterNameLabel = new Label( this ) {
+			Text = "noupdate",
+			FontName = "calibrib",
+			TextScale = 0.5f,
+			Color = (1, 1, 1, 1),
+			HorizontalAlignment = Alignment.Center,
+			VerticalAlignment = Alignment.Negative
+		};
+		_populationCenterNameLabel.Placement.Set( new( (0, -.1), 0, (.4, .1) ), Alignment.Center, Alignment.Positive );
+
 	}
-	public override string ToString() => PlayerName;
+
+	protected override void OnMessageReceived( Message message ) {
+
+	}
+
+	protected override void OnUpdate( double time, double deltaTime ) {
+		base.OnUpdate( time, deltaTime );
+		var populationCenter = GetSelectedTileOwner();
+		if (populationCenter is null) {
+			_populationCenterNameLabel.Text = "No population center selected";
+			return;
+		}
+		_populationCenterNameLabel.Text = $"{populationCenter.Entity.GetComponentOrDefault<PopulationCenterComponent>()?.Name ?? $"Missing {nameof( PopulationCenterComponent )}!"}";
+	}
+
+	protected override bool ShouldDisplay() {
+		return GetSelectedTileOwner() is not null;
+	}
+
+	private FaceOwnershipComponent? GetSelectedTileOwner() {
+		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
+		if (selectedTile is null)
+			return null;
+		var localPlayer = GameStateProvider.Get<Guid?>( "localPlayerId" );
+		if (!localPlayer.HasValue)
+			return null;
+		var container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
+			.FirstOrDefault();
+		if (container is null)
+			return null;
+		var entitiesOwnedByPlayer = container.SynchronizedEntities.Where( p => p.EntityCopy?.ParentId == localPlayer.Value ).ToList();
+		var focs = entitiesOwnedByPlayer.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		return focs.FirstOrDefault( p => p.OwnedFaces.Contains( selectedTile ) );
+	}
 }

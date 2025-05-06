@@ -1,7 +1,7 @@
 ﻿using Civs.Logic.Nations;
 using Civs.Logic.World;
 using Civs.Messages;
-using Civs.World.NewWorld;
+using Civs.World;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Entities.Container;
@@ -20,6 +20,8 @@ public sealed class CivsGameLogicModule : ModuleBase {
 	private List<Entity> _populationCenters = null!;
 	private List<Entity> _players = null!;
 
+	private WorldGenerationParameters? _worldGenParameters;
+
 	public CivsGameLogicModule() : base( false, 40, "gamelogic" ) {
 		OnInitialize += Init;
 		OnUpdate += Update;
@@ -35,6 +37,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		if (message.Content is CreateNewWorldRequestMessage createNewWorldRequest) {
 			var procGen = new ProceduralWorldTerrainGenerator( createNewWorldRequest.Parameters );
 			var globe = new GlobeModel( Guid.NewGuid(), createNewWorldRequest.Parameters.Subdivisions, procGen );
+			_worldGenParameters = createNewWorldRequest.Parameters;
 			MessageBusNode.Publish( new CreateNewWorldRequestResponseMessage( globe ), "globe-tracking", true );
 			return;
 		}
@@ -93,12 +96,12 @@ public sealed class CivsGameLogicModule : ModuleBase {
 			}
 		}
 
-		if (message.Content is CreateNewPlayerMessage) {
-			Entity player = _entities.CreateEntity();
-			player.AddComponent<PlayerComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
-			_players.Add( player );
-			MessageBusNode.Publish( new CreateNewPlayerMessageResponse( player.EntityId ), null, true );
-		}
+		//if (message.Content is CreateNewPlayerMessage) {
+		//	Entity player = _entities.CreateEntity();
+		//	player.AddComponent<PlayerComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
+		//	_players.Add( player );
+		//	MessageBusNode.Publish( new CreateNewPlayerMessageResponse( player.EntityId ), null, true );
+		//}
 	}
 
 	private void Init() {
@@ -141,6 +144,17 @@ public sealed class CivsGameLogicModule : ModuleBase {
 			entity.AddComponent<BoundedRenderClusterComponent>( p => p.Set( model, (int) cluster.Id ) );
 			_clusters.Add( entity );
 			entity.AddComponent<RenderComponent>();
+		}
+
+		if (_worldGenParameters is null)
+			return;
+		for (int i = 0; i < _worldGenParameters.PlayerCount; i++) {
+			Entity player = _entities.CreateEntity();
+			player.AddComponent<PlayerComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
+			_players.Add( player );
+			MessageBusNode.Publish( new CreateNewPlayerMessageResponse( player.EntityId ), null, true );
+			if (i == 0)
+				InstanceProvider.Get<GameStateProvider>().SetNewState( "localPlayerId", player.EntityId );
 		}
 	}
 

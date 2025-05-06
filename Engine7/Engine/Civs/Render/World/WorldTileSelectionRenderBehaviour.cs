@@ -6,7 +6,7 @@ using Engine.Module.Render.Input;
 using Engine.Standard.Render.Input.Services;
 using Engine.Standard;
 using Engine.Transforms;
-using Civs.World.NewWorld;
+using Civs.World;
 
 namespace Civs.Render.World;
 
@@ -59,7 +59,7 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		AABB<Vector3<float>> bounds = globe.ClusterBounds.MoveBy( intersectionPoint ).ScaleBy( 0.25f );
 		foreach (BoundedRenderCluster cluster in globe.Clusters.Where( p => p.Bounds.Intersects( bounds ) )) {
 			foreach (Face face in cluster.Faces) {
-				if (!RayIntersectsTriangle( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.VertexA, face.Blueprint.VertexB, face.Blueprint.VertexC, out _ ))
+				if (!RayIntersectsTriangle( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.VectorA, face.Blueprint.VectorB, face.Blueprint.VectorC, out _ ))
 					continue;
 				RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", face );
 				return;

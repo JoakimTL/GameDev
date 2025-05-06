@@ -4,7 +4,7 @@ using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Civs.Render.World.Lines;
 using Engine.Standard;
-using Civs.World.NewWorld;
+using Civs.World;
 
 namespace Civs.Render.World;
 
@@ -69,9 +69,9 @@ public sealed class WorldSelectedTileEdgeRenderBehaviour : DependentRenderBehavi
 			return;
 		Span<(Vector3<float>, Vector3<float>)> edgeSpan =
 		[
-			(face.Blueprint.VertexA, face.Blueprint.VertexB),
-			(face.Blueprint.VertexB, face.Blueprint.VertexC),
-			(face.Blueprint.VertexC, face.Blueprint.VertexA),
+			(face.Blueprint.VectorA, face.Blueprint.VectorB),
+			(face.Blueprint.VectorB, face.Blueprint.VectorC),
+			(face.Blueprint.VectorC, face.Blueprint.VectorA),
 		];
 		float timeSine = MathF.Sin( (float) time * MathF.PI * 1.618f ) * 0.5f + 0.5f;
 		Span<float> timeSineThickness =
@@ -110,9 +110,9 @@ public sealed class WorldSelectedTileEdgeRenderBehaviour : DependentRenderBehavi
 			return;
 		Span<(Vector3<float>, Vector3<float>)> edgeSpan =
 		[
-			(face.Blueprint.VertexA, face.Blueprint.VertexB),
-			(face.Blueprint.VertexB, face.Blueprint.VertexC),
-			(face.Blueprint.VertexC, face.Blueprint.VertexA),
+			(face.Blueprint.VectorA, face.Blueprint.VectorB),
+			(face.Blueprint.VectorB, face.Blueprint.VectorC),
+			(face.Blueprint.VectorC, face.Blueprint.VectorA),
 		];
 		Vector4<byte> outerColor = (255, 255, 255, 255);
 		foreach ((Vector3<float>, Vector3<float>) edge in edgeSpan) {
