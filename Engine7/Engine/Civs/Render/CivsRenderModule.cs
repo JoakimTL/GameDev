@@ -1,8 +1,12 @@
-﻿using Civs.Messages;
+﻿using Civs.Logic.Nations;
+using Civs.Messages;
+using Civs.World;
 using Engine;
 using Engine.Modularity;
+using Engine.Module.Entities.Container;
 using Engine.Module.Render;
 using Engine.Module.Render.Domain;
+using Engine.Module.Render.Entities.Providers;
 using Engine.Module.Render.Ogl;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Standard;
@@ -24,6 +28,7 @@ public sealed class CivsRenderModule : RenderModuleBase {
 		context.InstanceProvider.Catalog.Host<Render3Pipeline>();
 		//context.InstanceProvider.Catalog.Host<ContextTest>();
 		context.InstanceProvider.Catalog.Host<UserInterfaceRenderPipeline>();
+		context.InstanceProvider.Catalog.Host<CameraPanOnTribeCreated>();
 		UserInterfaceService ui = context.InstanceProvider.Get<UserInterfaceService>();
 		ui.UserInterfaceStateManager.AddAllElements();
 		InstanceProvider.Get<GameStateService>().SetNewState( "showStartMenu", true );
@@ -43,6 +48,42 @@ public sealed class CivsRenderModule : RenderModuleBase {
 	}
 
 	private void Update( double time, double deltaTime ) {
+	}
+}
+
+public sealed class CameraPanOnTribeCreated( CameraService cameraService, ActiveGlobeTrackingService activeGlobeTrackingService, SynchronizedEntityContainerProvider synchronizedEntityContainerProvider, GameStateProvider gameStateProvider ) : IInitializable, IUpdateable {
+	private readonly CameraService _cameraService = cameraService;
+	private readonly ActiveGlobeTrackingService _activeGlobeTrackingService = activeGlobeTrackingService;
+	private readonly SynchronizedEntityContainerProvider _synchronizedEntityContainerProvider = synchronizedEntityContainerProvider;
+	private readonly GameStateProvider _gameStateProvider = gameStateProvider;
+	private bool _newGlobe = false;
+
+	public void Initialize() {
+		_activeGlobeTrackingService.AfterGlobeChange += AfterGlobeChanged;
+	}
+
+	private void AfterGlobeChanged( GlobeModel? model ) {
+		_newGlobe = model is not null;
+	}
+
+	public void Update( double time, double deltaTime ) {
+		if (_newGlobe) {
+			var container = _synchronizedEntityContainerProvider.SynchronizedContainers.FirstOrDefault();
+			if (container is null)
+				return;
+			var localPlayer = _gameStateProvider.Get<Guid?>( "localPlayerId" );
+			if (!localPlayer.HasValue)
+				return;
+			var popCenter = container.SynchronizedEntities
+				.Select( p => p.EntityCopy )
+				.OfType<Entity>()
+				.Where( p => p.ParentId == localPlayer.Value && p.IsArchetype<PopulationCenterArchetype>() )
+				.FirstOrDefault();
+			if (popCenter is null)
+				return;
+			_cameraService.Main.View3.Translation = popCenter.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Single().Blueprint.GetCenter() * 2;
+			_newGlobe = false;
+		}
 	}
 }
 

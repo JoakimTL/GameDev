@@ -61,7 +61,10 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 		return output;
 	}
 
-	public void Add( T item ) => _root.Add( item );
+	public void Add( T item ) {
+		var bounds = item.Bounds;
+		_root.Add( item, bounds );
+	}
 
 	public void Remove( T item ) => _root.Remove( item );
 
@@ -178,17 +181,17 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 				_subBranches[ i ].GetBranches( output );
 		}
 
-		public bool Add( T item ) {
+		public bool Add( T item, in AABB<Vector3<TScalar>> bounds ) {
 			if (Level == 0) {
 				_contents.Add( item );
-				SetActualBounds( _actualBounds.GetLargestBounds( item.Bounds ) );
+				SetActualBounds( _actualBounds.GetLargestBounds( bounds ) );
 				return true;
 			}
 			if (_subBranches is null)
 				throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
 			for (int i = 0; i < 8; i++)
-				if (_subBranches[ i ].BranchBounds.Intersects( item.Bounds ))
-					if (_subBranches[ i ].Add( item ) && !_allowLeafOnMultipleBranches)
+				if (_subBranches[ i ].BranchBounds.Intersects( bounds ))
+					if (_subBranches[ i ].Add( item, bounds ) && !_allowLeafOnMultipleBranches)
 						return true;
 			return false;
 		}

@@ -27,6 +27,9 @@
     <Content Include="assets\fonts\COUR.TTF">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="assets\shaders\globeTerrain.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="assets\shaders\geometry3.vert">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

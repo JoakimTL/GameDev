@@ -13,7 +13,7 @@ public static class Vector3Extensions {
 			unmanaged, IFloatingPointIeee754<TScalar> {
 		Vector3<TScalar> vNormalized = vector.Normalize<Vector3<TScalar>, TScalar>();
 		TScalar theta = TScalar.Atan2( vNormalized.Z, vNormalized.X );
-		TScalar phi = TScalar.Asin( vNormalized.Y );
+		TScalar phi = TScalar.Acos( vNormalized.Y );
 		return new( theta, phi );
 	}
 }

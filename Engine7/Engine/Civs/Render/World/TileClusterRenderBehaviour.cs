@@ -1,6 +1,5 @@
 ﻿using Civs.Logic.World;
 using Civs.Render.World.Shaders;
-using Civs.World.NewWorld;
 using Engine;
 using Engine.Module.Render.Entities;
 using Engine.Standard.Render;

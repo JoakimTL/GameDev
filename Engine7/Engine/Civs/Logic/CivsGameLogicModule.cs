@@ -148,6 +148,15 @@ public sealed class CivsGameLogicModule : ModuleBase {
 
 		if (_worldGenParameters is null)
 			return;
+		Face[] facesToDistribute = new Face[ _worldGenParameters.PlayerCount ];
+		for (int i = 0; i < _worldGenParameters.PlayerCount; i++) {
+			Face face = null!;
+			do {
+				face = model.Faces[ Random.Shared.Next( 0, model.Faces.Count ) ];
+			} while (!face.State.TerrainType.IsLand || facesToDistribute.Contains( face ));
+			facesToDistribute[ i ] = face;
+		}
+
 		for (int i = 0; i < _worldGenParameters.PlayerCount; i++) {
 			Entity player = _entities.CreateEntity();
 			player.AddComponent<PlayerComponent>( p => p.SetColor( (Random.Shared.NextSingle(), Random.Shared.NextSingle(), Random.Shared.NextSingle(), 1) ) );
@@ -155,6 +164,14 @@ public sealed class CivsGameLogicModule : ModuleBase {
 			MessageBusNode.Publish( new CreateNewPlayerMessageResponse( player.EntityId ), null, true );
 			if (i == 0)
 				InstanceProvider.Get<GameStateProvider>().SetNewState( "localPlayerId", player.EntityId );
+			//Create a population center for tribe
+			Entity popCenter = _entities.CreateEntity();
+			_populationCenters.Add( popCenter );
+			popCenter.SetParent( player.EntityId );
+			popCenter.AddComponent<PopulationCenterComponent>();
+			popCenter.AddComponent<RenderComponent>();
+			FaceOwnershipComponent foc = popCenter.AddComponent<FaceOwnershipComponent>();
+			foc.AddFace( facesToDistribute[ i ] );
 		}
 	}
 

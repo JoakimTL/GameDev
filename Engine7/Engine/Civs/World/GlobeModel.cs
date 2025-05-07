@@ -126,6 +126,9 @@ public sealed class ProceduralWorldTerrainGenerator : IWorldTerrainGenerator {
 		FiniteVoronoiNoise3 voronoiRidgeNoise = new( new( seedProvider.Next() ), 0.25f, 1 );
 		FiniteVoronoiNoise3 voronoiRidgeNoiseFine = new( new( seedProvider.Next() ), 0.0625f, 1 );
 
+		var grasslandTerrain = TerrainTypeList.GetTerrainType<GrasslandTerrain>();
+		var oceanTerrain = TerrainTypeList.GetTerrainType<OceanTerrain>();
+
 		for (uint i = 0; i < globe.FaceCount; i++) {
 			//https://www.youtube.com/watch?v=WumyfLEa6bU
 			//https://iquilezles.org/articles/morenoise/
@@ -150,7 +153,7 @@ public sealed class ProceduralWorldTerrainGenerator : IWorldTerrainGenerator {
 			else
 				height = (float) (-n * landmassN * maxSeaDepth);
 			//face.State.SetHeight( height );
-			face.State.SetTerrainType( height >= 0 ? TerrainTypeList.GetTerrainType<GrasslandTerrain>() : TerrainTypeList.GetTerrainType<OceanTerrain>() );
+			face.State.SetTerrainType( height >= 0 ? grasslandTerrain : oceanTerrain );
 
 
 		}

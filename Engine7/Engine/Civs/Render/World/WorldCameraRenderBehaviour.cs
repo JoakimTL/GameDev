@@ -1,14 +1,19 @@
-﻿using Civs.Logic.World;
+﻿using Civs.Logic.Nations;
+using Civs.Logic.World;
 using Engine;
+using Engine.Module.Entities.Container;
 using Engine.Module.Render.Entities;
+using Engine.Module.Render.Entities.Providers;
 using Engine.Module.Render.Glfw.Enums;
 using Engine.Module.Render.Input;
+using Engine.Module.Render.Ogl.Services;
+using Engine.Standard;
 using Engine.Transforms.Camera;
 
 namespace Civs.Render.World;
 public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<WorldArchetype> {
 
-	private Vector2<float> _polarCoordinate = (0, 0);
+	private Vector2<float> _polarCoordinate = (float.Pi / 2, float.Pi / 2);
 	private Vector2<float> _velocity;
 	private float _zoom = 2;
 	private float _zoomVelocity;
@@ -24,6 +29,7 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 	private Vector2<double> _lastMousePosition;
 	private Vector2<float> _lastRotation;
 	private bool _shouldRotate = false;
+	private bool _initialized = false;
 
 	protected override void OnRenderEntitySet() {
 		RenderEntity.ServiceAccess.Input.OnKey += OnKey;
@@ -63,6 +69,26 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 	}
 
 	public override void Update( double time, double deltaTime ) {
+		if (!_initialized) {
+			var container = RenderEntity.ServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers.FirstOrDefault();
+			if (container is null)
+				return;
+			var localPlayer = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Guid?>( "localPlayerId" );
+			if (!localPlayer.HasValue)
+				return;
+			var popCenter = container.SynchronizedEntities
+				.Select( p => p.EntityCopy )
+				.OfType<Entity>()
+			.Where( p => p.ParentId == localPlayer.Value && p.IsArchetype<PopulationCenterArchetype>() )
+				.FirstOrDefault();
+			if (popCenter is null)
+				return;
+			_polarCoordinate = popCenter.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Single().Blueprint.GetCenter().Normalize<Vector3<float>, float>().ToNormalizedPolar();
+			//_polarCoordinate = (_polarCoordinate.X + float.Pi / 2, _polarCoordinate.Y);
+			_zoom = 1.1f;
+			_initialized = true;
+			return;
+		}
 		Vector2<float> acceleration = Vector2<float>.AdditiveIdentity;
 		if (_wKeyDown)
 			acceleration += new Vector2<float>( float.Sin( _customYawRotation ), float.Cos( _customYawRotation ) );
@@ -103,11 +129,16 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 			_customPitchRotation = 0;
 
 		cameraView.Translation = _polarCoordinate.ToCartesianFromPolar( _zoom ).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven );
-		Rotor3<float> newRotation = Rotor3.FromAxisAngle( Vector3<float>.UnitY, _polarCoordinate.X );
-		newRotation = Rotor3.FromAxisAngle( newRotation.Left, _polarCoordinate.Y ) * newRotation;
-		newRotation = Rotor3.FromAxisAngle( newRotation.Forward, _customYawRotation ) * newRotation;
-		newRotation = Rotor3.FromAxisAngle( newRotation.Left, _customPitchRotation ) * newRotation;
-		newRotation = newRotation.Normalize<Rotor3<float>, float>();
+		float yaw = float.Pi * 3 / 2 - _polarCoordinate.X;
+		float pitch = float.Pi * 3 / 2 - _polarCoordinate.Y;
+		Rotor3<float> yawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, yaw );
+		var pitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, pitch );
+		var customYawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, _customYawRotation );
+		var customPitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, _customPitchRotation );
+		//newRotation = Rotor3.FromAxisAngle( newRotation.Left, pitch ) * newRotation;
+		//newRotation = Rotor3.FromAxisAngle( newRotation.Forward, _customYawRotation ) * newRotation;
+		//newRotation = Rotor3.FromAxisAngle( newRotation.Left, _customPitchRotation ) * newRotation;
+		var newRotation = (yawRotor * pitchRotor * (customYawRotor * customPitchRotor)).Normalize<Rotor3<float>, float>();
 
 		if ((newRotation.Left + newRotation.Forward).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven ) == (cameraView.Rotation.Left + cameraView.Rotation.Forward).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven ))
 			return;

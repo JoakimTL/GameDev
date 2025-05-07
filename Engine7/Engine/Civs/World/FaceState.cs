@@ -7,20 +7,22 @@ namespace Civs.World;
 public sealed class FaceState {
 	private readonly Face _face;
 	private uint _terrainTypeId;
-	private readonly FaceResources _resources;
+	private FaceResources? _resources;
 
-	public FaceState( Face face, uint terrainType ) {
+	public FaceState( Face face ) {
 		this._face = face;
-		_terrainTypeId = terrainType;
-		_resources = new FaceResources();
+		_terrainTypeId = 0;
 	}
 
 	public TerrainTypeBase TerrainType => TerrainTypeList.GetTerrainType( _terrainTypeId );
+
+	public FaceResources? Resources => _resources;
 
 	public void SetTerrainType( TerrainTypeBase terrainType ) {
 		if (terrainType.Id == _terrainTypeId)
 			return;
 		_terrainTypeId = terrainType.Id;
+		_resources = terrainType.HasResources ? new() : null;
 		_face.TriggerFaceStateChanged();
 	}
 }

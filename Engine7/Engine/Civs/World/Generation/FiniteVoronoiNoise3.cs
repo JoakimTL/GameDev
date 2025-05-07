@@ -11,6 +11,9 @@ public sealed class FiniteVoronoiNoise3 {
 	private readonly float _detailLevel;
 	private readonly float _cbrtDetailLevel;
 
+	private readonly int _lengthZ;
+	private readonly int _areaYZ;
+
 	private const float cbrt2 = 1.2599210498948732f; // 2^(1/3)
 
 	/// <summary>
@@ -35,14 +38,15 @@ public sealed class FiniteVoronoiNoise3 {
 				}
 			}
 		}
+		_lengthZ = _bounds.Maxima.Z - _bounds.Minima.Z + 1;
+		_areaYZ = (_bounds.Maxima.Y - _bounds.Minima.Y + 1) * _lengthZ;
 	}
 
 	private int Index( Vector3<int> vector ) {
 		if (!_bounds.Contains( vector ))
 			return -1;
-		int lengthZ = _bounds.Maxima.Z - _bounds.Minima.Z + 1;
-		int areaYZ = (_bounds.Maxima.Y - _bounds.Minima.Y + 1) * lengthZ;
-		return (vector.X - _bounds.Minima.X) * areaYZ + (vector.Y - _bounds.Minima.Y) * lengthZ + (vector.Z - _bounds.Minima.Z);
+		vector = vector - _bounds.Minima;
+		return vector.X * _areaYZ + vector.Y * _lengthZ + vector.Z;
 	}
 
 	public float Noise( Vector3<float> xyz ) {

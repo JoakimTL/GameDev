@@ -19,7 +19,7 @@ public sealed class GlobeTerrainShaderPipeline : OglShaderPipelineBase {
 }
 
 public sealed class GlobeTerrainVertexShaderProgram : OglShaderProgramBase {
-	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "geometry3.vert" ) );
+	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "globeTerrain.vert" ) );
 }
 public sealed class GlobeTerrainFragmentShaderProgram : OglShaderProgramBase {
 	protected override void AttachShaders( ShaderSourceService shaderSourceService ) => AttachShader( shaderSourceService.GetOrThrow( "globeTerrain.frag" ) );
