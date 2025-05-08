@@ -84,7 +84,6 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 			if (popCenter is null)
 				return;
 			_polarCoordinate = popCenter.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Single().Blueprint.GetCenter().Normalize<Vector3<float>, float>().ToNormalizedPolar();
-			//_polarCoordinate = (_polarCoordinate.X + float.Pi / 2, _polarCoordinate.Y);
 			_zoom = 1.1f;
 			_initialized = true;
 			return;
@@ -133,12 +132,9 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 		float pitch = float.Pi * 3 / 2 - _polarCoordinate.Y;
 		Rotor3<float> yawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, yaw );
 		var pitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, pitch );
-		var customYawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, _customYawRotation );
-		var customPitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, _customPitchRotation );
-		//newRotation = Rotor3.FromAxisAngle( newRotation.Left, pitch ) * newRotation;
-		//newRotation = Rotor3.FromAxisAngle( newRotation.Forward, _customYawRotation ) * newRotation;
-		//newRotation = Rotor3.FromAxisAngle( newRotation.Left, _customPitchRotation ) * newRotation;
-		var newRotation = (yawRotor * pitchRotor * (customYawRotor * customPitchRotor)).Normalize<Rotor3<float>, float>();
+		var newRotation = (yawRotor * pitchRotor).Normalize<Rotor3<float>, float>();
+		newRotation = Rotor3.FromAxisAngle( newRotation.Forward, _customYawRotation ) * newRotation;
+		newRotation = Rotor3.FromAxisAngle( newRotation.Left, _customPitchRotation ) * newRotation;
 
 		if ((newRotation.Left + newRotation.Forward).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven ) == (cameraView.Rotation.Left + cameraView.Rotation.Forward).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven ))
 			return;
