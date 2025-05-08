@@ -26,7 +26,7 @@ public sealed class EntitySerializer( SerializerProvider serializerProvider ) : 
 				segmenter.Append( data.Payload.Span );
 		}
 		using (PooledBufferData output = segmenter.Flush(name: "ecs-entity" )) 
-			buffer.Add( output.Payload.Span );
+			buffer.AddRange( output.Payload.Span );
 	}
 
 	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, Entity target ) {

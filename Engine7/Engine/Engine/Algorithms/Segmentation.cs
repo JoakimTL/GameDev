@@ -61,8 +61,8 @@ public static class Segmentation {
 	public static unsafe ThreadedByteBuffer AppendSegment( this ThreadedByteBuffer buffer, ReadOnlySpan<byte> data ) {
 		byte* header = stackalloc byte[ 4 ];
 		*(int*) header = data.Length;
-		buffer.Add( new Span<byte>( header, 4 ) );
-		buffer.Add( data );
+		buffer.AddRange( new Span<byte>( header, 4 ) );
+		buffer.AddRange( data );
 		return buffer;
 	}
 

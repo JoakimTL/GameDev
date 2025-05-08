@@ -12,7 +12,7 @@ public sealed class GlobeComponentSerializer( SerializerProvider serializerProvi
 	protected override void PerformSerialization( ThreadedByteBuffer buffer, GlobeComponent t ) {
 		Span<byte> data = stackalloc byte[ 16 ];
 		MemoryMarshal.Write( data, t.Globe?.Id ?? Guid.Empty );
-		buffer.Add( data );
+		buffer.AddRange( data );
 	}
 
 	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, GlobeComponent target ) {
@@ -39,7 +39,7 @@ public sealed class BoundedRenderClusterComponentSerializer( SerializerProvider 
 		Span<byte> data = stackalloc byte[ 20 ];
 		MemoryMarshal.Write( data, t.Globe?.Id ?? Guid.Empty );
 		MemoryMarshal.Write( data[16..], t.Cluster.Id );
-		buffer.Add( data );
+		buffer.AddRange( data );
 	}
 
 	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, BoundedRenderClusterComponent target ) {

@@ -16,7 +16,7 @@ public sealed class FaceOwnershipComponentSerializer( SerializerProvider seriali
 			MemoryMarshal.Write( data.Slice( i * sizeof( uint ), 4 ), face.Id );
 			i++;
 		}
-		buffer.Add( data );
+		buffer.AddRange( data );
 	}
 	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, FaceOwnershipComponent target ) {
 		if (_activeGlobeTrackingService.CurrentGlobe is null)

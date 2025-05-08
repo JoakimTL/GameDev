@@ -10,7 +10,7 @@ public sealed class ClusterVisibilityRenderBehaviour : DependentRenderBehaviourB
 	public event Action? VisibilityChanged;
 
 	public override void Update( double time, double deltaTime ) {
-		CheckVisibilityAgainstCameraTranslation( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation.Normalize<Vector3<float>, float>() );
+		CheckVisibilityAgainstCameraTranslation( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation.Normalize<Vector3<float>, float>(), RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.Matrix );
 	}
 
 	public void SetVisibility( bool visible ) {
@@ -20,7 +20,7 @@ public sealed class ClusterVisibilityRenderBehaviour : DependentRenderBehaviourB
 		VisibilityChanged?.Invoke();
 	}
 
-	public void CheckVisibilityAgainstCameraTranslation( Vector3<float> normalizedTranslation ) {
+	public void CheckVisibilityAgainstCameraTranslation( Vector3<float> normalizedTranslation, Matrix4x4<float> viewProjectionMatrix ) {
 		bool shouldBeVisible = false;
 
 		var bounds = Archetype.ClusterComponent.Bounds;
@@ -44,6 +44,24 @@ public sealed class ClusterVisibilityRenderBehaviour : DependentRenderBehaviourB
 				shouldBeVisible = true;
 				break;
 			}
+
+		if (!shouldBeVisible)
+			SetVisibility( false );
+
+		shouldBeVisible = false;
+
+		for (int i = 0; i < boundsCorners.Length; i++) {
+			Vector3<float>? transformedCorner = boundsCorners[ i ].TransformWorld( viewProjectionMatrix );
+			if (!transformedCorner.HasValue) {
+				continue;
+			}
+			Vector3<float> transformed = transformedCorner.Value;
+			//Check if the transformed corner is within the view frustum
+			if (transformed.X <= 1 && transformed.X >= -1 && transformed.Y <= 1 && transformed.Y >= -1) {
+				shouldBeVisible = true;
+				break;
+			}
+		}
 
 		SetVisibility( shouldBeVisible );
 	}

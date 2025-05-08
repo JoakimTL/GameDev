@@ -1,4 +1,6 @@
 ﻿using System.Buffers;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Engine.Buffers;
 public class ThreadedByteBuffer {
@@ -24,7 +26,14 @@ public class ThreadedByteBuffer {
 		this.Identity = identity;
 	}
 
-	public void Add( ReadOnlySpan<byte> bytes ) => _internalBuffer.AddRange( bytes );
+	public void Add( byte value ) => _internalBuffer.Add( value );
+	public void Add<T>( T value ) where T : unmanaged {
+		Span<byte> bytes = stackalloc byte[ Unsafe.SizeOf<T>() ];
+		MemoryMarshal.Write( bytes, value );
+		AddRange( bytes );
+	}
+
+	public void AddRange( ReadOnlySpan<byte> bytes ) => _internalBuffer.AddRange( bytes );
 
 	/// <summary>
 	/// Remember to dispose of the data after use!

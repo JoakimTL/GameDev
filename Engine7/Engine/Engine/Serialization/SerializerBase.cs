@@ -25,7 +25,7 @@ public abstract class SerializerBase<TTarget> : ISerializer {
 		int bytesAdded = buffer.Count - bytesBefore;
 		Span<byte> guidBytes = stackalloc byte[ 16 ];
 		MemoryMarshal.Write( guidBytes, Guid );
-		buffer.Add( guidBytes );
+		buffer.AddRange( guidBytes );
 		return bytesAdded + 16;
 	}
 	protected abstract void PerformSerialization( ThreadedByteBuffer buffer, TTarget t );

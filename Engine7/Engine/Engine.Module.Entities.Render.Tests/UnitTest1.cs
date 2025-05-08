@@ -59,7 +59,7 @@ public class RenderEntityContainerTests {
 		protected override void PerformSerialization( ThreadedByteBuffer buffer, Translation3Component t ) {
 			Span<byte> data = stackalloc byte[ 24 ];
 			MemoryMarshal.Write( data, t.Translation );
-			buffer.Add( data );
+			buffer.AddRange( data );
 		}
 	}
 
@@ -75,7 +75,7 @@ public class RenderEntityContainerTests {
 		protected override void PerformSerialization( ThreadedByteBuffer buffer, Motion3Component t ) {
 			Span<byte> data = stackalloc byte[ 24 ];
 			MemoryMarshal.Write( data, t.Velocity );
-			buffer.Add( data );
+			buffer.AddRange( data );
 		}
 	}
 

@@ -15,7 +15,7 @@ public sealed class Transform2ComponentSerializer( SerializerProvider serializer
 	protected override void PerformSerialization( ThreadedByteBuffer buffer, Transform2Component t ) {
 		Span<byte> data = stackalloc byte[ 40 ];
 		MemoryMarshal.Write( data, t.Transform.Data );
-		buffer.Add( data );
+		buffer.AddRange( data );
 	}
 
 	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, Transform2Component target ) {
