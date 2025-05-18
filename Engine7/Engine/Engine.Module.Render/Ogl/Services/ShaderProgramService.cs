@@ -9,7 +9,7 @@ public sealed class ShaderProgramService : DisposableIdentifiable {
 
 	public ShaderProgramService( ShaderSourceService sourceService ) {
 		this._sourceService = sourceService;
-		this._programProvider = InstanceManagement.CreateProvider();
+		this._programProvider = InstanceManagement.CreateProvider( false );
 		this._programProvider.OnInstanceAdded += CreateProgram;
 	}
 

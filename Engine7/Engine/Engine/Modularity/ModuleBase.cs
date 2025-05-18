@@ -27,7 +27,7 @@ public abstract class ModuleBase : DisposableIdentifiable {
 	/// <param name="frequency">The number of ticks per second. If <see cref="ExecutionFrequency"/> is <see cref="double.PositiveInfinity"/> (or any high enough number), there is no delay between ticks.</param>
 	public ModuleBase( bool important, double frequency, string address ) {
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero( frequency );
-		this.InstanceProvider = InstanceManagement.CreateProvider();
+		this.InstanceProvider = InstanceManagement.CreateProvider(true);
 		this._instanceUpdaterExtension = this.InstanceProvider.CreateUpdater();
 		this._instanceInitializerExtension = this.InstanceProvider.CreateInitializer();
 		this.Important = important;

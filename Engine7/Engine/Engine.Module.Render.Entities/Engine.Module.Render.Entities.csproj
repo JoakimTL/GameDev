@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Engine.Module.Entities.Render\Engine.Module.Entities.Render.csproj" />
+    <ProjectReference Include="..\Engine.Module.Render\Engine.Module.Render.csproj" />
+  </ItemGroup>
+
+</Project>

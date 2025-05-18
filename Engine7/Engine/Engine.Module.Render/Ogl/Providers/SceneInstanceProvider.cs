@@ -5,7 +5,7 @@ using Engine.Module.Render.Ogl.Services;
 
 namespace Engine.Module.Render.Ogl.Providers;
 
-public sealed class SceneInstanceProvider( SceneService sceneService, CompositeVertexArrayProvider compositeVertexArrayProvider, ShaderBundleProvider shaderBundleProvider ) : IRenderServiceProvider {
+public sealed class SceneInstanceProvider( SceneService sceneService, CompositeVertexArrayProvider compositeVertexArrayProvider, ShaderBundleProvider shaderBundleProvider ) : IServiceProvider {
 	private readonly SceneService _sceneService = sceneService;
 	private readonly CompositeVertexArrayProvider _compositeVertexArrayProvider = compositeVertexArrayProvider;
 	private readonly ShaderBundleProvider _shaderBundleProvider = shaderBundleProvider;

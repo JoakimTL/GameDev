@@ -24,13 +24,13 @@ public sealed class StartMenu() : UserInterfaceElementWithMessageNodeBase( "ui_s
 	private void OnExitButtonClicked( InteractableButton btn, MouseButtonEvent @event ) => Publish( new ExitGameMessage(), null, true );
 
 	protected override bool ShouldDisplay() {
-		return GameStateProvider.Get<bool>( "showStartMenu" ); //TODO: Create a more complex state machine for ui?
+		return GameStateProvider.Get<bool>( UiElementConstants.ShowStartMenu ); //TODO: Create a more complex state machine for ui?
 	}
 
 	protected override void OnMessageReceived( Message message ) {
 		if (message.Content is NewGameMessageResponse newGameMessageResponse) {
-			GameStateProvider.SetNewState( "showStartMenu", false );
-			GameStateProvider.SetNewState( "showNewGameMenu", true );
+			GameStateProvider.SetNewState( UiElementConstants.ShowStartMenu, false );
+			GameStateProvider.SetNewState( UiElementConstants.ShowNewGameMenu, true );
 		}
 	}
 }

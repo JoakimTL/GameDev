@@ -1,0 +1,6 @@
+Companies are heavily tied to buildings, as buildings are potentially owned by companies.
+
+Companies have a mandate of creating profit. They act as investors, building new buildings, expanding existing ones and employing citizens to expand operations.
+Companies, if allowed to run wild, can create a high margin end product by vertically intergrating their supply chain.
+
+Companies can also cause issues like monopolies, and raise prices for consumers and the government. An arms manufactury company can cause military expenditures to skyrocket if they are the only supplier of arms.

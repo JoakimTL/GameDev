@@ -55,9 +55,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Engine.Generation\Engine.Generation.csproj" />
     <ProjectReference Include="..\Engine.Module.Entities\Engine.Module.Entities.csproj" />
     <ProjectReference Include="..\Engine.Module.Networking\Engine.Module.Networking.csproj" />
     <ProjectReference Include="..\Engine.Module.Render\Engine.Module.Render.csproj" />
+    <ProjectReference Include="..\Engine.Standard.Render\Engine.Standard.Render.csproj" />
     <ProjectReference Include="..\Engine.Standard\Engine.Standard.csproj" />
     <ProjectReference Include="..\Engine\Engine.csproj" />
   </ItemGroup>

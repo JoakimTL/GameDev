@@ -1,8 +1,6 @@
-﻿using Engine.Module.Render;
+﻿namespace Engine.Standard;
 
-namespace Engine.Standard;
-
-public sealed class InternalStateProvider : IRenderServiceProvider {
+public sealed class InternalStateProvider : IServiceProvider {
 
 	private readonly Dictionary<string, object> _state = [];
 

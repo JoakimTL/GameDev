@@ -1,5 +1,6 @@
 ﻿using Civs.Logic.Nations;
 using Civs.Messages;
+using Civs.Render.Ui;
 using Civs.World;
 using Engine;
 using Engine.Modularity;
@@ -31,8 +32,8 @@ public sealed class CivsRenderModule : RenderModuleBase {
 		context.InstanceProvider.Catalog.Host<CameraPanOnTribeCreated>();
 		UserInterfaceService ui = context.InstanceProvider.Get<UserInterfaceService>();
 		ui.UserInterfaceStateManager.AddAllElements();
-		InstanceProvider.Get<GameStateService>().SetNewState( "showStartMenu", true );
-		InstanceProvider.Get<GameStateService>().SetNewState( "showFpsCounter", true );
+		InstanceProvider.Get<GameStateService>().SetNewState( UiElementConstants.ShowStartMenu, true );
+		InstanceProvider.Get<GameStateService>().SetNewState( UiElementConstants.ShowFPSCounter, true );
 		context.OnInitialized += OnContextInitialized;
 	}
 
@@ -63,27 +64,28 @@ public sealed class CameraPanOnTribeCreated( CameraService cameraService, Active
 	}
 
 	private void AfterGlobeChanged( GlobeModel? model ) {
+		_gameStateProvider.SetNewState( "startLocation", null );
 		_newGlobe = model is not null;
 	}
 
 	public void Update( double time, double deltaTime ) {
-		if (_newGlobe) {
-			var container = _synchronizedEntityContainerProvider.SynchronizedContainers.FirstOrDefault();
-			if (container is null)
-				return;
-			var localPlayer = _gameStateProvider.Get<Guid?>( "localPlayerId" );
-			if (!localPlayer.HasValue)
-				return;
-			var popCenter = container.SynchronizedEntities
-				.Select( p => p.EntityCopy )
-				.OfType<Entity>()
-				.Where( p => p.ParentId == localPlayer.Value && p.IsArchetype<PopulationCenterArchetype>() )
-				.FirstOrDefault();
-			if (popCenter is null)
-				return;
-			_cameraService.Main.View3.Translation = popCenter.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Single().Blueprint.GetCenter() * 2;
-			_newGlobe = false;
-		}
+		if (!_newGlobe)
+			return;
+		var container = _synchronizedEntityContainerProvider.SynchronizedContainers.FirstOrDefault();
+		if (container is null)
+			return;
+		var localPlayer = _gameStateProvider.Get<Guid?>( "localPlayerId" );
+		if (!localPlayer.HasValue)
+			return;
+		var popCenter = container.SynchronizedEntities
+			.Select( p => p.EntityCopy )
+			.OfType<Entity>()
+			.Where( p => p.ParentId == localPlayer.Value && p.IsArchetype<PopulationCenterArchetype>() )
+			.FirstOrDefault();
+		if (popCenter is null)
+			return;
+		_gameStateProvider.SetNewState( "startLocation", popCenter.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Single().Blueprint.GetCenter() );
+		_newGlobe = false;
 	}
 }
 

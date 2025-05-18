@@ -66,9 +66,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Engine.Generation\Engine.Generation.csproj" />
     <ProjectReference Include="..\Engine.Module.Entities\Engine.Module.Entities.csproj" />
     <ProjectReference Include="..\Engine.Module.Render.Domain\Engine.Module.Render.Domain.csproj" />
     <ProjectReference Include="..\Engine.Module.Render\Engine.Module.Render.csproj" />
+    <ProjectReference Include="..\Engine.Standard.Render\Engine.Standard.Render.csproj" />
     <ProjectReference Include="..\Engine.Standard\Engine.Standard.csproj" />
     <ProjectReference Include="..\Engine\Engine.csproj" />
   </ItemGroup>
@@ -79,6 +81,10 @@
 
   <ItemGroup>
     <PackageReference Include="Unipluss.Sign.Client" Version="1.0.2876" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logic\Nations\Systems\" />
   </ItemGroup>
 
 </Project>

@@ -21,12 +21,12 @@ public sealed class Context : DisposableIdentifiable, IUpdateable, IInitializabl
 	public event Action<Context>? OnInitialized;
 
 	public Context( WindowSettings settings ) {
-		this.InstanceProvider = InstanceManagement.CreateProvider();
+		this.WindowSettings = settings;
+		this.InstanceProvider = InstanceManagement.CreateProvider(true);
 		this._serviceProviderUpdater = this.InstanceProvider.CreateUpdater();
 		this._serviceProviderInitializer = this.InstanceProvider.CreateInitializer();
 		this._pipelineExecuterExtension = new( this.InstanceProvider );
 		this.InstanceProvider.Inject( this, false );
-		this.WindowSettings = settings;
 	}
 
 	public void Initialize() {

@@ -1,0 +1,46 @@
+﻿namespace Civlike.Logic.Setup;
+
+public sealed class ResourceContainer : ResourceBundleBase {
+
+	private readonly Dictionary<ResourceTypeBase, double> _resourceLimits = [];
+
+	public void SetLimit( ResourceTypeBase resource, double limit ) {
+		if (limit < 0) {
+			_resourceLimits.Remove( resource );
+			return;
+		}
+		_resourceLimits[ resource ] = limit;
+	}
+
+	public bool Change( ResourceTypeBase resource, double amount ) {
+		var existingAmount = _resources.GetValueOrDefault( resource );
+		var newAmount = existingAmount + amount;
+		if (newAmount < 0)
+			return false;
+		var limit = _resourceLimits.GetValueOrDefault( resource, double.MaxValue );
+		if (newAmount > limit)
+			newAmount = limit;
+		_resources[ resource ] = newAmount;
+		return true;
+	}
+
+	public bool Subtract( ResourceBundleBase amounts ) {
+		if (!HasEnough( amounts ))
+			return false;
+		foreach (var kvp in amounts.Resources)
+			Change( kvp.Key, -kvp.Value );
+		return true;
+	}
+
+	public void Add( ResourceBundleBase amounts ) {
+		foreach (var kvp in amounts.Resources)
+			Change( kvp.Key, kvp.Value );
+	}
+
+	public void AddAllExcept( ResourceBundleBase amounts, IReadOnlyList<ResourceTypeBase> exceptions ) {
+		foreach (var kvp in amounts.Resources)
+			if (!exceptions.Contains( kvp.Key ))
+				Change( kvp.Key, kvp.Value );
+	}
+}
+

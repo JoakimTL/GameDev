@@ -9,7 +9,7 @@ public sealed class ShaderPipelineService : DisposableIdentifiable {
 
 	public ShaderPipelineService( ShaderProgramService shaderProgramService ) {
 		this._shaderProgramService = shaderProgramService;
-		this._pipelineProvider = InstanceManagement.CreateProvider();
+		this._pipelineProvider = InstanceManagement.CreateProvider( false );
 		this._pipelineProvider.OnInstanceAdded += CreatePipeline;
 	}
 

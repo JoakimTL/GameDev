@@ -10,10 +10,11 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 	public event Action<object>? OnInstanceAdded;
 	public IInstanceCatalog Catalog => this._instanceCatalog;
 
-	public InstanceProvider( InstanceCatalog instanceCatalog ) {
+	public InstanceProvider( InstanceCatalog instanceCatalog, bool allowSelfhosting ) {
 		this._instanceCatalog = instanceCatalog;
+		if (allowSelfhosting)
+			this._instanceCatalog.AddSelfhostingTypes();
 		instanceCatalog.OnHostedTypeAdded += OnHostedTypeAdded;
-		instanceCatalog.AddSelfhostingTypes();
 		foreach (Type hostedType in instanceCatalog.HostedTypes)
 			Get( hostedType );
 		_disposalExtension = new( this );
@@ -62,7 +63,11 @@ internal sealed class InstanceProvider : DisposableIdentifiable, IInstanceProvid
 
 	public bool Inject<T>( T instance, bool triggerEvents ) {
 		ArgumentNullException.ThrowIfNull( instance );
-		Type contractType = typeof( T );
+		return InjectInternal( instance, typeof( T ), triggerEvents );
+	}
+
+	private bool InjectInternal( object instance, Type contractType, bool triggerEvents ) {
+		ArgumentNullException.ThrowIfNull( instance );
 		Type implementationType = this._instanceCatalog.TryResolve( contractType, out Type? type ) ? type : throw new InvalidOperationException( $"No implementation found for {contractType.Name}" );
 		if (!this._instances.TryAdd( implementationType, instance ))
 			return false;

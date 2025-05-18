@@ -2,7 +2,7 @@
 using Engine.Serialization;
 using System.Runtime.InteropServices;
 
-namespace Engine.Module.Render.Entities.Components;
+namespace Engine.Module.Entities.Render.Components;
 
 [Guid("6E22035B-CA17-471B-806E-AD926A780940")]
 public sealed class RenderComponentSerializer( SerializerProvider serializerProvider ) : SerializerBase<RenderComponent>( serializerProvider ) {

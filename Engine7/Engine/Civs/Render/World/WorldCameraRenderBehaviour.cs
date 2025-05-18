@@ -13,7 +13,7 @@ using Engine.Transforms.Camera;
 namespace Civs.Render.World;
 public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<WorldArchetype> {
 
-	private Vector2<float> _polarCoordinate = (float.Pi / 2, float.Pi / 2);
+	private Rotor3<float> _rotation = Rotor3<float>.MultiplicativeIdentity;
 	private Vector2<float> _velocity;
 	private float _zoom = 2;
 	private float _zoomVelocity;
@@ -70,75 +70,91 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 
 	public override void Update( double time, double deltaTime ) {
 		if (!_initialized) {
-			var container = RenderEntity.ServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers.FirstOrDefault();
-			if (container is null)
+			var startLocation = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Vector3<float>?>( "startLocation" );
+			if (!startLocation.HasValue)
 				return;
-			var localPlayer = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Guid?>( "localPlayerId" );
-			if (!localPlayer.HasValue)
-				return;
-			var popCenter = container.SynchronizedEntities
-				.Select( p => p.EntityCopy )
-				.OfType<Entity>()
-			.Where( p => p.ParentId == localPlayer.Value && p.IsArchetype<PopulationCenterArchetype>() )
-				.FirstOrDefault();
-			if (popCenter is null)
-				return;
-			_polarCoordinate = popCenter.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Single().Blueprint.GetCenter().Normalize<Vector3<float>, float>().ToNormalizedPolar();
+			var polar = startLocation.Value.ToNormalizedPolar();
+			float yaw = float.Pi * 3 / 2 - polar.X;
+			float pitch = float.Pi * 3 / 2 - polar.Y;
+			Rotor3<float> yawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, yaw );
+			Rotor3<float> pitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, pitch );
+			_rotation = (yawRotor * pitchRotor).Normalize<Rotor3<float>, float>();
 			_zoom = 1.1f;
 			_initialized = true;
 			return;
 		}
-		Vector2<float> acceleration = Vector2<float>.AdditiveIdentity;
-		if (_wKeyDown)
-			acceleration += new Vector2<float>( float.Sin( _customYawRotation ), float.Cos( _customYawRotation ) );
-		if (_sKeyDown)
-			acceleration += new Vector2<float>( -float.Sin( _customYawRotation ), -float.Cos( _customYawRotation ) );
-		if (_aKeyDown)
-			acceleration += new Vector2<float>( -float.Cos( _customYawRotation ), float.Sin( _customYawRotation ) );
-		if (_dKeyDown)
-			acceleration += new Vector2<float>( float.Cos( _customYawRotation ), -float.Sin( _customYawRotation ) );
-
-		if (acceleration != 0)
-			acceleration = acceleration.Normalize<Vector2<float>, float>();
-
-		if (_rKeyDown) {
-			_customYawRotation = 0;
-			_customPitchRotation = 0;
+		//Handle zooming
+		{
+			_zoomVelocity = float.Round( _zoomVelocity * float.Max( 1 - (float) deltaTime * 10, 0 ), 6, MidpointRounding.ToZero );
+			_zoom += _zoomVelocity * (float) deltaTime;
+			if (_zoom < _minZoom)
+				_zoom = _minZoom;
 		}
 
-		_zoomVelocity = float.Round( _zoomVelocity * float.Max( 1 - (float) deltaTime * 10, 0 ), 6, MidpointRounding.ToZero );
-		_zoom += _zoomVelocity * (float) deltaTime;
-		if (_zoom < _minZoom)
-			_zoom = _minZoom;
-		acceleration *= float.Exp( float.Min( _zoom * 2 - 2.25f, float.E ) ) * 4;
+		//Handle acceleration
+		Vector2<float> acceleration = Vector2<float>.AdditiveIdentity;
+		{
+			if (_wKeyDown)
+				acceleration += (0, 1);
+			if (_sKeyDown)
+				acceleration += (0, -1);
+			if (_aKeyDown)
+				acceleration += (-1, 0);
+			if (_dKeyDown)
+				acceleration += (1, 0);
 
-		_velocity += acceleration * (float) deltaTime;
-		_velocity = (_velocity * float.Max( 1 - (float) deltaTime * 10, 0 )).Round<Vector2<float>, float>( 6, MidpointRounding.ToZero );
+			if (acceleration != 0)
+				acceleration = acceleration.Normalize<Vector2<float>, float>();
+		}
 
-		_polarCoordinate += _velocity * (float) deltaTime;
+		//Handle rotation
+		var changedRotation = _lastRotation != 0;
+		{
+			_customYawRotation += _lastRotation.X * 0.002f;
+			_customPitchRotation += _lastRotation.Y * 0.002f;
+			_lastRotation = 0;
+			if (_customPitchRotation < -float.Pi / 3)
+				_customPitchRotation = -float.Pi / 3;
+			if (_customPitchRotation > 0)
+				_customPitchRotation = 0;
 
+			if (_rKeyDown) {
+				changedRotation |= _customYawRotation != 0 || _customPitchRotation != 0;
+				_customYawRotation = 0;
+				_customPitchRotation = 0;
+			}
+		}
+
+		//Handle movement
+		{
+			acceleration *= float.Exp( float.Min( _zoom * 2 - 2.25f, float.E ) ) * 4;
+
+			_velocity += acceleration * (float) deltaTime;
+			_velocity = (_velocity * float.Max( 1 - (float) deltaTime * 10, 0 )).Round<Vector2<float>, float>( 6, MidpointRounding.ToZero );
+
+			var rotationRotor = Rotor3.FromAxisAngle( _rotation.Forward, _customYawRotation ) * _rotation;
+			var up = rotationRotor.Up;
+			var left = rotationRotor.Left;
+
+			_rotation = Rotor3.FromAxisAngle( up, _velocity.X * ( float ) deltaTime ) * _rotation;
+			_rotation = Rotor3.FromAxisAngle( left, _velocity.Y * (float) deltaTime ) * _rotation;
+			_rotation = _rotation.Normalize<Rotor3<float>, float>();
+		}
+		//Update camera
 		View3 cameraView = RenderEntity.ServiceAccess.CameraProvider.Main.View3; //TODO: Allow for named cameras through the component?
-
-		_customYawRotation += _lastRotation.X * 0.002f;
-		_customPitchRotation += _lastRotation.Y * 0.002f;
-		_lastRotation = 0;
-		if (_customPitchRotation < -float.Pi / 3)
-			_customPitchRotation = -float.Pi / 3;
-		if (_customPitchRotation > 0)
-			_customPitchRotation = 0;
-
-		cameraView.Translation = _polarCoordinate.ToCartesianFromPolar( _zoom ).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven );
-		float yaw = float.Pi * 3 / 2 - _polarCoordinate.X;
-		float pitch = float.Pi * 3 / 2 - _polarCoordinate.Y;
-		Rotor3<float> yawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, yaw );
-		var pitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, pitch );
-		var newRotation = (yawRotor * pitchRotor).Normalize<Rotor3<float>, float>();
-		newRotation = Rotor3.FromAxisAngle( newRotation.Forward, _customYawRotation ) * newRotation;
-		newRotation = Rotor3.FromAxisAngle( newRotation.Left, _customPitchRotation ) * newRotation;
-
-		if ((newRotation.Left + newRotation.Forward).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven ) == (cameraView.Rotation.Left + cameraView.Rotation.Forward).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven ))
+		Vector3<float> newTranslation = -_rotation.Forward * _zoom;
+		if ((newTranslation - cameraView.Translation).Round<Vector3<float>, float>( 5, MidpointRounding.ToEven ) == 0 && !changedRotation)
 			return;
-		cameraView.Rotation = newRotation;
+		cameraView.Translation = newTranslation;
+		//float yaw = float.Pi * 3 / 2 - _polarCoordinate.X;
+		//float pitch = float.Pi * 3 / 2 - _polarCoordinate.Y;
+		//Rotor3<float> yawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, yaw );
+		//var pitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, pitch );
+		//var newRotation = (yawRotor * pitchRotor).Normalize<Rotor3<float>, float>();
+		//newRotation = Rotor3.FromAxisAngle( newRotation.Forward, _customYawRotation ) * newRotation;
+		//newRotation = Rotor3.FromAxisAngle( newRotation.Left, _customPitchRotation ) * newRotation;
+
+		cameraView.Rotation = Rotor3.FromAxisAngle( _rotation.Forward, _customYawRotation ) * Rotor3.FromAxisAngle( _rotation.Left, _customPitchRotation ) * _rotation;
 	}
 
 	protected override bool InternalDispose() {

@@ -13,7 +13,7 @@ public sealed class FaceOwnershipComponentSerializer( SerializerProvider seriali
 		Span<byte> data = stackalloc byte[ t.OwnedFaces.Count * sizeof(uint) ];
 		int i = 0;
 		foreach (Face face in t.OwnedFaces) {
-			MemoryMarshal.Write( data.Slice( i * sizeof( uint ), 4 ), face.Id );
+			MemoryMarshal.Write( data.Slice( i * sizeof( uint ), sizeof( uint ) ), face.Id );
 			i++;
 		}
 		buffer.AddRange( data );
@@ -23,7 +23,7 @@ public sealed class FaceOwnershipComponentSerializer( SerializerProvider seriali
 			throw new InvalidOperationException( "No active globe available." );
 		target.ClearOwnership();
 		for (int i = 0; i < serializedData.Length / sizeof( uint ); i++) {
-			int faceId = (int) MemoryMarshal.Read<uint>( serializedData.Slice( i * sizeof( uint ), 4 ) );
+			int faceId = (int) MemoryMarshal.Read<uint>( serializedData.Slice( i * sizeof( uint ), sizeof( uint ) ) );
 			Face face = _activeGlobeTrackingService.CurrentGlobe.Faces[ faceId ];
 			target.AddFace( face );
 		}

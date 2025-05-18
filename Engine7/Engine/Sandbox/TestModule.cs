@@ -1,16 +1,15 @@
 ﻿using Engine.Logging;
 using Engine.Modularity;
 using Engine.Module.Entities.Container;
+using Engine.Module.Entities.Render.Components;
 using Engine.Module.Entities.Services;
 using Engine.Module.Render;
-using Engine.Module.Render.Entities.Components;
 using Engine.Module.Render.Ogl;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.Services;
 using Engine.Module.Render.Ogl.Utilities;
 using Engine.Standard;
 using Engine.Standard.Entities.Components;
-using Engine.Standard.Entities.Components.Rendering;
 using Engine.Standard.Render;
 using Engine.Standard.Render.UserInterface;
 using Sandbox.Logic;
@@ -121,25 +120,25 @@ public sealed class TextJumblerComponent : ComponentBase {
 	public int Offset { get; set; } = 0;
 }
 
-public sealed class TextJumblerArchetype : ArchetypeBase {
-	public TextJumblerComponent TextJumblerComponent { get; set; }
-	public RenderedTextComponent RenderedTextComponent { get; set; }
-}
+//public sealed class TextJumblerArchetype : ArchetypeBase {
+//	public TextJumblerComponent TextJumblerComponent { get; set; }
+//	public RenderedTextComponent RenderedTextComponent { get; set; }
+//}
 
-public sealed class TextJumblerSystem : SystemBase<TextJumblerArchetype> {
+//public sealed class TextJumblerSystem : SystemBase<TextJumblerArchetype> {
 
-	protected override void ProcessEntity( TextJumblerArchetype archetype, double time, double deltaTime ) {
-		string s = "";
-		for (int i = 0; i < 5; i++) {
-			char c = ((archetype.TextJumblerComponent.Offset + i) % 10).ToString()[ 0 ];
-			s += c;
-		}
-		archetype.TextJumblerComponent.Offset++;
-		if (archetype.TextJumblerComponent.Offset > 9)
-			archetype.TextJumblerComponent.Offset = 0;
-		archetype.RenderedTextComponent.Text = s;//time.ToString("n5");
-	}
-}
+//	protected override void ProcessEntity( TextJumblerArchetype archetype, double time, double deltaTime ) {
+//		string s = "";
+//		for (int i = 0; i < 5; i++) {
+//			char c = ((archetype.TextJumblerComponent.Offset + i) % 10).ToString()[ 0 ];
+//			s += c;
+//		}
+//		archetype.TextJumblerComponent.Offset++;
+//		if (archetype.TextJumblerComponent.Offset > 9)
+//			archetype.TextJumblerComponent.Offset = 0;
+//		archetype.RenderedTextComponent.Text = s;//time.ToString("n5");
+//	}
+//}
 
 internal class SandboxRenderModule : RenderModuleBase {
 

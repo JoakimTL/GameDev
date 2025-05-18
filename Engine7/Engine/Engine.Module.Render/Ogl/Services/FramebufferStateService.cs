@@ -152,7 +152,7 @@ public sealed class Temporary_TextureAssetService {
 }
 
 //TODO: REMOVE and replace with a better system for asset handling
-public sealed class TextureAssetProvider( Temporary_TextureAssetService textureAssetService ) : IRenderServiceProvider {
+public sealed class TextureAssetProvider( Temporary_TextureAssetService textureAssetService ) : IServiceProvider {
 	private readonly Temporary_TextureAssetService _textureAssetService = textureAssetService;
 
 	public OglTexture Get( string name ) => _textureAssetService.Get( Path.Combine( "assets\\textures", $"{name}.png" ) );

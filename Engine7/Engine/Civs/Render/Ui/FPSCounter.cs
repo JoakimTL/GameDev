@@ -35,6 +35,13 @@ public sealed class FPSCounter : UserInterfaceElementBase {
 	}
 
 	protected override bool ShouldDisplay() {
-		return GameStateProvider.Get<bool>( "showFpsCounter" );
+		return GameStateProvider.Get<bool>( UiElementConstants.ShowFPSCounter );
 	}
+}
+
+public sealed class UiElementConstants {
+	public const string ShowFPSCounter = "showFpsCounter";
+	public const string ShowNewGameMenu = "showNewGameMenu";
+	public const string ShowMainMenu = "showMainMenu";
+	public const string ShowStartMenu = "showStartMenu";
 }

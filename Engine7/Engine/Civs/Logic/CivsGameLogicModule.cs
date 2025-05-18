@@ -5,8 +5,8 @@ using Civs.World;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Entities.Container;
+using Engine.Module.Entities.Render.Components;
 using Engine.Module.Entities.Services;
-using Engine.Module.Render.Entities.Components;
 using Engine.Standard;
 using Engine.Standard.Entities.Components;
 
