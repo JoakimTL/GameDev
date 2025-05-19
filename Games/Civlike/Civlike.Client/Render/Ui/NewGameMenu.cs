@@ -17,13 +17,15 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 		_btnCreateWorld.OnClicked += OnNewGameButtonClicked;
 	}
 
-	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event ) => Publish( new CreateNewWorldRequestMessage( new( 6, 6378000, 42, 25000, 17500, 128 ) ), "gamelogic", true );
+	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event )
+		=> Publish( new CreateNewWorldRequestMessage( new( 6, 6378000, 43, 0, 400, -400, 700, 9000, 4000, 1, 128 ) ), "gamelogic", true );
 
 	protected override bool ShouldDisplay() {
 		return GameStateProvider.Get<bool>( UiElementConstants.ShowNewGameMenu ); //TODO: Create a more complex state machine for ui?
 	}
 
 	protected override void OnMessageReceived( Message message ) {
-		if (message.Content is CreateNewWorldRequestResponseMessage) 			GameStateProvider.SetNewState( UiElementConstants.ShowNewGameMenu, false );
+		if (message.Content is CreateNewWorldRequestResponseMessage)
+			GameStateProvider.SetNewState( UiElementConstants.ShowNewGameMenu, false );
 	}
 }

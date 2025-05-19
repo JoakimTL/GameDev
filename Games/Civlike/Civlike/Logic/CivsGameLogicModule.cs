@@ -34,7 +34,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		}
 
 		if (message.Content is CreateNewWorldRequestMessage createNewWorldRequest) {
-			var procGen = new ProceduralWorldTerrainGenerator( createNewWorldRequest.Parameters );
+			var procGen = new TectonicWorldTerrainGenerator( createNewWorldRequest.Parameters );
 			var globe = new GlobeModel( Guid.NewGuid(), createNewWorldRequest.Parameters.Subdivisions, procGen );
 			_worldGenParameters = createNewWorldRequest.Parameters;
 			MessageBusNode.Publish( new CreateNewWorldRequestResponseMessage( globe ), "globe-tracking", true );
@@ -150,8 +150,9 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		Face[] facesToDistribute = new Face[ _worldGenParameters.PlayerCount ];
 		for (int i = 0; i < _worldGenParameters.PlayerCount; i++) {
 			Face face = null!;
-			do 				face = model.Faces[ Random.Shared.Next( 0, model.Faces.Count ) ];
-while (!face.State.TerrainType.IsLand || facesToDistribute.Contains( face ));
+			do
+				face = model.Faces[ Random.Shared.Next( 0, model.Faces.Count ) ];
+			while (!face.State.TerrainType.IsLand || facesToDistribute.Contains( face ));
 			facesToDistribute[ i ] = face;
 		}
 

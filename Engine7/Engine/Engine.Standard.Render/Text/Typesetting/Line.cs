@@ -16,7 +16,7 @@ public sealed class Line {
 				break;
 			_lineWords.Add( words[ i ] );
 			ScaledWidth += words[ i ].ScaledWidth + whitespaceAdvance;
-			if (words[ i ].EndCharacter == '\n')
+			if (words[ i ].EndCharacter == '\n' || words[ i ].EndCharacter == '\r')
 				break;
 		}
 

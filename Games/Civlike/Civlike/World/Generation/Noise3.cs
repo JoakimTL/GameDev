@@ -16,8 +16,10 @@ public class Noise3 {
 		this.Scale = scale;
 	}
 
-	public float Noise( Vector3<float> xyz ) {
-		Vector3<float> scaledXyz = xyz * Scale;
+	public float Noise( Vector3<float> xyz ) => Noise( Seed, Scale, xyz );
+
+	public static float Noise( uint seed, float scale, Vector3<float> xyz ) {
+		Vector3<float> scaledXyz = xyz * scale;
 		Vector3<int> low = scaledXyz.Floor<Vector3<float>, float>().CastTruncating<float, int>();
 		Vector3<float> frac = scaledXyz - low.CastSaturating<int, float>();
 		Span<Vector3<int>> hashPoints = [
@@ -28,7 +30,7 @@ public class Noise3 {
 		Span<float> dataValues = stackalloc float[ 8 ];
 		for (int i = 0; i < 8; i++) {
 			Vector3<int> point = hashPoints[ i ];
-			dataValues[ i ] = Hash4( point.X, point.Y, point.Z, Seed );
+			dataValues[ i ] = Hash4( point.X, point.Y, point.Z, seed );
 		}
 
 		float xInterp = float.Cos( frac.X * MathF.PI ) * 0.5f + 0.5f;

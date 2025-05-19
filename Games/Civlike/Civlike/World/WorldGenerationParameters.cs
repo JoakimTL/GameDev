@@ -5,26 +5,35 @@
 namespace Civlike.World;
 
 public sealed class WorldGenerationParameters {
-	public WorldGenerationParameters( uint subdivisions, double globeRadius, int generationSeed, double maxTerrainHeight, double sealevel, uint playerCount ) {
+	public WorldGenerationParameters( uint subdivisions, double globeRadius, int generationSeed, double sealevel, double baseHeightVariance, double plateHeight, double plateHeightVariance, double faultMaxHeight, double mountainHeight, double rotationRate, uint playerCount ) {
 		if (subdivisions < 6)
 			throw new ArgumentOutOfRangeException( nameof( subdivisions ), "Subdivision count must be at least 6." );
 		if (subdivisions > 10)
 			throw new ArgumentOutOfRangeException( nameof( subdivisions ), "Subdivision count must be at most 10." );
 		if (globeRadius <= 1500000)
 			throw new ArgumentOutOfRangeException( nameof( globeRadius ), "Radius must be greater than 1500000 meters." );
-		if (maxTerrainHeight <= sealevel) 			throw new ArgumentOutOfRangeException( nameof( maxTerrainHeight ), "Max terrain height must be greater than sealevel." );
 		Subdivisions = subdivisions;
 		GlobeRadius = globeRadius;
 		this.GenerationSeed = generationSeed;
-		this.MaxTerrainHeight = maxTerrainHeight;
 		this.Sealevel = sealevel;
+		this.FaultMaxHeight = faultMaxHeight;
+		this.BaseHeightVariance = baseHeightVariance;
+		this.PlateHeight = plateHeight;
+		this.PlateHeightVariance = plateHeightVariance;
+		this.MountainHeight = mountainHeight;
+		this.RotationRate = rotationRate;
 		this.PlayerCount = playerCount;
 	}
 
 	public uint Subdivisions { get; }
 	public double GlobeRadius { get; }
 	public int GenerationSeed { get; }
-	public double MaxTerrainHeight { get; }
 	public double Sealevel { get; }
+	public double BaseHeightVariance { get; }
+	public double PlateHeight { get; }
+	public double PlateHeightVariance { get; }
+	public double FaultMaxHeight { get; }
+	public double MountainHeight { get; }
+	public double RotationRate { get; }
 	public uint PlayerCount { get; }
 }

@@ -6,19 +6,19 @@ using Engine.Structures;
 namespace Civlike.World;
 
 public sealed class Edge : IOcTreeLeaf<float> {
-	private readonly UnmanagedStaticContainer<PackedNormal> _vectorContainer;
-	private readonly EdgeIndices _edge;
+	private readonly GlobeVertex _vertexA;
+	private readonly GlobeVertex _vertexB;
 	private Connection? _connection;
 
-	public Edge( UnmanagedStaticContainer<PackedNormal> vectorContainer, EdgeIndices edge ) {
-		_vectorContainer = vectorContainer;
-		this._edge = edge;
+	public Edge( GlobeVertex vertexA, GlobeVertex vertexB ) {
+		this._vertexA = vertexA;
+		this._vertexB = vertexB;
 	}
 
 	public Connection Connection => _connection ?? throw new InvalidOperationException( "No connection exists for this edge." );
 
-	public Vector3<float> VertexA => _vectorContainer.Get( _edge.VertexA ).Decode();
-	public Vector3<float> VertexB => _vectorContainer.Get( _edge.VertexB ).Decode();
+	public Vector3<float> VertexA => _vertexA.Vector;
+	public Vector3<float> VertexB => _vertexB.Vector;
 
 	public static Vector3<float> GetNormal( Vector3<float> a, Vector3<float> b ) {
 		Vector3<float> right = (b - a).Cross( -a ).Normalize<Vector3<float>, float>();

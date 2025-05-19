@@ -40,7 +40,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 			]
 		);
 
-		_lineCollection = RenderEntity.RequestSceneInstanceFixedCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( RenderConstants.GridSceneName, 0, lineInstanceMesh, 1024 );
+		_lineCollection = RenderEntity.RequestSceneInstanceFixedCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( RenderConstants.GridSceneName, 0, lineInstanceMesh, 4096 );
 	}
 
 	public override void Update( double time, double deltaTime ) {
@@ -60,7 +60,8 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 		_connections.Clear();
 		AddFaces( 9, _currentlyDisplayedHoveredFace );
 
-		foreach (var face in _addedFaces.Keys) 			foreach (var connection in face.Blueprint.Connections) {
+		foreach (var face in _addedFaces.Keys)
+			foreach (var connection in face.Blueprint.Connections) {
 				if (_connections.Contains( connection ))
 					continue;
 				_connections.Add( connection );
@@ -81,9 +82,10 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 
 
 		int activeEdges = 0;
-		Span<Line3SceneData> edges = stackalloc Line3SceneData[ _connections.Count ];
+		Span<Line3SceneData> edges = stackalloc Line3SceneData[ 4096 ];
 		foreach (var connection in _connections)
 			AddEdge( center, maxRadius, connection, edges, ref activeEdges );
+
 		_lineCollection.WriteRange( 0, edges );
 		_lineCollection.SetActiveElements( (uint) activeEdges );
 
