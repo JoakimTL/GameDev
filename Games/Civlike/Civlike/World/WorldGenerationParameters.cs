@@ -5,35 +5,44 @@
 namespace Civlike.World;
 
 public sealed class WorldGenerationParameters {
-	public WorldGenerationParameters( uint subdivisions, double globeRadius, int generationSeed, double sealevel, double baseHeightVariance, double plateHeight, double plateHeightVariance, double faultMaxHeight, double mountainHeight, double rotationRate, uint playerCount ) {
+	public WorldGenerationParameters( uint subdivisions, double globeRadius, int generationSeed, double baseHeightVariance, double plateHeight, double plateHeightVariance, double faultMaxHeight, double mountainHeight, double revolutionsPerSecond, double orbitsPerSecond, double obliquityDegrees, uint playerCount, uint moistureLoops ) {
 		if (subdivisions < 6)
 			throw new ArgumentOutOfRangeException( nameof( subdivisions ), "Subdivision count must be at least 6." );
 		if (subdivisions > 10)
 			throw new ArgumentOutOfRangeException( nameof( subdivisions ), "Subdivision count must be at most 10." );
 		if (globeRadius <= 1500000)
 			throw new ArgumentOutOfRangeException( nameof( globeRadius ), "Radius must be greater than 1500000 meters." );
+		if ( obliquityDegrees < 0 || obliquityDegrees > 90)
+			throw new ArgumentOutOfRangeException( nameof( obliquityDegrees ), "Obliquity must be between 0 and 90 degrees." );
 		Subdivisions = subdivisions;
 		GlobeRadius = globeRadius;
 		this.GenerationSeed = generationSeed;
-		this.Sealevel = sealevel;
 		this.FaultMaxHeight = faultMaxHeight;
 		this.BaseHeightVariance = baseHeightVariance;
 		this.PlateHeight = plateHeight;
 		this.PlateHeightVariance = plateHeightVariance;
 		this.MountainHeight = mountainHeight;
-		this.RotationRate = rotationRate;
+		this.RevolutionsPerSecond = revolutionsPerSecond;
+		this.OrbitsPerSecond = orbitsPerSecond;
+		this.RevolutionsPerOrbit = RevolutionsPerSecond / OrbitsPerSecond;
+		this.ObliquityDegrees = obliquityDegrees;
 		this.PlayerCount = playerCount;
+		this.MoistureLoops = moistureLoops;
 	}
 
 	public uint Subdivisions { get; }
 	public double GlobeRadius { get; }
 	public int GenerationSeed { get; }
-	public double Sealevel { get; }
+	public double Sealevel => 0;
 	public double BaseHeightVariance { get; }
 	public double PlateHeight { get; }
 	public double PlateHeightVariance { get; }
 	public double FaultMaxHeight { get; }
 	public double MountainHeight { get; }
-	public double RotationRate { get; }
+	public double RevolutionsPerSecond { get; }
+	public double OrbitsPerSecond { get; }
+	public double RevolutionsPerOrbit { get; }
+	public double ObliquityDegrees { get; }
 	public uint PlayerCount { get; }
+	public uint MoistureLoops { get; }
 }

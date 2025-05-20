@@ -79,7 +79,7 @@ public sealed class PopulationCenterTileGroupSceneInstance() : SceneInstanceBase
 			//var abacCenter = (abCenter + acCenter) / 2f;
 			//var abbcCenter = (abCenter + bcCenter) / 2f;
 			//var acbcCenter = (acCenter + bcCenter) / 2f;
-			//Vector3<float> center = (a + b + c) / 3f;
+			Vector3<float> center = (a + b + c) / 3f;
 
 			Vector4<byte> aColor = aAtBorder ? borderColor : internalColor;
 			Vector4<byte> bColor = bAtBorder ? borderColor : internalColor;
@@ -87,7 +87,7 @@ public sealed class PopulationCenterTileGroupSceneInstance() : SceneInstanceBase
 			Vector4<byte> abCenterColor = abAtBorder ? borderColor : internalColor;
 			Vector4<byte> acCenterColor = acAtBorder ? borderColor : internalColor;
 			Vector4<byte> bcCenterColor = bcAtBorder ? borderColor : internalColor;
-			//Vector4<byte> centerColor = internalColor;
+			Vector4<byte> centerColor = internalColor;
 
 			//Create mesh
 			uint startIndex = (uint) vertices.Count;
@@ -97,28 +97,34 @@ public sealed class PopulationCenterTileGroupSceneInstance() : SceneInstanceBase
 			vertices.Add( new( abCenter, 0, 0, abCenterColor ) );
 			vertices.Add( new( acCenter, 0, 0, acCenterColor ) );
 			vertices.Add( new( bcCenter, 0, 0, bcCenterColor ) );
+			vertices.Add( new( center, 0, 0, centerColor ) );
 			uint aIndex = startIndex;
 			uint bIndex = startIndex + 1;
 			uint cIndex = startIndex + 2;
 			uint abCenterIndex = startIndex + 3;
 			uint acCenterIndex = startIndex + 4;
 			uint bcCenterIndex = startIndex + 5;
+			uint centerIndex = startIndex + 6;
 			indices.Add( aIndex );
 			indices.Add( abCenterIndex );
+			indices.Add( centerIndex );
+			indices.Add( aIndex );
+			indices.Add( centerIndex );
 			indices.Add( acCenterIndex );
 
 			indices.Add( bIndex );
 			indices.Add( bcCenterIndex );
+			indices.Add( centerIndex );
+			indices.Add( bIndex );
+			indices.Add( centerIndex );
 			indices.Add( abCenterIndex );
 
 			indices.Add( cIndex );
 			indices.Add( acCenterIndex );
+			indices.Add( centerIndex );
+			indices.Add( cIndex );
+			indices.Add( centerIndex );
 			indices.Add( bcCenterIndex );
-
-			indices.Add( abCenterIndex );
-			indices.Add( bcCenterIndex );
-			indices.Add( acCenterIndex );
-
 
 		}
 

@@ -35,7 +35,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 
 		if (message.Content is CreateNewWorldRequestMessage createNewWorldRequest) {
 			var procGen = new TectonicWorldTerrainGenerator( createNewWorldRequest.Parameters );
-			var globe = new GlobeModel( Guid.NewGuid(), createNewWorldRequest.Parameters.Subdivisions, procGen );
+			var globe = new GlobeModel( Guid.NewGuid(), createNewWorldRequest.Parameters, procGen );
 			_worldGenParameters = createNewWorldRequest.Parameters;
 			MessageBusNode.Publish( new CreateNewWorldRequestResponseMessage( globe ), "globe-tracking", true );
 			return;

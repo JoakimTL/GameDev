@@ -16,7 +16,12 @@ public sealed class FaceState {
 	/// </summary>
 	public float SeismicActivity { get; private set; }
 	public float Height { get; private set; } = 0.0f;
+	public Temperature Temperature { get; private set; }
+	public Pressure BaseWindPressure { get; private set; } = Pressure.FromAtmosphere( 1 ); // 1 atm
+	public Pressure WindPressure { get; private set; } = Pressure.FromAtmosphere( 1 ); // 1 atm
 	public float Moisture { get; private set; }
+	public float Precipitation { get; private set; }
+	public float UpwindDistanceFromOcean { get; private set; } = float.PositiveInfinity;
 	public Vector3<float> WindDirection { get; private set; } = new( 0.0f, 0.0f, 0.0f );
 	public Vector4<float> Color;
 
@@ -24,6 +29,8 @@ public sealed class FaceState {
 		this._face = face;
 		_terrainTypeId = 0;
 	}
+
+	public float PressureHeight => float.Max( 0.0f, Height );
 
 	public TerrainTypeBase TerrainType => TerrainTypeList.GetTerrainType( _terrainTypeId );
 
@@ -37,7 +44,7 @@ public sealed class FaceState {
 		_face.TriggerFaceStateChanged();
 	}
 
-	public void SetColor(Vector3<float> color ) {
+	public void SetColor( Vector3<float> color ) {
 		Color = new Vector4<float>( color.X, color.Y, color.Z, 1.0f );
 		_face.TriggerFaceStateChanged();
 	}
@@ -56,6 +63,27 @@ public sealed class FaceState {
 		_face.TriggerFaceStateChanged();
 	}
 
+	internal void SetTemperature( Temperature temperature ) {
+		if (temperature == Temperature)
+			return;
+		Temperature = temperature;
+		_face.TriggerFaceStateChanged();
+	}
+
+	internal void SetBaseWindPressure( Pressure pressure ) {
+		if (pressure == BaseWindPressure)
+			return;
+		BaseWindPressure = pressure;
+		_face.TriggerFaceStateChanged();
+	}
+
+	internal void SetWindPressure( Pressure pressure ) {
+		if (pressure == WindPressure)
+			return;
+		WindPressure = pressure;
+		_face.TriggerFaceStateChanged();
+	}
+
 	internal void SetMoisture( float moisture ) {
 		if (moisture == Moisture)
 			return;
@@ -69,7 +97,22 @@ public sealed class FaceState {
 		WindDirection = windDirection;
 		_face.TriggerFaceStateChanged();
 	}
+
+	internal void SetPrecipitation( float precipitation ) {
+		if (precipitation == Precipitation)
+			return;
+		Precipitation = precipitation;
+		_face.TriggerFaceStateChanged();
+	}
+
+	internal void SetUpwindDistanceFromOcean( float distance ) {
+		if (distance == UpwindDistanceFromOcean)
+			return;
+		UpwindDistanceFromOcean = distance;
+		_face.TriggerFaceStateChanged();
+	}
 }
+
 
 public sealed class FaceResources {
 
@@ -91,7 +134,7 @@ public sealed class FaceResources {
 		}
 	}
 
-	public bool DrawResourcesInto(ResourceTypeBase resource, double amount, ResourceContainer container ) {
+	public bool DrawResourcesInto( ResourceTypeBase resource, double amount, ResourceContainer container ) {
 		if (!_resources.Change( resource, -amount ))
 			return false;
 		container.Change( resource, amount );

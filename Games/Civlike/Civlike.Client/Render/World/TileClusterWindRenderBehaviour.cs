@@ -52,7 +52,7 @@ public sealed class TileClusterWindRenderBehaviour : DependentRenderBehaviourBas
 				var face = faces[ index ];
 
 				var faceCenter = face.Blueprint.GetCenter();
-				var windTranslation = faceCenter + face.State.WindDirection * 0.02f;
+				var windTranslation = faceCenter + face.State.WindDirection * 0.01f;
 
 				AddFreeEdge( faceCenter, windTranslation, data, i );
 			}

@@ -18,11 +18,11 @@ public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
 		for (int i = 0; i < faces.Count; i++) {
-			var face = faces[i ];
+			var face = faces[ i ];
 			Vector3<float> a = face.Blueprint.VectorA;
 			Vector3<float> b = face.Blueprint.VectorB;
 			Vector3<float> c = face.Blueprint.VectorC;
-			Vector4<byte> color = ((overrideColor ?? face.State.TerrainType.Color) * 255)
+			Vector4<byte> color = ((overrideColor ?? face.State./*TerrainType.*/Color) * 255)
 				.Clamp<Vector4<float>, float>( 0, 255 )
 				.CastSaturating<float, byte>();
 

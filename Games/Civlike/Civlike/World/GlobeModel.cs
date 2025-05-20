@@ -3,7 +3,9 @@ using Civlike.World.TerrainTypes;
 using Engine;
 using Engine.Generation.Meshing;
 using Engine.Structures;
+using System;
 using System.Drawing;
+using System.Numerics;
 
 //TODO: Have tiles be outside the ECS systems. Incorporate them into the ECS system (and thus rendering) as tile collection components: Lists of tiles. These lists are gained from the octree in the globe class.
 
@@ -15,11 +17,12 @@ public sealed class GlobeModel : DisposableIdentifiable {
 
 	private readonly List<BoundedRenderCluster> _clusters;
 
-	public GlobeModel( Guid globeId, uint subdivisions, IWorldTerrainGenerator generator ) {
+	public GlobeModel( Guid globeId, WorldGenerationParameters parameters, IWorldTerrainGenerator generator ) {
 		Id = globeId;
-		Subdivisions = subdivisions;
+		this.Parameters = parameters;
+		GlobeArea = 4 * double.Pi * parameters.GlobeRadius * parameters.GlobeRadius;
 
-		Icosphere icosphere = new( subdivisions );
+		Icosphere icosphere = new( parameters.Subdivisions );
 		_vertices = [ .. icosphere.Vertices.Select( p => new GlobeVertex( new PackedNormal( p ) ) ) ];
 
 		OcTree<Face, float> faceTree = new( AABB.Create<Vector3<float>>( [ -1, 1 ] ), 3, false );
@@ -27,6 +30,8 @@ public sealed class GlobeModel : DisposableIdentifiable {
 
 		var indices = icosphere.GetIndices();
 		_faces = new Face[ indices.Count / 3 ];
+		TileArea = GlobeArea / _faces.Length;
+		ApproximateTileLength = Math.Sqrt( TileArea * 2 ) / 2f;
 		Dictionary<EdgeIndices, Connection> connections = [];
 		int id = 0;
 		Span<EdgeIndices> currentEdges = stackalloc EdgeIndices[ 3 ];
@@ -73,7 +78,10 @@ public sealed class GlobeModel : DisposableIdentifiable {
 	}
 
 	public Guid Id { get; }
-	public uint Subdivisions { get; }
+	public WorldGenerationParameters Parameters { get; }
+	public double GlobeArea { get; }
+	public double TileArea { get; }
+	public double ApproximateTileLength { get; }
 	public uint VertexCount => (uint) _vertices.Length;
 	public uint FaceCount => (uint) _faces.Length;
 
@@ -169,7 +177,14 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 
 	public void GenerateTerrain( GlobeModel globe ) {
 		GenerateLandmass( globe );
+		SetTileTemperaturesAndPressure( globe );
 		GenerateWinds( globe );
+		for (int i = 0; i < 10; i++) {
+			TweakWindDirectionAndWindPressure( globe );
+		}
+		SetUpwindDistancesFromOcean( globe );
+		for (int i = 0; i < Parameters.MoistureLoops; i++)
+			GeneratePrecipitation( globe );
 	}
 
 	private void GenerateLandmass( GlobeModel globe ) {
@@ -243,10 +258,55 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 		}
 	}
 
+	private void SetTileTemperaturesAndPressure( GlobeModel globe ) {
+		float equatorTemperature = 30f;    // °C at 0° latitude
+		float poleTemperature = -20f;   // °C at ±90° latitude
+		float elevationTemperatureLapseRate = -6.5f; // °C/km
+		float obliquityRad = (float) Parameters.ObliquityDegrees * float.Pi / 180f; // radians
+		float revolutionsPerOrbit = (float) Parameters.RevolutionsPerOrbit;
+		float seasonalAmp = 15f;
+
+		float basePressure = 101325f; //Standard pressure at sea level in Pa
+		float pressurePerMeter = 12f; //Pressure delta per meter elevation change in Pa
+		float pressurePerKelvin = -100f; //Pressure delta per Kelvin temperature change in Pa
+
+		for (uint i = 0; i < globe.FaceCount; i++) {
+			var face = globe.Faces[ (int) i ];
+			Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
+
+			float latitude = MathF.Asin( center.Y );
+
+			float normLat = float.Abs( latitude ) / (float.Pi / 2);
+
+			float tempCelsius = float.Lerp( equatorTemperature, poleTemperature, normLat );
+
+			float elevationKm = face.State.PressureHeight / 1000f;
+
+			float seasonalTemp = 0;
+			for (float d = 0; d < revolutionsPerOrbit; d++) {
+				float dayAngle = 2 * float.Pi * d / revolutionsPerOrbit;
+				Vector3<float> sunDir = new Vector3<float>(
+					float.Cos( dayAngle ),
+					float.Sin( dayAngle ) * float.Sin( obliquityRad ),
+					float.Sin( dayAngle ) * float.Cos( obliquityRad )
+				).Normalize<Vector3<float>, float>();
+				float insolation = center.Dot( sunDir );
+				seasonalTemp += seasonalTemp * insolation;
+			}
+
+			float temperature = tempCelsius + (elevationKm * elevationTemperatureLapseRate) + seasonalTemp;
+
+			face.State.SetTemperature( Temperature.FromCelsius( float.Lerp( equatorTemperature, poleTemperature, normLat ) ) );
+
+			face.State.SetBaseWindPressure( new( basePressure + face.State.PressureHeight * pressurePerMeter + face.State.Temperature.Kelvin * pressurePerKelvin ) );
+			face.State.SetWindPressure( new( basePressure + face.State.PressureHeight * pressurePerMeter + face.State.Temperature.Kelvin * pressurePerKelvin ) );
+		}
+	}
+
 	private void GenerateWinds( GlobeModel globe ) {
-		float tileSpacing = 20f;     // meters, adjust if you compute it exactly
-		float avgWindSpeed = 8f;       // m/s, tune to taste
-		float dt = tileSpacing / avgWindSpeed;  // seconds per tile-hop
+		float tileSpacing = (float) globe.ApproximateTileLength;	// meters, adjust if you compute it exactly
+		float avgWindSpeed = 8f;									// m/s, tune to taste
+		float dt = tileSpacing / avgWindSpeed;						// seconds per tile-hop
 
 		for (uint i = 0; i < globe.FaceCount; i++) {
 			var face = globe.Faces[ (int) i ];
@@ -271,20 +331,131 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 
 			var direction = rotor.Forward;
 
-			Vector3<float> windDirection = direction;//direction - direction.Dot( center ) * center;
+			float dtheta = dt * 2 * (float) Parameters.RevolutionsPerSecond * -float.Abs(center.Y);
 
-			float f = 2 * (float) Parameters.RotationRate * center.Y;
-			float dtheta = dt * f;
-
+			// fast sin/cos:
 			float cosTh = float.Cos( dtheta );
 			float sinTh = float.Sin( dtheta );
 
-			var v = windDirection;
-			var vRot = v * cosTh + Vector3<float>.UnitY.Cross( v ) * sinTh;
-			windDirection = vRot - vRot.Dot(center) * center;
-			face.State.SetWindDirection( windDirection.Normalize<Vector3<float>, float>() );
+			Vector3<float> vRot = direction * cosTh + Vector3<float>.UnitY.Cross( direction ) * sinTh;
+
+			direction = (vRot - vRot.Dot( center ) * center).Normalize<Vector3<float>, float>();
+
+			face.State.SetWindDirection( direction );
 
 			//vectorToProject - vectorToProject.Dot( axisVector ) * axisVector
 		}
 	}
+
+	private void TweakWindDirectionAndWindPressure( GlobeModel globe ) {
+		float windPressureWeight = 0.2f;
+
+		float[] newWindPressures = new float[ globe.FaceCount ];
+		Vector3<float>[] newWindDirections = new Vector3<float>[ globe.FaceCount ];
+		for (int i = 0; i < globe.FaceCount; i++) {
+			newWindPressures[ i ] = globe.Faces[ i ].State.WindPressure.Pascal;
+			newWindDirections[ i ] = globe.Faces[ i ].State.WindDirection;
+		}
+
+		for (int i = 0; i < globe.FaceCount; i++) {
+			var face = globe.Faces[ i ];
+			Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
+
+			Vector3<float> baseWind = face.State.WindDirection;
+			Vector3<float> localWind = 0;
+
+			foreach (var neighbourFace in face.Blueprint.Connections.Select( p => p.GetOther( face ) )) {
+				var dir = (neighbourFace.Blueprint.GetCenter() - center).Normalize<Vector3<float>, float>();
+				var rise = face.State.WindPressure.Pascal - neighbourFace.State.WindPressure.Pascal;
+				var slope = rise / (float) globe.ApproximateTileLength;
+
+				var alignment = float.Max( dir.Dot( baseWind ), 0 );
+
+				localWind += dir * slope * windPressureWeight * alignment;
+				var pressureTransfer = rise * windPressureWeight * alignment;
+				newWindPressures[ i ] -= pressureTransfer;
+				newWindPressures[ neighbourFace.Id ] += pressureTransfer;
+			}
+
+			newWindDirections[ i ] = (baseWind + localWind).Normalize<Vector3<float>, float>();
+		}
+
+		for (int i = 0; i < globe.FaceCount; i++) {
+			var basePressure = globe.Faces[ i ].State.BaseWindPressure;
+			globe.Faces[ i ].State.SetWindPressure( new( float.Max( newWindPressures[ i ], basePressure.Pascal ) ) );
+			globe.Faces[ i ].State.SetWindDirection( newWindDirections[ i ] );
+		}
+	}
+
+	private void SetUpwindDistancesFromOcean( GlobeModel globe ) {
+		Queue<Face> unset = [];
+
+	}
+
+	private void GeneratePrecipitation( GlobeModel globe ) {
+		for (uint i = 0; i < globe.FaceCount; i++) {
+			var face = globe.Faces[ (int) i ];
+			Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
+			var windSource = face.Blueprint.GetFaceInDirection( -face.State.WindDirection );
+			float heightDifference = face.State.PressureHeight - windSource.State.PressureHeight;
+			float heightSlope = heightDifference / (float) globe.ApproximateTileLength;
+
+			if (windSource.State.Moisture > face.State.Moisture) {
+				float carryoverMoisture = windSource.State.Moisture - face.State.Moisture;
+				float expectedMoistureWithoutPrecipitation = face.State.Moisture + carryoverMoisture * 0.5f;
+				float precipitationFromSlope = heightSlope * 0.5f * expectedMoistureWithoutPrecipitation;
+				float upliftPrecipitation = float.Max( float.Min( precipitationFromSlope, carryoverMoisture ), 0 );
+				float moisture = expectedMoistureWithoutPrecipitation - upliftPrecipitation;
+				face.State.SetMoisture( moisture );
+				face.State.SetPrecipitation( upliftPrecipitation );
+			}
+
+			//face.State.SetColor( (0, face.State.Moisture, face.State.Precipitation) );
+			//face.State.SetColor( (float.Max( face.State.Temperature.Celsius / 50, 0 ), face.State.Pressure.Atmosphere, float.Max( (-face.State.Temperature.Celsius) / 20, 0 )) );
+			face.State.SetColor( (face.State.WindPressure.Pascal / 1000 % 1, face.State.WindPressure.Pascal / 10000 % 1, face.State.WindPressure.Pascal / 100000 % 1) );
+		}
+	}
+}
+
+public readonly struct Temperature {
+	public readonly float Kelvin;
+
+	public Temperature( float kelvin ) {
+		Kelvin = kelvin;
+	}
+
+	public float Celsius => Kelvin - 273.15f;
+	public float Fahrenheit => Celsius * 9 / 5 + 32;
+
+	public override int GetHashCode() => Kelvin.GetHashCode();
+	public override bool Equals( object? obj ) => obj is Temperature temperature && temperature == this;
+	public override string ToString() => $"{Celsius} °C";
+
+	public static Temperature FromCelsius( float celsius ) => new( celsius + 273.15f );
+	public static Temperature FromFahrenheit( float fahrenheit ) => new( (fahrenheit - 32) * 5 / 9 + 273.15f );
+
+	public static explicit operator Temperature( float kelvin ) => new( kelvin );
+	public static explicit operator Temperature( double kelvin ) => new( (float) kelvin );
+	public static explicit operator float( Temperature temperature ) => temperature.Kelvin;
+	public static bool operator ==( Temperature left, Temperature right ) => left.Kelvin == right.Kelvin;
+	public static bool operator !=( Temperature left, Temperature right ) => !(left == right);
+}
+
+public readonly struct Pressure {
+	public readonly float Pascal;
+	public Pressure( float pascal ) {
+		Pascal = pascal;
+	}
+	public float Bar => Pascal / 100000f;
+	public float Atmosphere => Pascal / 101325f;
+	public override int GetHashCode() => Pascal.GetHashCode();
+	public override bool Equals( object? obj ) => obj is Pressure pressure && pressure == this;
+	public override string ToString() => $"{Bar} bar";
+	public static Pressure FromBar( float bar ) => new( bar * 100000f );
+	public static Pressure FromAtmosphere( float atmosphere ) => new( atmosphere * 101325f );
+	public static explicit operator Pressure( float pascal ) => new( pascal );
+	public static explicit operator Pressure( double pascal ) => new( (float) pascal );
+	public static explicit operator float( Pressure pressure ) => pressure.Pascal;
+	public static bool operator ==( Pressure left, Pressure right ) => left.Pascal == right.Pascal;
+	public static bool operator !=( Pressure left, Pressure right ) => !(left == right);
 }

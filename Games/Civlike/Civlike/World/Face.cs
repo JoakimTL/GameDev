@@ -15,7 +15,7 @@ public sealed class Face : IOcTreeLeaf<float> {
 
 	public Face( GlobeVertex[] faceVertices, uint id ) {
 		_id = id;
-		_blueprint = new( faceVertices );
+		_blueprint = new( this, faceVertices );
 		_state = new FaceState( this );
 		_transmitChanges = false;
 		foreach (var vertex in faceVertices)

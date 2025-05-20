@@ -18,7 +18,7 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 	}
 
 	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event )
-		=> Publish( new CreateNewWorldRequestMessage( new( 6, 6378000, 43, 0, 400, -400, 700, 9000, 4000, 1, 128 ) ), "gamelogic", true );
+		=> Publish( new CreateNewWorldRequestMessage( new( 7, 6378000, 43, 400, -400, 700, 9000, 4000, double.Pi * 2 / (24 * 60 * 60), double.Pi * 2 / (365.2422 * 24 * 60 * 60), 23.5f, 128, 8 ) ), "gamelogic", true );
 
 	protected override bool ShouldDisplay() {
 		return GameStateProvider.Get<bool>( UiElementConstants.ShowNewGameMenu ); //TODO: Create a more complex state machine for ui?

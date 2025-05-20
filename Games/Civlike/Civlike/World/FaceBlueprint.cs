@@ -5,17 +5,23 @@
 namespace Civlike.World;
 
 public sealed class FaceBlueprint {
+	private readonly Face _face;
 	private readonly Connection[] _connections;
 	private readonly GlobeVertex[] _vertices;
+	//private readonly Face[] _allNeighbours;
 
-	public FaceBlueprint( GlobeVertex[] vertices ) {
+	public FaceBlueprint( Face face, GlobeVertex[] vertices ) {
 		if (vertices.Length != 3)
 			throw new ArgumentException( "There must be exactly 3 vertices." );
+		_face = face;
 		_vertices = vertices;
 		_connections = new Connection[ 3 ];
+		//_allNeighbours = [ .. _vertices.SelectMany( p => p.ConnectedFaces ).Distinct().Where( p => p != face ) ]; ConnectedFaces not initialized yet!
 	}
 
 	public IReadOnlyList<Connection> Connections => _connections;
+	public IReadOnlyList<GlobeVertex> Vertices => _vertices;
+	//public IReadOnlyList<Face> AllNeighbours => _allNeighbours;
 
 	public Vector3<float> VectorA => _vertices[ 0 ].Vector;
 	public Vector3<float> VectorB => _vertices[ 1 ].Vector;
@@ -39,4 +45,24 @@ public sealed class FaceBlueprint {
 	}
 
 	public Vector3<float> GetCenter() => (VectorA + VectorB + VectorC) / 3f;
+
+	public Face GetFaceInDirection(Vector3<float> normalizedDirection) {
+		var center = GetCenter();
+		float maxDot = float.MinValue;
+		Face bestMatch = null!;
+		foreach (var connection in _connections) {
+			var face = connection.GetOther( _face );
+			var diff = face.Blueprint.GetCenter() - center;
+			var dot = diff.Dot( normalizedDirection );
+			if (dot > maxDot) {
+				maxDot = dot;
+				if (dot > 0.99f)
+					return face;
+				bestMatch = face;
+			}
+		}
+		if (bestMatch is null)
+			throw new InvalidOperationException( "No face found in the given direction." );
+		return bestMatch;
+	}
 }
