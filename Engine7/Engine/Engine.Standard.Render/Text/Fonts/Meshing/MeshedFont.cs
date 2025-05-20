@@ -26,8 +26,10 @@ public sealed class MeshedFont : DisposableIdentifiable {
 		_loaded[ c ] = true;
 		this.LogLine( $"Loaded mesh for {c}.", Log.Level.VERBOSE );
 		DefinedGlyph? glyphDefinition = this.Font[ c ];
-		if (glyphDefinition is null)
+		if (glyphDefinition is null) {
+			Log.Warning( $"Glyph {c} not found in font {this.Font.FontName}." );
 			return null;
+		}
 		GlyphTriangle[] triangles = glyphDefinition.Glyph.TriangulateGlyph();
 		if (triangles.Length == 0)
 			return null;

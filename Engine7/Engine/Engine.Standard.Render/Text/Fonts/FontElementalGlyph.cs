@@ -224,9 +224,9 @@ public sealed class FontElementalGlyph : IGlyph {
 			GlyphTriangle glyphTriangle = glyphTriangles[ i ];
 
 			Triangle2<float> transformedTriangle = new(
-				glyphTriangle.Triangle.A * this.TransformationMatrix + this.Offset,
-				glyphTriangle.Triangle.B * this.TransformationMatrix + this.Offset,
-				glyphTriangle.Triangle.C * this.TransformationMatrix + this.Offset
+				(glyphTriangle.Triangle.A + this.Offset) * this.TransformationMatrix,
+				(glyphTriangle.Triangle.B + this.Offset) * this.TransformationMatrix,
+				(glyphTriangle.Triangle.C + this.Offset) * this.TransformationMatrix
 			);
 			GlyphTriangle transformedGlyphTriangle = new( transformedTriangle, glyphTriangle.Filled, glyphTriangle.Flipped );
 

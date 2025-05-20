@@ -12,10 +12,10 @@ public sealed class StartMenu() : UserInterfaceElementWithMessageNodeBase( "ui_s
 	private InteractableButton _btnExit = null!;
 
 	protected override void Initialize() {
-		_btnNewGame = new InteractableButton( this, "New Game" );
+		_btnNewGame = new InteractableButton( this, "A%" );
 		_btnNewGame.Placement.Set( new( (.3, -.15), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
 		_btnNewGame.OnClicked += OnNewGameButtonClicked;
-		_btnExit = new InteractableButton( this, "Exit");
+		_btnExit = new InteractableButton( this, "%");
 		_btnExit.Placement.Set( new( (.3, -.4), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
 		_btnExit.OnClicked += OnExitButtonClicked;
 	}

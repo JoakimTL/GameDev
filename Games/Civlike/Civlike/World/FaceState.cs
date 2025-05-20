@@ -19,10 +19,13 @@ public sealed class FaceState {
 	public Temperature Temperature { get; private set; }
 	public Pressure BaseWindPressure { get; private set; } = Pressure.FromAtmosphere( 1 ); // 1 atm
 	public Pressure WindPressure { get; private set; } = Pressure.FromAtmosphere( 1 ); // 1 atm
+	public Vector3<float> WindDirection { get; private set; } = new( 0.0f, 0.0f, 0.0f );
+	public float LinearDistanceFromOcean { get; private set; } = float.PositiveInfinity;
+	public float UpwindDistanceFromOcean { get; private set; } = float.PositiveInfinity;
+	public float LocalRelief { get; private set; }
+	public float Ruggedness { get; private set; }
 	public float Moisture { get; private set; }
 	public float Precipitation { get; private set; }
-	public float UpwindDistanceFromOcean { get; private set; } = float.PositiveInfinity;
-	public Vector3<float> WindDirection { get; private set; } = new( 0.0f, 0.0f, 0.0f );
 	public Vector4<float> Color;
 
 	public FaceState( Face face ) {
@@ -84,13 +87,6 @@ public sealed class FaceState {
 		_face.TriggerFaceStateChanged();
 	}
 
-	internal void SetMoisture( float moisture ) {
-		if (moisture == Moisture)
-			return;
-		Moisture = moisture;
-		_face.TriggerFaceStateChanged();
-	}
-
 	internal void SetWindDirection( Vector3<float> windDirection ) {
 		if (windDirection == WindDirection)
 			return;
@@ -98,10 +94,10 @@ public sealed class FaceState {
 		_face.TriggerFaceStateChanged();
 	}
 
-	internal void SetPrecipitation( float precipitation ) {
-		if (precipitation == Precipitation)
+	internal void SetLinearDistanceFromOcean( float distance ) {
+		if (distance == LinearDistanceFromOcean)
 			return;
-		Precipitation = precipitation;
+		LinearDistanceFromOcean = distance;
 		_face.TriggerFaceStateChanged();
 	}
 
@@ -109,6 +105,34 @@ public sealed class FaceState {
 		if (distance == UpwindDistanceFromOcean)
 			return;
 		UpwindDistanceFromOcean = distance;
+		_face.TriggerFaceStateChanged();
+	}
+
+	internal void SetLocalRelief( float relief ) {
+		if (relief == LocalRelief)
+			return;
+		LocalRelief = relief;
+		_face.TriggerFaceStateChanged();
+	}
+
+	internal void SetRuggedness( float ruggedness ) {
+		if (ruggedness == Ruggedness)
+			return;
+		Ruggedness = ruggedness;
+		_face.TriggerFaceStateChanged();
+	}
+
+	internal void SetMoisture( float moisture ) {
+		if (moisture == Moisture)
+			return;
+		Moisture = moisture;
+		_face.TriggerFaceStateChanged();
+	}
+
+	internal void SetPrecipitation( float precipitation ) {
+		if (precipitation == Precipitation)
+			return;
+		Precipitation = precipitation;
 		_face.TriggerFaceStateChanged();
 	}
 }
