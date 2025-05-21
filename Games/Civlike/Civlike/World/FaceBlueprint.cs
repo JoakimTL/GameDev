@@ -8,7 +8,7 @@ public sealed class FaceBlueprint {
 	private readonly Face _face;
 	private readonly Connection[] _connections;
 	private readonly GlobeVertex[] _vertices;
-	//private readonly Face[] _allNeighbours;
+	private readonly Face[]? _neighbours;
 
 	public FaceBlueprint( Face face, GlobeVertex[] vertices ) {
 		if (vertices.Length != 3)
@@ -21,7 +21,7 @@ public sealed class FaceBlueprint {
 
 	public IReadOnlyList<Connection> Connections => _connections;
 	public IReadOnlyList<GlobeVertex> Vertices => _vertices;
-	//public IReadOnlyList<Face> AllNeighbours => _allNeighbours;
+	public IReadOnlyList<Face> Neighbours => _neighbours ?? [ .. _connections.Select( p => p.GetOther( _face ) ) ];
 
 	public Vector3<float> VectorA => _vertices[ 0 ].Vector;
 	public Vector3<float> VectorB => _vertices[ 1 ].Vector;
@@ -47,13 +47,13 @@ public sealed class FaceBlueprint {
 	public Vector3<float> GetCenter() => (VectorA + VectorB + VectorC) / 3f;
 
 	public Face GetFaceInDirection(Vector3<float> normalizedDirection) {
-		var center = GetCenter();
+		Vector3<float> center = GetCenter();
 		float maxDot = float.MinValue;
 		Face bestMatch = null!;
-		foreach (var connection in _connections) {
-			var face = connection.GetOther( _face );
-			var diff = face.Blueprint.GetCenter() - center;
-			var dot = diff.Dot( normalizedDirection );
+		foreach (Connection connection in _connections) {
+			Face face = connection.GetOther( _face );
+			Vector3<float> diff = face.Blueprint.GetCenter() - center;
+			float dot = diff.Dot( normalizedDirection );
 			if (dot > maxDot) {
 				maxDot = dot;
 				if (dot > 0.99f)

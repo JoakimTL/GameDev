@@ -28,8 +28,8 @@ public sealed class TileClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 			return;
 		_sceneInstance.SetAllocated( visibilityBehaviour.IsVisible );
 		if (_sceneInstance.Allocated && _needsMeshUpdate) {
-			var clusterComponent = Archetype.ClusterComponent;
-			var globe = clusterComponent.Globe;
+			BoundedRenderClusterComponent clusterComponent = Archetype.ClusterComponent;
+			Civlike.World.GlobeModel globe = clusterComponent.Globe;
 			_sceneInstance.UpdateMesh( clusterComponent.Cluster.Faces, RenderEntity.ServiceAccess.MeshProvider );
 			_sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
 			_needsMeshUpdate = false;

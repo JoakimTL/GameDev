@@ -42,17 +42,17 @@ public sealed class TileClusterWindRenderBehaviour : DependentRenderBehaviourBas
 		int elementsPerSpan = int.Min( (int) _lineCollection.MaxElements, 8192 );
 		Span<Line3SceneData> data = stackalloc Line3SceneData[ elementsPerSpan ];
 		int offset = 0;
-		var faces = Archetype.ClusterComponent.Cluster.Faces;
+		IReadOnlyList<Face> faces = Archetype.ClusterComponent.Cluster.Faces;
 		while (offset < _lineCollection.MaxElements) {
 			int i = 0;
 			for (; i < elementsPerSpan; i++) {
 				int index = offset + i;
 				if (index >= faces.Count)
 					break;
-				var face = faces[ index ];
+				Face face = faces[ index ];
 
-				var faceCenter = face.Blueprint.GetCenter();
-				var windTranslation = faceCenter + face.State.WindDirection * 0.01f;
+				Vector3<float> faceCenter = face.Blueprint.GetCenter();
+				Vector3<float> windTranslation = faceCenter + face.State.WindDirection * 0.01f;
 
 				AddFreeEdge( faceCenter, windTranslation, data, i );
 			}

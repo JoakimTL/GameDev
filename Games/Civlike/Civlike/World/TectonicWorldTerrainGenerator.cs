@@ -3,6 +3,8 @@ using Civlike.World.TerrainTypes;
 using Engine;
 using Engine.Logging;
 using Engine.Modularity;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 //TODO: Have tiles be outside the ECS systems. Incorporate them into the ECS system (and thus rendering) as tile collection components: Lists of tiles. These lists are gained from the octree in the globe class.
 
@@ -26,11 +28,7 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( "Generating winds!" ) );
 		GenerateWinds( globe );
 		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( "Tweaking wind directions!" ) );
-		int windPasses = 150;
-		for (int i = 0; i < windPasses; i++) {
-			MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Tweaking wind directions! ({i + 1}/{windPasses})" ) );
-			TweakWindDirectionAndWindPressure( globe );
-		}
+		TweakWindDirectionAndWindPressure( globe );
 		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( "Calculating distances from bodies of water!" ) );
 		SetDistancesFromOcean( globe );
 		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( "Adding precipitation!" ) );
@@ -60,72 +58,71 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 		Noise3 coarseRuggednessNoise = new( seedProvider.Next(), 4 );
 		Noise3 fineRuggednessNoise = new( seedProvider.Next(), 19 );
 
-		var grasslandTerrain = TerrainTypeList.GetTerrainType<GrasslandTerrain>();
-		var oceanTerrain = TerrainTypeList.GetTerrainType<OceanTerrain>();
-		var mountainTerrain = TerrainTypeList.GetTerrainType<MountainTerrain>();
-		var shorelineTerrain = TerrainTypeList.GetTerrainType<ShorelineTerrain>();
+		GrasslandTerrain grasslandTerrain = TerrainTypeList.GetTerrainType<GrasslandTerrain>();
+		OceanTerrain oceanTerrain = TerrainTypeList.GetTerrainType<OceanTerrain>();
+		MountainTerrain mountainTerrain = TerrainTypeList.GetTerrainType<MountainTerrain>();
+		ShorelineTerrain shorelineTerrain = TerrainTypeList.GetTerrainType<ShorelineTerrain>();
 
-		List<(TectonicPlate plate, float gradient)> neighbours = [];
 
-		for (uint i = 0; i < globe.FaceCount; i++) {
-			var face = globe.Faces[ (int) i ];
-			Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
+		ParallelForFaces( globe, 1, ( start, end, taskId ) => {
+			List<(TectonicPlate plate, float gradient)> neighbourPlates = [];
+			for (int i = start; i < end; i++) {
+				Face face = globe.Faces[ i ];
+				Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
 
-			var shift = new Vector3<float>( xShiftNoise.Noise( center ), yShiftNoise.Noise( center ), zShiftNoise.Noise( center ) ) * 2 - 1;
-			var translation = center + shift * 0.05f;
+				Vector3<float> shift = new Vector3<float>( xShiftNoise.Noise( center ), yShiftNoise.Noise( center ), zShiftNoise.Noise( center ) ) * 2 - 1;
+				Vector3<float> translation = center + shift * 0.05f;
 
-			TectonicPlate current = tectonicRegionGenerator.Get( translation, neighbours, 23, 0.0001f );
-			float currentHeight = current.Height + ((Noise3.Noise( baseCoarseSeed + (uint) current.Id, baseCoarseScale, center ) * 0.7f + Noise3.Noise( baseFineSeed + (uint) current.Id, baseFineScale, center ) * 0.3f) * 2 - 1) * (float) Parameters.BaseHeightVariance;
+				TectonicPlate current = tectonicRegionGenerator.Get( translation, neighbourPlates, 23, 0.0001f );
+				float currentHeight = current.Height + ((Noise3.Noise( baseCoarseSeed + (uint) current.Id, baseCoarseScale, center ) * 0.7f + Noise3.Noise( baseFineSeed + (uint) current.Id, baseFineScale, center ) * 0.3f) * 2 - 1) * (float) Parameters.BaseHeightVariance;
 
-			float otherAverageHeight = 0;
-			float faultHeight = 0;
-			float faultIntensity = 0;
-			for (int n = 0; n < neighbours.Count; n++) {
-				(TectonicPlate other, float gradient) = neighbours[ n ];
-				//float gradientSq = gradient * gradient;
+				float otherAverageHeight = 0;
+				float faultHeight = 0;
+				float faultIntensity = 0;
+				for (int n = 0; n < neighbourPlates.Count; n++) {
+					(TectonicPlate other, float gradient) = neighbourPlates[ n ];
+					//float gradientSq = gradient * gradient;
 
-				var otherVariableHeight = ((Noise3.Noise( baseCoarseSeed + (uint) other.Id, baseCoarseScale, center ) * 0.7f + Noise3.Noise( baseFineSeed + (uint) other.Id, baseFineScale, center ) * 0.3f) * 2 - 1) * (float) Parameters.BaseHeightVariance;
-				otherAverageHeight += (other.Height + otherVariableHeight) * gradient;
+					float otherVariableHeight = ((Noise3.Noise( baseCoarseSeed + (uint) other.Id, baseCoarseScale, center ) * 0.7f + Noise3.Noise( baseFineSeed + (uint) other.Id, baseFineScale, center ) * 0.3f) * 2 - 1) * (float) Parameters.BaseHeightVariance;
+					otherAverageHeight += (other.Height + otherVariableHeight) * gradient;
 
-				float faultMovement = current.GetFaultMovementDifference( other );
-				float faultPresence = coarseFaultNoise.Noise( center ) * 0.6f + fineFaultNoise.Noise( center ) * 0.4f;
-				faultHeight += faultMovement * (float) Parameters.FaultMaxHeight * faultPresence * gradient;
+					float faultMovement = current.GetFaultMovementDifference( other );
+					float faultPresence = coarseFaultNoise.Noise( center ) * 0.6f + fineFaultNoise.Noise( center ) * 0.4f;
+					faultHeight += faultMovement * (float) Parameters.FaultMaxHeight * faultPresence * gradient;
 
-				faultIntensity += current.GetFaultReactionIntensity( other ) * float.Sqrt( gradient );
+					faultIntensity += current.GetFaultReactionIntensity( other ) * float.Sqrt( gradient );
+				}
+
+				float mountainFactor = mountainRidgeNoise.BorderNoise( translation, 12 ) * mountainExistingNoise.Noise( center );
+				float mountainHeight = mountainFactor * mountainFactor * (float) Parameters.MountainHeight;
+
+				bool isMountain = mountainFactor > 0.5f || faultHeight > 750;
+
+				float nHeight = currentHeight + otherAverageHeight + faultHeight + mountainHeight;
+
+				face.State.SetHeight( nHeight );
+
+				face.State.SetTerrainType( nHeight > 0 ? (isMountain ? mountainTerrain : grasslandTerrain) : (nHeight < -200 ? oceanTerrain : shorelineTerrain) );
+
+				if (nHeight < 0)
+					face.State.SetMoisture( 1 );
+
+				face.State.SetSeismicActivity( faultIntensity );
+
+				face.State.SetRuggedness( coarseRuggednessNoise.Noise( center ) * 0.55f + fineRuggednessNoise.Noise( center ) * 0.45f );
+
 			}
-
-			float mountainFactor = mountainRidgeNoise.BorderNoise( translation, 12 ) * mountainExistingNoise.Noise( center );
-			float mountainHeight = mountainFactor * mountainFactor * (float) Parameters.MountainHeight;
-
-			bool isMountain = mountainFactor > 0.5f || faultHeight > 750;
-
-			float nHeight = currentHeight + otherAverageHeight + faultHeight + mountainHeight;
-
-			face.State.SetHeight( nHeight );
-
-			face.State.SetTerrainType( nHeight > 0 ? (isMountain ? mountainTerrain : grasslandTerrain) : (nHeight < -200 ? oceanTerrain : shorelineTerrain) );
-
-			if (nHeight < 0)
-				face.State.SetMoisture( 1 );
-
-			face.State.SetSeismicActivity( faultIntensity );
-
-			face.State.SetRuggedness( coarseRuggednessNoise.Noise( center ) * 0.55f + fineRuggednessNoise.Noise( center ) * 0.45f );
-
-			if (i % 10000 == 0)
-				MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Generating landmasses! ({((double) i / globe.FaceCount * 100):N2}%)" ) );
-
-		}
+		} );
 	}
 
 	private void DefineLocalRelief( GlobeModel globe ) {
 		for (uint i = 0; i < globe.FaceCount; i++) {
-			var face = globe.Faces[ (int) i ];
+			Face face = globe.Faces[ (int) i ];
 
 			float minHeight = face.State.Height;
 			float maxHeight = face.State.Height;
 
-			foreach (var neighbourFace in face.Blueprint.Connections.Select( p => p.GetOther( face ) )) {
+			foreach (Face neighbourFace in face.Blueprint.Neighbours) {
 				if (neighbourFace.State.Height < minHeight)
 					minHeight = neighbourFace.State.Height;
 				if (neighbourFace.State.Height > maxHeight)
@@ -148,40 +145,39 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 		float pressurePerMeter = 12f; //Pressure delta per meter elevation change in Pa
 		float pressurePerKelvin = -100f; //Pressure delta per Kelvin temperature change in Pa
 
-		for (uint i = 0; i < globe.FaceCount; i++) {
-			var face = globe.Faces[ (int) i ];
-			Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
+		ParallelForFaces( globe, 1, ( start, end, taskId ) => {
+			for (int i = start; i < end; i++) {
+				Face face = globe.Faces[ i ];
+				Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
 
-			float latitude = MathF.Asin( center.Y );
+				float latitude = MathF.Asin( center.Y );
 
-			float normLat = float.Abs( latitude ) / (float.Pi / 2);
+				float normLat = float.Abs( latitude ) / (float.Pi / 2);
 
-			float tempCelsius = float.Lerp( equatorTemperature, poleTemperature, normLat );
+				float tempCelsius = float.Lerp( equatorTemperature, poleTemperature, normLat );
 
-			float elevationKm = face.State.PressureHeight / 1000f;
+				float elevationKm = face.State.PressureHeight / 1000f;
 
-			float seasonalTemp = 0;
-			for (float d = 0; d < revolutionsPerOrbit; d++) {
-				float dayAngle = 2 * float.Pi * d / revolutionsPerOrbit;
-				Vector3<float> sunDir = new Vector3<float>(
-					float.Cos( dayAngle ),
-					float.Sin( dayAngle ) * float.Sin( obliquityRad ),
-					float.Sin( dayAngle ) * float.Cos( obliquityRad )
-				).Normalize<Vector3<float>, float>();
-				float insolation = center.Dot( sunDir );
-				seasonalTemp += seasonalTemp * insolation;
+				float seasonalTemp = 0;
+				for (float d = 0; d < revolutionsPerOrbit; d++) {
+					float dayAngle = 2 * float.Pi * d / revolutionsPerOrbit;
+					Vector3<float> sunDir = new Vector3<float>(
+						float.Cos( dayAngle ),
+						float.Sin( dayAngle ) * float.Sin( obliquityRad ),
+						float.Sin( dayAngle ) * float.Cos( obliquityRad )
+					).Normalize<Vector3<float>, float>();
+					float insolation = center.Dot( sunDir );
+					seasonalTemp += seasonalTemp * insolation;
+				}
+
+				float temperature = tempCelsius + (elevationKm * elevationTemperatureLapseRate) + seasonalTemp;
+
+				face.State.SetTemperature( Temperature.FromCelsius( float.Lerp( equatorTemperature, poleTemperature, normLat ) ) );
+
+				face.State.SetBaseWindPressure( new( basePressure + face.State.PressureHeight * pressurePerMeter + face.State.Temperature.Kelvin * pressurePerKelvin ) );
+				face.State.SetWindPressure( new( basePressure + face.State.PressureHeight * pressurePerMeter + face.State.Temperature.Kelvin * pressurePerKelvin ) );
 			}
-
-			float temperature = tempCelsius + (elevationKm * elevationTemperatureLapseRate) + seasonalTemp;
-
-			face.State.SetTemperature( Temperature.FromCelsius( float.Lerp( equatorTemperature, poleTemperature, normLat ) ) );
-
-			face.State.SetBaseWindPressure( new( basePressure + face.State.PressureHeight * pressurePerMeter + face.State.Temperature.Kelvin * pressurePerKelvin ) );
-			face.State.SetWindPressure( new( basePressure + face.State.PressureHeight * pressurePerMeter + face.State.Temperature.Kelvin * pressurePerKelvin ) );
-
-			if (i % 10000 == 0)
-				MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Setting temperatures! ({((double) i / globe.FaceCount * 100):N2}%)" ) );
-		}
+		} );
 	}
 
 	private void GenerateWinds( GlobeModel globe ) {
@@ -190,7 +186,7 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 		float dt = tileSpacing / avgWindSpeed;                      // seconds per tile-hop
 
 		for (uint i = 0; i < globe.FaceCount; i++) {
-			var face = globe.Faces[ (int) i ];
+			Face face = globe.Faces[ (int) i ];
 			Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
 
 			float latitude = MathF.Asin( center.Y );
@@ -210,7 +206,7 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 			else
 				rotor = Rotor3.FromAxisAngle( center, float.Pi * 2 / 3 * float.CopySign( 1, latitude ) ) * rotor;
 
-			var direction = rotor.Forward;
+			Vector3<float> direction = rotor.Forward;
 
 			float dtheta = dt * 2 * (float) Parameters.RevolutionsPerSecond * -float.Abs( center.Y );
 
@@ -228,44 +224,116 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 		}
 	}
 
+	private readonly struct TileNeighbourPrecomputation {
+		public readonly Vector3<float> Diff;
+
+		public TileNeighbourPrecomputation( Vector3<float> diff ) {
+			this.Diff = diff;
+		}
+	}
+
 	private void TweakWindDirectionAndWindPressure( GlobeModel globe ) {
-		float windPressureWeight = 0.3f;
-
-		float[] newWindPressures = new float[ globe.FaceCount ];
-		Vector3<float>[] newWindDirections = new Vector3<float>[ globe.FaceCount ];
-		for (int i = 0; i < globe.FaceCount; i++) {
-			newWindPressures[ i ] = globe.Faces[ i ].State.WindPressure.Pascal;
-			newWindDirections[ i ] = globe.Faces[ i ].State.WindDirection;
-		}
-
-		for (int i = 0; i < globe.FaceCount; i++) {
-			var face = globe.Faces[ i ];
-			Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
-
-			Vector3<float> baseWind = face.State.WindDirection;
-			Vector3<float> localWind = 0;
-
-			foreach (var neighbourFace in face.Blueprint.Connections.Select( p => p.GetOther( face ) )) {
-				var dir = (neighbourFace.Blueprint.GetCenter() - center).Normalize<Vector3<float>, float>();
-				var rise = face.State.WindPressure.Pascal - neighbourFace.State.WindPressure.Pascal;
-				var slope = rise / (float) globe.ApproximateTileLength;
-
-				var alignment = float.Max( dir.Dot( baseWind ), 0 );
-
-				localWind += dir * slope * windPressureWeight * alignment;
-				var pressureTransfer = rise * windPressureWeight * alignment;
-				newWindPressures[ i ] -= pressureTransfer;
-				newWindPressures[ neighbourFace.Id ] += pressureTransfer;
+		unsafe {
+			int windPasses = 2000;
+			int reservedThreads = 1; // reserve some threads for other tasks
+			int taskCount = Math.Max( Environment.ProcessorCount - reservedThreads, 1 );
+			float* windPressureDeltas = (float*) NativeMemory.Alloc( globe.FaceCount * (uint) taskCount * sizeof( float ) );
+			Vector3<float>* newWindDirections = (Vector3<float>*) NativeMemory.Alloc( globe.FaceCount * (nuint) sizeof( Vector3<float> ) );
+			TileNeighbourPrecomputation* precomputedNeighbours = (TileNeighbourPrecomputation*) NativeMemory.Alloc( globe.FaceCount * 3 * (nuint) sizeof( TileNeighbourPrecomputation ) );
+			ParallelForFaces( globe, reservedThreads, ( start, end, taskId ) => {
+				for (int i = start; i < end; i++) {
+					Face face = globe.Faces[ i ];
+					Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
+					for (int n = 0; n < 3; n++) {
+						Face neighbourFace = face.Blueprint.Neighbours[ n ];
+						Vector3<float> diff = neighbourFace.Blueprint.GetCenter() - center;
+						precomputedNeighbours[ i * 3 + n ] = new TileNeighbourPrecomputation( diff.Normalize<Vector3<float>, float>() );
+					}
+				}
+			} );
+			for (int i = 0; i < windPasses; i++) {
+				if (i % 5 == 0)
+					MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Tweaking wind directions! ({i + 1}/{windPasses})" ) );
+				TweakWindDirectionAndWindPressurePass( globe, windPressureDeltas, newWindDirections, precomputedNeighbours );
 			}
-
-			newWindDirections[ i ] = (baseWind + localWind).Normalize<Vector3<float>, float>();
+			NativeMemory.Free( windPressureDeltas );
+			NativeMemory.Free( newWindDirections );
+			NativeMemory.Free( precomputedNeighbours );
 		}
+	}
 
-		for (int i = 0; i < globe.FaceCount; i++) {
-			var basePressure = globe.Faces[ i ].State.BaseWindPressure;
-			globe.Faces[ i ].State.SetWindPressure( new( float.Max( newWindPressures[ i ], basePressure.Pascal ) ) );
-			globe.Faces[ i ].State.SetWindDirection( newWindDirections[ i ] );
+	private unsafe void TweakWindDirectionAndWindPressurePass( GlobeModel globe, float* windPressureDeltas, Vector3<float>* newWindDirections, TileNeighbourPrecomputation* precomputedNeighbours ) {
+		float diffusionWeight = 0.05f;      // general smoothing
+		float advectionWeight = 0.175f;     // directional pressure‐driven flow
+		int reservedThreads = 1; // reserve some threads for other tasks
+		float invApproximateTileLength = .5f / (float) globe.ApproximateTileLength;
+
+		ParallelForFaces( globe, reservedThreads, ( start, end, taskId ) => {
+			uint offset = (uint) taskId * globe.FaceCount;
+			float* localWindPressureDeltas = windPressureDeltas + offset;
+			System.Runtime.CompilerServices.Unsafe.InitBlock( localWindPressureDeltas, 0, globe.FaceCount * sizeof( float ) );
+			for (int i = start; i < end; i++) {
+				Face face = globe.Faces[ i ];
+				FaceState state = face.State;
+
+				Vector3<float> baseWind = state.WindDirection;
+				Vector3<float> localWind = default;
+
+				float facePressure = state.WindPressure.Pascal + state.BaseWindPressure.Pascal * 0.5f;
+
+				int faceBaseIndex = i * 3;
+				IReadOnlyList<Face> neighbours = face.Blueprint.Neighbours;
+				//int neighbourCount = neighbours.Count;
+				for (int n = 0; n < 3; n++) {
+					Face neighbourFace = neighbours[ n ];
+					FaceState neighbourState = neighbourFace.State;
+					Vector3<float> dir = precomputedNeighbours[ faceBaseIndex + n ].Diff;
+					float rise = facePressure - neighbourState.WindPressure.Pascal - neighbourState.BaseWindPressure.Pascal * 0.5f;
+					float slope = rise * invApproximateTileLength;
+
+					float alignment = float.Max( dir.Dot( baseWind ), -0.25f );
+
+					float pressureDelta = rise * (advectionWeight * alignment + diffusionWeight);
+					localWind += dir * slope * advectionWeight * alignment;
+					localWindPressureDeltas[ i ] -= pressureDelta;
+					localWindPressureDeltas[ neighbourFace.Id ] += pressureDelta;
+				}
+
+				Vector3<float> combinedWind = baseWind + localWind;
+				newWindDirections[ i ] = combinedWind.MagnitudeSquared() > 0.00001f
+					? combinedWind.Normalize<Vector3<float>, float>()
+					: baseWind;
+			}
+		} );
+
+		int taskCount = Math.Max( Environment.ProcessorCount - 1, 1 );
+		ParallelForFaces( globe, reservedThreads, ( start, end, taskId ) => {
+			uint faceCount = globe.FaceCount;
+			IReadOnlyList<Face> faces = globe.Faces;
+			for (int i = start; i < end; i++) {
+				FaceState state = faces[ i ].State;
+				float windPressure = state.WindPressure.Pascal;
+				for (int j = 0; j < taskCount; j++) {
+					windPressure += windPressureDeltas[ j * faceCount + i ];
+				}
+				state.SetWindPressure( new( windPressure ) );
+				state.SetWindDirection( newWindDirections[ i ] );
+			}
+		} );
+	}
+
+	private static void ParallelForFaces( GlobeModel globe, int reservedThreads, Action<int, int, int> parallelizedTask ) {
+		int taskCount = Math.Max( Environment.ProcessorCount - reservedThreads, 1 );
+		int facesPerTask = (int) Math.Ceiling( (double) globe.FaceCount / taskCount );
+		Task[] tasks = new Task[ taskCount ];
+
+		for (int t = 0; t < taskCount; t++) {
+			int start = t * facesPerTask;
+			int end = Math.Min( start + facesPerTask, (int) globe.FaceCount );
+			int taskId = t;
+			tasks[ t ] = Task.Run( () => parallelizedTask( start, end, taskId ) );
 		}
+		Task.WaitAll( tasks );
 	}
 
 	private void SetDistancesFromOcean( GlobeModel globe ) {
@@ -273,7 +341,7 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 		bool HandleFaceUpwind( Face face, Queue<Face> queue, Dictionary<uint, int> attempts, int attemptLimit ) {
 			if (face.State.UpwindDistanceFromOcean != float.PositiveInfinity)
 				return true;
-			var upwindFace = face.Blueprint.GetFaceInDirection( -face.State.WindDirection );
+			Face upwindFace = face.Blueprint.GetFaceInDirection( -face.State.WindDirection );
 			if (upwindFace.State.UpwindDistanceFromOcean == float.PositiveInfinity) {
 				int numberOfAttempts = attempts.GetValueOrDefault( face.Id );
 				if (numberOfAttempts > attemptLimit)
@@ -294,7 +362,7 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 		Dictionary<uint, int> attempts = [];
 
 		for (uint i = 0; i < globe.FaceCount; i++) {
-			var face = globe.Faces[ (int) i ];
+			Face face = globe.Faces[ (int) i ];
 			if (face.State.Height >= 0) {
 				unsetIdQueue.Enqueue( face );
 				if (face.Blueprint.Connections.Any( p => p.GetOther( face ).State.Height < 0 )) {
@@ -316,7 +384,7 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 			float lowestDistance = face.State.LinearDistanceFromOcean;
 			bool foundLower = false;
 			bool undefinedNeighbour = false;
-			foreach (var neighbour in neighbours) {
+			foreach (Face neighbour in neighbours) {
 				if (neighbour.State.LinearDistanceFromOcean < lowestDistance + (float) globe.ApproximateTileLength) {
 					lowestDistance = neighbour.State.LinearDistanceFromOcean + (float) globe.ApproximateTileLength;
 					foundLower = true;
@@ -330,7 +398,7 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 				continue;
 			}
 			face.State.SetLinearDistanceFromOcean( lowestDistance );
-			foreach (var neighbour in neighbours)
+			foreach (Face neighbour in neighbours)
 				if (neighbour.State.LinearDistanceFromOcean > lowestDistance + (float) globe.ApproximateTileLength)
 					linearQueue.Enqueue( neighbour );
 		}
@@ -346,9 +414,9 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 
 	private void GeneratePrecipitation( GlobeModel globe ) {
 		for (uint i = 0; i < globe.FaceCount; i++) {
-			var face = globe.Faces[ (int) i ];
+			Face face = globe.Faces[ (int) i ];
 			Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
-			var windSource = face.Blueprint.GetFaceInDirection( -face.State.WindDirection );
+			Face windSource = face.Blueprint.GetFaceInDirection( -face.State.WindDirection );
 			float heightDifference = face.State.PressureHeight - windSource.State.PressureHeight;
 			float heightSlope = heightDifference / (float) globe.ApproximateTileLength;
 
@@ -363,9 +431,9 @@ public sealed class TectonicWorldTerrainGenerator : IWorldTerrainGenerator {
 			}
 
 			float distanceFromOcean = float.Min( face.State.LinearDistanceFromOcean * 2, face.State.UpwindDistanceFromOcean );
-			face.State.SetColor( (distanceFromOcean > 0 ? 1f : 0f, distanceFromOcean / ((float) globe.ApproximateTileLength * 4) % 1, distanceFromOcean / ((float) globe.ApproximateTileLength * 50) % 1) );
-			//face.State.SetColor( (float.Max( face.State.Temperature.Celsius / 50, 0 ), face.State.Pressure.Atmosphere, float.Max( (-face.State.Temperature.Celsius) / 20, 0 )) );
-			//face.State.SetColor( (face.State.WindPressure.Pascal / 1000 % 1, face.State.WindPressure.Pascal / 10000 % 1, face.State.WindPressure.Pascal / 100000 % 1) );
+			//face.State.SetColor( (distanceFromOcean > 0 ? 1f : 0f, distanceFromOcean / ((float) globe.ApproximateTileLength * 4) % 1, distanceFromOcean / ((float) globe.ApproximateTileLength * 50) % 1) );
+			//face.State.SetColor( (float.Max( face.State.Temperature.Celsius / 50, 0 ), face.State.WindPressure.Atmosphere * 0.5f, float.Max( (-face.State.Temperature.Celsius) / 20, 0 )) );
+			face.State.SetColor( (face.State.WindPressure.Pascal / 1000 % 1, face.State.WindPressure.Pascal / 10000 % 1, face.State.WindPressure.Pascal / 100000 % 1) );
 		}
 	}
 }

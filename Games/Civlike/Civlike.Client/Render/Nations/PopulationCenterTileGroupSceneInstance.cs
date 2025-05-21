@@ -23,15 +23,15 @@ public sealed class PopulationCenterTileGroupSceneInstance() : SceneInstanceBase
 		Span<uint> vertexIndices = stackalloc uint[ 3 ];
 		//Border faces are all faces where not all vertices are shared with other faces in the faces list.
 		for (int i = 0; i < faces.Count; i++) {
-			var face = faces[ i ];
+			Face face = faces[ i ];
 			for (uint j = 0; j < 3; j++) {
 				GlobeVertex vertex = face.Blueprint.GetVertex( j );
 				if (!vertex.ConnectedFaces.All( faces.Contains ))
 					borderVertices.Add( vertex );
 			}
 		}
-		foreach (var borderVertex in borderVertices)
-			foreach (var potentialBorderFace in borderVertex.ConnectedFaces)
+		foreach (GlobeVertex borderVertex in borderVertices)
+			foreach (Face potentialBorderFace in borderVertex.ConnectedFaces)
 				if (faces.Contains( potentialBorderFace ))
 					borderFaces.Add( potentialBorderFace );
 
@@ -42,7 +42,7 @@ public sealed class PopulationCenterTileGroupSceneInstance() : SceneInstanceBase
 			.Clamp<Vector4<float>, float>( 0, 255 )
 			.CastSaturating<float, byte>();
 
-		foreach (var borderFace in borderFaces) {
+		foreach (Face borderFace in borderFaces) {
 			//                 */\
 			//                 /  \
 			//                /	   \
@@ -60,9 +60,9 @@ public sealed class PopulationCenterTileGroupSceneInstance() : SceneInstanceBase
 			//    /					 	       \
 			//   /				 	 	 	    \
 			// */_______________*________________\*
-			var vertexA = borderFace.Blueprint.GetVertex( 0 );
-			var vertexB = borderFace.Blueprint.GetVertex( 1 );
-			var vertexC = borderFace.Blueprint.GetVertex( 2 );
+			GlobeVertex vertexA = borderFace.Blueprint.GetVertex( 0 );
+			GlobeVertex vertexB = borderFace.Blueprint.GetVertex( 1 );
+			GlobeVertex vertexC = borderFace.Blueprint.GetVertex( 2 );
 			bool aAtBorder = borderVertices.Contains( vertexA );
 			bool bAtBorder = borderVertices.Contains( vertexB );
 			bool cAtBorder = borderVertices.Contains( vertexC );

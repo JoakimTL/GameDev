@@ -18,7 +18,7 @@ public sealed class Face : IOcTreeLeaf<float> {
 		_blueprint = new( this, faceVertices );
 		_state = new FaceState( this );
 		_transmitChanges = false;
-		foreach (var vertex in faceVertices)
+		foreach (GlobeVertex vertex in faceVertices)
 			vertex.AddFace( this );
 	}
 

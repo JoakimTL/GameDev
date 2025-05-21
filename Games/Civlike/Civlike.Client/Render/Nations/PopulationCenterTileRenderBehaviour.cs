@@ -42,7 +42,7 @@ public sealed class PopulationCenterTileRenderBehaviour : DependentRenderBehavio
 		if (_localPlayer is null)
 			SetLocalPlayer();
 		if (_sceneInstance.Allocated && _needsMeshUpdate) {
-			var parent = this.Archetype.Entity.Parent;
+			Entity? parent = this.Archetype.Entity.Parent;
 			_sceneInstance.UpdateMesh( [ .. this.Archetype.TileOwnership.OwnedFaces ], RenderEntity.ServiceAccess.MeshProvider, parent?.GetComponentOrDefault<PlayerComponent>()?.MapColor ?? 1 );
 			_sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
 			_needsMeshUpdate = false;
@@ -52,10 +52,10 @@ public sealed class PopulationCenterTileRenderBehaviour : DependentRenderBehavio
 	private void SetLocalPlayer() {
 		if (_localPlayer is not null)
 			return;
-		var container = RenderEntity.ServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers.FirstOrDefault();
+		SynchronizedEntityContainer? container = RenderEntity.ServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers.FirstOrDefault();
 		if (container is null)
 			return;
-		var localPlayerId = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Guid?>( "localPlayerId" );
+		Guid? localPlayerId = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Guid?>( "localPlayerId" );
 		if (!localPlayerId.HasValue)
 			return;
 		_localPlayer = container.SynchronizedEntities

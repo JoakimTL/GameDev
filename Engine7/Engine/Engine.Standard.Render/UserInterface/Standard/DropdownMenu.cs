@@ -21,7 +21,7 @@ public sealed class DropdownMenu<TDisplay, TValue> : UserInterfaceComponentBase 
 		_headerButton = AddChild( new InteractableButton( element, "Header" ) );
 		_headerButton.OnClicked += OnHeaderClicked;
 		_selectionButtons = AddChild( new ScrollableList<TDisplay, TValue>( element ) );
-		var squaringScale = Placement.GetSquaringScale();
+		Vector2<double> squaringScale = Placement.GetSquaringScale();
 		_selectionButtons.Placement.Set( new( (0, -squaringScale.Y), 0, squaringScale ), Alignment.Center, Alignment.Negative );
 		_selectionButtons.DisplayAdded += OnSelectionButtonAdded;
 		_selectionButtons.DisplayRemoved += OnSelectionButtonRemoved;
@@ -66,7 +66,7 @@ public sealed class DropdownMenu<TDisplay, TValue> : UserInterfaceComponentBase 
 	}
 
 	protected override void OnPlacementChanged() {
-		var squaringScale = Placement.GetSquaringScale();
+		Vector2<double> squaringScale = Placement.GetSquaringScale();
 		_selectionButtons.Placement.Set( new( (0, -squaringScale.Y), 0, squaringScale ), Alignment.Center, Alignment.Negative );
 	}
 

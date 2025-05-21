@@ -37,12 +37,12 @@ public sealed class ScrollableList<TDisplay, TValue> : InteractableUserInterface
 	}
 
 	public void SetChoicesTo( IList<TValue> dataSource ) {
-		foreach (var item in _displayedValues.Keys.ToArray()) {
+		foreach (TValue? item in _displayedValues.Keys.ToArray()) {
 			if (!dataSource.Contains( item )) {
 				Remove( item );
 			}
 		}
-		foreach (var item in dataSource) {
+		foreach (TValue item in dataSource) {
 			if (!_displayedValues.ContainsKey( item )) {
 				Add( item );
 			}

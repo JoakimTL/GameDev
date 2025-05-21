@@ -60,8 +60,8 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 		_connections.Clear();
 		AddFaces( 9, _currentlyDisplayedHoveredFace );
 
-		foreach (var face in _addedFaces.Keys)
-			foreach (var connection in face.Blueprint.Connections) {
+		foreach (Face face in _addedFaces.Keys)
+			foreach (Connection connection in face.Blueprint.Connections) {
 				if (_connections.Contains( connection ))
 					continue;
 				_connections.Add( connection );
@@ -71,8 +71,8 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 		Vector3<float> center = RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Vector3<float>>( "mousePointerGlobeSphereIntersection" );
 
 		float maxRadius = 0;
-		foreach (var connection in _connections) {
-			var edge = connection.SharedEdge;
+		foreach (Connection connection in _connections) {
+			Edge edge = connection.SharedEdge;
 			float dstSqA = (edge.VertexA - centerFace).MagnitudeSquared();
 			float dstSqB = (edge.VertexB - centerFace).MagnitudeSquared();
 			float dstSq = MathF.Min( dstSqA, dstSqB ); //Get the lowest of the two, such that lines that poke outside of the "normal" area covered don't create weird cutoffs elsewhere.
@@ -83,7 +83,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 
 		int activeEdges = 0;
 		Span<Line3SceneData> edges = stackalloc Line3SceneData[ 4096 ];
-		foreach (var connection in _connections)
+		foreach (Connection connection in _connections)
 			AddEdge( center, maxRadius, connection, edges, ref activeEdges );
 
 		_lineCollection.WriteRange( 0, edges );
@@ -116,7 +116,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 	}
 
 	private void AddEdge( Vector3<float> center, float maxRadius, Connection connection, Span<Line3SceneData> edges, ref int activeEdges ) {
-		var edge = connection.SharedEdge;
+		Edge edge = connection.SharedEdge;
 		Vector3<float> a = edge.VertexA;
 		Vector3<float> b = edge.VertexB;
 
@@ -146,7 +146,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 			if (currentPassValue > currentPasses)
 				continue;
 			_addedFaces[ currentFace ] = currentPasses;
-			foreach (var connection in currentFace.Blueprint.Connections) {
+			foreach (Connection connection in currentFace.Blueprint.Connections) {
 				Face neighbour = connection.GetOther( currentFace );
 				_faceQueue.Enqueue( (neighbour, currentPasses - 1) );
 			}

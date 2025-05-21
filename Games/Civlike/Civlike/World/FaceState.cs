@@ -149,7 +149,7 @@ public sealed class FaceResources {
 	}
 
 	internal void Set( IEnumerable<(ResourceTypeBase, double current, double? renewingRate, double? limit)> resources ) {
-		foreach (var (resource, current, renewingRate, limit) in resources) {
+		foreach ((ResourceTypeBase resource, double current, double? renewingRate, double? limit) in resources) {
 			if (limit.HasValue)
 				_resources.SetLimit( resource, limit.Value );
 			_resources.Change( resource, current );

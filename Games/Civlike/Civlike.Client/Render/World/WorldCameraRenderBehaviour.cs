@@ -70,10 +70,10 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 
 	public override void Update( double time, double deltaTime ) {
 		if (!_initialized) {
-			var startLocation = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Vector3<float>?>( "startLocation" );
+			Vector3<float>? startLocation = RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Vector3<float>?>( "startLocation" );
 			if (!startLocation.HasValue)
 				return;
-			var polar = startLocation.Value.ToNormalizedPolar();
+			Vector2<float> polar = startLocation.Value.ToNormalizedPolar();
 			float yaw = float.Pi * 3 / 2 - polar.X;
 			float pitch = float.Pi * 3 / 2 - polar.Y;
 			Rotor3<float> yawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, yaw );
@@ -108,7 +108,7 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 		}
 
 		//Handle rotation
-		var changedRotation = _lastRotation != 0;
+		bool changedRotation = _lastRotation != 0;
 		{
 			_customYawRotation += _lastRotation.X * 0.002f;
 			_customPitchRotation += _lastRotation.Y * 0.002f;
@@ -132,9 +132,9 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 			_velocity += acceleration * (float) deltaTime;
 			_velocity = (_velocity * float.Max( 1 - (float) deltaTime * 10, 0 )).Round<Vector2<float>, float>( 6, MidpointRounding.ToZero );
 
-			var rotationRotor = Rotor3.FromAxisAngle( _rotation.Forward, _customYawRotation ) * _rotation;
-			var up = rotationRotor.Up;
-			var left = rotationRotor.Left;
+			Rotor3<float> rotationRotor = Rotor3.FromAxisAngle( _rotation.Forward, _customYawRotation ) * _rotation;
+			Vector3<float> up = rotationRotor.Up;
+			Vector3<float> left = rotationRotor.Left;
 
 			_rotation = Rotor3.FromAxisAngle( up, _velocity.X * ( float ) deltaTime ) * _rotation;
 			_rotation = Rotor3.FromAxisAngle( left, _velocity.Y * (float) deltaTime ) * _rotation;

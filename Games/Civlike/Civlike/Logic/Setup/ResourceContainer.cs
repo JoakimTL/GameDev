@@ -13,11 +13,11 @@ public sealed class ResourceContainer : ResourceBundleBase {
 	}
 
 	public bool Change( ResourceTypeBase resource, double amount ) {
-		var existingAmount = _resources.GetValueOrDefault( resource );
-		var newAmount = existingAmount + amount;
+		double existingAmount = _resources.GetValueOrDefault( resource );
+		double newAmount = existingAmount + amount;
 		if (newAmount < 0)
 			return false;
-		var limit = _resourceLimits.GetValueOrDefault( resource, double.MaxValue );
+		double limit = _resourceLimits.GetValueOrDefault( resource, double.MaxValue );
 		if (newAmount > limit)
 			newAmount = limit;
 		_resources[ resource ] = newAmount;
@@ -27,18 +27,18 @@ public sealed class ResourceContainer : ResourceBundleBase {
 	public bool Subtract( ResourceBundleBase amounts ) {
 		if (!HasEnough( amounts ))
 			return false;
-		foreach (var kvp in amounts.Resources)
+		foreach (KeyValuePair<ResourceTypeBase, double> kvp in amounts.Resources)
 			Change( kvp.Key, -kvp.Value );
 		return true;
 	}
 
 	public void Add( ResourceBundleBase amounts ) {
-		foreach (var kvp in amounts.Resources)
+		foreach (KeyValuePair<ResourceTypeBase, double> kvp in amounts.Resources)
 			Change( kvp.Key, kvp.Value );
 	}
 
 	public void AddAllExcept( ResourceBundleBase amounts, IReadOnlyList<ResourceTypeBase> exceptions ) {
-		foreach (var kvp in amounts.Resources)
+		foreach (KeyValuePair<ResourceTypeBase, double> kvp in amounts.Resources)
 			if (!exceptions.Contains( kvp.Key ))
 				Change( kvp.Key, kvp.Value );
 	}

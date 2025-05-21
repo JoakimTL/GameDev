@@ -42,7 +42,7 @@ public sealed class Label : UserInterfaceComponentBase {
 	protected override void OnUpdate( double time, double deltaTime ) {
 		if (_textLayout.RenderLayer != RenderLayer) {
 			_textLayout.Remove();
-			var oldTextLayout = _textLayout;
+			TextLayout oldTextLayout = _textLayout;
 			_textLayout = Element.UserInterfaceServiceAccess.RequestTextLayout( RenderLayer );
 			_textLayout.Text = oldTextLayout.Text;
 			_textLayout.FontName = oldTextLayout.FontName;

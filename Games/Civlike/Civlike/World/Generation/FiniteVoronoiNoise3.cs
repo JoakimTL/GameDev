@@ -91,7 +91,7 @@ public sealed class FiniteVoronoiNoise3 {
 		for (int i = 0; i < distIndex; i++) {
 			if (distances[i] == minDistance)
 				continue;
-			var currentGradient = float.Exp( -(distances[ i ] - minDistance) * gradientFactor );
+			float currentGradient = float.Exp( -(distances[ i ] - minDistance) * gradientFactor );
 			if (currentGradient < 0.001f)
 				continue;
 			gradient += currentGradient;
@@ -213,10 +213,10 @@ public sealed class TectonicPlateGenerator {
 			throw new InvalidOperationException( "No plate found." );
 
 		for (int i = neighbours.Count - 1; i >= 0; i--) {
-			var distance = neighbours[ i ].Item2;
-			var pointsDiff = (currentPlate.Position - neighbours[ i ].Item1.Position);
+			float distance = neighbours[ i ].Item2;
+			Vector3<float> pointsDiff = (currentPlate.Position - neighbours[ i ].Item1.Position);
 			float pointsDistance = pointsDiff.Magnitude<Vector3<float>, float>();
-			var gradient = float.Exp( -(distance - currentMinDistance) / pointsDistance * borderGradientFactor );
+			float gradient = float.Exp( -(distance - currentMinDistance) / pointsDistance * borderGradientFactor );
 			if (gradient < lowerBounds) {
 				neighbours.RemoveAt( i );
 				continue;
