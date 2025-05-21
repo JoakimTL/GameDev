@@ -2,6 +2,7 @@
 using Civlike.World.TerrainTypes;
 using Engine;
 using Engine.Generation.Meshing;
+using Engine.Modularity;
 using Engine.Structures;
 using System;
 using System.Drawing;
@@ -23,12 +24,15 @@ public sealed class GlobeModel : DisposableIdentifiable {
 		this.Parameters = parameters;
 		GlobeArea = 4 * double.Pi * parameters.GlobeRadius * parameters.GlobeRadius;
 
+		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( "Generating globe icosphere!" ) );
 		Icosphere icosphere = new( parameters.Subdivisions );
 		_vertices = [ .. icosphere.Vertices.Select( p => new GlobeVertex( new PackedNormal( p ) ) ) ];
 
 		OcTree<Face, float> faceTree = new( AABB.Create<Vector3<float>>( [ -1, 1 ] ), 3, false );
 		OcTree<Edge, float> edgeTree = new( AABB.Create<Vector3<float>>( [ -1, 1 ] ), 3, false );
 
+
+		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( "Generating globe faces!" ) );
 		IReadOnlyList<uint> indices = icosphere.GetIndices();
 		_faces = new Face[ indices.Count / 3 ];
 		TileArea = GlobeArea / _faces.Length;
@@ -39,7 +43,7 @@ public sealed class GlobeModel : DisposableIdentifiable {
 		for (int i = 0; i < indices.Count; i += 3) {
 			FaceIndices faceIndices = new FaceIndices( indices[ i ], indices[ i + 1 ], indices[ i + 2 ] );
 			GlobeVertex[] faceVertices = [ _vertices[ faceIndices.VertexA ], _vertices[ faceIndices.VertexB ], _vertices[ faceIndices.VertexC ] ];
-			Face face = new( faceVertices, (uint) id );
+			Face face = new( this, faceVertices, (uint) id );
 			_faces[ id ] = face;
 			faceTree.Add( face );
 			id++;
@@ -62,6 +66,8 @@ public sealed class GlobeModel : DisposableIdentifiable {
 				face.Blueprint.AddConnection( connection );
 			}
 		}
+
+		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( "Creating render clusters!" ) );
 
 		List<IReadOnlyBranch<Face, float>> faceBranches = [ .. faceTree.GetBranches().Where( p => p.Contents.Count > 0 ) ];
 		List<IReadOnlyBranch<Edge, float>> edgeBranches = [ .. edgeTree.GetBranches().Where( p => p.Contents.Count > 0 ) ];
@@ -186,28 +192,33 @@ public readonly struct Temperature {
 	public static Temperature FromCelsius( float celsius ) => new( celsius + 273.15f );
 	public static Temperature FromFahrenheit( float fahrenheit ) => new( (fahrenheit - 32) * 5 / 9 + 273.15f );
 
-	public static explicit operator Temperature( float kelvin ) => new( kelvin );
-	public static explicit operator Temperature( double kelvin ) => new( (float) kelvin );
-	public static explicit operator float( Temperature temperature ) => temperature.Kelvin;
+	public static implicit operator Temperature( float kelvin ) => new( kelvin );
+	public static implicit operator Temperature( double kelvin ) => new( (float) kelvin );
+	public static implicit operator float( Temperature temperature ) => temperature.Kelvin;
 	public static bool operator ==( Temperature left, Temperature right ) => left.Kelvin == right.Kelvin;
 	public static bool operator !=( Temperature left, Temperature right ) => !(left == right);
 }
 
 public readonly struct Pressure {
 	public readonly float Pascal;
+
 	public Pressure( float pascal ) {
 		Pascal = pascal;
 	}
+
 	public float Bar => Pascal / 100000f;
 	public float Atmosphere => Pascal / 101325f;
 	public override int GetHashCode() => Pascal.GetHashCode();
 	public override bool Equals( object? obj ) => obj is Pressure pressure && pressure == this;
 	public override string ToString() => $"{Bar} bar";
+
 	public static Pressure FromBar( float bar ) => new( bar * 100000f );
 	public static Pressure FromAtmosphere( float atmosphere ) => new( atmosphere * 101325f );
-	public static explicit operator Pressure( float pascal ) => new( pascal );
-	public static explicit operator Pressure( double pascal ) => new( (float) pascal );
-	public static explicit operator float( Pressure pressure ) => pressure.Pascal;
+
+	public static implicit operator Pressure( float pascal ) => new( pascal );
+	public static implicit operator Pressure( double pascal ) => new( (float) pascal );
+	public static implicit operator float( Pressure pressure ) => pressure.Pascal;
+
 	public static bool operator ==( Pressure left, Pressure right ) => left.Pascal == right.Pascal;
 	public static bool operator !=( Pressure left, Pressure right ) => !(left == right);
 }

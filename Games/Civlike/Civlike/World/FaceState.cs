@@ -17,15 +17,18 @@ public sealed class FaceState {
 	public float SeismicActivity { get; private set; }
 	public float Height { get; private set; } = 0.0f;
 	public Temperature Temperature { get; private set; }
+	public Pressure AtmosphericPressure { get; private set; } = Pressure.FromAtmosphere( 1 ); // 1 atm
 	public Pressure BaseWindPressure { get; private set; } = Pressure.FromAtmosphere( 1 ); // 1 atm
 	public Pressure WindPressure { get; private set; } = Pressure.FromAtmosphere( 1 ); // 1 atm
 	public Vector3<float> WindDirection { get; private set; } = new( 0.0f, 0.0f, 0.0f );
 	public float LinearDistanceFromOcean { get; private set; } = float.PositiveInfinity;
 	public float UpwindDistanceFromOcean { get; private set; } = float.PositiveInfinity;
 	public float LocalRelief { get; private set; }
+	public float LocalPressureRelief { get; private set; }
 	public float Ruggedness { get; private set; }
-	public float Moisture { get; private set; }
-	public float Precipitation { get; private set; }
+	public float EvaporationMm { get; private set; }
+	public float AbsoluteHumidityMm { get; private set; }
+	public float PrecipitationMm { get; private set; }
 	public Vector4<float> Color;
 
 	public FaceState( Face face ) {
@@ -34,10 +37,25 @@ public sealed class FaceState {
 	}
 
 	public float PressureHeight => float.Max( 0.0f, Height );
+	public float RelativeHumidity => AbsoluteHumidityMm / GetMoistureCapacityMm();
 
 	public TerrainTypeBase TerrainType => TerrainTypeList.GetTerrainType( _terrainTypeId );
 
 	public FaceResources? Resources => _resources;
+
+	public float GetMoistureCapacityMm() {
+		const float g = 9.80665f; // m/s^2
+
+		float celsius = Temperature.Celsius;
+		float vaporPressure_hPa = 6.112f * MathF.Exp( 17.62f * celsius / (celsius + 243.12f) );
+		float vaporPressure_Pa = vaporPressure_hPa * 100;
+
+		float atmosphereSaturationMixingRatio = 0.622f * vaporPressure_Pa / (AtmosphericPressure - vaporPressure_Pa);
+
+		float massDryAirPerM2 = AtmosphericPressure / g;
+
+		return massDryAirPerM2 * atmosphereSaturationMixingRatio;
+	}
 
 	public void SetTerrainType( TerrainTypeBase terrainType ) {
 		if (terrainType.Id == _terrainTypeId)
@@ -70,6 +88,13 @@ public sealed class FaceState {
 		if (temperature == Temperature)
 			return;
 		Temperature = temperature;
+		_face.TriggerFaceStateChanged();
+	}
+
+	internal void SetAtmosphericPressure( Pressure pressure ) {
+		if (pressure == AtmosphericPressure)
+			return;
+		AtmosphericPressure = pressure;
 		_face.TriggerFaceStateChanged();
 	}
 
@@ -115,6 +140,13 @@ public sealed class FaceState {
 		_face.TriggerFaceStateChanged();
 	}
 
+	internal void SetLocalPressureRelief( float relief ) {
+		if (relief == LocalPressureRelief)
+			return;
+		LocalPressureRelief = relief;
+		_face.TriggerFaceStateChanged();
+	}
+
 	internal void SetRuggedness( float ruggedness ) {
 		if (ruggedness == Ruggedness)
 			return;
@@ -122,19 +154,40 @@ public sealed class FaceState {
 		_face.TriggerFaceStateChanged();
 	}
 
-	internal void SetMoisture( float moisture ) {
-		if (moisture == Moisture)
+	internal void SetEvaporationMm( float evaporation ) {
+		if (evaporation == EvaporationMm)
 			return;
-		Moisture = moisture;
+		EvaporationMm = evaporation;
 		_face.TriggerFaceStateChanged();
 	}
 
-	internal void SetPrecipitation( float precipitation ) {
-		if (precipitation == Precipitation)
+	internal void SetAbsoluteHumidityMm( float humidityMm ) {
+		if (humidityMm == AbsoluteHumidityMm)
 			return;
-		Precipitation = precipitation;
+		AbsoluteHumidityMm = humidityMm;
 		_face.TriggerFaceStateChanged();
 	}
+
+	internal void SetPrecipitationMm( float precipitation ) {
+		if (precipitation == PrecipitationMm)
+			return;
+		PrecipitationMm = precipitation;
+		_face.TriggerFaceStateChanged();
+	}
+
+	//internal void SetMoisture( float moisture ) {
+	//	if (moisture == Moisture)
+	//		return;
+	//	Moisture = moisture;
+	//	_face.TriggerFaceStateChanged();
+	//}
+
+	//internal void SetPrecipitation( float precipitation ) {
+	//	if (precipitation == Precipitation)
+	//		return;
+	//	Precipitation = precipitation;
+	//	_face.TriggerFaceStateChanged();
+	//}
 }
 
 

@@ -13,7 +13,8 @@ public sealed class Face : IOcTreeLeaf<float> {
 	private bool _transmitChanges;
 	public event Action<Face>? FaceStateChanged;
 
-	public Face( GlobeVertex[] faceVertices, uint id ) {
+	public Face( GlobeModel globe, GlobeVertex[] faceVertices, uint id ) {
+		this.Globe = globe;
 		_id = id;
 		_blueprint = new( this, faceVertices );
 		_state = new FaceState( this );
@@ -28,6 +29,8 @@ public sealed class Face : IOcTreeLeaf<float> {
 	public uint Id => _id;
 
 	public AABB<Vector3<float>> Bounds => _blueprint.Bounds;
+
+	public GlobeModel Globe { get; }
 
 	internal void TriggerFaceStateChanged() {
 		if (!_transmitChanges)

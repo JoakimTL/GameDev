@@ -9,13 +9,11 @@ using Engine.Module.Render.Input;
 using Engine.Standard.Render.Entities.Services;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
-using System.Text;
 
 namespace Civlike.Client.Render.Ui;
 
 public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithMessageNodeBase( "ui_debug_popcenter" ) {
 
-	private Label _infoLabel = null!;
 	private InteractableButton[] _setNeighbourOwner = null!;
 	private InteractableButton _createNewOwner = null!;
 	private InteractableButton _removeOwner = null!;
@@ -24,15 +22,6 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	private bool _updatePlayerSelection = false;
 
 	protected override void Initialize() {
-		_infoLabel = new Label( this ) {
-			Text = "noupdate",
-			FontName = "COURBD",
-			TextScale = 0.15f,
-			Color = (1, 1, 1, 1),
-			HorizontalAlignment = Alignment.Negative,
-			VerticalAlignment = Alignment.Center
-		};
-		_infoLabel.Placement.Set( new( (1, -.1), 0, (1, .1) ), Alignment.Negative, Alignment.Positive );
 		_createNewOwner = new InteractableButton( this, "Create New Owner" );
 		_createNewOwner.Placement.Set( new( (.35, -.325), 0, (.35, .1) ), Alignment.Negative, Alignment.Positive );
 		_createNewOwner.OnClicked += OnNewOwnerClicked;
@@ -85,7 +74,6 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 		base.OnUpdate( time, deltaTime );
 		NeighbourButtonsUpdate();
 		PlayerListUpdate();
-		DisplayTileInformation();
 	}
 
 	private void PlayerListUpdate() {
@@ -119,13 +107,11 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	private void NeighbourButtonsUpdate() {
 		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
 		if (selectedTile is null) {
-			_infoLabel.Text = "No tile selected";
 			return;
 		}
 		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null) {
-			_infoLabel.Text = "No owner";
 			return;
 		}
 		List<FaceOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
@@ -144,40 +130,24 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 		}
 	}
 
-	private void DisplayTileInformation() {
-		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
-		if (selectedTile is null) {
-			_infoLabel.Text = "No tile selected";
-			return;
-		}
-
-		StringBuilder sb = new StringBuilder();
-		sb.AppendLine( $"Tile: {selectedTile.Id}" );
-		sb.AppendLine( $"Terrain: {selectedTile.State.TerrainType.Name}" );
-		sb.AppendLine( $"Seismic Activity: {selectedTile.State.SeismicActivity}" );
-		sb.AppendLine( $"Height: {selectedTile.State.Height}" );
-
-		_infoLabel.Text = sb.ToString();
-	}
-
 	private bool InternalShouldDisplay() {
 		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
-		if (selectedTile is null) 
+		if (selectedTile is null)
 			return false;
 		if (!selectedTile.State.TerrainType.Claimable)
 			return false;
 		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
-		if (container is null) 
+		if (container is null)
 			return false;
 		List<FaceOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
-		if (focs.Any(p => p.OwnedFaces.Contains( selectedTile ) ))
+		if (focs.Any( p => p.OwnedFaces.Contains( selectedTile ) ))
 			return false;
 		return true;
 	}
 
 	protected override bool ShouldDisplay() {
-		return InternalShouldDisplay();
+		return false;// InternalShouldDisplay();
 	}
 
 	protected override void OnMessageReceived( Message message ) {

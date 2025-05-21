@@ -27,7 +27,6 @@ public sealed class WorldGenerationParameters {
 		this.RevolutionsPerOrbit = RevolutionsPerSecond / OrbitsPerSecond;
 		this.ObliquityDegrees = obliquityDegrees;
 		this.PlayerCount = playerCount;
-		this.MoistureLoops = moistureLoops;
 	}
 
 	public uint Subdivisions { get; }
@@ -44,5 +43,4 @@ public sealed class WorldGenerationParameters {
 	public double RevolutionsPerOrbit { get; }
 	public double ObliquityDegrees { get; }
 	public uint PlayerCount { get; }
-	public uint MoistureLoops { get; }
 }
