@@ -91,7 +91,7 @@ public sealed class OldDebugFontGlyph : IOldGlyph {
 	}
 
 	public GlyphTriangle[] TriangulateGlyph() {
-		(Triangle2<float>, bool filled, bool flipped)[] t = CreateMeshTriangles( Scale, UseConstraints );
+		(Triangle2<float>, bool filled, bool flipped)[] t = CreateMeshTriangles( this.Scale, this.UseConstraints );
 		GlyphTriangle[] result = new GlyphTriangle[ t.Length ];
 		for (int i = 0; i < t.Length; i++)
 			result[ i ] = new GlyphTriangle( t[ i ].Item1, t[ i ].Item2, t[ i ].Item3 );
@@ -321,8 +321,8 @@ public sealed class OldDebugFontGlyph : IOldGlyph {
 		}
 
 		(double xPrime, double yPrime) TransformPoint( double x, double y ) {
-			double xPrime = iHat_x * x + jHat_x * y + offsetX;
-			double yPrime = iHat_y * x + jHat_y * y + offsetY;
+			double xPrime = (iHat_x * x) + (jHat_x * y) + offsetX;
+			double yPrime = (iHat_y * x) + (jHat_y * y) + offsetY;
 			return (xPrime, yPrime);
 		}
 	}

@@ -12,7 +12,7 @@ public sealed class FPSCounter : UserInterfaceElementBase {
 	private readonly double[] _samples = new double[ 30 ];
 
 	protected override void Initialize() {
-		_fpsLabel = new Label( this ) {
+		this._fpsLabel = new Label( this ) {
 			Text = "noupdate",
 			FontName = "COURBD",
 			TextScale = 0.15f,
@@ -20,22 +20,22 @@ public sealed class FPSCounter : UserInterfaceElementBase {
 			HorizontalAlignment = Alignment.Negative,
 			VerticalAlignment = Alignment.Negative
 		};
-		_fpsLabel.Placement.Set( new( (1, .1), 0, (1, .1) ), Alignment.Negative, Alignment.Negative );
+		this._fpsLabel.Placement.Set( new( (1, .1), 0, (1, .1) ), Alignment.Negative, Alignment.Negative );
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		_samples[ _sampleIndex++ ] = deltaTime;
-		if (_sampleIndex >= _samples.Length)
-			_sampleIndex = 0;
+		this._samples[ this._sampleIndex++ ] = deltaTime;
+		if (this._sampleIndex >= this._samples.Length)
+			this._sampleIndex = 0;
 		double sampleSum = 0;
-		for (int i = 0; i < _samples.Length; i++)
-			sampleSum += _samples[ i ];
-		double average = sampleSum / _samples.Length;
-		_fpsLabel.Text = $"Frametime: {average * 1000:#,##0.00} ms FPS: {1 / average:#,##0.0} f/s";
+		for (int i = 0; i < this._samples.Length; i++)
+			sampleSum += this._samples[ i ];
+		double average = sampleSum / this._samples.Length;
+		this._fpsLabel.Text = $"Frametime: {average * 1000:#,##0.00} ms FPS: {1 / average:#,##0.0} f/s";
 	}
 
 	protected override bool ShouldDisplay() {
-		return GameStateProvider.Get<bool>( UiElementConstants.ShowFPSCounter );
+		return this.GameStateProvider.Get<bool>( UiElementConstants.ShowFPSCounter );
 	}
 }
 

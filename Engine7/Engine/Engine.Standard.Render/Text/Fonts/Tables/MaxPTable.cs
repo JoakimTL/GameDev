@@ -27,19 +27,19 @@ public sealed class MaxPTable : FontTable {
 		FontCaretedDataReader caret = new( reader );
 		caret.GoTo( header.Offset );
 		caret.MoveCaretBy( 4 ); //version
-		MaxGlyphs = caret.Read<ushort>();
-		MaxPoints = caret.Read<ushort>();
-		MaxContours = caret.Read<ushort>();
-		MaxComponentPoints = caret.Read<ushort>();
-		MaxComponentContours = caret.Read<ushort>();
-		MaxZones = caret.Read<ushort>();
-		MaxTwilightPoints = caret.Read<ushort>();
-		MaxStorage = caret.Read<ushort>();
-		MaxFunctionDefs = caret.Read<ushort>();
-		MaxInstructionDefs = caret.Read<ushort>();
-		MaxStackElements = caret.Read<ushort>();
-		MaxSizeOfInstructions = caret.Read<ushort>();
-		MaxComponentElements = caret.Read<ushort>();
-		MaxComponentDepth = caret.Read<ushort>();
+		this.MaxGlyphs = caret.Read<ushort>();
+		this.MaxPoints = caret.Read<ushort>();
+		this.MaxContours = caret.Read<ushort>();
+		this.MaxComponentPoints = caret.Read<ushort>();
+		this.MaxComponentContours = caret.Read<ushort>();
+		this.MaxZones = caret.Read<ushort>();
+		this.MaxTwilightPoints = caret.Read<ushort>();
+		this.MaxStorage = caret.Read<ushort>();
+		this.MaxFunctionDefs = caret.Read<ushort>();
+		this.MaxInstructionDefs = caret.Read<ushort>();
+		this.MaxStackElements = caret.Read<ushort>();
+		this.MaxSizeOfInstructions = caret.Read<ushort>();
+		this.MaxComponentElements = caret.Read<ushort>();
+		this.MaxComponentDepth = caret.Read<ushort>();
 	}
 }

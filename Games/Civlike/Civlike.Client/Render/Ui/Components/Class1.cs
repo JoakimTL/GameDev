@@ -9,10 +9,10 @@ public sealed class PlayerChoiceButton : ValueDisplayComponentBase<PlayerChoiceB
 	private readonly VisualButton _visuals;
 
 	public PlayerChoiceButton( UserInterfaceElementBase element, PlayerChoice? value ) : base( element, value ) {
-		_visuals = AddChild( new VisualButton( element, value?.ToString() ?? "No value", "calibrib" ) );
-		_visuals.Background.Color = value?.Color.CastSaturating<float, double>() ?? 1;
+		this._visuals = AddChild( new VisualButton( element, value?.ToString() ?? "No value", "calibrib" ) );
+		this._visuals.Background.Color = value?.Color.CastSaturating<float, double>() ?? 1;
 
-		ClickEnabled = true;
+		this.ClickEnabled = true;
 		OnMouseEntered += DefaultOnEnter;
 		OnMouseExited += DefaultOnExit;
 		OnPressed += DefaultOnPressed;

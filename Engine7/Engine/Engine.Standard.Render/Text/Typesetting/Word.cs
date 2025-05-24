@@ -14,17 +14,17 @@ public sealed class Word {
 		for (; len < text.Length; len++) {
 			char c = text[ len ];
 			if (IsWordBreak( c )) {
-				EndCharacter = c;
+				this.EndCharacter = c;
 				break;
 			}
 			charsInWord[ len ] = c;
 		}
 
-		Characters = new string( charsInWord[ ..len ] );
+		this.Characters = new string( charsInWord[ ..len ] );
 
-		ScaledWidth = 0;
-		for (int i = 0; i < Characters.Length; i++)
-			ScaledWidth += (font[ Characters[ i ] ]?.Advance ?? 0) * realScale;
+		this.ScaledWidth = 0;
+		for (int i = 0; i < this.Characters.Length; i++)
+			this.ScaledWidth += (font[ this.Characters[ i ] ]?.Advance ?? 0) * realScale;
 
 		return len;
 	}

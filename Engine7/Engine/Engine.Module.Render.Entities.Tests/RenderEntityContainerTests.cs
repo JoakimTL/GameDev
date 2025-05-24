@@ -104,7 +104,7 @@ public class RenderEntityContainerTests {
 		entity.AddComponent<RenderComponent>();
 
 		IInstanceProvider instanceProvider = InstanceManagement.CreateProvider( false );
-		var sec = new SynchronizedEntityContainer( container, instanceProvider.Get<SerializerProvider>() );
+		SynchronizedEntityContainer sec = new SynchronizedEntityContainer( container, instanceProvider.Get<SerializerProvider>() );
 
 		Assert.That( sec.IncomingEntities, Is.EqualTo( 1 ) );
 

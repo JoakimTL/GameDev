@@ -30,53 +30,53 @@ public abstract class InteractableUserInterfaceComponentBase<TSelf> : UserInterf
 	public bool HoveredPress { get; protected set; }
 
 	public InteractableUserInterfaceComponentBase( UserInterfaceElementBase element ) : base( element ) {
-		Collider = new Collider2Shape();
-		Collider.SetBaseVertices( [ (-1, -1), (1, -1), (1, 1), (-1, 1) ] );
-		Collider.SetTransform( TransformInterface );
-		Collision = new Collision2Calculation<double>( Collider, element.UserInterfaceServiceAccess.Get<MouseColliderProvider>().ColliderNDCA );
+		this.Collider = new Collider2Shape();
+		this.Collider.SetBaseVertices( [ (-1, -1), (1, -1), (1, 1), (-1, 1) ] );
+		this.Collider.SetTransform( this.TransformInterface );
+		this.Collision = new Collision2Calculation<double>( this.Collider, element.UserInterfaceServiceAccess.Get<MouseColliderProvider>().ColliderNDCA );
 	}
 
 	protected override bool DoOnMouseMoved( MouseMoveEvent @event ) {
-		if (!Collision.Evaluate())
+		if (!this.Collision.Evaluate())
 			this.LogWarning( "Collision calculation failed." );
-		bool wasHovering = Hovering;
-		Hovering = Collision.CollisionResult.IsColliding;
-		if (wasHovering != Hovering) {
-			if (Hovering) {
+		bool wasHovering = this.Hovering;
+		this.Hovering = this.Collision.CollisionResult.IsColliding;
+		if (wasHovering != this.Hovering) {
+			if (this.Hovering) {
 				OnMouseEntered?.Invoke( (TSelf) this, @event );
 			} else {
 				OnMouseExited?.Invoke( (TSelf) this, @event );
 			}
 		}
-		if (Hovering)
+		if (this.Hovering)
 			OnMouseMovedInside?.Invoke( (TSelf) this, @event );
 		return false;
 	}
 
 	protected override bool DoOnMouseButton( MouseButtonEvent @event ) {
-		if (!ClickEnabled)
+		if (!this.ClickEnabled)
 			return false;
-		if (ClickButton.HasValue && ClickButton.Value != @event.Button)
-			return Hovering;
-		if (@event.InputType == TactileInputType.Press && Hovering && (!ClickButton.HasValue || ClickButton.Value == @event.Button)) {
+		if (this.ClickButton.HasValue && this.ClickButton.Value != @event.Button)
+			return this.Hovering;
+		if (@event.InputType == TactileInputType.Press && this.Hovering && (!this.ClickButton.HasValue || this.ClickButton.Value == @event.Button)) {
 			OnPressed?.Invoke( (TSelf) this, @event );
-			HoveredPress = true;
-			return Hovering;
+			this.HoveredPress = true;
+			return this.Hovering;
 		}
-		if (@event.InputType == TactileInputType.Release && HoveredPress && (!ClickButton.HasValue || ClickButton.Value == @event.Button)) {
+		if (@event.InputType == TactileInputType.Release && this.HoveredPress && (!this.ClickButton.HasValue || this.ClickButton.Value == @event.Button)) {
 			OnReleased?.Invoke( (TSelf) this, @event );
-			if (Hovering)
+			if (this.Hovering)
 				OnClicked?.Invoke( (TSelf) this, @event );
-			HoveredPress = false;
-			return Hovering;
+			this.HoveredPress = false;
+			return this.Hovering;
 		}
-		return Hovering;
+		return this.Hovering;
 	}
 
 	protected override bool DoOnMouseWheelScrolled( MouseWheelEvent @event ) {
-		if (!ScrollEnabled)
+		if (!this.ScrollEnabled)
 			return false;
-		if (Hovering) {
+		if (this.Hovering) {
 			OnScrolled?.Invoke( (TSelf) this, @event );
 			return true;
 		}
@@ -89,8 +89,8 @@ public sealed class InteractableButton : InteractableUserInterfaceComponentBase<
 	public Label Label { get; }
 
 	public InteractableButton( UserInterfaceElementBase element, string text ) : base( element ) {
-		Background = AddChild( new TexturedNineSlicedBackground( element, element.UserInterfaceServiceAccess.Textures.Get( "test" ) ) );
-		Label = AddChild( new Label( element ) {
+		this.Background = AddChild( new TexturedNineSlicedBackground( element, element.UserInterfaceServiceAccess.Textures.Get( "test" ) ) );
+		this.Label = AddChild( new Label( element ) {
 			Text = text,
 			FontName = DefaultFontName,
 			TextScale = 0.5f,
@@ -99,7 +99,7 @@ public sealed class InteractableButton : InteractableUserInterfaceComponentBase<
 			VerticalAlignment = Alignment.Center
 		} );
 
-		ClickEnabled = true;
+		this.ClickEnabled = true;
 		OnMouseEntered += DefaultOnEnter;
 		OnMouseExited += DefaultOnExit;
 		OnPressed += DefaultOnPressed;

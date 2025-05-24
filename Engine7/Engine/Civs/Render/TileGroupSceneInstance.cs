@@ -18,7 +18,7 @@ public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
 		for (int i = 0; i < faces.Count; i++) {
-			var face = faces[i ];
+			Face face = faces[i ];
 			Vector3<float> a = face.Blueprint.VectorA;
 			Vector3<float> b = face.Blueprint.VectorB;
 			Vector3<float> c = face.Blueprint.VectorC;

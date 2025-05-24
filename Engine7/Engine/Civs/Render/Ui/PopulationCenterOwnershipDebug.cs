@@ -91,25 +91,25 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 			return;
 		_updatePlayerSelection = false;
 
-		var container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
+		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null)
 			return;
 
-		var players = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<PlayerComponent>() ).OfType<PlayerComponent>().ToList();
-		var playerIds = players.Select( p => p.Entity.EntityId ).ToList();
-		var currentDisplayedPlayers = _playerSelection.DataSource.Select( p => p.PlayerId ).ToList();
+		List<PlayerComponent> players = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<PlayerComponent>() ).OfType<PlayerComponent>().ToList();
+		List<Guid> playerIds = players.Select( p => p.Entity.EntityId ).ToList();
+		List<Guid> currentDisplayedPlayers = _playerSelection.DataSource.Select( p => p.PlayerId ).ToList();
 
-		var newPlayers = playerIds.Except( currentDisplayedPlayers );
-		var removedPlayers = currentDisplayedPlayers.Except( playerIds );
+		IEnumerable<Guid> newPlayers = playerIds.Except( currentDisplayedPlayers );
+		IEnumerable<Guid> removedPlayers = currentDisplayedPlayers.Except( playerIds );
 
-		foreach (var playerId in removedPlayers) {
-			var playerChoice = _playerSelection.DataSource.FirstOrDefault( p => p.PlayerId == playerId );
+		foreach (Guid playerId in removedPlayers) {
+			PlayerChoice? playerChoice = _playerSelection.DataSource.FirstOrDefault( p => p.PlayerId == playerId );
 			if (playerChoice is not null)
 				_playerSelection.DataSource.Remove( playerChoice );
 		}
-		foreach (var playerId in newPlayers) {
-			var player = players.FirstOrDefault( p => p.Entity.EntityId == playerId ) ?? throw new InvalidOperationException( $"Player with id {playerId} not found" );
+		foreach (Guid playerId in newPlayers) {
+			PlayerComponent player = players.FirstOrDefault( p => p.Entity.EntityId == playerId ) ?? throw new InvalidOperationException( $"Player with id {playerId} not found" );
 			_playerSelection.DataSource.Add( new PlayerChoice( playerId, player.Name, player.MapColor ) );
 		}
 	}
@@ -120,18 +120,18 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 			_ownerLabel.Text = "No tile selected";
 			return;
 		}
-		var container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
+		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null) {
 			_ownerLabel.Text = "No owner";
 			return;
 		}
-		var focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
-		var neighbours = selectedTile.Blueprint.Connections.Select( p => p.GetOther( selectedTile ) ).ToList();
+		List<FaceOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		List<Face> neighbours = selectedTile.Blueprint.Connections.Select( p => p.GetOther( selectedTile ) ).ToList();
 		for (int i = 0; i < neighbours.Count; i++) {
-			var neighbourFace = neighbours[ i ];
-			var neighbourOwner = focs.FirstOrDefault( p => p.OwnedFaces.Contains( neighbourFace ) );
-			var button = _setNeighbourOwner[ i ];
+			Face neighbourFace = neighbours[ i ];
+			FaceOwnershipComponent? neighbourOwner = focs.FirstOrDefault( p => p.OwnedFaces.Contains( neighbourFace ) );
+			InteractableButton button = _setNeighbourOwner[ i ];
 			if (neighbourOwner is not null) {
 				button.Label.Text = $"Give";
 				button.Background.Color = neighbourOwner.Entity.Parent?.GetComponentOrDefault<PlayerComponent>()?.MapColor.CastSaturating<float, double>() ?? Vector4<double>.One;
@@ -146,11 +146,11 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
 		if (selectedTile is null) 
 			return false;
-		var container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
+		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null) 
 			return false;
-		var focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		List<FaceOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
 		if (focs.Any(p => p.OwnedFaces.Contains( selectedTile ) ))
 			return false;
 		return true;

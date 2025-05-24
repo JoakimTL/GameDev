@@ -8,17 +8,17 @@ public sealed class FontCompoundGlyph : IGlyph {
 	private readonly List<IGlyph> _componentGlyphs;
 
 	public FontCompoundGlyph( CompoundGlyphData glyphData, Matrix2x2<float> transformationMatrix, Vector2<float> offset ) {
-		_glyphData = glyphData;
-		_componentGlyphs = [];
-		foreach (CompoundGlyphComponentData component in _glyphData.ComponentGlyphData)
-			_componentGlyphs.Add( Font.CreateGlyph( component.Glyph, transformationMatrix * component.TransformationMatrix, offset + component.Offset ) );
+		this._glyphData = glyphData;
+		this._componentGlyphs = [];
+		foreach (CompoundGlyphComponentData component in this._glyphData.ComponentGlyphData)
+			this._componentGlyphs.Add( Font.CreateGlyph( component.Glyph, transformationMatrix * component.TransformationMatrix, offset + component.Offset ) );
 	}
 
-	public IGlyphData GlyphData => _glyphData;
+	public IGlyphData GlyphData => this._glyphData;
 
 	public GlyphTriangle[] TriangulateGlyph() {
 		List<GlyphTriangle> triangles = [];
-		foreach (IGlyph component in _componentGlyphs)
+		foreach (IGlyph component in this._componentGlyphs)
 			triangles.AddRange( component.TriangulateGlyph() );
 		return [ .. triangles ];
 	}

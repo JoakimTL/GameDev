@@ -17,15 +17,15 @@ public sealed class DropdownMenu<TDisplay, TValue> : UserInterfaceComponentBase 
 	public event Action<TValue?>? OnValueSelected;
 
 	public DropdownMenu( UserInterfaceElementBase element ) : base( element ) {
-		_dataSource = [];
-		_headerButton = AddChild( new InteractableButton( element, "Header" ) );
-		_headerButton.OnClicked += OnHeaderClicked;
-		_selectionButtons = AddChild( new ScrollableList<TDisplay, TValue>( element ) );
-		Vector2<double> squaringScale = Placement.GetSquaringScale();
-		_selectionButtons.Placement.Set( new( (0, -squaringScale.Y), 0, squaringScale ), Alignment.Center, Alignment.Negative );
-		_selectionButtons.DisplayAdded += OnSelectionButtonAdded;
-		_selectionButtons.DisplayRemoved += OnSelectionButtonRemoved;
-		_dataSource.CollectionChanged += OnDataSourceChanged;
+		this._dataSource = [];
+		this._headerButton = AddChild( new InteractableButton( element, "Header" ) );
+		this._headerButton.OnClicked += OnHeaderClicked;
+		this._selectionButtons = AddChild( new ScrollableList<TDisplay, TValue>( element ) );
+		Vector2<double> squaringScale = this.Placement.GetSquaringScale();
+		this._selectionButtons.Placement.Set( new( (0, -squaringScale.Y), 0, squaringScale ), Alignment.Center, Alignment.Negative );
+		this._selectionButtons.DisplayAdded += OnSelectionButtonAdded;
+		this._selectionButtons.DisplayRemoved += OnSelectionButtonRemoved;
+		this._dataSource.CollectionChanged += OnDataSourceChanged;
 	}
 
 
@@ -38,46 +38,46 @@ public sealed class DropdownMenu<TDisplay, TValue> : UserInterfaceComponentBase 
 	}
 
 	private void ValueSelected( TDisplay component, MouseButtonEvent mouseButtonEvent ) {
-		_selectedValue = component.Value;
-		_headerButton.Label.Text = _selectedValue?.ToString() ?? "Select...";
-		OnValueSelected?.Invoke( _selectedValue );
+		this._selectedValue = component.Value;
+		this._headerButton.Label.Text = this._selectedValue?.ToString() ?? "Select...";
+		OnValueSelected?.Invoke( this._selectedValue );
 	}
 
 	private void OnHeaderClicked( InteractableButton component, MouseButtonEvent mouseButtonEvent ) {
-		_selectionButtons.ToggleDisplayed();
+		this._selectionButtons.ToggleDisplayed();
 	}
 
 	private void OnDataSourceChanged( object? sender, NotifyCollectionChangedEventArgs e ) {
-		_needsUpdate = true;
+		this._needsUpdate = true;
 	}
 
-	public IList<TValue> DataSource => _dataSource;
+	public IList<TValue> DataSource => this._dataSource;
 
 	public TValue? SelectedValue {
-		get => _selectedValue;
+		get => this._selectedValue;
 		set => SetSelectedValue( value );
 	}
 
 	private void SetSelectedValue( TValue? value ) {
-		if (EqualityComparer<TValue>.Default.Equals( _selectedValue, value ))
+		if (EqualityComparer<TValue>.Default.Equals( this._selectedValue, value ))
 			return;
-		_selectedValue = value;
-		_valueChanged = true;
+		this._selectedValue = value;
+		this._valueChanged = true;
 	}
 
 	protected override void OnPlacementChanged() {
-		Vector2<double> squaringScale = Placement.GetSquaringScale();
-		_selectionButtons.Placement.Set( new( (0, -squaringScale.Y), 0, squaringScale ), Alignment.Center, Alignment.Negative );
+		Vector2<double> squaringScale = this.Placement.GetSquaringScale();
+		this._selectionButtons.Placement.Set( new( (0, -squaringScale.Y), 0, squaringScale ), Alignment.Center, Alignment.Negative );
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		if (_valueChanged) {
-			_valueChanged = false;
-			_headerButton.Label.Text = _selectedValue?.ToString() ?? "Select...";
+		if (this._valueChanged) {
+			this._valueChanged = false;
+			this._headerButton.Label.Text = this._selectedValue?.ToString() ?? "Select...";
 		}
-		if (_needsUpdate) {
-			_needsUpdate = false;
-			_selectionButtons.SetChoicesTo( _dataSource );
+		if (this._needsUpdate) {
+			this._needsUpdate = false;
+			this._selectionButtons.SetChoicesTo( this._dataSource );
 		}
 	}
 

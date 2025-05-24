@@ -16,5 +16,5 @@ public readonly struct Entity2SlicedTexturedSceneData( Matrix4x4<float> modelMat
 	[VAO.Data( VertexAttribType.Float, 4 ), FieldOffset( 88 )]
 	public readonly Vector4<float> SliceUv = (sliceUvOffset.X, sliceUvOffset.Y, sliceUvDimensions.X, sliceUvDimensions.Y);
 
-	public override readonly string ToString() => $"{this.ModelMatrix} {Color} {TextureId} {SliceUv}";
+	public override readonly string ToString() => $"{this.ModelMatrix} {this.Color} {this.TextureId} {this.SliceUv}";
 }

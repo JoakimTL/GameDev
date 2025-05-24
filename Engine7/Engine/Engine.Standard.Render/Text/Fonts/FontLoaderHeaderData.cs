@@ -7,7 +7,7 @@ public sealed class FontLoaderHeaderData {
 
 	public FontLoaderHeaderData( FontDataReader dataReader ) {
 		FontCaretedDataReader caret = new( dataReader );
-		_fontOffsetSubTable = ReadFontOffsetSubtable( caret );
+		this._fontOffsetSubTable = ReadFontOffsetSubtable( caret );
 		for (int i = 0; i < this._fontOffsetSubTable.NumTables; i++) {
 			FontTableHeader table = ReadFontTableHeader( caret );
 			this._tables.Add( table.Tag, table );

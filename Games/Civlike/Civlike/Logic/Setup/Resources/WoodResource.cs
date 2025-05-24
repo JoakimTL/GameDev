@@ -1,5 +1,4 @@
-﻿using Civlike.Logic.Setup;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace Civlike.Logic.Setup.Resources;
 

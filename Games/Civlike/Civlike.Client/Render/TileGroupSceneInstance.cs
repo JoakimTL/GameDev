@@ -1,28 +1,33 @@
-﻿using Civlike.World;
+﻿using Civlike.World.GameplayState;
 using Engine;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Providers;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render;
+using System.Runtime.CompilerServices;
 
 namespace Civlike.Client.Render;
 
 public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity3SceneData ) ) {
-	public void UpdateMesh( IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
-		Mesh?.Dispose();
-		SetMesh( CreateMesh( faces, meshProvider, overrideColor ) );
+	public void UpdateMesh( Globe globe, IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
+		this.Mesh?.Dispose();
+		SetMesh( CreateMesh( globe, faces, meshProvider, overrideColor ) );
 	}
 
-	private IMesh CreateMesh( IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
+	private static IMesh CreateMesh( Globe globe, IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
+		float globeRadius = (float) globe.Radius;
 		for (int i = 0; i < faces.Count; i++) {
 			Face face = faces[ i ];
-			Vector3<float> a = face.Blueprint.VectorA;
-			Vector3<float> b = face.Blueprint.VectorB;
-			Vector3<float> c = face.Blueprint.VectorC;
-			Vector4<byte> color = ((overrideColor ?? face.State.TerrainType.Color) * 255)
+			Vertex vertexA = face.Blueprint.Vertices[ 0 ];
+			Vertex vertexB = face.Blueprint.Vertices[ 1 ];
+			Vertex vertexC = face.Blueprint.Vertices[ 2 ];
+			Vector3<float> a = vertexA.Vector * ((vertexA.Height + globeRadius) / globeRadius);
+			Vector3<float> b = vertexB.Vector * ((vertexB.Height + globeRadius) / globeRadius);
+			Vector3<float> c = vertexC.Vector * ((vertexC.Height + globeRadius) / globeRadius);
+			Vector4<byte> color = ((overrideColor ?? face.State /*.TerrainType*/.Color) * 255)
 				.Clamp<Vector4<float>, float>( 0, 255 )
 				.CastSaturating<float, byte>();
 

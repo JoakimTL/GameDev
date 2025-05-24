@@ -10,20 +10,20 @@ public sealed class ClusterVisibilityRenderBehaviour : DependentRenderBehaviourB
 	public event Action? VisibilityChanged;
 
 	public override void Update( double time, double deltaTime ) {
-		CheckVisibilityAgainstCameraTranslation( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation.Normalize<Vector3<float>, float>(), RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.Matrix );
+		CheckVisibilityAgainstCameraTranslation( this.RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation.Normalize<Vector3<float>, float>(), this.RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.Matrix );
 	}
 
 	public void SetVisibility( bool visible ) {
-		if (IsVisible == visible)
+		if (this.IsVisible == visible)
 			return;
-		IsVisible = visible;
+		this.IsVisible = visible;
 		VisibilityChanged?.Invoke();
 	}
 
 	public void CheckVisibilityAgainstCameraTranslation( Vector3<float> normalizedTranslation, Matrix4x4<float> viewProjectionMatrix ) {
 		bool shouldBeVisible = false;
 
-		AABB<Vector3<float>> bounds = Archetype.ClusterComponent.Bounds;
+		AABB<Vector3<float>> bounds = this.Archetype.ClusterComponent.Bounds;
 		Vector3<float> min = bounds.Minima;
 		Vector3<float> max = bounds.Maxima;
 

@@ -13,10 +13,10 @@ public abstract class SelfIdentifyingBase {
 		GuidAttribute guidAttribute = TypeManager.ResolveType( GetType() ).GetAttribute<GuidAttribute>();
 		string guidString = guidAttribute.Value;
 		this.Id = new( guidString );
-		MemoryId = 0;
+		this.MemoryId = 0;
 	}
 
 	public override string ToString() => GetType().Name;
-	public override bool Equals( object? obj ) => obj is SelfIdentifyingBase other && other.Id == Id;
-	public override int GetHashCode() => Id.GetHashCode();
+	public override bool Equals( object? obj ) => obj is SelfIdentifyingBase other && other.Id == this.Id;
+	public override int GetHashCode() => this.Id.GetHashCode();
 }

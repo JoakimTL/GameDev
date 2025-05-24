@@ -8,7 +8,7 @@ public sealed class PrimitiveMesh2Provider( MeshService meshService ) : IService
 
 	private FrozenDictionary<Primitive2, ReadOnlyVertexMesh<Vertex2>> _primitives = new Dictionary<Primitive2, ReadOnlyVertexMesh<Vertex2>>().ToFrozenDictionary();
 
-	public IMesh Get( Primitive2 primitive ) => _primitives[ primitive ];
+	public IMesh Get( Primitive2 primitive ) => this._primitives[ primitive ];
 
 	public void Initialize() {
 		Dictionary<Primitive2, ReadOnlyVertexMesh<Vertex2>> primitives = new() {
@@ -29,6 +29,6 @@ public sealed class PrimitiveMesh2Provider( MeshService meshService ) : IService
 			}
 		};
 
-		_primitives = primitives.ToFrozenDictionary();
+		this._primitives = primitives.ToFrozenDictionary();
 	}
 }

@@ -33,10 +33,10 @@ public sealed class EntitySerializer( SerializerProvider serializerProvider ) : 
 		Desegmenter desegmenter = new();
 		Span<byte> output = stackalloc byte[ serializedData.DetermineSpanLength() ];
 		bool hasComponents = desegmenter.ReadInto( serializedData, output, out int readBytes );
-		var entityId = MemoryMarshal.Read<Guid>( output[ ..16 ] );
+		Guid entityId = MemoryMarshal.Read<Guid>( output[ ..16 ] );
 		if (target.EntityId != entityId)
 			throw new Exception( "Entity ID does not match." );
-		var parentId = MemoryMarshal.Read<Guid>( output[ 16.. ] );
+		Guid parentId = MemoryMarshal.Read<Guid>( output[ 16.. ] );
 		if ((target.ParentId ?? Guid.Empty) != parentId)
 			throw new Exception( "Parent ID does not match." );
 		if (!hasComponents)

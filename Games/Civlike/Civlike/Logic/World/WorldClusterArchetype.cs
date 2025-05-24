@@ -1,5 +1,4 @@
 ﻿using Engine.Module.Entities.Container;
-using Engine.Standard.Entities.Components;
 
 namespace Civlike.Logic.World;
 

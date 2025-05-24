@@ -22,7 +22,7 @@ public abstract class RenderModuleBase : ModuleBase {
 		this.InstanceProvider.Get<ContextManagementService>().CreateContext( new WindowSettings { DisplayMode = new WindowedDisplayMode( (800, 600) ), Title = "Engine", VSyncLevel = 1 } );
 	}
 
-	private void InternalContextAdded( Context context ) => context.InstanceProvider.Inject( InstanceProvider.Get<GameStateProvider>(), true );
+	private void InternalContextAdded( Context context ) => context.InstanceProvider.Inject( this.InstanceProvider.Get<GameStateProvider>(), true );
 
 	protected void CheckShutdownConditions( double time, double deltaTime ) {
 		if (this.InstanceProvider.Get<ContextManagementService>().ShouldStop)

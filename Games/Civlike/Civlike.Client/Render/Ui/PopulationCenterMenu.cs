@@ -1,5 +1,5 @@
 ﻿using Civlike.Logic.Nations;
-using Civlike.World;
+using Civlike.World.GameplayState;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Entities.Providers;
@@ -13,15 +13,15 @@ public sealed class PopulationCenterMenu() : UserInterfaceElementWithMessageNode
 	private Label _populationCenterNameLabel = null!;
 
 	protected override void Initialize() {
-		_populationCenterNameLabel = new Label( this ) {
-			Text = "noupdate",
+		this._populationCenterNameLabel = new Label( this ) {
+			Text = "No update",
 			FontName = "calibrib",
 			TextScale = 0.5f,
 			Color = (1, 1, 1, 1),
 			HorizontalAlignment = Alignment.Center,
 			VerticalAlignment = Alignment.Negative
 		};
-		_populationCenterNameLabel.Placement.Set( new( (0, -.1), 0, (.4, .1) ), Alignment.Center, Alignment.Positive );
+		this._populationCenterNameLabel.Placement.Set( new( (0, -.1), 0, (.4, .1) ), Alignment.Center, Alignment.Positive );
 
 	}
 
@@ -33,10 +33,10 @@ public sealed class PopulationCenterMenu() : UserInterfaceElementWithMessageNode
 		base.OnUpdate( time, deltaTime );
 		FaceOwnershipComponent? populationCenter = GetSelectedTileOwner();
 		if (populationCenter is null) {
-			_populationCenterNameLabel.Text = "No population center selected";
+			this._populationCenterNameLabel.Text = "No population center selected";
 			return;
 		}
-		_populationCenterNameLabel.Text = $"{populationCenter.Entity.GetComponentOrDefault<PopulationCenterComponent>()?.Name ?? $"Missing {nameof( PopulationCenterComponent )}!"}";
+		this._populationCenterNameLabel.Text = $"{populationCenter.Entity.GetComponentOrDefault<PopulationCenterComponent>()?.Name ?? $"Missing {nameof( PopulationCenterComponent )}!"}";
 	}
 
 	protected override bool ShouldDisplay() {
@@ -44,18 +44,18 @@ public sealed class PopulationCenterMenu() : UserInterfaceElementWithMessageNode
 	}
 
 	private FaceOwnershipComponent? GetSelectedTileOwner() {
-		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
+		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" );
 		if (selectedTile is null)
 			return null;
-		Guid? localPlayer = GameStateProvider.Get<Guid?>( "localPlayerId" );
+		Guid? localPlayer = this.GameStateProvider.Get<Guid?>( "localPlayerId" );
 		if (!localPlayer.HasValue)
 			return null;
-		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
+		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = this.UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null)
 			return null;
-		List<Engine.Module.Entities.Container.SynchronizedEntity> entitiesOwnedByPlayer = container.SynchronizedEntities.Where( p => p.EntityCopy?.ParentId == localPlayer.Value ).ToList();
-		List<FaceOwnershipComponent> focs = entitiesOwnedByPlayer.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		List<Engine.Module.Entities.Container.SynchronizedEntity> entitiesOwnedByPlayer = [ .. container.SynchronizedEntities.Where( p => p.EntityCopy?.ParentId == localPlayer.Value ) ];
+		List<FaceOwnershipComponent> focs = [ .. entitiesOwnedByPlayer.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>() ];
 		return focs.FirstOrDefault( p => p.OwnedFaces.Contains( selectedTile ) );
 	}
 }

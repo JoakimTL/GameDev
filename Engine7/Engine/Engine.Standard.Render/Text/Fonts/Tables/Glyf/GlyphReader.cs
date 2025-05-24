@@ -14,29 +14,29 @@ public sealed class GlyphReader {
 		this._locaTable = locaTable;
 		this._cmapTable = cmapTable;
 		this._reader = reader;
-		_glyphDataByIndex = [];
-		_compoundGlyphReader = new( this );
+		this._glyphDataByIndex = [];
+		this._compoundGlyphReader = new( this );
 	}
 
 	public IGlyphData GetGlyphData( uint glyphIndex ) {
-		if (_glyphDataByIndex.TryGetValue( glyphIndex, out IGlyphData? glyphData ))
+		if (this._glyphDataByIndex.TryGetValue( glyphIndex, out IGlyphData? glyphData ))
 			return glyphData;
 
-		FontCaretedDataReader caret = new( _reader );
-		caret.GoTo( _glyfTableHeader.Offset );
-		caret.MoveCaretBy( (int) _locaTable.GlyphLocationOffsetBytes[ (int) glyphIndex ] );
+		FontCaretedDataReader caret = new( this._reader );
+		caret.GoTo( this._glyfTableHeader.Offset );
+		caret.MoveCaretBy( (int) this._locaTable.GlyphLocationOffsetBytes[ (int) glyphIndex ] );
 
 		FontGlyphHeader header = new( caret.Read<short>(), caret.Read<short>(), caret.Read<short>(), caret.Read<short>(), caret.Read<short>() );
-		if (!_cmapTable.GlyphMapByGlyphIndex.TryGetValue( glyphIndex, out GlyphMap glyphMap ))
+		if (!this._cmapTable.GlyphMapByGlyphIndex.TryGetValue( glyphIndex, out GlyphMap glyphMap ))
 			glyphMap = new GlyphMap( glyphIndex, 65535 );
 
 		glyphData = header.NumberOfContours < 0
-			? _compoundGlyphReader.Read( header, glyphMap, caret )
+			? this._compoundGlyphReader.Read( header, glyphMap, caret )
 			: ElementalGlyphReader.Read( header, glyphMap, caret );
-		_glyphDataByIndex[ glyphIndex ] = glyphData;
+		this._glyphDataByIndex[ glyphIndex ] = glyphData;
 
 		return glyphData;
 	}
 
-	public IEnumerable<IGlyphData> Glyphs => _glyphDataByIndex.Values;
+	public IEnumerable<IGlyphData> Glyphs => this._glyphDataByIndex.Values;
 }

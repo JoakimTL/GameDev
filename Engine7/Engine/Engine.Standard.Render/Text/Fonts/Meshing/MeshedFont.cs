@@ -14,16 +14,16 @@ public sealed class MeshedFont : DisposableIdentifiable {
 	public MeshedFont( Font font, MeshService meshService ) {
 		this._meshService = meshService;
 		this.Font = font;
-		Nickname = font.FontName;
+		this.Nickname = font.FontName;
 	}
 
 	public GlyphMesh? this[ char c ] => GetOrCreateGlyphMesh( c );
 
 	private GlyphMesh? GetOrCreateGlyphMesh( char c ) {
 		GlyphMesh? mesh = this._cachedMeshes[ c ];
-		if (mesh is not null || _loaded[ c ])
+		if (mesh is not null || this._loaded[ c ])
 			return mesh;
-		_loaded[ c ] = true;
+		this._loaded[ c ] = true;
 		this.LogLine( $"Loaded mesh for {c}.", Log.Level.VERBOSE );
 		DefinedGlyph? glyphDefinition = this.Font[ c ];
 		if (glyphDefinition is null) {

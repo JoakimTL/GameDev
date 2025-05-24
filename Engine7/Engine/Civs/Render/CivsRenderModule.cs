@@ -71,13 +71,13 @@ public sealed class CameraPanOnTribeCreated( CameraService cameraService, Active
 	public void Update( double time, double deltaTime ) {
 		if (!_newGlobe)
 			return;
-		var container = _synchronizedEntityContainerProvider.SynchronizedContainers.FirstOrDefault();
+		SynchronizedEntityContainer? container = _synchronizedEntityContainerProvider.SynchronizedContainers.FirstOrDefault();
 		if (container is null)
 			return;
-		var localPlayer = _gameStateProvider.Get<Guid?>( "localPlayerId" );
+		Guid? localPlayer = _gameStateProvider.Get<Guid?>( "localPlayerId" );
 		if (!localPlayer.HasValue)
 			return;
-		var popCenter = container.SynchronizedEntities
+		Entity? popCenter = container.SynchronizedEntities
 			.Select( p => p.EntityCopy )
 			.OfType<Entity>()
 			.Where( p => p.ParentId == localPlayer.Value && p.IsArchetype<PopulationCenterArchetype>() )

@@ -5,8 +5,8 @@ public sealed class VisualButton : UserInterfaceComponentBase {
 	public Label Label { get; }
 
 	public VisualButton( UserInterfaceElementBase element, string text, string fontName ) : base( element ) {
-		Background = AddChild( new TexturedNineSlicedBackground( element, element.UserInterfaceServiceAccess.Textures.Get( "test" ) ) );
-		Label = AddChild( new Label( element ) {
+		this.Background = AddChild( new TexturedNineSlicedBackground( element, element.UserInterfaceServiceAccess.Textures.Get( "test" ) ) );
+		this.Label = AddChild( new Label( element ) {
 			Text = text,
 			FontName = fontName,
 			TextScale = 0.5f,

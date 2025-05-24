@@ -7,10 +7,10 @@ public sealed class GlyphMesh : DisposableIdentifiable, IMesh {
 
 	public event Action? OnOffsetChanged;
 
-	public Type VertexType => _mesh.VertexType;
-	public uint ElementCount => _mesh.ElementCount;
-	public uint ElementOffset => _mesh.ElementOffset;
-	public uint VertexOffset => _mesh.VertexOffset;
+	public Type VertexType => this._mesh.VertexType;
+	public uint ElementCount => this._mesh.ElementCount;
+	public uint ElementOffset => this._mesh.ElementOffset;
+	public uint VertexOffset => this._mesh.VertexOffset;
 
 	public DefinedGlyph GlyphDefinition { get; }
 
@@ -18,14 +18,14 @@ public sealed class GlyphMesh : DisposableIdentifiable, IMesh {
 		this.GlyphDefinition = glyphDefinition;
 		this._mesh = mesh;
 		this._mesh.OnOffsetChanged += OnMeshChanged;
-		Nickname = mesh.Nickname;
+		this.Nickname = mesh.Nickname;
 	}
 
 	private void OnMeshChanged() => OnOffsetChanged?.Invoke();
 
 	protected override bool InternalDispose() {
-		_mesh.OnOffsetChanged -= OnMeshChanged;
-		_mesh.Dispose();
+		this._mesh.OnOffsetChanged -= OnMeshChanged;
+		this._mesh.Dispose();
 		return true;
 	}
 }

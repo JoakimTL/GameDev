@@ -28,86 +28,86 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 	private readonly List<Line> _lines = [];
 
 	public string FontName {
-		get => _fontName;
+		get => this._fontName;
 		set {
-			if (_fontName == value)
+			if (this._fontName == value)
 				return;
-			_fontName = value;
-			_needsUpdate = true;
+			this._fontName = value;
+			this._needsUpdate = true;
 		}
 	}
 
 	public string Text {
-		get => _text;
+		get => this._text;
 		set {
-			if (_text == value)
+			if (this._text == value)
 				return;
-			_text = value;
-			_needsUpdate = true;
+			this._text = value;
+			this._needsUpdate = true;
 		}
 	}
 
 	public AABB<Vector2<float>> TextArea {
-		get => _textArea;
+		get => this._textArea;
 		set {
-			if (_textArea == value)
+			if (this._textArea == value)
 				return;
-			_textArea = value;
-			_needsUpdate = true;
+			this._textArea = value;
+			this._needsUpdate = true;
 		}
 	}
 
 	public float TextRotation {
-		get => _textRotation;
+		get => this._textRotation;
 		set {
-			if (_textRotation == value)
+			if (this._textRotation == value)
 				return;
-			_textRotation = value;
-			_needsUpdate = true;
+			this._textRotation = value;
+			this._needsUpdate = true;
 		}
 	}
 
 	public float TextScale {
-		get => _textScale;
+		get => this._textScale;
 		set {
-			if (_textScale == value)
+			if (this._textScale == value)
 				return;
-			_textScale = value;
-			_needsUpdate = true;
+			this._textScale = value;
+			this._needsUpdate = true;
 		}
 	}
 
 	public Alignment HorizontalAlignment {
-		get => _horizontalAlignment;
+		get => this._horizontalAlignment;
 		set {
-			if (_horizontalAlignment == value)
+			if (this._horizontalAlignment == value)
 				return;
-			_horizontalAlignment = value;
-			_needsUpdate = true;
+			this._horizontalAlignment = value;
+			this._needsUpdate = true;
 		}
 	}
 
 	public Alignment VerticalAlignment {
-		get => _verticalAlignment;
+		get => this._verticalAlignment;
 		set {
-			if (_verticalAlignment == value)
+			if (this._verticalAlignment == value)
 				return;
-			_verticalAlignment = value;
-			_needsUpdate = true;
+			this._verticalAlignment = value;
+			this._needsUpdate = true;
 		}
 	}
 
 	public Vector4<double> Color {
-		get => _color;
+		get => this._color;
 		set {
-			if (_color == value)
+			if (this._color == value)
 				return;
-			_color = value;
-			_needsUpdate = true;
+			this._color = value;
+			this._needsUpdate = true;
 		}
 	}
 
-	public uint RenderLayer => _sceneInstanceCollection.RenderLayer;
+	public uint RenderLayer => this._sceneInstanceCollection.RenderLayer;
 
 	public bool Removed { get; private set; }
 
@@ -116,35 +116,35 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 	public event RemovalHandler? OnRemoved;
 
 	public void Show() {
-		foreach (GlyphInstance instance in _glyphInstances) {
+		foreach (GlyphInstance instance in this._glyphInstances) {
 			instance.SetAllocated( true );
 			instance.UpdateInstanceData();
 		}
 	}
 
 	public void Hide() {
-		foreach (GlyphInstance instance in _glyphInstances)
+		foreach (GlyphInstance instance in this._glyphInstances)
 			instance.SetAllocated( false );
 	}
 
 	public void Update( double time, double deltaTime ) {
-		if (!_needsUpdate)
+		if (!this._needsUpdate)
 			return;
-		_needsUpdate = false;
+		this._needsUpdate = false;
 
-		if (string.IsNullOrEmpty( _fontName ) || _textArea.GetArea() == 0) {
-			for (int i = 0; i < _glyphInstances.Count; i++)
-				_glyphInstances[ i ].Remove();
-			_glyphInstances.RemoveAll( p => p.Removed );
+		if (string.IsNullOrEmpty( this._fontName ) || this._textArea.GetArea() == 0) {
+			for (int i = 0; i < this._glyphInstances.Count; i++)
+				this._glyphInstances[ i ].Remove();
+			this._glyphInstances.RemoveAll( p => p.Removed );
 			return;
 		}
 
 		//Update the layout and buffer the data.
-		MeshedFont meshedFont = _fontMeshingService.Get( _fontName );
+		MeshedFont meshedFont = this._fontMeshingService.Get( this._fontName );
 		Fonts.Font font = meshedFont.Font;
 
-		float shortestAxisOfTextArea = Math.Min( _textArea.Maxima.X - _textArea.Minima.X, (_textArea.Maxima.Y - _textArea.Minima.Y) / font.ScaledLineHeight );
-		float realScale = shortestAxisOfTextArea * _textScale;
+		float shortestAxisOfTextArea = Math.Min( this._textArea.Maxima.X - this._textArea.Minima.X, (this._textArea.Maxima.Y - this._textArea.Minima.Y) / font.ScaledLineHeight );
+		float realScale = shortestAxisOfTextArea * this._textScale;
 		float whitespaceSize = (font[ ' ' ]?.Advance ?? 0) * realScale;
 		float glyphAscent = font.ScaledAscent * realScale;
 		float glyphDescent = font.ScaledDescent * realScale;
@@ -154,94 +154,94 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 		int wordIndex = 0;
 		int index = 0;
 		Word currentWord;
-		ReadOnlySpan<char> textAsSpan = _text.AsSpan();
-		while (index < _text.Length) {
+		ReadOnlySpan<char> textAsSpan = this._text.AsSpan();
+		while (index < this._text.Length) {
 			if (Word.IsWordBreak( textAsSpan[ index ] )) {
 				index++;
 				continue;
 			}
-			if (wordIndex < _words.Count)
-				currentWord = _words[ wordIndex ];
+			if (wordIndex < this._words.Count)
+				currentWord = this._words[ wordIndex ];
 			else {
 				currentWord = new();
-				_words.Add( currentWord );
+				this._words.Add( currentWord );
 			}
 			index += currentWord.Read( font, textAsSpan[ index.. ], realScale );
 			index++;
 			wordIndex++;
 		}
 
-		for (int i = _words.Count - 1; i >= wordIndex; i--)
-			_words.RemoveAt( i );
+		for (int i = this._words.Count - 1; i >= wordIndex; i--)
+			this._words.RemoveAt( i );
 
 		wordIndex = 0;
 		int lineIndex = 0;
 		Line currentLine;
-		while (wordIndex < _words.Count) {
-			if (lineIndex < _lines.Count)
-				currentLine = _lines[ lineIndex ];
+		while (wordIndex < this._words.Count) {
+			if (lineIndex < this._lines.Count)
+				currentLine = this._lines[ lineIndex ];
 			else {
 				currentLine = new();
-				_lines.Add( currentLine );
+				this._lines.Add( currentLine );
 			}
-			int wordsRead = currentLine.Read( _words[ wordIndex.. ], whitespaceSize, _textArea.Maxima.X - _textArea.Minima.X );
+			int wordsRead = currentLine.Read( this._words[ wordIndex.. ], whitespaceSize, this._textArea.Maxima.X - this._textArea.Minima.X );
 			if (wordsRead == 0)
 				throw new Exception( "Unable to read in any words. Something is wrong with the text logic." );
 			wordIndex += wordsRead;
 			lineIndex++;
 		}
 
-		for (int i = _lines.Count - 1; i >= lineIndex; i--)
-			_lines.RemoveAt( i );
+		for (int i = this._lines.Count - 1; i >= lineIndex; i--)
+			this._lines.RemoveAt( i );
 
 		int glyphedLetters = 0;
-		for (int i = 0; i < _words.Count; i++)
-			glyphedLetters += _words[ i ].Characters.Length;
+		for (int i = 0; i < this._words.Count; i++)
+			glyphedLetters += this._words[ i ].Characters.Length;
 
-		for (int i = _glyphInstances.Count; i < glyphedLetters; i++)
-			_glyphInstances.Add( _sceneInstanceCollection.Create<GlyphInstance>() );
+		for (int i = this._glyphInstances.Count; i < glyphedLetters; i++)
+			this._glyphInstances.Add( this._sceneInstanceCollection.Create<GlyphInstance>() );
 
-		for (int i = glyphedLetters; i < _glyphInstances.Count; i++)
-			_glyphInstances[ i ].Remove();
-		_glyphInstances.RemoveAll( p => p.Removed );
+		for (int i = glyphedLetters; i < this._glyphInstances.Count; i++)
+			this._glyphInstances[ i ].Remove();
+		this._glyphInstances.RemoveAll( p => p.Removed );
 
 		int glyphIndex = 0;
-		float width = _textArea.Maxima.X - _textArea.Minima.X;
-		float height = _textArea.Maxima.Y - _textArea.Minima.Y;
+		float width = this._textArea.Maxima.X - this._textArea.Minima.X;
+		float height = this._textArea.Maxima.Y - this._textArea.Minima.Y;
 
-		float textHeight = lineHeight * _lines.Count;
+		float textHeight = lineHeight * this._lines.Count;
 
-		float cursorY = _textArea.Maxima.Y - glyphAscent;
-		if (VerticalAlignment == Alignment.Negative) {
-			cursorY = _textArea.Minima.Y + lineHeight * _lines.Count - glyphAscent;
-		} else if (VerticalAlignment == Alignment.Center) {
+		float cursorY = this._textArea.Maxima.Y - glyphAscent;
+		if (this.VerticalAlignment == Alignment.Negative) {
+			cursorY = this._textArea.Minima.Y + (lineHeight * this._lines.Count) - glyphAscent;
+		} else if (this.VerticalAlignment == Alignment.Center) {
 			float initialOffset = height * 0.5f;
-			float heightOffset = textHeight * 0.5f - glyphAscent;
+			float heightOffset = (textHeight * 0.5f) - glyphAscent;
 
-			cursorY = _textArea.Minima.Y + initialOffset + heightOffset;
+			cursorY = this._textArea.Minima.Y + initialOffset + heightOffset;
 		}
 
-		Vector4<ushort> color = (_color * ushort.MaxValue).Clamp<Vector4<double>, double>( 0, ushort.MaxValue ).CastSaturating<double, ushort>();
+		Vector4<ushort> color = (this._color * ushort.MaxValue).Clamp<Vector4<double>, double>( 0, ushort.MaxValue ).CastSaturating<double, ushort>();
 
-		for (int i = 0; i < _lines.Count; i++) {
+		for (int i = 0; i < this._lines.Count; i++) {
 			float cursorX = 0;
-			cursorX = HorizontalAlignment switch {
-				Alignment.Negative => _textArea.Minima.X,
-				Alignment.Positive => _textArea.Maxima.X - _lines[ i ].ScaledWidth,
-				Alignment.Center => _textArea.Minima.X + (width - _lines[ i ].ScaledWidth) * .5f,
+			cursorX = this.HorizontalAlignment switch {
+				Alignment.Negative => this._textArea.Minima.X,
+				Alignment.Positive => this._textArea.Maxima.X - this._lines[ i ].ScaledWidth,
+				Alignment.Center => this._textArea.Minima.X + ((width - this._lines[ i ].ScaledWidth) * .5f),
 				_ => throw new ArgumentOutOfRangeException(),
 			};
 			Vector2<float> cursor = (cursorX, cursorY);
 
-			Line line = _lines[ i ];
+			Line line = this._lines[ i ];
 
 			foreach (Word word in line.Words) {
 				foreach (char c in word.Characters) {
-					GlyphInstance instance = _glyphInstances[ glyphIndex++ ];
+					GlyphInstance instance = this._glyphInstances[ glyphIndex++ ];
 					GlyphMesh? mesh = meshedFont[ c ];
 					instance.SetGlyphMesh( mesh );
 					if (mesh is not null) {
-						Matrix4x4<float> modelMatrix = Matrix.Create4x4.Scaling( realScale, realScale ) * Matrix.Create4x4.Translation( cursor + (mesh.GlyphDefinition.LeftSideBearing * realScale, 0) ) * Matrix.Create4x4.RotationZ( _textRotation );
+						Matrix4x4<float> modelMatrix = Matrix.Create4x4.Scaling( realScale, realScale ) * Matrix.Create4x4.Translation( cursor + (mesh.GlyphDefinition.LeftSideBearing * realScale, 0) ) * Matrix.Create4x4.RotationZ( this._textRotation );
 						if (!instance.SetInstanceData( new Entity2SceneData( modelMatrix, color ) ))
 							this.LogLine( "Failed to write instance data." );
 						cursor += new Vector2<float>( mesh.GlyphDefinition.Advance, 0 ) * realScale;
@@ -255,10 +255,10 @@ public sealed class TextLayout( SceneInstanceCollection<GlyphVertex, Entity2Scen
 	}
 
 	public void Remove() {
-		if (Removed)
+		if (this.Removed)
 			return;
-		_sceneInstanceCollection.Remove();
-		Removed = true;
+		this._sceneInstanceCollection.Remove();
+		this.Removed = true;
 		OnRemoved?.Invoke( this );
 	}
 }

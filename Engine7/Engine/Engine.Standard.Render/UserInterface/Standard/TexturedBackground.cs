@@ -1,7 +1,6 @@
 ﻿using Engine.Module.Render.Ogl.OOP.Textures;
 using Engine.Standard.Render.Meshing.Services;
 using Engine.Standard.Render.Shaders;
-using Engine.Standard.Render.Text.Typesetting;
 
 namespace Engine.Standard.Render.UserInterface.Standard;
 
@@ -10,24 +9,24 @@ public sealed class TexturedBackground : UserInterfaceComponentBase {
 
 	private Vector4<double> _color = (1, 1, 1, 1);
 	public Vector4<double> Color {
-		get => _color;
+		get => this._color;
 		set {
-			if (_color == value)
+			if (this._color == value)
 				return;
-			_color = value;
-			_changed = true;
+			this._color = value;
+			this._changed = true;
 		}
 	}
 
 	private OglTexture _texture;
 	public OglTexture Texture {
-		get => _texture;
+		get => this._texture;
 		set {
-			if (_texture == value)
+			if (this._texture == value)
 				return;
-			_texture = value;
-			_reference = null;
-			_changed = true;
+			this._texture = value;
+			this._reference = null;
+			this._changed = true;
 		}
 	}
 
@@ -36,15 +35,15 @@ public sealed class TexturedBackground : UserInterfaceComponentBase {
 	private bool _changed;
 
 	public TexturedBackground( UserInterfaceElementBase element, OglTexture texture ) : base( element ) {
-		_sceneInstance = CreateSceneInstance();
-		_texture = texture;
+		this._sceneInstance = CreateSceneInstance();
+		this._texture = texture;
 	}
 
 	private SceneInstance<Entity2TexturedSceneData> CreateSceneInstance() {
-		SceneInstance<Entity2TexturedSceneData> sceneInstance = Element.UserInterfaceServiceAccess.RequestSceneInstance<SceneInstance<Entity2TexturedSceneData>>( RenderLayer );
-		sceneInstance.SetVertexArrayObject( Element.UserInterfaceServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2TexturedSceneData>() );
-		sceneInstance.SetShaderBundle( Element.UserInterfaceServiceAccess.ShaderBundleProvider.GetShaderBundle<TexturedShade2ShaderBundle>() );
-		sceneInstance.SetMesh( Element.UserInterfaceServiceAccess.Get<PrimitiveMesh2Provider>().Get( Meshing.Primitive2.Rectangle ) );
+		SceneInstance<Entity2TexturedSceneData> sceneInstance = this.Element.UserInterfaceServiceAccess.RequestSceneInstance<SceneInstance<Entity2TexturedSceneData>>( this.RenderLayer );
+		sceneInstance.SetVertexArrayObject( this.Element.UserInterfaceServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex2, Entity2TexturedSceneData>() );
+		sceneInstance.SetShaderBundle( this.Element.UserInterfaceServiceAccess.ShaderBundleProvider.GetShaderBundle<TexturedShade2ShaderBundle>() );
+		sceneInstance.SetMesh( this.Element.UserInterfaceServiceAccess.Get<PrimitiveMesh2Provider>().Get( Meshing.Primitive2.Rectangle ) );
 		return sceneInstance;
 	}
 
@@ -52,28 +51,28 @@ public sealed class TexturedBackground : UserInterfaceComponentBase {
 	protected override void OnPlacementChanged() => UpdateInstance();
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		if (!_changed)
+		if (!this._changed)
 			return;
-		_changed = false;
+		this._changed = false;
 		UpdateInstance();
 	}
 
 	private void UpdateInstance() {
-		_reference ??= _texture.GetTextureReference();
-		Vector4<ushort> color = (Color * ushort.MaxValue).Clamp<Vector4<double>, double>( 0, ushort.MaxValue ).CastSaturating<double, ushort>();
-		_sceneInstance.Write( new Entity2TexturedSceneData( TransformInterface.Matrix.CastSaturating<double, float>(), color, _reference.GetHandle() ) );
+		this._reference ??= this._texture.GetTextureReference();
+		Vector4<ushort> color = (this.Color * ushort.MaxValue).Clamp<Vector4<double>, double>( 0, ushort.MaxValue ).CastSaturating<double, ushort>();
+		this._sceneInstance.Write( new Entity2TexturedSceneData( this.TransformInterface.Matrix.CastSaturating<double, float>(), color, this._reference.GetHandle() ) );
 	}
 
 	protected override void InternalRemove() {
-		_sceneInstance.Remove();
+		this._sceneInstance.Remove();
 	}
 
 	protected internal override void DoHide() {
-		_sceneInstance.SetAllocated( false );
+		this._sceneInstance.SetAllocated( false );
 	}
 
 	protected internal override void DoShow() {
-		_sceneInstance.SetAllocated( true );
+		this._sceneInstance.SetAllocated( true );
 		UpdateInstance();
 	}
 }

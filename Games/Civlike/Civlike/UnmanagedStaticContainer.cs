@@ -8,26 +8,26 @@ public sealed unsafe class UnmanagedStaticContainer<T> : DisposableIdentifiable 
 	private readonly T* _data;
 
 	public UnmanagedStaticContainer( IReadOnlyList<T> data ) {
-		_count = (uint) data.Count;
-		_data = (T*) NativeMemory.Alloc( (nuint) (_count * sizeof( T )) );
-		for (int i = 0; i < _count; i++)
-			_data[ i ] = data[ i ];
+		this._count = (uint) data.Count;
+		this._data = (T*) NativeMemory.Alloc( (nuint) (this._count * sizeof( T )) );
+		for (int i = 0; i < this._count; i++)
+			this._data[ i ] = data[ i ];
 	}
 
-	public uint Count => _count;
+	public uint Count => this._count;
 
 	public T this[uint index] => Get( index );
 
 	public T Get( uint index ) {
 #if DEBUG
-		if (index >= _count)
+		if (index >= this._count)
 			throw new ArgumentOutOfRangeException( nameof( index ), "Index is out of range." );
 #endif
-		return _data[ index ];
+		return this._data[ index ];
 	}
 
 	protected override bool InternalDispose() {
-		NativeMemory.Free( _data );
+		NativeMemory.Free( this._data );
 		return true;
 	}
 }

@@ -1,17 +1,11 @@
 ﻿namespace Engine.Standard.Render.Text.Fonts;
 
-public sealed class OldFontCompoundGlyph : IOldGlyph {
-	public FontGlyphHeader Header { get; }
-	public GlyphMap Mapping { get; }
+public sealed class OldFontCompoundGlyph( FontGlyphHeader header, GlyphMap mapping ) : IOldGlyph {
+	public FontGlyphHeader Header { get; } = header;
+	public GlyphMap Mapping { get; } = mapping;
 
 
-	private readonly List<IOldGlyph> _glyphs;
-
-	public OldFontCompoundGlyph( FontGlyphHeader header, GlyphMap mapping ) {
-		this._glyphs = [];
-		this.Header = header;
-		this.Mapping = mapping;
-	}
+	private readonly List<IOldGlyph> _glyphs = [];
 
 	public void AddGlyph( IOldGlyph glyph ) {
 		this._glyphs.Add( glyph );

@@ -1,5 +1,4 @@
-﻿using Civlike.Logic.Nations;
-using Civlike.World;
+﻿using Civlike.World.GameplayState;
 using Engine.Buffers;
 using Engine.Serialization;
 using System.Runtime.InteropServices;
@@ -20,12 +19,12 @@ public sealed class FaceOwnershipComponentSerializer( SerializerProvider seriali
 		buffer.AddRange( data );
 	}
 	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, FaceOwnershipComponent target ) {
-		if (_activeGlobeTrackingService.CurrentGlobe is null)
+		if (this._activeGlobeTrackingService.CurrentGlobe is null)
 			throw new InvalidOperationException( "No active globe available." );
 		target.ClearOwnership();
 		for (int i = 0; i < serializedData.Length / sizeof( uint ); i++) {
 			int faceId = (int) MemoryMarshal.Read<uint>( serializedData.Slice( i * sizeof( uint ), sizeof( uint ) ) );
-			Face face = _activeGlobeTrackingService.CurrentGlobe.Faces[ faceId ];
+			Face face = this._activeGlobeTrackingService.CurrentGlobe.Faces[ faceId ];
 			target.AddFace( face );
 		}
 		return true;

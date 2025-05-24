@@ -16,28 +16,28 @@ public sealed class CmapTable : FontTable {
 	private readonly List<GlyphMap> _glyphMaps;
 
 	public CmapTable( FontTableHeader header, FontDataReader reader ) : base( header ) {
-		_characterMapsBySpecificPlatform = [];
+		this._characterMapsBySpecificPlatform = [];
 		FontCaretedDataReader caret = new( reader );
 		caret.GoTo( header.Offset );
-		_version = caret.Read<ushort>();
+		this._version = caret.Read<ushort>();
 		ushort numTables = caret.Read<ushort>();
 		for (int i = 0; i < numTables; i++) {
 			ushort platformId = caret.Read<ushort>();
 			Platform platform = (Platform) platformId;
 			ushort specificPlatformId = caret.Read<ushort>();
 			SpecificPlatform specificPlatform = (SpecificPlatform) ((platformId & 0b1111) | ((specificPlatformId & 0b1_1111) << 4));
-			_characterMapsBySpecificPlatform.Add( specificPlatform, new( specificPlatform, caret.Read<uint>() ) );
+			this._characterMapsBySpecificPlatform.Add( specificPlatform, new( specificPlatform, caret.Read<uint>() ) );
 		}
 
 		CharacterMap preferredCharacterMap = FindPreferredMap();
 
 		caret.GoTo( header.Offset + preferredCharacterMap.Offset );
 		CharacterMapFormatBase format = CharacterMapFormatBase.Formats[ caret.Read<ushort>() ];
-		_glyphMaps = format.ReadFrom( caret );
-		_glyphMapByGlyphIndex = [];
-		foreach (GlyphMap glyphMap in _glyphMaps) {
-			if (!_glyphMapByGlyphIndex.ContainsKey( glyphMap.GlyphIndex ))
-				_glyphMapByGlyphIndex.Add( glyphMap.GlyphIndex, glyphMap );
+		this._glyphMaps = format.ReadFrom( caret );
+		this._glyphMapByGlyphIndex = [];
+		foreach (GlyphMap glyphMap in this._glyphMaps) {
+			if (!this._glyphMapByGlyphIndex.ContainsKey( glyphMap.GlyphIndex ))
+				this._glyphMapByGlyphIndex.Add( glyphMap.GlyphIndex, glyphMap );
 		}
 	}
 
@@ -60,7 +60,7 @@ public sealed class CmapTable : FontTable {
 		];
 		CharacterMap preferredCharacterMap = null!;
 		foreach (SpecificPlatform platform in platformPreference) {
-			if (_characterMapsBySpecificPlatform.TryGetValue( platform, out CharacterMap? characterMap )) {
+			if (this._characterMapsBySpecificPlatform.TryGetValue( platform, out CharacterMap? characterMap )) {
 				preferredCharacterMap = characterMap;
 				break;
 			}
@@ -70,8 +70,8 @@ public sealed class CmapTable : FontTable {
 		return preferredCharacterMap;
 	}
 
-	public ushort Version => _version;
-	public IReadOnlyDictionary<SpecificPlatform, CharacterMap> CharacterMaps => _characterMapsBySpecificPlatform;
-	public IReadOnlyDictionary<uint, GlyphMap> GlyphMapByGlyphIndex => _glyphMapByGlyphIndex;
-	public IReadOnlyList<GlyphMap> GlyphMaps => _glyphMaps;
+	public ushort Version => this._version;
+	public IReadOnlyDictionary<SpecificPlatform, CharacterMap> CharacterMaps => this._characterMapsBySpecificPlatform;
+	public IReadOnlyDictionary<uint, GlyphMap> GlyphMapByGlyphIndex => this._glyphMapByGlyphIndex;
+	public IReadOnlyList<GlyphMap> GlyphMaps => this._glyphMaps;
 }

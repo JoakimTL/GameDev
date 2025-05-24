@@ -15,17 +15,17 @@ public sealed class HmtxTable : FontTable {
 	public HmtxTable( FontTableHeader header, LocaTable locaTable, HheaTable hheaTable, FontDataReader reader ) : base( header ) {
 		FontCaretedDataReader caret = new( reader );
 		caret.GoTo( header.Offset );
-		_horizontalMetrics = new HorizontalMetric[ locaTable.GlyphLocationOffsetBytes.Count ];
+		this._horizontalMetrics = new HorizontalMetric[ locaTable.GlyphLocationOffsetBytes.Count ];
 		for (int i = 0; i < hheaTable.NumberOfHMetrics; i++) {
 			ushort advanceWidth = caret.Read<ushort>();
 			short leftSideBearing = caret.Read<short>();
-			_horizontalMetrics[ i ] = new HorizontalMetric( (uint) i, advanceWidth, leftSideBearing );
+			this._horizontalMetrics[ i ] = new HorizontalMetric( (uint) i, advanceWidth, leftSideBearing );
 		}
-		for (int i = hheaTable.NumberOfHMetrics; i < _horizontalMetrics.Length; i++) {
+		for (int i = hheaTable.NumberOfHMetrics; i < this._horizontalMetrics.Length; i++) {
 			short leftSideBearing = caret.Read<short>();
-			_horizontalMetrics[ i ] = new HorizontalMetric( (uint) i, _horizontalMetrics[ hheaTable.NumberOfHMetrics - 1 ].AdvanceWidth, leftSideBearing );
+			this._horizontalMetrics[ i ] = new HorizontalMetric( (uint) i, this._horizontalMetrics[ hheaTable.NumberOfHMetrics - 1 ].AdvanceWidth, leftSideBearing );
 		}
 	}
 
-	public IReadOnlyList<HorizontalMetric> HorizontalMetrics => _horizontalMetrics;
+	public IReadOnlyList<HorizontalMetric> HorizontalMetrics => this._horizontalMetrics;
 }

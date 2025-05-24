@@ -3,9 +3,8 @@ using Engine;
 using Engine.Module.Render.Entities;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard;
-using Civlike.World;
 using Civlike.Client.Render.World.Lines;
-using Civlike.Client.Render;
+using Civlike.World.GameplayState;
 
 namespace Civlike.Client.Render.World;
 
@@ -15,7 +14,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 
 	private readonly Queue<(Face, int)> _faceQueue = [];
 	private readonly Dictionary<Face, int> _addedFaces = [];
-	private readonly HashSet<Connection> _connections = [];
+	private readonly HashSet<Edge> _edges = [];
 	private Face? _currentlyDisplayedHoveredFace;
 
 	protected override void OnRenderEntitySet() {
@@ -24,7 +23,7 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 
 	public void Initialize() {
 
-		VertexMesh<LineVertex> lineInstanceMesh = RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
+		VertexMesh<LineVertex> lineInstanceMesh = this.RenderEntity.ServiceAccess.MeshProvider.CreateMesh(
 			[
 				new LineVertex( (0, 1), (0, 1), 255 ),
 				new LineVertex( (1, 1), (1, 1), 255 ),
@@ -40,41 +39,40 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 			]
 		);
 
-		_lineCollection = RenderEntity.RequestSceneInstanceFixedCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( RenderConstants.GridSceneName, 0, lineInstanceMesh, 4096 );
+		this._lineCollection = this.RenderEntity.RequestSceneInstanceFixedCollection<LineVertex, Line3SceneData, Line3ShaderBundle>( RenderConstants.GridSceneName, 0, lineInstanceMesh, 4096 );
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		if (_lineCollection is null)
+		if (this._lineCollection is null)
 			return;
 
-		Face? hoveredFace = RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Face>( "hoveringTile" );
+		Face? hoveredFace = this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Face>( "hoveringTile" );
 
-		if (_currentlyDisplayedHoveredFace == hoveredFace)
+		if (this._currentlyDisplayedHoveredFace == hoveredFace)
 			return;
 
-		_currentlyDisplayedHoveredFace = hoveredFace;
+		this._currentlyDisplayedHoveredFace = hoveredFace;
 
-		if (_currentlyDisplayedHoveredFace is null)
+		if (this._currentlyDisplayedHoveredFace is null)
 			return;
 
-		_connections.Clear();
-		AddFaces( 9, _currentlyDisplayedHoveredFace );
+		this._edges.Clear();
+		AddFaces( 9, this._currentlyDisplayedHoveredFace );
 
-		foreach (Face face in _addedFaces.Keys)
-			foreach (Connection connection in face.Blueprint.Connections) {
-				if (_connections.Contains( connection ))
+		foreach (Face face in this._addedFaces.Keys)
+			foreach (Edge edge in face.Blueprint.Edges) {
+				if (this._edges.Contains( edge ))
 					continue;
-				_connections.Add( connection );
+				this._edges.Add( edge );
 			}
 
-		Vector3<float> centerFace = _currentlyDisplayedHoveredFace.Blueprint.GetCenter();
-		Vector3<float> center = RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Vector3<float>>( "mousePointerGlobeSphereIntersection" );
+		Vector3<float> centerFace = this._currentlyDisplayedHoveredFace.Blueprint.GetCenter();
+		Vector3<float> center = this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Vector3<float>>( "mousePointerGlobeSphereIntersection" );
 
 		float maxRadius = 0;
-		foreach (Connection connection in _connections) {
-			Edge edge = connection.SharedEdge;
-			float dstSqA = (edge.VertexA - centerFace).MagnitudeSquared();
-			float dstSqB = (edge.VertexB - centerFace).MagnitudeSquared();
+		foreach (Edge edge in this._edges) {
+			float dstSqA = (edge.VectorA - centerFace).MagnitudeSquared();
+			float dstSqB = (edge.VectorB - centerFace).MagnitudeSquared();
 			float dstSq = MathF.Min( dstSqA, dstSqB ); //Get the lowest of the two, such that lines that poke outside of the "normal" area covered don't create weird cutoffs elsewhere.
 			if (dstSq > maxRadius)
 				maxRadius = dstSq;
@@ -83,11 +81,11 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 
 		int activeEdges = 0;
 		Span<Line3SceneData> edges = stackalloc Line3SceneData[ 4096 ];
-		foreach (Connection connection in _connections)
-			AddEdge( center, maxRadius, connection, edges, ref activeEdges );
+		foreach (Edge edge in this._edges)
+			AddEdge( center, maxRadius, edge, edges, ref activeEdges );
 
-		_lineCollection.WriteRange( 0, edges );
-		_lineCollection.SetActiveElements( (uint) activeEdges );
+		this._lineCollection.WriteRange( 0, edges );
+		this._lineCollection.SetActiveElements( (uint) activeEdges );
 
 		/*
 		 * 
@@ -115,15 +113,14 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 		 */
 	}
 
-	private void AddEdge( Vector3<float> center, float maxRadius, Connection connection, Span<Line3SceneData> edges, ref int activeEdges ) {
-		Edge edge = connection.SharedEdge;
-		Vector3<float> a = edge.VertexA;
-		Vector3<float> b = edge.VertexB;
+	private static void AddEdge( Vector3<float> center, float maxRadius, Edge edge, Span<Line3SceneData> edges, ref int activeEdges ) {
+		Vector3<float> a = edge.VectorA;
+		Vector3<float> b = edge.VectorB;
 
 		float dstSqA = (a - center).MagnitudeSquared();
 		float dstSqB = (b - center).MagnitudeSquared();
-		float alphaModifierA = 1 - dstSqA / maxRadius;
-		float alphaModifierB = 1 - dstSqB / maxRadius;
+		float alphaModifierA = 1 - (dstSqA / maxRadius);
+		float alphaModifierB = 1 - (dstSqB / maxRadius);
 
 		float length = (a - b).Magnitude<Vector3<float>, float>();
 		float thickness = length * 0.02f;
@@ -134,21 +131,20 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 	}
 
 	private void AddFaces( int passes, Face face ) {
-		_addedFaces.Clear();
-		_faceQueue.Enqueue( (face, passes) );
+		this._addedFaces.Clear();
+		this._faceQueue.Enqueue( (face, passes) );
 
-		while (_faceQueue.TryDequeue( out (Face, int) facePass )) {
+		while (this._faceQueue.TryDequeue( out (Face, int) facePass )) {
 			Face currentFace = facePass.Item1;
 			int currentPasses = facePass.Item2;
 			if (currentPasses <= 0)
 				continue;
-			int currentPassValue = _addedFaces.GetValueOrDefault( currentFace );
+			int currentPassValue = this._addedFaces.GetValueOrDefault( currentFace );
 			if (currentPassValue > currentPasses)
 				continue;
-			_addedFaces[ currentFace ] = currentPasses;
-			foreach (Connection connection in currentFace.Blueprint.Connections) {
-				Face neighbour = connection.GetOther( currentFace );
-				_faceQueue.Enqueue( (neighbour, currentPasses - 1) );
+			this._addedFaces[ currentFace ] = currentPasses;
+			foreach (Face neighbour in currentFace.Blueprint.Neighbours) {
+				this._faceQueue.Enqueue( (neighbour, currentPasses - 1) );
 			}
 		}
 	}

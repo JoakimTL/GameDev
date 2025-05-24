@@ -23,26 +23,26 @@ public sealed class BufferedMultisampledSceneRenderer : Identifiable {
 		this.Scene = scene;
 		this._framebufferStateService = framebufferStateService;
 
-		MultisampledFramebuffer = framebufferStateService.CreateAutoscalingFramebuffer( windowService.Window, 1 );
-		MultisampledFramebufferGenerator = new( MultisampledFramebuffer );
-		MultisampledFramebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglMultisampledTexture( $"{this.FullName}MultisampledColor", TextureTarget.Texture2dMultisample, dimensions, samples, InternalFormat.Rgba8, true ) );
-		MultisampledFramebufferGenerator.AddRenderBuffer( FramebufferAttachment.DepthAttachment, InternalFormat.DepthComponent, samples );
+		this.MultisampledFramebuffer = framebufferStateService.CreateAutoscalingFramebuffer( windowService.Window, 1 );
+		this.MultisampledFramebufferGenerator = new( this.MultisampledFramebuffer );
+		this.MultisampledFramebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglMultisampledTexture( $"{this.FullName}MultisampledColor", TextureTarget.Texture2dMultisample, dimensions, samples, InternalFormat.Rgba8, true ) );
+		this.MultisampledFramebufferGenerator.AddRenderBuffer( FramebufferAttachment.DepthAttachment, InternalFormat.DepthComponent, samples );
 
-		Framebuffer = framebufferStateService.CreateAutoscalingFramebuffer( windowService.Window, 1 );
-		FramebufferGenerator = new( Framebuffer );
-		DisplayTexture = FramebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglTexture( $"{this.FullName}Color", TextureTarget.Texture2d, dimensions, InternalFormat.Rgba8, (TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear), (TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Linear) ) );
+		this.Framebuffer = framebufferStateService.CreateAutoscalingFramebuffer( windowService.Window, 1 );
+		this.FramebufferGenerator = new( this.Framebuffer );
+		this.DisplayTexture = this.FramebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglTexture( $"{this.FullName}Color", TextureTarget.Texture2d, dimensions, InternalFormat.Rgba8, (TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear), (TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Linear) ) );
 	}
 
 	public void Render( string shaderIndex, IDataBlockCollection? dataBlocks, Action<bool>? blendActivationFunction, PrimitiveType primitiveType ) {
-		_framebufferStateService.BindFramebuffer( FramebufferTarget.Framebuffer, MultisampledFramebuffer );
-		MultisampledFramebuffer.Clear( OpenGL.Buffer.Color, 0, [ 0 ] );
-		MultisampledFramebuffer.Clear( OpenGL.Buffer.Depth, 0, [ 1f ] );
-		Scene.Render( shaderIndex, dataBlocks, blendActivationFunction, primitiveType );
-		_framebufferStateService.UnbindFramebuffer( FramebufferTarget.Framebuffer );
-		_framebufferStateService.BlitToFrameBuffer( MultisampledFramebuffer, Framebuffer, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear );
+		this._framebufferStateService.BindFramebuffer( FramebufferTarget.Framebuffer, this.MultisampledFramebuffer );
+		this.MultisampledFramebuffer.Clear( OpenGL.Buffer.Color, 0, [ 0 ] );
+		this.MultisampledFramebuffer.Clear( OpenGL.Buffer.Depth, 0, [ 1f ] );
+		this.Scene.Render( shaderIndex, dataBlocks, blendActivationFunction, primitiveType );
+		this._framebufferStateService.UnbindFramebuffer( FramebufferTarget.Framebuffer );
+		this._framebufferStateService.BlitToFrameBuffer( this.MultisampledFramebuffer, this.Framebuffer, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear );
 	}
 
 	internal void BlitDepthBuffer( BufferedSceneRenderer sceneRenderer ) {
-		_framebufferStateService.BlitToFrameBuffer( sceneRenderer.Framebuffer, MultisampledFramebuffer, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest );
+		this._framebufferStateService.BlitToFrameBuffer( sceneRenderer.Framebuffer, this.MultisampledFramebuffer, ClearBufferMask.DepthBufferBit, BlitFramebufferFilter.Nearest );
 	}
 }

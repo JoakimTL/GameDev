@@ -30,17 +30,17 @@ public sealed class UserInterfaceRenderPipeline( SceneService sceneService, Data
 	private FramebufferScaledTextureGenerator _displayTexture = null!;
 
 	public void Initialize() {
-		_uiScene = _sceneService.GetScene( "ui" );
-		_uiSceneCamera = _dataBlockService.CreateUniformBlockOrThrow( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ] );
-		_cameraSuite = _cameraService.Get( "ui" );
-		_dataBlockCollection = new( _uiSceneCamera );
-		_framebuffer = _framebufferStateService.CreateAutoscalingFramebuffer( _windowService.Window, 1 );
-		_framebufferGenerator = new( _framebuffer );
-		_framebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglMultisampledTexture( "uiFramebufferColor", TextureTarget.Texture2dMultisample, dimensions, 4, InternalFormat.Rgba8, true ) );
+		this._uiScene = this._sceneService.GetScene( "ui" );
+		this._uiSceneCamera = this._dataBlockService.CreateUniformBlockOrThrow( nameof( SceneCameraBlock ), 256, [ ShaderType.VertexShader ] );
+		this._cameraSuite = this._cameraService.Get( "ui" );
+		this._dataBlockCollection = new( this._uiSceneCamera );
+		this._framebuffer = this._framebufferStateService.CreateAutoscalingFramebuffer( this._windowService.Window, 1 );
+		this._framebufferGenerator = new( this._framebuffer );
+		this._framebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglMultisampledTexture( "uiFramebufferColor", TextureTarget.Texture2dMultisample, dimensions, 4, InternalFormat.Rgba8, true ) );
 
-		_displayedFramebuffer = _framebufferStateService.CreateAutoscalingFramebuffer( _windowService.Window, 1 );
-		_displayedFramebufferGenerator = new( _displayedFramebuffer );
-		_displayTexture = _displayedFramebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglTexture( "uiFramebufferColor", TextureTarget.Texture2d, dimensions, InternalFormat.Rgba8, (TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear), (TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Linear) ) );
+		this._displayedFramebuffer = this._framebufferStateService.CreateAutoscalingFramebuffer( this._windowService.Window, 1 );
+		this._displayedFramebufferGenerator = new( this._displayedFramebuffer );
+		this._displayTexture = this._displayedFramebufferGenerator.AddTexture( FramebufferAttachment.ColorAttachment0, dimensions => new OglTexture( "uiFramebufferColor", TextureTarget.Texture2d, dimensions, InternalFormat.Rgba8, (TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Linear), (TextureParameterName.TextureMagFilter, (int) TextureMagFilter.Linear) ) );
 	}
 
 	public void PrepareRendering( double time, double deltaTime ) {
@@ -51,12 +51,12 @@ public sealed class UserInterfaceRenderPipeline( SceneService sceneService, Data
 		Gl.DepthMask( false );
 		Vector2<float> cameraRotationRight = new( float.Cos( this._cameraSuite.View2.Rotation ), float.Sin( this._cameraSuite.View2.Rotation ) );
 		Vector2<float> cameraRotationUp = new( -cameraRotationRight.Y, cameraRotationRight.X );
-		_uiSceneCamera.Buffer.Write( 0u, new SceneCameraBlock( _cameraSuite.Camera2.Matrix, (cameraRotationUp.X, cameraRotationUp.Y, 0), (cameraRotationRight.X, cameraRotationRight.Y, 0) ) );
-		_framebufferStateService.BindFramebuffer( FramebufferTarget.Framebuffer, _framebuffer );
-		_framebuffer.Clear( OpenGL.Buffer.Color, 0, [ 0, 0, 0, 0 ] );
-		_uiScene.Render( "default", _dataBlockCollection, null, PrimitiveType.Triangles );
-		_framebufferStateService.UnbindFramebuffer( FramebufferTarget.Framebuffer );
-		_framebufferStateService.BlitToFrameBuffer( _framebuffer, _displayedFramebuffer, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear );
+		this._uiSceneCamera.Buffer.Write( 0u, new SceneCameraBlock( this._cameraSuite.Camera2.Matrix, (cameraRotationUp.X, cameraRotationUp.Y, 0), (cameraRotationRight.X, cameraRotationRight.Y, 0) ) );
+		this._framebufferStateService.BindFramebuffer( FramebufferTarget.Framebuffer, this._framebuffer );
+		this._framebuffer.Clear( OpenGL.Buffer.Color, 0, [ 0, 0, 0, 0 ] );
+		this._uiScene.Render( "default", this._dataBlockCollection, null, PrimitiveType.Triangles );
+		this._framebufferStateService.UnbindFramebuffer( FramebufferTarget.Framebuffer );
+		this._framebufferStateService.BlitToFrameBuffer( this._framebuffer, this._displayedFramebuffer, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear );
 	}
 
 	public void DrawToScreen() {
@@ -66,14 +66,14 @@ public sealed class UserInterfaceRenderPipeline( SceneService sceneService, Data
 		Gl.BlendEquation( BlendEquationMode.FuncAdd );
 		Gl.Disable( EnableCap.DepthTest );
 		Gl.DepthMask( false );
-		_textureRenderingService.RenderTexture( _displayTexture.TextureReference.GetHandle() );
+		this._textureRenderingService.RenderTexture( this._displayTexture.TextureReference.GetHandle() );
 	}
 
 	protected override bool InternalDispose() {
-		_framebuffer.Dispose();
-		_framebufferGenerator.Dispose();
-		_displayedFramebuffer.Dispose();
-		_displayedFramebufferGenerator.Dispose();
+		this._framebuffer.Dispose();
+		this._framebufferGenerator.Dispose();
+		this._displayedFramebuffer.Dispose();
+		this._displayedFramebufferGenerator.Dispose();
 		return true;
 	}
 

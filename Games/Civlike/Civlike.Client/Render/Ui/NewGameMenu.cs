@@ -1,47 +1,79 @@
 ﻿using Civlike.Messages;
-using Civlike.World;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Input;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
+using Civlike.World.TectonicGeneration;
 
 namespace Civlike.Client.Render.Ui;
 
 public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b(?:globe-tracking|ui_newgame)\b" ) {
 
+	private readonly List<string> _worldGenerationMessages = [];
+	private double? _currentStepProgress = null;
 	private Label _progressLabel = null!;
 	private InteractableButton _btnCreateWorld = null!;
 
 	protected override void Initialize() {
-		_progressLabel = new Label( this ) {
+		this._progressLabel = new Label( this ) {
 			Text = "No world generation in progress",
 			FontName = "calibrib",
-			TextScale = 0.04f,
+			TextScale = 0.06f,
 			Color = (1, 1, 1, 1),
 			HorizontalAlignment = Alignment.Positive,
 			VerticalAlignment = Alignment.Negative
 		};
-		_progressLabel.Placement.Set( new( (-.3, .3 ), 0, (.3, .3 ) ), Alignment.Positive, Alignment.Negative );
-		_btnCreateWorld = new InteractableButton( this, "Create World" );
-		_btnCreateWorld.Placement.Set( new( (.3, -.15), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
-		_btnCreateWorld.OnClicked += OnNewGameButtonClicked;
+		this._progressLabel.Placement.Set( new( (-.4, .3 ), 0, (.4, .3 ) ), Alignment.Positive, Alignment.Negative );
+		this._btnCreateWorld = new InteractableButton( this, "Create World" );
+		this._btnCreateWorld.Placement.Set( new( (.3, -.15), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
+		this._btnCreateWorld.OnClicked += OnNewGameButtonClicked;
 	}
 
-	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event )
-		=> Publish( new CreateNewWorldRequestMessage( new( 8, 6378000, 43, 400, -400, 700, 9000, 4000, double.Pi * 2 / (24 * 60 * 60), double.Pi * 2 / (365.2422 * 24 * 60 * 60), 23.5f, 128, 6 ) ), "gamelogic", true );
+	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event ) {
+		TectonicParameters tectonicParameters = new() {
+			BaseHeightVariance = 1400,
+			PlateCountBase = 60,
+			PlateCountVariance = 20,
+			PlateHeight = -1100,
+			PlateHeightVariance = 1400,
+			FaultMaxHeight = 14000,
+			MountainHeight = 7000
+		};
+		Publish( new CreateNewGlobeRequestMessage<TectonicGeneratingGlobe, TectonicGlobeParameters>( new( 8, 6378000, 43, 128, tectonicParameters ) ), "gamelogic", true );
+	}
+
+	//=> Publish( new CreateNewGlobeRequestMessage( new( 8, 6378000, 43, 1400, -1100, 1400, 14000, 7000, double.Pi * 2 / (24 * 60 * 60), double.Pi * 2 / (365.2422 * 24 * 60 * 60), 23.5f, 128, 6 ) ), "gamelogic", true );
 
 	protected override bool ShouldDisplay() {
-		return GameStateProvider.Get<bool>( UiElementConstants.ShowNewGameMenu ); //TODO: Create a more complex state machine for ui?
+		return this.GameStateProvider.Get<bool>( UiElementConstants.ShowNewGameMenu ); //TODO: Create a more complex state machine for ui?
 	}
 
 	protected override void OnMessageReceived( Message message ) {
 		if (message.Content is CreateNewWorldRequestResponseMessage)
-			GameStateProvider.SetNewState( UiElementConstants.ShowNewGameMenu, false );
+			this.GameStateProvider.SetNewState( UiElementConstants.ShowNewGameMenu, false );
 		if (message.Content is WorldGenerationProgressMessage worldGenerationProgress) {
-			if (!string.IsNullOrEmpty( _progressLabel.Text ))
-				_progressLabel.Text += Environment.NewLine;
-			_progressLabel.Text += worldGenerationProgress.ProgressMessage;
+			this._worldGenerationMessages.Add( worldGenerationProgress.ProgressMessage );
+			this._currentStepProgress = null;
+			UpdateGenerationDisplay();
 		}
+		if (message.Content is WorldGenerationStepProgressPercentMessage worldGenerationStepProgressPercent) {
+			this._currentStepProgress = worldGenerationStepProgressPercent.ProgressPercent;
+			UpdateGenerationDisplay();
+		}
+	}
+
+	private void UpdateGenerationDisplay() {
+		string labelText = "";
+		for (int i = 0; i < this._worldGenerationMessages.Count; i++) {
+			string message = this._worldGenerationMessages[ i ];
+			bool isLastMessage = i == this._worldGenerationMessages.Count - 1;
+			if (!isLastMessage) {
+				labelText += $"{message}...Done!{Environment.NewLine}";
+				continue;
+			}
+			labelText += $"{message}...{(this._currentStepProgress.HasValue ? $"{this._currentStepProgress.Value:N1}%" : "")}{Environment.NewLine}";
+		}
+		this._progressLabel.Text = labelText;
 	}
 }

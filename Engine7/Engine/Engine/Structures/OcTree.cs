@@ -62,7 +62,7 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 	}
 
 	public void Add( T item ) {
-		var bounds = item.Bounds;
+		AABB<Vector3<TScalar>> bounds = item.Bounds;
 		_root.Add( item, bounds );
 	}
 

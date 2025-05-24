@@ -12,25 +12,25 @@ public sealed class StartMenu() : UserInterfaceElementWithMessageNodeBase( "ui_s
 	private InteractableButton _btnExit = null!;
 
 	protected override void Initialize() {
-		_btnNewGame = new InteractableButton( this, "New Game" );
-		_btnNewGame.Placement.Set( new( (.3, -.15), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
-		_btnNewGame.OnClicked += OnNewGameButtonClicked;
-		_btnExit = new InteractableButton( this, "Exit");
-		_btnExit.Placement.Set( new( (.3, -.4), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
-		_btnExit.OnClicked += OnExitButtonClicked;
+		this._btnNewGame = new InteractableButton( this, "New Game" );
+		this._btnNewGame.Placement.Set( new( (.3, -.15), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
+		this._btnNewGame.OnClicked += OnNewGameButtonClicked;
+		this._btnExit = new InteractableButton( this, "Exit");
+		this._btnExit.Placement.Set( new( (.3, -.4), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
+		this._btnExit.OnClicked += OnExitButtonClicked;
 	}
 
 	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event ) => Publish( new NewGameMessage(), "gamelogic", true );
 	private void OnExitButtonClicked( InteractableButton btn, MouseButtonEvent @event ) => Publish( new ExitGameMessage(), null, true );
 
 	protected override bool ShouldDisplay() {
-		return GameStateProvider.Get<bool>( UiElementConstants.ShowStartMenu ); //TODO: Create a more complex state machine for ui?
+		return this.GameStateProvider.Get<bool>( UiElementConstants.ShowStartMenu ); //TODO: Create a more complex state machine for ui?
 	}
 
 	protected override void OnMessageReceived( Message message ) {
 		if (message.Content is NewGameMessageResponse newGameMessageResponse) {
-			GameStateProvider.SetNewState( UiElementConstants.ShowStartMenu, false );
-			GameStateProvider.SetNewState( UiElementConstants.ShowNewGameMenu, true );
+			this.GameStateProvider.SetNewState( UiElementConstants.ShowStartMenu, false );
+			this.GameStateProvider.SetNewState( UiElementConstants.ShowNewGameMenu, true );
 		}
 	}
 }

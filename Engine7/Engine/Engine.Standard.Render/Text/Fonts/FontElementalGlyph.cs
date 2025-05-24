@@ -4,19 +4,13 @@ using Engine.Standard.Render.Text.Fonts.Tables.Glyf;
 
 namespace Engine.Standard.Render.Text.Fonts;
 
-public sealed class FontElementalGlyph : IGlyph {
+public sealed class FontElementalGlyph( ElementalGlyphData glyphData, Matrix2x2<float> transformationMatrix, Vector2<float> offset ) : IGlyph {
 
-	private readonly ElementalGlyphData _glyphData;
+	private readonly ElementalGlyphData _glyphData = glyphData;
 
-	public FontElementalGlyph( ElementalGlyphData glyphData, Matrix2x2<float> transformationMatrix, Vector2<float> offset ) {
-		_glyphData = glyphData;
-		this.TransformationMatrix = transformationMatrix;
-		this.Offset = offset;
-	}
-
-	public IGlyphData GlyphData => _glyphData;
-	public Matrix2x2<float> TransformationMatrix { get; }
-	public Vector2<float> Offset { get; }
+	public IGlyphData GlyphData => this._glyphData;
+	public Matrix2x2<float> TransformationMatrix { get; } = transformationMatrix;
+	public Vector2<float> Offset { get; } = offset;
 
 	public GlyphTriangle[] TriangulateGlyph() {
 		List<Vector2<int>> pointList = GetAllPoints();

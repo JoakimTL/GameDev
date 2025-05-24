@@ -2,7 +2,6 @@
 using Engine.Module.Render;
 using Engine.Module.Render.Input;
 using Engine.Processing;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Engine.Standard.Render.UserInterface;
 
@@ -12,13 +11,13 @@ public sealed class UserInterfaceService : DisposableIdentifiable, IUpdateable {
 	private readonly CapturableUserInputEventService _capturableUserInputEventService;
 	private readonly UserInterfaceServiceAccess _userInterfaceServiceAccess;
 
-	public UserInterfaceStateManager UserInterfaceStateManager => _userInterfaceStateManager;
+	public UserInterfaceStateManager UserInterfaceStateManager => this._userInterfaceStateManager;
 
 	public UserInterfaceService( GameStateProvider gameStateProvider, CapturableUserInputEventService capturableUserInputEventService, RenderServiceAccess renderServiceAccess ) {
 		this._capturableUserInputEventService = capturableUserInputEventService;
 		this._userInterfaceServiceAccess = new( renderServiceAccess, "ui" );
-		_userInterfaceStateManager = new( _userInterfaceServiceAccess, gameStateProvider );
-		this._capturableUserInputEventService.AddListener( _userInterfaceStateManager );
+		this._userInterfaceStateManager = new( this._userInterfaceServiceAccess, gameStateProvider );
+		this._capturableUserInputEventService.AddListener( this._userInterfaceStateManager );
 	}
 
 	public void Update( double time, double deltaTime ) {
@@ -26,7 +25,7 @@ public sealed class UserInterfaceService : DisposableIdentifiable, IUpdateable {
 	}
 
 	protected override bool InternalDispose() {
-		this._capturableUserInputEventService.RemoveListener( _userInterfaceStateManager );
+		this._capturableUserInputEventService.RemoveListener( this._userInterfaceStateManager );
 		return true;
 	}
 }

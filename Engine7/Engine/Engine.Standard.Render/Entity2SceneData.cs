@@ -12,5 +12,5 @@ public readonly struct Entity2SceneData( Matrix4x4<float> modelMatrix, Vector4<u
 	[VAO.Data( VertexAttribType.UnsignedShort, 4, normalized: true ), FieldOffset( 64 )]
 	public readonly Vector4<ushort> Color = color;
 
-	public override readonly string ToString() => $"{this.ModelMatrix} {Color}";
+	public override readonly string ToString() => $"{this.ModelMatrix} {this.Color}";
 }

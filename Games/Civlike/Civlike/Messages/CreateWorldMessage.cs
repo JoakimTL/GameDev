@@ -1,4 +1,4 @@
-﻿using Civlike.World;
+﻿using Civlike.World.GameplayState;
 
 namespace Civlike.Messages;
-public sealed record CreateNewWorldRequestResponseMessage( GlobeModel Globe );
+public sealed record CreateNewWorldRequestResponseMessage( Globe Globe );

@@ -35,8 +35,8 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		}
 
 		if (message.Content is CreateNewWorldRequestMessage createNewWorldRequest) {
-			var procGen = new ProceduralWorldTerrainGenerator( createNewWorldRequest.Parameters );
-			var globe = new GlobeModel( Guid.NewGuid(), createNewWorldRequest.Parameters.Subdivisions, procGen );
+			ProceduralWorldTerrainGenerator procGen = new ProceduralWorldTerrainGenerator( createNewWorldRequest.Parameters );
+			GlobeModel globe = new GlobeModel( Guid.NewGuid(), createNewWorldRequest.Parameters.Subdivisions, procGen );
 			_worldGenParameters = createNewWorldRequest.Parameters;
 			MessageBusNode.Publish( new CreateNewWorldRequestResponseMessage( globe ), "globe-tracking", true );
 			return;
@@ -53,7 +53,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 				}
 			}
 			{
-				var player = _entities.GetEntity( createNewOwnerMessage.PlayerGuid );
+				Entity? player = _entities.GetEntity( createNewOwnerMessage.PlayerGuid );
 				if (player is null)
 					return;
 				Entity newOwner = _entities.CreateEntity();

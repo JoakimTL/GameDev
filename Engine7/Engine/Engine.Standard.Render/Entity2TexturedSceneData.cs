@@ -14,5 +14,5 @@ public readonly struct Entity2TexturedSceneData( Matrix4x4<float> modelMatrix, V
 	[VAO.Data( (OpenGL.VertexAttribType) 5135, 1, VertexArrayAttributeType.LARGE ), FieldOffset( 80 )]
 	public readonly ulong TextureId = textureId;
 
-	public override readonly string ToString() => $"{this.ModelMatrix} {Color} {TextureId}";
+	public override readonly string ToString() => $"{this.ModelMatrix} {this.Color} {this.TextureId}";
 }

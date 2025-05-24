@@ -1,7 +1,6 @@
 ﻿using Engine.Module.Render.Input;
 using Engine.Transforms;
 using Engine.Transforms.Models;
-using System.Xml.Linq;
 
 namespace Engine.Standard.Render.UserInterface;
 
@@ -28,42 +27,42 @@ public abstract class UserInterfaceComponentBase : Identifiable, IRemovable {
 	private bool _placementChanged = false;
 
 	public UserInterfaceComponentBase( UserInterfaceElementBase element) {
-		Element = element;
-		Transform = new();
-		Transform.Nickname = GetType().Name;
-		TransformInterface = Transform.Interface;
-		Transform.OnMatrixChanged += OnMatrixChanged;
-		PlacementBounds = new AABB<Vector2<double>>( -1, 1 );
-		Placement = new( this );
-		_children = [];
-		Parent = null;
-		RenderLayer = element.BaseLayer;
-		Element.AddComponent( this );
+		this.Element = element;
+		this.Transform = new();
+		this.Transform.Nickname = GetType().Name;
+		this.TransformInterface = this.Transform.Interface;
+		this.Transform.OnMatrixChanged += OnMatrixChanged;
+		this.PlacementBounds = new AABB<Vector2<double>>( -1, 1 );
+		this.Placement = new( this );
+		this._children = [];
+		this.Parent = null;
+		this.RenderLayer = element.BaseLayer;
+		this.Element.AddComponent( this );
 	}
 
-	private void OnMatrixChanged( IMatrixProvider<double> provider ) => _placementChanged = true;
+	private void OnMatrixChanged( IMatrixProvider<double> provider ) => this._placementChanged = true;
 
 	protected T AddChild<T>( T child, uint renderLayerOffset = 1 ) where T : UserInterfaceComponentBase {
-		if (child.Element != Element)
+		if (child.Element != this.Element)
 			throw new ArgumentException( "Child must belong to the same element." );
 		child.SetParent( this, renderLayerOffset );
-		_children.Add( child );
+		this._children.Add( child );
 		child.OnRemoved += ChildRemoved;
 		return child;
 	}
 
 	private void SetParent( UserInterfaceComponentBase parent, uint renderLayerOffset = 1 ) {
-		if (Parent is not null) 
+		if (this.Parent is not null) 
 			throw new Exception( "Cannot set parent, already has one." );
-		Parent = parent;
-		Transform.SetParent( parent.Transform, false );
-		RenderLayer = parent.RenderLayer + renderLayerOffset;
+		this.Parent = parent;
+		this.Transform.SetParent( parent.Transform, false );
+		this.RenderLayer = parent.RenderLayer + renderLayerOffset;
 	}
 
 	internal bool OnCharacter( KeyboardCharacterEvent @event ) {
-		if (!Visible)
+		if (!this.Visible)
 			return false;
-		foreach (UserInterfaceComponentBase child in _children) {
+		foreach (UserInterfaceComponentBase child in this._children) {
 			if (child.OnCharacter( @event ))
 				return true;
 		}
@@ -71,45 +70,45 @@ public abstract class UserInterfaceComponentBase : Identifiable, IRemovable {
 	}
 
 	internal bool OnKey( KeyboardEvent @event ) {
-		if (!Visible)
+		if (!this.Visible)
 			return false;
-		foreach (UserInterfaceComponentBase child in _children) {
+		foreach (UserInterfaceComponentBase child in this._children) {
 			if (child.OnKey( @event ))
 				return true;
 		}
 		return DoOnKey( @event );
 	}
 	internal bool OnMouseButton( MouseButtonEvent @event ) {
-		if (!Visible)
+		if (!this.Visible)
 			return false;
-		foreach (UserInterfaceComponentBase child in _children) {
+		foreach (UserInterfaceComponentBase child in this._children) {
 			if (child.OnMouseButton( @event ))
 				return true;
 		}
 		return DoOnMouseButton( @event );
 	}
 	internal bool OnMouseEnter( MouseEnterEvent @event ) {
-		if (!Visible)
+		if (!this.Visible)
 			return false;
-		foreach (UserInterfaceComponentBase child in _children) {
+		foreach (UserInterfaceComponentBase child in this._children) {
 			if (child.OnMouseEnter( @event ))
 				return true;
 		}
 		return DoOnMouseEnter( @event );
 	}
 	internal bool OnMouseMoved( MouseMoveEvent @event ) {
-		if (!Visible)
+		if (!this.Visible)
 			return false;
-		foreach (UserInterfaceComponentBase child in _children) {
+		foreach (UserInterfaceComponentBase child in this._children) {
 			if (child.OnMouseMoved( @event ))
 				return true;
 		}
 		return DoOnMouseMoved( @event );
 	}
 	internal bool OnMouseWheelScrolled( MouseWheelEvent @event ) {
-		if (!Visible)
+		if (!this.Visible)
 			return false;
-		foreach (UserInterfaceComponentBase child in _children) {
+		foreach (UserInterfaceComponentBase child in this._children) {
 			if (child.OnMouseWheelScrolled( @event ))
 				return true;
 		}
@@ -118,20 +117,20 @@ public abstract class UserInterfaceComponentBase : Identifiable, IRemovable {
 
 
 	internal void Update( double time, double deltaTime ) {
-		Placement.Update();
-		if (_placementChanged) {
+		this.Placement.Update();
+		if (this._placementChanged) {
 			OnPlacementChanged();
-			_placementChanged = false;
+			this._placementChanged = false;
 		}
-		foreach (UserInterfaceComponentBase child in _children)
+		foreach (UserInterfaceComponentBase child in this._children)
 			child.Update( time, deltaTime );
 		OnUpdate( time, deltaTime );
 	}
 
 	internal void UiSpaceChanged( Vector2<double> newAspectVector ) {
-		if (Parent is not null)
+		if (this.Parent is not null)
 			return;
-		PlacementBounds = new AABB<Vector2<double>>( -newAspectVector, newAspectVector );
+		this.PlacementBounds = new AABB<Vector2<double>>( -newAspectVector, newAspectVector );
 		PlacementBoundsChanged?.Invoke();
 	}
 
@@ -145,15 +144,15 @@ public abstract class UserInterfaceComponentBase : Identifiable, IRemovable {
 	protected abstract void OnPlacementChanged();
 
 	internal void Hide() {
-		Visible = false;
-		foreach (UserInterfaceComponentBase child in _children)
+		this.Visible = false;
+		foreach (UserInterfaceComponentBase child in this._children)
 			child.Hide();
 		DoHide();
 	}
 
 	internal void Show() {
-		Visible = true;
-		foreach (UserInterfaceComponentBase child in _children)
+		this.Visible = true;
+		foreach (UserInterfaceComponentBase child in this._children)
 			child.Show();
 		DoShow();
 	}
@@ -164,26 +163,26 @@ public abstract class UserInterfaceComponentBase : Identifiable, IRemovable {
 	protected abstract void OnUpdate( double time, double deltaTime );
 
 	public void Remove() {
-		if (Removed)
+		if (this.Removed)
 			return;
-		Removed = true;
+		this.Removed = true;
 		InternalRemove();
 		OnRemoved?.Invoke( this );
-		Element.RemoveComponent( this );
-		Parent = null;
-		Transform.SetParent( null, false );
-		foreach (UserInterfaceComponentBase child in _children) {
+		this.Element.RemoveComponent( this );
+		this.Parent = null;
+		this.Transform.SetParent( null, false );
+		foreach (UserInterfaceComponentBase child in this._children) {
 			child.OnRemoved -= ChildRemoved;
 			child.Remove();
 		}
-		_children.Clear();
+		this._children.Clear();
 	}
 
 	private void ChildRemoved( IRemovable removable ) {
 		if (removable is not UserInterfaceComponentBase child)
 			return;
 		child.OnRemoved -= ChildRemoved;
-		_children.Remove( child );
+		this._children.Remove( child );
 	}
 
 	/// <summary>

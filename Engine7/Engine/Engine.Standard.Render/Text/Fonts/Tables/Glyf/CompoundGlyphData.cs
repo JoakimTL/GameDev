@@ -5,7 +5,7 @@ public sealed class CompoundGlyphData( FontGlyphHeader header, GlyphMap glyphMap
 	public GlyphMap Mapping { get; } = glyphMap;
 	private readonly List<CompoundGlyphComponentData> _componentGlyphData = [];
 
-	public void AddComponentGlyph( CompoundGlyphComponentData componentGlyph ) => _componentGlyphData.Add( componentGlyph );
+	public void AddComponentGlyph( CompoundGlyphComponentData componentGlyph ) => this._componentGlyphData.Add( componentGlyph );
 
-	public IReadOnlyList<CompoundGlyphComponentData> ComponentGlyphData => _componentGlyphData;
+	public IReadOnlyList<CompoundGlyphComponentData> ComponentGlyphData => this._componentGlyphData;
 }

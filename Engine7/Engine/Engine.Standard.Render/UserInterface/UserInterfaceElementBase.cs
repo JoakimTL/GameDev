@@ -129,7 +129,7 @@ public abstract class UserInterfaceElementBase( uint baseLayer = 0 ) : Disposabl
 	}
 
 	protected override bool InternalDispose() {
-		UserInterfaceComponentBase[] components = this._components.ToArray();
+		UserInterfaceComponentBase[] components = [ .. this._components ];
 		foreach (UserInterfaceComponentBase component in components)
 			if (component.Parent is null)
 				component.Remove();

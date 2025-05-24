@@ -23,7 +23,7 @@ public sealed class EntityContainerService : DisposableIdentifiable, IUpdateable
 			foreach (EntityContainer container in this._containers)
 				message.SendResponseFrom( this._messageBusNode, new SynchronizedEntityContainerRequestMessageResponse( new( container, _serializerProvider ) ) );
 		if (message.Content is SynchronizedEntityContainerRequestMessage containerRequest) {
-			var container = this._containers.FirstOrDefault( p => p.Id == containerRequest.ContainerId );
+			EntityContainer? container = this._containers.FirstOrDefault( p => p.Id == containerRequest.ContainerId );
 			if (container is not null)
 				message.SendResponseFrom( this._messageBusNode, new SynchronizedEntityContainerRequestMessageResponse( new( container, _serializerProvider ) ) );
 		}

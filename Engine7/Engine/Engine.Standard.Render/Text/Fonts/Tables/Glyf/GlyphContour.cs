@@ -20,7 +20,7 @@ public sealed class GlyphContour( ushort startIndex, GlyphContourPoint[] points 
 		AABB<Vector2<int>> otherBounds = AABB.Create( other.Points.Select( p => p.Coordinate ).ToArray().AsSpan() );
 		if (!myBounds.Intersects( otherBounds ))
 			return;
-		Vector2<int>[] points = [ .. Points.Select( p => p.Coordinate ).Distinct() ];
+		Vector2<int>[] points = [ .. this.Points.Select( p => p.Coordinate ).Distinct() ];
 		for (int i = 0; i < other.Points.Count; i++)
 			if (other.Points[ i ].Coordinate.PointInPolygon( points, (1, 0) )) {
 				other._containedWithin.Add( this );
@@ -42,11 +42,11 @@ public sealed class GlyphContour( ushort startIndex, GlyphContourPoint[] points 
 		HashSet<GlyphContour> containingContours = [];
 		foreach (GlyphContour contour in this._containedWithin)
 			contour.AddContainingContours( containingContours );
-		_containedWithin.RemoveAll( containingContours.Contains );
+		this._containedWithin.RemoveAll( containingContours.Contains );
 	}
 
 	private void AddContainingContours( HashSet<GlyphContour> contours ) {
-		foreach (GlyphContour contour in _containedWithin)
+		foreach (GlyphContour contour in this._containedWithin)
 			if (contours.Add( contour ))
 				contour.AddContainingContours( contours );
 	}

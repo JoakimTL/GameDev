@@ -38,7 +38,7 @@ public sealed class OldFontGlyph : Identifiable, IOldGlyph {
 	public IReadOnlyList<(Vector2<int> coordinate, bool onCurve)> Points => this._originalPoints;
 
 	public OldFontGlyph( FontGlyphHeader header, GlyphMap mapping, (Vector2<int> coordinate, bool onCurve)[] points, ushort[] endPointsOfContours, ushort unitsPerEm ) {
-		Nickname = $"[{(char) mapping.Unicode},{mapping.Unicode}]";
+		this.Nickname = $"[{(char) mapping.Unicode},{mapping.Unicode}]";
 		this.Header = header;
 		this.Mapping = mapping;
 		this._originalEndPointsOfContours = endPointsOfContours;
@@ -130,8 +130,8 @@ public sealed class OldFontGlyph : Identifiable, IOldGlyph {
 	private Triangle2<float> CreateTriangle( Vector2<int> a, Vector2<int> b, Vector2<int> c, out bool flipped ) {
 		flipped = new Edge2<int>( a, b ).Orientation( c ) > 0;
 		if (flipped)
-			return new( c.CastSaturating<int, float>() * Scale, b.CastSaturating<int, float>() * Scale, a.CastSaturating<int, float>() * Scale );
-		return new( a.CastSaturating<int, float>() * Scale, b.CastSaturating<int, float>() * Scale, c.CastSaturating<int, float>() * Scale );
+			return new( c.CastSaturating<int, float>() * this.Scale, b.CastSaturating<int, float>() * this.Scale, a.CastSaturating<int, float>() * this.Scale );
+		return new( a.CastSaturating<int, float>() * this.Scale, b.CastSaturating<int, float>() * this.Scale, c.CastSaturating<int, float>() * this.Scale );
 	}
 
 
@@ -316,8 +316,8 @@ public sealed class OldFontGlyph : Identifiable, IOldGlyph {
 		}
 
 		(double xPrime, double yPrime) TransformPoint( double x, double y ) {
-			double xPrime = iHat_x * x + jHat_x * y + offsetX;
-			double yPrime = iHat_y * x + jHat_y * y + offsetY;
+			double xPrime = (iHat_x * x) + (jHat_x * y) + offsetX;
+			double yPrime = (iHat_y * x) + (jHat_y * y) + offsetY;
 			return (xPrime, yPrime);
 		}
 	}

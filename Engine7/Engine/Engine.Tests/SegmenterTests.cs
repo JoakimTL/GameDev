@@ -20,11 +20,11 @@ public class SegmenterTests {
 		ReadOnlySpan<byte> loremIpsum = MemoryMarshal.AsBytes( loremIpsumString );
 		segmenter.Append( loremIpsum );
 
-		var result = segmenter.Flush( "unit-test" );
+		Buffers.PooledBufferData result = segmenter.Flush( "unit-test" );
 
 		Desegmenter desegmenter = new();
 
-		var spanLength = Segmentation.DetermineSpanLength( result.Payload.Span );
+		int spanLength = Segmentation.DetermineSpanLength( result.Payload.Span );
 
 		Assert.That( spanLength, Is.EqualTo( loremIpsum.Length ) );
 

@@ -23,7 +23,7 @@ public sealed class OldContour( ushort startIndex, OldContourPoint[] points ) : 
 		AABB<Vector2<int>> otherBounds = AABB.Create( other.Points.Select( p => p.Coordinate ).ToArray().AsSpan() );
 		if (!myBounds.Intersects( otherBounds ))
 			return;
-		Vector2<int>[] points = [ .. Points.Select( p => p.Coordinate ).Distinct() ];
+		Vector2<int>[] points = [ .. this.Points.Select( p => p.Coordinate ).Distinct() ];
 		Vector2<int> p2 = points[ ^1 ];
 		for (int i = 0; i < points.Length; i++) {
 
@@ -52,11 +52,11 @@ public sealed class OldContour( ushort startIndex, OldContourPoint[] points ) : 
 		HashSet<OldContour> containingContours = [];
 		foreach (OldContour contour in this._containedWithin)
 			contour.AddContainingContours( containingContours );
-		_containedWithin.RemoveAll( containingContours.Contains );
+		this._containedWithin.RemoveAll( containingContours.Contains );
 	}
 
 	private void AddContainingContours( HashSet<OldContour> contours ) {
-		foreach (OldContour contour in _containedWithin) {
+		foreach (OldContour contour in this._containedWithin) {
 			if (contours.Add( contour ))
 				contour.AddContainingContours( contours );
 		}

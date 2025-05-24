@@ -30,17 +30,17 @@ public sealed class TextureRenderingService( ShaderBundleService shaderBundleSer
 		this._mesh = this._primitiveMesh2Provider.Get( Meshing.Primitive2.Rectangle );
 		if (!this._dataBlockService.TryCreateUniformBlock( nameof( SingleTextureRenderingBlock ), 256, [ ShaderType.FragmentShader ], out this._uniformBlock! ))
 			throw new( "Failed to get uniform block" );
-		_dataBlockCollection = new DataBlockCollection( this._uniformBlock );
+		this._dataBlockCollection = new DataBlockCollection( this._uniformBlock );
 	}
 
 	public void RenderTexture( ulong textureHandle ) {
 		OglShaderPipelineBase shaderPipeline = this._shaderBundle.Get( "default" ) ?? throw new( "Failed to get shader pipeline" );
 		shaderPipeline.Bind();
-		_vao.Bind();
-		_uniformBlock.Buffer.Write( 0u, new SingleTextureRenderingBlock( textureHandle ) );
-		_dataBlockCollection.BindShader( shaderPipeline );
-		Gl.DrawElements( PrimitiveType.Triangles, (int) _mesh.ElementCount, DrawElementsType.UnsignedInt, 0 );
-		_dataBlockCollection.UnbindBuffers();
+		this._vao.Bind();
+		this._uniformBlock.Buffer.Write( 0u, new SingleTextureRenderingBlock( textureHandle ) );
+		this._dataBlockCollection.BindShader( shaderPipeline );
+		Gl.DrawElements( PrimitiveType.Triangles, (int) this._mesh.ElementCount, DrawElementsType.UnsignedInt, 0 );
+		this._dataBlockCollection.UnbindBuffers();
 		OglShaderPipelineBase.Unbind();
 		OglVertexArrayObjectBase.Unbind();
 	}

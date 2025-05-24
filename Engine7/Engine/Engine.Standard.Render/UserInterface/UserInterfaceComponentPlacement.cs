@@ -14,53 +14,53 @@ public sealed class UserInterfaceComponentPlacement {
 	public UserInterfaceComponentPlacement( UserInterfaceComponentBase component ) {
 		component.PlacementBoundsChanged += OnComponentPlacementBoundsChanged;
 		this._component = component;
-		Transform = new( 0, 0, 1 );
-		HorizontalAlignment = 0;
-		VerticalAlignment = 0;
-		Changed = true;
+		this.Transform = new( 0, 0, 1 );
+		this.HorizontalAlignment = 0;
+		this.VerticalAlignment = 0;
+		this.Changed = true;
 	}
 
-	private void OnComponentPlacementBoundsChanged() => Changed = true;
+	private void OnComponentPlacementBoundsChanged() => this.Changed = true;
 
 	public void SetTransform( TransformData<Vector2<double>, double, Vector2<double>> transform ) {
-		Transform = transform;
-		Changed = true;
+		this.Transform = transform;
+		this.Changed = true;
 	}
 
 	public void SetHorizontalAlignment( Alignment horizontalAlignment ) {
-		HorizontalAlignment = horizontalAlignment;
-		Changed = true;
+		this.HorizontalAlignment = horizontalAlignment;
+		this.Changed = true;
 	}
 
 	public void SetVerticalAlignment( Alignment verticalAlignment ) {
-		VerticalAlignment = verticalAlignment;
-		Changed = true;
+		this.VerticalAlignment = verticalAlignment;
+		this.Changed = true;
 	}
 
 	public void Set( TransformData<Vector2<double>, double, Vector2<double>> transform, Alignment horizontalAlignment, Alignment verticalAlignment ) {
-		Transform = transform;
-		HorizontalAlignment = horizontalAlignment;
-		VerticalAlignment = verticalAlignment;
-		Changed = true;
+		this.Transform = transform;
+		this.HorizontalAlignment = horizontalAlignment;
+		this.VerticalAlignment = verticalAlignment;
+		this.Changed = true;
 	}
 
 	/// <returns>A vector which scaling returns this component to a square shape, however it does not remove all scaling effects.</returns>
 	public Vector2<double> GetSquaringScale() {
-		return Transform.Scale.X == 0 || Transform.Scale.Y == 0
+		return this.Transform.Scale.X == 0 || this.Transform.Scale.Y == 0
 			? Vector2<double>.One
-			: Transform.Scale.X > Transform.Scale.Y ? (1, Transform.Scale.X / Transform.Scale.Y) : (Transform.Scale.Y / Transform.Scale.X, 1);
+			: this.Transform.Scale.X > this.Transform.Scale.Y ? (1, this.Transform.Scale.X / this.Transform.Scale.Y) : (this.Transform.Scale.Y / this.Transform.Scale.X, 1);
 	}
 
 	public void Update() {
-		if (!Changed)
+		if (!this.Changed)
 			return;
-		Changed = false;
-		Vector2<double> placementCenter = _component.PlacementBounds.GetCenter();
-		Vector2<double> placementLengths = _component.PlacementBounds.GetLengths() * 0.5;
-		Vector2<double> newTranslation = placementCenter + placementLengths.MultiplyEntrywise( ((int) HorizontalAlignment, (int) VerticalAlignment) ) + Transform.Translation;
+		this.Changed = false;
+		Vector2<double> placementCenter = this._component.PlacementBounds.GetCenter();
+		Vector2<double> placementLengths = this._component.PlacementBounds.GetLengths() * 0.5;
+		Vector2<double> newTranslation = placementCenter + placementLengths.MultiplyEntrywise( ((int) this.HorizontalAlignment, (int) this.VerticalAlignment) ) + this.Transform.Translation;
 
-		TransformData<Vector2<double>, double, Vector2<double>> newTransform = new( newTranslation, Transform.Rotation, Transform.Scale );
+		TransformData<Vector2<double>, double, Vector2<double>> newTransform = new( newTranslation, this.Transform.Rotation, this.Transform.Scale );
 
-		_component.TransformInterface.SetData( newTransform );
+		this._component.TransformInterface.SetData( newTransform );
 	}
 }

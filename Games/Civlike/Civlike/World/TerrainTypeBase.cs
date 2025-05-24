@@ -2,26 +2,14 @@
 
 namespace Civlike.World;
 
-public abstract class TerrainTypeBase {
+public abstract class TerrainTypeBase( uint id, string name, Vector4<float> color, bool hasResources, bool isLand = true, bool claimable = true ) {
 
-	public uint Id { get; }
+	public uint Id { get; } = id;
 
-	public string Name { get; }
-	public Vector4<float> Color { get; }
+	public string Name { get; } = name;
+	public Vector4<float> Color { get; } = color;
 
-	public bool HasResources { get; }
-	public bool IsLand { get; }
-	public bool Claimable { get; }
-
-	public TerrainTypeBase( uint id, string name, Vector4<float> color, bool hasResources, bool isLand = true, bool claimable = true ) {
-		Id = id;
-		Name = name;
-		Color = color;
-		HasResources = hasResources;
-		IsLand = isLand;
-		this.Claimable = claimable;
-	}
-
-
-
+	public bool HasResources { get; } = hasResources;
+	public bool IsLand { get; } = isLand;
+	public bool Claimable { get; } = claimable;
 }

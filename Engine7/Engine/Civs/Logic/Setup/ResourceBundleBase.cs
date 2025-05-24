@@ -5,7 +5,7 @@ public abstract class ResourceBundleBase {
 	public IReadOnlyDictionary<ResourceTypeBase, double> Resources => _resources;
 
 	public bool HasEnough( ResourceBundleBase requirements ) {
-		foreach (var kvp in requirements.Resources)
+		foreach (KeyValuePair<ResourceTypeBase, double> kvp in requirements.Resources)
 			if (!_resources.TryGetValue( kvp.Key, out double amount ) || amount < kvp.Value)
 				return false;
 		return true;

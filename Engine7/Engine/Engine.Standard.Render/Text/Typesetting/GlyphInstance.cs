@@ -8,10 +8,10 @@ public sealed class GlyphInstance : SceneInstanceCollection<GlyphVertex, Entity2
 
 	internal void SetGlyphMesh( GlyphMesh? mesh ) => base.SetMesh( mesh );
 	internal bool SetInstanceData( Entity2SceneData data ) {
-		_lastInstanceData = data;
+		this._lastInstanceData = data;
 		return UpdateInstanceData();
 	}
-	internal bool UpdateInstanceData() => base.Write( _lastInstanceData );
+	internal bool UpdateInstanceData() => base.Write( this._lastInstanceData );
 
 	internal new void SetAllocated( bool allocated ) => base.SetAllocated( allocated );
 }

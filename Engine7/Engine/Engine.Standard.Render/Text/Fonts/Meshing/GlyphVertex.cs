@@ -16,5 +16,5 @@ public readonly struct GlyphVertex( Vector2<float> translation, Vector2<float> u
 	[VAO.Data( VertexAttribType.UnsignedByte, 2, normalized: false ), FieldOffset( 20 )]
 	public readonly Vector2<byte> LetterInformation = new( (byte) (fill ? 1 : 0), (byte) (flip ? 1 : 0) );
 
-	public override string ToString() => $"GlyphVertex: {Translation}, {UV}, {Color}, {LetterInformation}";
+	public override string ToString() => $"GlyphVertex: {this.Translation}, {this.UV}, {this.Color}, {this.LetterInformation}";
 }

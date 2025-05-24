@@ -1,28 +1,19 @@
-﻿using Civlike.Logic;
+﻿namespace Civlike.Logic.Setup;
 
-namespace Civlike.Logic.Setup;
-
-public abstract class RecipeTypeBase : SelfIdentifyingBase {
-	public string Name { get; }
-	public StaticResourceBundle Input { get; }
-	public StaticResourceBundle Output { get; }
-	public IReadOnlyList<ResourceTypeBase> Byproducts { get; }
-
-	protected RecipeTypeBase( string name, StaticResourceBundle input, StaticResourceBundle output, IEnumerable<ResourceTypeBase> byproducts ) {
-		this.Name = name;
-		this.Input = input;
-		this.Output = output;
-		this.Byproducts = byproducts.ToList().AsReadOnly();
-	}
+public abstract class RecipeTypeBase( string name, StaticResourceBundle input, StaticResourceBundle output, IEnumerable<ResourceTypeBase> byproducts ) : SelfIdentifyingBase {
+	public string Name { get; } = name;
+	public StaticResourceBundle Input { get; } = input;
+	public StaticResourceBundle Output { get; } = output;
+	public IReadOnlyList<ResourceTypeBase> Byproducts { get; } = byproducts.ToList().AsReadOnly();
 
 	public bool Process( ResourceContainer container, bool keepByproducts ) {
-		if (!container.Subtract( Input ))
+		if (!container.Subtract( this.Input ))
 			return false;
 		if (keepByproducts) {
-			container.Add( Output );
+			container.Add( this.Output );
 			return true;
 		}
-		container.AddAllExcept( Output, Byproducts );
+		container.AddAllExcept( this.Output, this.Byproducts );
 		return true;
 	}
 }

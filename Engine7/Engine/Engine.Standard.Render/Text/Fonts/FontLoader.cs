@@ -30,19 +30,19 @@ public unsafe sealed class FontLoader : DisposableIdentifiable {
 	public FontLoader( string fontFilePath ) {
 		if (Path.GetExtension( fontFilePath ) != ".ttf")
 			throw new Exception( "Font file must be a TrueType font (.ttf)" );
-		FontName = Path.GetFileNameWithoutExtension( fontFilePath );
+		this.FontName = Path.GetFileNameWithoutExtension( fontFilePath );
 		byte[] fontDataByteArray = File.ReadAllBytes( fontFilePath );
-		_fontDataPtr = (byte*) NativeMemory.Alloc( (nuint) fontDataByteArray.Length );
-		Marshal.Copy( fontDataByteArray, 0, (nint) _fontDataPtr, fontDataByteArray.Length );
-		_dataReader = new( _fontDataPtr, fontDataByteArray.Length, false );
-		_fontHeaderData = new( _dataReader );
-		_headTable = new( _fontHeaderData.Tables[ Tag_Head ], _dataReader );
-		_maxpTable = new( _fontHeaderData.Tables[ Tag_Maxp ], _dataReader );
-		_locaTable = new( _fontHeaderData.Tables[ Tag_Loca ], _headTable, _maxpTable, _dataReader );
-		_cmapTable = new( _fontHeaderData.Tables[ Tag_Cmap ], _dataReader );
-		_glyfTable = new( _fontHeaderData.Tables[ Tag_Glyf ], _locaTable, _cmapTable, _dataReader );
-		_hheaTable = new( _fontHeaderData.Tables[ Tag_Hhea ], _dataReader );
-		_hmtxTable = new( _fontHeaderData.Tables[ Tag_Hmtx ], _locaTable, _hheaTable, _dataReader );
+		this._fontDataPtr = (byte*) NativeMemory.Alloc( (nuint) fontDataByteArray.Length );
+		Marshal.Copy( fontDataByteArray, 0, (nint) this._fontDataPtr, fontDataByteArray.Length );
+		this._dataReader = new( this._fontDataPtr, fontDataByteArray.Length, false );
+		this._fontHeaderData = new( this._dataReader );
+		this._headTable = new( this._fontHeaderData.Tables[ Tag_Head ], this._dataReader );
+		this._maxpTable = new( this._fontHeaderData.Tables[ Tag_Maxp ], this._dataReader );
+		this._locaTable = new( this._fontHeaderData.Tables[ Tag_Loca ], this._headTable, this._maxpTable, this._dataReader );
+		this._cmapTable = new( this._fontHeaderData.Tables[ Tag_Cmap ], this._dataReader );
+		this._glyfTable = new( this._fontHeaderData.Tables[ Tag_Glyf ], this._locaTable, this._cmapTable, this._dataReader );
+		this._hheaTable = new( this._fontHeaderData.Tables[ Tag_Hhea ], this._dataReader );
+		this._hmtxTable = new( this._fontHeaderData.Tables[ Tag_Hmtx ], this._locaTable, this._hheaTable, this._dataReader );
 
 		//if (_fontHeaderData.Tables.ContainsKey( Tag_Kerx )) { //TODO: Implement KerxTable and KernTable
 		//	_kerxTable = new( _fontHeaderData.Tables[ Tag_Kerx ], _dataReader );
@@ -55,23 +55,23 @@ public unsafe sealed class FontLoader : DisposableIdentifiable {
 	/// <summary>
 	/// Defines general information about the font such as <see cref="HeadTable.UnitsPerEm"/>"/>
 	/// </summary>
-	public Tables.HeadTable HeadTable => _headTable;
+	public Tables.HeadTable HeadTable => this._headTable;
 	/// <summary>
 	/// Defines the glyphs in the font and their outlines
 	/// </summary>
-	public Tables.GlyfTable GlyfTable => _glyfTable;
+	public Tables.GlyfTable GlyfTable => this._glyfTable;
 	/// <summary>
 	/// Defines the general horizontal metrics of the font
 	/// </summary>
-	public Tables.HheaTable HheaTable => _hheaTable;
+	public Tables.HheaTable HheaTable => this._hheaTable;
 	/// <summary>
 	/// Defines the horizontal metrics of the glyphs in the font
 	/// </summary>
-	public Tables.HmtxTable HmtxTable => _hmtxTable;
+	public Tables.HmtxTable HmtxTable => this._hmtxTable;
 
 	protected override bool InternalDispose() {
-		NativeMemory.Free( _fontDataPtr );
-		_dataReader.Dispose();
+		NativeMemory.Free( this._fontDataPtr );
+		this._dataReader.Dispose();
 		return true;
 	}
 }

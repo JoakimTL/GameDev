@@ -25,7 +25,7 @@ public sealed class GlobeModel : DisposableIdentifiable {
 		OcTree<Face, float> faceTree = new( AABB.Create<Vector3<float>>( [ -1, 1 ] ), 3, false );
 		OcTree<Edge, float> edgeTree = new( AABB.Create<Vector3<float>>( [ -1, 1 ] ), 3, false );
 
-		var indices = icosphere.GetIndices();
+		IReadOnlyList<uint> indices = icosphere.GetIndices();
 		_faces = new Face[ indices.Count / 3 ];
 		Dictionary<EdgeIndices, Connection> connections = [];
 		Dictionary<uint, GlobeVertex> vertices = [];
@@ -34,7 +34,7 @@ public sealed class GlobeModel : DisposableIdentifiable {
 		int id = 0;
 		Span<EdgeIndices> currentEdges = stackalloc EdgeIndices[ 3 ];
 		for (int i = 0; i < indices.Count; i += 3) {
-			var faceIndices = new FaceIndices( indices[ i ], indices[ i + 1 ], indices[ i + 2 ] );
+			FaceIndices faceIndices = new FaceIndices( indices[ i ], indices[ i + 1 ], indices[ i + 2 ] );
 			GlobeVertex[] faceVertices = [ vertices[ faceIndices.VertexA ], vertices[ faceIndices.VertexB ], vertices[ faceIndices.VertexC ] ];
 			Face face = new( faceVertices, (uint) id );
 			_faces[ id ] = face;
@@ -46,7 +46,7 @@ public sealed class GlobeModel : DisposableIdentifiable {
 			currentEdges[ 2 ] = new EdgeIndices( faceIndices.VertexC, faceIndices.VertexA );
 
 			for (int j = 0; j < currentEdges.Length; j++) {
-				if (connections.TryGetValue( currentEdges[ j ], out var connection )) {
+				if (connections.TryGetValue( currentEdges[ j ], out Connection? connection )) {
 					connection.SetFaceB( face );
 					face.Blueprint.AddConnection( connection );
 					continue;
@@ -127,13 +127,13 @@ public sealed class ProceduralWorldTerrainGenerator : IWorldTerrainGenerator {
 		FiniteVoronoiNoise3 voronoiRidgeNoise = new( new( seedProvider.Next() ), 0.25f, 1 );
 		FiniteVoronoiNoise3 voronoiRidgeNoiseFine = new( new( seedProvider.Next() ), 0.0625f, 1 );
 
-		var grasslandTerrain = TerrainTypeList.GetTerrainType<GrasslandTerrain>();
-		var oceanTerrain = TerrainTypeList.GetTerrainType<OceanTerrain>();
+		GrasslandTerrain grasslandTerrain = TerrainTypeList.GetTerrainType<GrasslandTerrain>();
+		OceanTerrain oceanTerrain = TerrainTypeList.GetTerrainType<OceanTerrain>();
 
 		for (uint i = 0; i < globe.FaceCount; i++) {
 			//https://www.youtube.com/watch?v=WumyfLEa6bU
 			//https://iquilezles.org/articles/morenoise/
-			var face = globe.Faces[ (int) i ];
+			Face face = globe.Faces[ (int) i ];
 			Vector3<float> center = (face.Blueprint.VectorA + face.Blueprint.VectorB + face.Blueprint.VectorC) / 3;
 
 			Vector3<float> translation = voronoiTranslation.NoiseVector( center );

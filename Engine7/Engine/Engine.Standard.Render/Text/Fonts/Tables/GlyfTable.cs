@@ -13,8 +13,8 @@ public sealed class GlyfTable : FontTable {
 	private readonly Dictionary<char, IGlyphData> _glyphByUnicode;
 
 	public GlyfTable( FontTableHeader header, LocaTable locaTable, CmapTable cmapTable, FontDataReader reader ) : base( header ) {
-		_glyphByIndex = [];
-		_glyphByUnicode = [];
+		this._glyphByIndex = [];
+		this._glyphByUnicode = [];
 		GlyphReader glyphReader = new( header, locaTable, cmapTable, reader );
 		foreach (GlyphMap glyphMap in cmapTable.GlyphMaps)
 			glyphReader.GetGlyphData( glyphMap.GlyphIndex );
@@ -26,11 +26,11 @@ public sealed class GlyfTable : FontTable {
 		}
 	}
 
-	public IReadOnlyDictionary<uint, IGlyphData> GlyphByIndex => _glyphByIndex;
-	public IReadOnlyDictionary<char, IGlyphData> GlyphByUnicode => _glyphByUnicode;
+	public IReadOnlyDictionary<uint, IGlyphData> GlyphByIndex => this._glyphByIndex;
+	public IReadOnlyDictionary<char, IGlyphData> GlyphByUnicode => this._glyphByUnicode;
 
 	/// <summary>
 	/// Glyph indicating a missing glyph.
 	/// </summary>
-	public IGlyphData? MissingGlyph => _glyphByIndex.TryGetValue( 0, out IGlyphData? glyph ) ? glyph : null;
+	public IGlyphData? MissingGlyph => this._glyphByIndex.TryGetValue( 0, out IGlyphData? glyph ) ? glyph : null;
 }

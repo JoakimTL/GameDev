@@ -1,5 +1,4 @@
-﻿using Civlike.Logic.Setup;
-using Civlike.Logic.Setup.Resources;
+﻿using Civlike.Logic.Setup.Resources;
 
 namespace Civlike.Logic.Setup.Recipes;
 

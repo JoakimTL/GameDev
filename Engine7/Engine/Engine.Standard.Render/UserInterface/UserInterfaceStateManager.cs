@@ -32,7 +32,7 @@ public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userIn
 	private void AddElement( UserInterfaceElementBase element ) {
 		this._baseElements.Add( element );
 		this._elementsToInitialize.Enqueue( element );
-		element.SetServices( _userInterfaceServiceAccess, _gameStateProvider );
+		element.SetServices( this._userInterfaceServiceAccess, this._gameStateProvider );
 	}
 
 	public bool OnCharacter( KeyboardCharacterEvent @event ) {
@@ -100,10 +100,10 @@ public sealed class UserInterfaceStateManager( UserInterfaceServiceAccess userIn
 			UserInterfaceElementBase element = this._elementsToInitialize.Dequeue();
 			element.Initialize();
 		}
-		if (_userInterfaceServiceAccess.WindowProvider.Window.AspectRatioVector != _aspectRatioVector) {
-			_aspectRatioVector = _userInterfaceServiceAccess.WindowProvider.Window.AspectRatioVector;
+		if (this._userInterfaceServiceAccess.WindowProvider.Window.AspectRatioVector != this._aspectRatioVector) {
+			this._aspectRatioVector = this._userInterfaceServiceAccess.WindowProvider.Window.AspectRatioVector;
 			foreach (UserInterfaceElementBase element in this._baseElements)
-				element.UiSpaceChanged( _aspectRatioVector.CastSaturating<float, double>() );
+				element.UiSpaceChanged( this._aspectRatioVector.CastSaturating<float, double>() );
 		}
 		foreach (UserInterfaceElementBase element in this._baseElements) {
 			if (element.UpdateDisplayState()) {

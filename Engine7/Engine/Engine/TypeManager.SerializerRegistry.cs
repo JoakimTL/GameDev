@@ -10,8 +10,8 @@ public sealed class SerializerRegistry {
 	public SerializerRegistry( TypeRegistry registry ) {
 		Dictionary<Type, Type> serializersByType = [];
 		Dictionary<Guid, Type> serializersByGuid = [];
-		foreach (Type type in registry.GetAllSubclassesOfGenericType( typeof( SerializerBase<> ) ).Where( p => !p.IsAbstract )) {
-			Type[] genericArguments = registry.GetGenericBaseTypeGenericArguments( type, typeof( SerializerBase<> ) );
+		foreach (Type type in registry.GetAllNonAbstractSubclassesOf( typeof( SerializerBase<> ) ).Where( p => !p.IsAbstract )) {
+			Type[] genericArguments = registry.GetGenericArgumentsOf( type, typeof( SerializerBase<> ) );
 			if (genericArguments.Length != 1)
 				throw new InvalidOperationException( $"Serializer {type.FullName} does not have exactly one generic argument." );
 			Type targetType = genericArguments[ 0 ];

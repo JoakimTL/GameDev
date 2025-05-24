@@ -1,6 +1,6 @@
-﻿using Civlike.Client.Render;
-using Civlike.Client.Render.World.Shaders;
+﻿using Civlike.Client.Render.World.Shaders;
 using Civlike.Logic.World;
+using Civlike.World.GameplayState;
 using Engine;
 using Engine.Module.Render.Entities;
 using Engine.Standard.Render;
@@ -16,23 +16,22 @@ public sealed class TileClusterRenderBehaviour : DependentRenderBehaviourBase<Wo
 	}
 
 	public void Initialize() {
-		_sceneInstance = RenderEntity.RequestSceneInstance<TileGroupSceneInstance>( "terrain", 0 );
-		_sceneInstance.SetShaderBundle( RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<GlobeTerrainShaderBundle>() );
-		_sceneInstance.SetVertexArrayObject( RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity3SceneData>() );
-		_sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
-		_needsMeshUpdate = true;
+		this._sceneInstance = this.RenderEntity.RequestSceneInstance<TileGroupSceneInstance>( "terrain", 0 );
+		this._sceneInstance.SetShaderBundle( this.RenderEntity.ServiceAccess.ShaderBundleProvider.GetShaderBundle<GlobeTerrainShaderBundle>() );
+		this._sceneInstance.SetVertexArrayObject( this.RenderEntity.ServiceAccess.CompositeVertexArrayProvider.GetVertexArray<Vertex3, Entity3SceneData>() );
+		this._sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
+		this._needsMeshUpdate = true;
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		if (!RenderEntity.TryGetBehaviour( out ClusterVisibilityRenderBehaviour? visibilityBehaviour ))
+		if (!this.RenderEntity.TryGetBehaviour( out ClusterVisibilityRenderBehaviour? visibilityBehaviour ))
 			return;
-		_sceneInstance.SetAllocated( visibilityBehaviour.IsVisible );
-		if (_sceneInstance.Allocated && _needsMeshUpdate) {
-			BoundedRenderClusterComponent clusterComponent = Archetype.ClusterComponent;
-			Civlike.World.GlobeModel globe = clusterComponent.Globe;
-			_sceneInstance.UpdateMesh( clusterComponent.Cluster.Faces, RenderEntity.ServiceAccess.MeshProvider );
-			_sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
-			_needsMeshUpdate = false;
+		this._sceneInstance.SetAllocated( visibilityBehaviour.IsVisible );
+		if (this._sceneInstance.Allocated && this._needsMeshUpdate) {
+			BoundedRenderClusterComponent clusterComponent = this.Archetype.ClusterComponent;
+			this._sceneInstance.UpdateMesh( clusterComponent.Globe, clusterComponent.Cluster.Faces, this.RenderEntity.ServiceAccess.MeshProvider );
+			this._sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
+			this._needsMeshUpdate = false;
 		}
 	}
 

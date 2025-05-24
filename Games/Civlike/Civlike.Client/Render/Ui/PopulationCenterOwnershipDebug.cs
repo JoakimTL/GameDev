@@ -1,12 +1,11 @@
 ﻿using Civlike.Client.Render.Ui.Components;
 using Civlike.Logic.Nations;
 using Civlike.Messages;
-using Civlike.World;
+using Civlike.World.GameplayState;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Entities.Providers;
 using Engine.Module.Render.Input;
-using Engine.Standard.Render.Entities.Services;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
 
@@ -22,24 +21,24 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	private bool _updatePlayerSelection = false;
 
 	protected override void Initialize() {
-		_createNewOwner = new InteractableButton( this, "Create New Owner" );
-		_createNewOwner.Placement.Set( new( (.35, -.325), 0, (.35, .1) ), Alignment.Negative, Alignment.Positive );
-		_createNewOwner.OnClicked += OnNewOwnerClicked;
-		_removeOwner = new InteractableButton( this, "Remove popc" );
-		_removeOwner.Placement.Set( new( (.35, -.55), 0, (.35, .1) ), Alignment.Negative, Alignment.Positive );
-		_removeOwner.OnClicked += OnRemoveOwner;
-		_setNeighbourOwner = new InteractableButton[ 3 ];
-		for (int i = 0; i < _setNeighbourOwner.Length; i++) {
-			_setNeighbourOwner[ i ] = new InteractableButton( this, $"Set Owner #{i + 1}" );
-			_setNeighbourOwner[ i ].Placement.Set( new( (.35, -.775 - i * 0.225), 0, (.35, .1) ), Alignment.Negative, Alignment.Positive );
+		this._createNewOwner = new InteractableButton( this, "Create New Owner" );
+		this._createNewOwner.Placement.Set( new( (.35, -.325), 0, (.35, .1) ), Alignment.Negative, Alignment.Positive );
+		this._createNewOwner.OnClicked += OnNewOwnerClicked;
+		this._removeOwner = new InteractableButton( this, "Remove popc" );
+		this._removeOwner.Placement.Set( new( (.35, -.55), 0, (.35, .1) ), Alignment.Negative, Alignment.Positive );
+		this._removeOwner.OnClicked += OnRemoveOwner;
+		this._setNeighbourOwner = new InteractableButton[ 3 ];
+		for (int i = 0; i < this._setNeighbourOwner.Length; i++) {
+			this._setNeighbourOwner[ i ] = new InteractableButton( this, $"Set Owner #{i + 1}" );
+			this._setNeighbourOwner[ i ].Placement.Set( new( (.35, -.775 - (i * 0.225)), 0, (.35, .1) ), Alignment.Negative, Alignment.Positive );
 			int localI = i;
-			_setNeighbourOwner[ i ].OnClicked += ( button, @event ) => OnSetNeighbourToOwner( localI );
+			this._setNeighbourOwner[ i ].OnClicked += ( button, @event ) => OnSetNeighbourToOwner( localI );
 		}
-		_createPlayer = new InteractableButton( this, "Create Player" );
-		_createPlayer.Placement.Set( new( (-.35, -.1), 0, (.35, .1) ), Alignment.Positive, Alignment.Positive );
-		_createPlayer.OnClicked += CreateNewPlayer;
-		_playerSelection = new DropdownMenu<PlayerChoiceButton, PlayerChoice>( this );
-		_playerSelection.Placement.Set( new( (-.35, -.325), 0, (.35, .1) ), Alignment.Positive, Alignment.Positive );
+		this._createPlayer = new InteractableButton( this, "Create Player" );
+		this._createPlayer.Placement.Set( new( (-.35, -.1), 0, (.35, .1) ), Alignment.Positive, Alignment.Positive );
+		this._createPlayer.OnClicked += CreateNewPlayer;
+		this._playerSelection = new DropdownMenu<PlayerChoiceButton, PlayerChoice>( this );
+		this._playerSelection.Placement.Set( new( (-.35, -.325), 0, (.35, .1) ), Alignment.Positive, Alignment.Positive );
 
 	}
 
@@ -48,26 +47,20 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	}
 
 	private void OnSetNeighbourToOwner( int i ) {
-		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
-		if (selectedTile is null)
-			throw new InvalidOperationException( "No tile selected" );
+		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" ) ?? throw new InvalidOperationException( "No tile selected" );
 		this.MessageBusNode.Publish( new SetNeighbourOwnerMessage( selectedTile, i ), "gamelogic", true );
 	}
 
 	private void OnRemoveOwner( InteractableButton button, MouseButtonEvent @event ) {
-		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
-		if (selectedTile is null)
-			throw new InvalidOperationException( "No tile selected" );
+		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" ) ?? throw new InvalidOperationException( "No tile selected" );
 		this.MessageBusNode.Publish( new RemoveOwnerMessage( selectedTile ), "gamelogic", true );
 	}
 
 	private void OnNewOwnerClicked( InteractableButton button, MouseButtonEvent @event ) {
-		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
-		if (selectedTile is null)
-			throw new InvalidOperationException( "No tile selected" );
-		if (_playerSelection.SelectedValue is null)
+		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" ) ?? throw new InvalidOperationException( "No tile selected" );
+		if (this._playerSelection.SelectedValue is null)
 			return;
-		this.MessageBusNode.Publish( new CreateNewPopulationCenterMessage( selectedTile, _playerSelection.SelectedValue.PlayerId ), "gamelogic", true );
+		this.MessageBusNode.Publish( new CreateNewPopulationCenterMessage( selectedTile, this._playerSelection.SelectedValue.PlayerId ), "gamelogic", true );
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
@@ -77,49 +70,49 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	}
 
 	private void PlayerListUpdate() {
-		if (!_updatePlayerSelection)
+		if (!this._updatePlayerSelection)
 			return;
-		_updatePlayerSelection = false;
+		this._updatePlayerSelection = false;
 
-		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
+		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = this.UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null)
 			return;
 
-		List<PlayerComponent> players = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<PlayerComponent>() ).OfType<PlayerComponent>().ToList();
-		List<Guid> playerIds = players.Select( p => p.Entity.EntityId ).ToList();
-		List<Guid> currentDisplayedPlayers = _playerSelection.DataSource.Select( p => p.PlayerId ).ToList();
+		List<PlayerComponent> players = [ .. container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<PlayerComponent>() ).OfType<PlayerComponent>() ];
+		List<Guid> playerIds = [ .. players.Select( p => p.Entity.EntityId ) ];
+		List<Guid> currentDisplayedPlayers = [ .. this._playerSelection.DataSource.Select( p => p.PlayerId ) ];
 
 		IEnumerable<Guid> newPlayers = playerIds.Except( currentDisplayedPlayers );
 		IEnumerable<Guid> removedPlayers = currentDisplayedPlayers.Except( playerIds );
 
 		foreach (Guid playerId in removedPlayers) {
-			PlayerChoice? playerChoice = _playerSelection.DataSource.FirstOrDefault( p => p.PlayerId == playerId );
+			PlayerChoice? playerChoice = this._playerSelection.DataSource.FirstOrDefault( p => p.PlayerId == playerId );
 			if (playerChoice is not null)
-				_playerSelection.DataSource.Remove( playerChoice );
+				this._playerSelection.DataSource.Remove( playerChoice );
 		}
 		foreach (Guid playerId in newPlayers) {
 			PlayerComponent player = players.FirstOrDefault( p => p.Entity.EntityId == playerId ) ?? throw new InvalidOperationException( $"Player with id {playerId} not found" );
-			_playerSelection.DataSource.Add( new PlayerChoice( playerId, player.Name, player.MapColor ) );
+			this._playerSelection.DataSource.Add( new PlayerChoice( playerId, player.Name, player.MapColor ) );
 		}
 	}
 
 	private void NeighbourButtonsUpdate() {
-		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
+		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" );
 		if (selectedTile is null) {
 			return;
 		}
-		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
+		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = this.UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null) {
 			return;
 		}
-		List<FaceOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
-		List<Face> neighbours = selectedTile.Blueprint.Connections.Select( p => p.GetOther( selectedTile ) ).ToList();
+		List<FaceOwnershipComponent> focs = [ .. container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>() ];
+		IReadOnlyList<Face> neighbours = selectedTile.Blueprint.Neighbours;
 		for (int i = 0; i < neighbours.Count; i++) {
 			Face neighbourFace = neighbours[ i ];
 			FaceOwnershipComponent? neighbourOwner = focs.FirstOrDefault( p => p.OwnedFaces.Contains( neighbourFace ) );
-			InteractableButton button = _setNeighbourOwner[ i ];
+			InteractableButton button = this._setNeighbourOwner[ i ];
 			if (neighbourOwner is not null) {
 				button.Label.Text = $"Give";
 				button.Background.Color = neighbourOwner.Entity.Parent?.GetComponentOrDefault<PlayerComponent>()?.MapColor.CastSaturating<float, double>() ?? Vector4<double>.One;
@@ -131,16 +124,16 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	}
 
 	private bool InternalShouldDisplay() {
-		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
+		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" );
 		if (selectedTile is null)
 			return false;
 		if (!selectedTile.State.TerrainType.Claimable)
 			return false;
-		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
+		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = this.UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null)
 			return false;
-		List<FaceOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		List<FaceOwnershipComponent> focs = [ .. container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>() ];
 		if (focs.Any( p => p.OwnedFaces.Contains( selectedTile ) ))
 			return false;
 		return true;
@@ -152,7 +145,7 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 
 	protected override void OnMessageReceived( Message message ) {
 		if (message.Content is CreateNewPlayerMessageResponse createNewPlayerResponse) {
-			_updatePlayerSelection = true;
+			this._updatePlayerSelection = true;
 			return;
 		}
 	}

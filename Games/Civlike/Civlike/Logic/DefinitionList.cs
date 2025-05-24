@@ -11,10 +11,10 @@ public sealed class DefinitionList<TDefinition> where TDefinition : SelfIdentify
 	private readonly Dictionary<Guid, TDefinition> _definitionsById;
 
 	public DefinitionList() {
-		_definitions = [];
-		_definitions.Add( null );
-		_definitionsByType = [];
-		_definitionsById = [];
+		this._definitions = [];
+		this._definitions.Add( null );
+		this._definitionsByType = [];
+		this._definitionsById = [];
 		IEnumerable<ResolvedType> resolvedTypes = TypeManager.Registry.ImplementationTypes
 			.Where( p => p.IsAssignableTo( typeof( TDefinition ) ) )
 			.Select( p => p.Resolve() );
@@ -24,19 +24,19 @@ public sealed class DefinitionList<TDefinition> where TDefinition : SelfIdentify
 			if (!resolvedType.HasParameterlessConstructor)
 				throw new InvalidOperationException( $"{resolvedType.Type.Name} does not have a parameterless constructor." );
 			TDefinition definition = resolvedType.CreateInstance( null ) as TDefinition ?? throw new InvalidOperationException( $"{resolvedType.Type.Name} could not be instantiated." );
-			propertyAccessor.WriteProperty( definition, _definitions.Count );
-			_definitions.Add( definition );
-			_definitionsByType.Add( resolvedType.Type, definition );
-			_definitionsById.Add( definition.Id, definition );
+			propertyAccessor.WriteProperty( definition, this._definitions.Count );
+			this._definitions.Add( definition );
+			this._definitionsByType.Add( resolvedType.Type, definition );
+			this._definitionsById.Add( definition.Id, definition );
 		}
 	}
 
-	public uint Count => (uint) _definitions.Count;
+	public uint Count => (uint) this._definitions.Count;
 
 	public TDefinition? Get( uint memoryId )
-		=> memoryId >= _definitions.Count
+		=> memoryId >= this._definitions.Count
 			? this.LogWarningThenReturnDefault<TDefinition>( $"Definition with memory id {memoryId} not found." )
-			: _definitions[ (int) memoryId ];
-	public T Get<T>() where T : TDefinition => (T) _definitionsByType[ typeof( T ) ];
-	public TDefinition Get( Guid id ) => _definitionsById[ id ];
+			: this._definitions[ (int) memoryId ];
+	public T Get<T>() where T : TDefinition => (T) this._definitionsByType[ typeof( T ) ];
+	public TDefinition Get( Guid id ) => this._definitionsById[ id ];
 }

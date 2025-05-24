@@ -6,7 +6,7 @@ using Engine.Module.Render.Input;
 using Engine.Standard.Render.Input.Services;
 using Engine.Standard;
 using Engine.Transforms;
-using Civlike.World;
+using Civlike.World.GameplayState;
 
 namespace Civlike.Client.Render.World;
 
@@ -15,62 +15,62 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 	private bool _changed = true;
 
 	protected override void OnRenderEntitySet() {
-		RenderEntity.ServiceAccess.Input.OnMouseMoved += OnMouseMoved;
-		RenderEntity.ServiceAccess.Input.OnMouseButton += OnMouseButton;
-		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged += OnCameraMatrixChanged;
+		this.RenderEntity.ServiceAccess.Input.OnMouseMoved += OnMouseMoved;
+		this.RenderEntity.ServiceAccess.Input.OnMouseButton += OnMouseButton;
+		this.RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged += OnCameraMatrixChanged;
 
 	}
 
 	private void OnCameraMatrixChanged( IMatrixProvider<float> provider ) {
-		_changed = true;
+		this._changed = true;
 	}
 
 	private void OnMouseMoved( MouseMoveEvent @event ) {
-		_changed = true;
+		this._changed = true;
 	}
 
 	private void OnMouseButton( MouseButtonEvent @event ) {
 		if (@event.Button != MouseButton.Left || @event.InputType != TactileInputType.Press)
 			return;
 
-		RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "selectedTile", RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Face>( "hoveringTile" ) );
+		this.RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "selectedTile", this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Face>( "hoveringTile" ) );
 	}
 
 	public override void Update( double time, double deltaTime ) {
-		if (!_changed)
+		if (!this._changed)
 			return;
-		_changed = false;
-		GlobeModel globe = Archetype.GlobeComponent.Globe;
-		Engine.Transforms.Camera.Perspective.Dynamic projection = RenderEntity.ServiceAccess.CameraProvider.Main.Projection3;
-		Engine.Transforms.Camera.View3 view = RenderEntity.ServiceAccess.CameraProvider.Main.View3;
-		Vector2<float> ndc = RenderEntity.ServiceAccess.Get<ProcessedMouseInputProvider>().MouseNDCTranslation.CastSaturating<double, float>();
+		this._changed = false;
+		Globe globe = this.Archetype.GlobeComponent.Globe;
+		Engine.Transforms.Camera.Perspective.Dynamic projection = this.RenderEntity.ServiceAccess.CameraProvider.Main.Projection3;
+		Engine.Transforms.Camera.View3 view = this.RenderEntity.ServiceAccess.CameraProvider.Main.View3;
+		Vector2<float> ndc = this.RenderEntity.ServiceAccess.Get<ProcessedMouseInputProvider>().MouseNDCTranslation.CastSaturating<double, float>();
 		Vector3<float> pointerDirection = ndc.GetMouseWorldDirection( view.InverseMatrix, projection.InverseMatrix );
 
-		if (!TryGetRaySphereIntersection( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
-			RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", null );
-			RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "mousePointerGlobeSphereIntersection", null );
+		if (!TryGetRaySphereIntersection( this.RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, 0, 1, out Vector3<float> intersectionPoint )) {
+			this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", null );
+			this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "mousePointerGlobeSphereIntersection", null );
 			return;
 		}
 
-		RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "mousePointerGlobeSphereIntersection", intersectionPoint );
+		this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "mousePointerGlobeSphereIntersection", intersectionPoint );
 
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
 		AABB<Vector3<float>> bounds = globe.ClusterBounds.MoveBy( intersectionPoint ).ScaleBy( 0.25f );
 		foreach (BoundedRenderCluster cluster in globe.Clusters.Where( p => p.Bounds.Intersects( bounds ) )) 			foreach (Face face in cluster.Faces) {
-				if (!RayIntersectsTriangle( RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.VectorA, face.Blueprint.VectorB, face.Blueprint.VectorC, out _ ))
+				if (!RayIntersectsTriangle( this.RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.VectorA, face.Blueprint.VectorB, face.Blueprint.VectorC, out _ ))
 					continue;
-				RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", face );
+				this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", face );
 				return;
 			}
 
-		RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", null );
+		this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", null );
 	}
 
 	protected override bool InternalDispose() {
-		RenderEntity.ServiceAccess.Input.OnMouseMoved -= OnMouseMoved;
-		RenderEntity.ServiceAccess.Input.OnMouseButton -= OnMouseButton;
-		RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged -= OnCameraMatrixChanged;
+		this.RenderEntity.ServiceAccess.Input.OnMouseMoved -= OnMouseMoved;
+		this.RenderEntity.ServiceAccess.Input.OnMouseButton -= OnMouseButton;
+		this.RenderEntity.ServiceAccess.CameraProvider.Main.Camera3.OnMatrixChanged -= OnCameraMatrixChanged;
 		return true;
 	}
 
@@ -79,8 +79,8 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		Vector3<float> oc = rayOrigin - sphereCenter;
 		//float a = Vector3.Dot( rayDirection, rayDirection ); // Should be 1 if normalized
 		float b = 2.0f * oc.Dot( rayDirection );
-		float c = oc.Dot( oc ) - sphereRadius * sphereRadius;
-		float discriminant = b * b - 4 /* * a*/ * c;
+		float c = oc.Dot( oc ) - (sphereRadius * sphereRadius);
+		float discriminant = (b * b) - (4 /* * a*/ * c);
 
 		if (discriminant < 0)           // No intersection
 			return false; // Or some sentinel value indicating no intersection
@@ -94,7 +94,7 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 			return false; // Or another sentinel value
 
 		// Calculate the intersection point
-		intersectionPoint = rayOrigin + t * rayDirection;
+		intersectionPoint = rayOrigin + (t * rayDirection);
 		return true;
 	}
 

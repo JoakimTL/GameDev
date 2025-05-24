@@ -6,72 +6,72 @@ public sealed class Label : UserInterfaceComponentBase {
 	private TextLayout _textLayout;
 
 	public string Text {
-		get => _textLayout.Text;
-		set => _textLayout.Text = value;
+		get => this._textLayout.Text;
+		set => this._textLayout.Text = value;
 	}
 
 	public string FontName {
-		get => _textLayout.FontName;
-		set => _textLayout.FontName = value;
+		get => this._textLayout.FontName;
+		set => this._textLayout.FontName = value;
 	}
 
 	public float TextScale {
-		get => _textLayout.TextScale;
-		set => _textLayout.TextScale = value;
+		get => this._textLayout.TextScale;
+		set => this._textLayout.TextScale = value;
 	}
 
 	public Alignment VerticalAlignment {
-		get => _textLayout.VerticalAlignment;
-		set => _textLayout.VerticalAlignment = value;
+		get => this._textLayout.VerticalAlignment;
+		set => this._textLayout.VerticalAlignment = value;
 	}
 
 	public Alignment HorizontalAlignment {
-		get => _textLayout.HorizontalAlignment;
-		set => _textLayout.HorizontalAlignment = value;
+		get => this._textLayout.HorizontalAlignment;
+		set => this._textLayout.HorizontalAlignment = value;
 	}
 
 	public Vector4<double> Color {
-		get => _textLayout.Color;
-		set => _textLayout.Color = value;
+		get => this._textLayout.Color;
+		set => this._textLayout.Color = value;
 	}
 
 	public Label( UserInterfaceElementBase element ) : base( element ) {
-		_textLayout = Element.UserInterfaceServiceAccess.RequestTextLayout( RenderLayer );
+		this._textLayout = this.Element.UserInterfaceServiceAccess.RequestTextLayout( this.RenderLayer );
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		if (_textLayout.RenderLayer != RenderLayer) {
-			_textLayout.Remove();
-			TextLayout oldTextLayout = _textLayout;
-			_textLayout = Element.UserInterfaceServiceAccess.RequestTextLayout( RenderLayer );
-			_textLayout.Text = oldTextLayout.Text;
-			_textLayout.FontName = oldTextLayout.FontName;
-			_textLayout.TextScale = oldTextLayout.TextScale;
-			_textLayout.Color = oldTextLayout.Color;
-			_textLayout.HorizontalAlignment = oldTextLayout.HorizontalAlignment;
-			_textLayout.VerticalAlignment = oldTextLayout.VerticalAlignment;
-			_textLayout.TextArea = oldTextLayout.TextArea;
-			_textLayout.TextRotation = oldTextLayout.TextRotation;
+		if (this._textLayout.RenderLayer != this.RenderLayer) {
+			this._textLayout.Remove();
+			TextLayout oldTextLayout = this._textLayout;
+			this._textLayout = this.Element.UserInterfaceServiceAccess.RequestTextLayout( this.RenderLayer );
+			this._textLayout.Text = oldTextLayout.Text;
+			this._textLayout.FontName = oldTextLayout.FontName;
+			this._textLayout.TextScale = oldTextLayout.TextScale;
+			this._textLayout.Color = oldTextLayout.Color;
+			this._textLayout.HorizontalAlignment = oldTextLayout.HorizontalAlignment;
+			this._textLayout.VerticalAlignment = oldTextLayout.VerticalAlignment;
+			this._textLayout.TextArea = oldTextLayout.TextArea;
+			this._textLayout.TextRotation = oldTextLayout.TextRotation;
 		}
-		_textLayout.Update( time, deltaTime );
+		this._textLayout.Update( time, deltaTime );
 	}
 
 	protected override void OnPlacementChanged() {
-		_textLayout.TextRotation = (float) TransformInterface.GlobalRotation;
-		_textLayout.TextArea = AABB.Create(
-			[(TransformInterface.GlobalTranslation - TransformInterface.GlobalScale).CastSaturating<double, float>(),
-			(TransformInterface.GlobalTranslation + TransformInterface.GlobalScale).CastSaturating<double, float>()] );
+		this._textLayout.TextRotation = (float) this.TransformInterface.GlobalRotation;
+		this._textLayout.TextArea = AABB.Create(
+			[(this.TransformInterface.GlobalTranslation - this.TransformInterface.GlobalScale).CastSaturating<double, float>(),
+			(this.TransformInterface.GlobalTranslation + this.TransformInterface.GlobalScale).CastSaturating<double, float>()] );
 	}
 
 	protected override void InternalRemove() {
-		_textLayout.Remove();
+		this._textLayout.Remove();
 	}
 
 	protected internal override void DoHide() {
-		_textLayout.Hide();
+		this._textLayout.Hide();
 	}
 
 	protected internal override void DoShow() {
-		_textLayout.Show();
+		this._textLayout.Show();
 	}
 }

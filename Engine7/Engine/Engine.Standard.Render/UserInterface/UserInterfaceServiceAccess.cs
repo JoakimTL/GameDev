@@ -20,14 +20,14 @@ public sealed class UserInterfaceServiceAccess( RenderServiceAccess renderServic
 	public T Get<T>() where T : IServiceProvider => renderServiceAccess.Get<T>();
 
 	public T RequestSceneInstance<T>( uint layer ) where T : SceneInstanceBase, new()
-		=> _sceneInstanceProvider.RequestSceneInstance<T>( _userInterfaceSceneName, layer );
+		=> this._sceneInstanceProvider.RequestSceneInstance<T>( this._userInterfaceSceneName, layer );
 
 	public SceneInstanceCollection<TVertexData, TInstanceData> RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( uint layer )
 		where TVertexData : unmanaged
 		where TInstanceData : unmanaged
 		where TShaderBundle : ShaderBundleBase
-		=> _sceneInstanceProvider.RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( _userInterfaceSceneName, layer );
+		=> this._sceneInstanceProvider.RequestSceneInstanceCollection<TVertexData, TInstanceData, TShaderBundle>( this._userInterfaceSceneName, layer );
 
 	public TextLayout RequestTextLayout( uint layer )
-		=> renderServiceAccess.Get<TextLayoutProvider>().CreateLayout( _userInterfaceSceneName, layer );
+		=> renderServiceAccess.Get<TextLayoutProvider>().CreateLayout( this._userInterfaceSceneName, layer );
 }

@@ -58,7 +58,7 @@ public sealed class OldFont {
 		GlyphMap[] mappings = [ .. GetUnicodeToGlyphIndexMappings( srcPtr, this._tables[ Tag_Cmap ] ) ];
 
 		for (int i = 0; i < mappings.Length; i++) {
-			IOldGlyph glyph = ReadGlyph( srcPtr, glyphLocations, mappings[ i ], mappings, _unitsPerEm );
+			IOldGlyph glyph = ReadGlyph( srcPtr, glyphLocations, mappings[ i ], mappings, this._unitsPerEm );
 			if (glyph is not null) {
 				this._glyphs.Add( (char) glyph.Mapping.Unicode, glyph );
 				if (glyph.Mapping.GlyphIndex == 0)
@@ -250,13 +250,13 @@ public sealed class OldFont {
 	//	return new FontGlyph( header, mapping, points, endPointsOfContours, instructions, flags );
 	//}
 
-	private static bool ReadFlagBit( byte flag, int bit ) => (flag >> bit & 1) == 1;
-	private static bool ReadFlagBit( ushort flag, int bit ) => (flag >> bit & 1) == 1;
+	private static bool ReadFlagBit( byte flag, int bit ) => ((flag >> bit) & 1) == 1;
+	private static bool ReadFlagBit( ushort flag, int bit ) => ((flag >> bit) & 1) == 1;
 
 	private static unsafe void GetAllGlyphLocations( byte* srcPtr, Span<uint> glyphLocations, ushort numBytesPerLocationLookup, uint locaTableLocation, uint glyfTableLocation ) {
 		bool isTwoByteEntry = numBytesPerLocationLookup == 2;
 		for (int glyphIndex = 0; glyphIndex < glyphLocations.Length; glyphIndex++) {
-			nint offset = (nint) (locaTableLocation + glyphIndex * numBytesPerLocationLookup);
+			nint offset = (nint) (locaTableLocation + (glyphIndex * numBytesPerLocationLookup));
 			// If 2-byte format is used, the stored location is half of actual location (so multiply by 2)
 			uint glyphDataOffset = isTwoByteEntry ? FontUtilities.Read<ushort>( srcPtr, ref offset ).FromBigEndian() * 2u : FontUtilities.Read<uint>( srcPtr, ref offset ).FromBigEndian();
 			glyphLocations[ glyphIndex ] = glyfTableLocation + glyphDataOffset;
@@ -346,7 +346,7 @@ public sealed class OldFont {
 					else {
 						nint currentOffset = offset;
 						uint rangeOffsetLocation = idRangeOffset[ i ].readLoc + idRangeOffset[ i ].offset;
-						nint glyphIndexArrayLocation = (nint) (2u * (currentCode - startCodes[ i ]) + rangeOffsetLocation);
+						nint glyphIndexArrayLocation = (nint) ((2u * (currentCode - startCodes[ i ])) + rangeOffsetLocation);
 
 						glyphIndex = FontUtilities.Read<ushort>( srcPtr, ref glyphIndexArrayLocation ).FromBigEndian();
 						if (glyphIndex != 0)

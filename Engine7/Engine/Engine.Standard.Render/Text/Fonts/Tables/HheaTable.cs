@@ -24,18 +24,18 @@ public sealed class HheaTable : FontTable {
 		FontCaretedDataReader caret = new( reader );
 		caret.GoTo( header.Offset );
 		caret.MoveCaretBy( sizeof( int ) ); //Skip version
-		Ascent = caret.Read<short>();
-		Descent = caret.Read<short>();
-		LineGap = caret.Read<short>();
-		AdvanceWidthMax = caret.Read<ushort>();
-		MinLeftSideBearing = caret.Read<short>();
-		MinRightSideBearing = caret.Read<short>();
-		XMaxExtent = caret.Read<short>();
-		CaretSlopeRise = caret.Read<short>();
-		CaretSlopeRun = caret.Read<short>();
-		CaretOffset = caret.Read<short>();
+		this.Ascent = caret.Read<short>();
+		this.Descent = caret.Read<short>();
+		this.LineGap = caret.Read<short>();
+		this.AdvanceWidthMax = caret.Read<ushort>();
+		this.MinLeftSideBearing = caret.Read<short>();
+		this.MinRightSideBearing = caret.Read<short>();
+		this.XMaxExtent = caret.Read<short>();
+		this.CaretSlopeRise = caret.Read<short>();
+		this.CaretSlopeRun = caret.Read<short>();
+		this.CaretOffset = caret.Read<short>();
 		caret.MoveCaretBy( 4 * sizeof( short ) ); //Skip 4 reserved shorts
-		MetricDataFormat = caret.Read<short>();
-		NumberOfHMetrics = caret.Read<ushort>();
+		this.MetricDataFormat = caret.Read<short>();
+		this.NumberOfHMetrics = caret.Read<ushort>();
 	}
 }

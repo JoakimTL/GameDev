@@ -23,7 +23,7 @@ public sealed class ClusterVisibilityRenderBehaviour : DependentRenderBehaviourB
 	public void CheckVisibilityAgainstCameraTranslation( Vector3<float> normalizedTranslation, Matrix4x4<float> viewProjectionMatrix ) {
 		bool shouldBeVisible = false;
 
-		var bounds = Archetype.ClusterComponent.Bounds;
+		AABB<Vector3<float>> bounds = Archetype.ClusterComponent.Bounds;
 		Vector3<float> min = bounds.Minima;
 		Vector3<float> max = bounds.Maxima;
 

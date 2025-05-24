@@ -7,7 +7,7 @@ public unsafe sealed class FontDataReader( byte* dataPtr, int dataLength, bool d
 	private readonly bool _archIsLittleEndian = BitConverter.IsLittleEndian;
 
 	public T Read<T>( in nint offset, bool ensureEndianessMatchesArch = true ) where T : unmanaged {
-		ObjectDisposedException.ThrowIf( Disposed, this );
+		ObjectDisposedException.ThrowIf( this.Disposed, this );
 		if (offset < 0)
 			throw new Exception( "Reading before start of data" );
 		if (offset + sizeof( T ) > this._dataLength)

@@ -6,21 +6,21 @@ public sealed class ResourceContainer : ResourceBundleBase {
 
 	public void SetLimit( ResourceTypeBase resource, double limit ) {
 		if (limit < 0) {
-			_resourceLimits.Remove( resource );
+			this._resourceLimits.Remove( resource );
 			return;
 		}
-		_resourceLimits[ resource ] = limit;
+		this._resourceLimits[ resource ] = limit;
 	}
 
 	public bool Change( ResourceTypeBase resource, double amount ) {
-		double existingAmount = _resources.GetValueOrDefault( resource );
+		double existingAmount = this._resources.GetValueOrDefault( resource );
 		double newAmount = existingAmount + amount;
 		if (newAmount < 0)
 			return false;
-		double limit = _resourceLimits.GetValueOrDefault( resource, double.MaxValue );
+		double limit = this._resourceLimits.GetValueOrDefault( resource, double.MaxValue );
 		if (newAmount > limit)
 			newAmount = limit;
-		_resources[ resource ] = newAmount;
+		this._resources[ resource ] = newAmount;
 		return true;
 	}
 

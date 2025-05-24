@@ -6,7 +6,6 @@ using Engine.Module.Render.Ogl.Services;
 using Engine.Processing;
 using Engine.Serialization;
 using System.Collections.Concurrent;
-using System.ComponentModel;
 
 namespace Engine.Standard.Render.Entities.Services;
 
@@ -44,7 +43,7 @@ public sealed class RenderEntityContainerService : DisposableIdentifiable, IUpda
 	private void OnContainerDisposed( IListenableDisposable disposable ) {
 		if (disposable is not RenderEntityContainer container)
 			return;
-		_disposedContainers.Enqueue( container );
+		this._disposedContainers.Enqueue( container );
 	}
 
 	public IReadOnlyCollection<RenderEntityContainer> RenderEntityContainers => this._renderEntityContainersByContainerId.Values;

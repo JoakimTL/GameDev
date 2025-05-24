@@ -4,5 +4,5 @@ public readonly struct HorizontalMetric( uint glyphIndex, ushort advanceWidth, s
 	public uint GlyphIndex { get; } = glyphIndex;
 	public ushort AdvanceWidth { get; } = advanceWidth;
 	public short LeftSideBearing { get; } = leftSideBearing;
-	public override string ToString() => $"{GlyphIndex}: AW {AdvanceWidth}, LSB {LeftSideBearing}";
+	public override string ToString() => $"{this.GlyphIndex}: AW {this.AdvanceWidth}, LSB {this.LeftSideBearing}";
 }

@@ -25,20 +25,20 @@ public sealed class HeadTable : FontTable {
 		caret.MoveCaretBy( 4 ); //fontRevision
 		caret.MoveCaretBy( 4 ); //checkSumAdjustment
 		caret.MoveCaretBy( 4 ); //magicNumber
-		Flags = (FontFlags) caret.Read<ushort>();
-		UnitsPerEm = caret.Read<ushort>();
+		this.Flags = (FontFlags) caret.Read<ushort>();
+		this.UnitsPerEm = caret.Read<ushort>();
 		caret.MoveCaretBy( 8 ); //created
 		caret.MoveCaretBy( 8 ); //modified
 		short minX = caret.Read<short>();
 		short minY = caret.Read<short>();
 		short maxX = caret.Read<short>();
 		short maxY = caret.Read<short>();
-		MacStyle = (MacStyle) caret.Read<ushort>();
+		this.MacStyle = (MacStyle) caret.Read<ushort>();
 		caret.MoveCaretBy( 2 ); //lowestRecPPEM
-		FontDirectionHint = (FontDirectionHint) caret.Read<short>();
-		BytesPerLocationLookup = caret.Read<ushort>() == 1 ? 4 : 2;
+		this.FontDirectionHint = (FontDirectionHint) caret.Read<short>();
+		this.BytesPerLocationLookup = caret.Read<ushort>() == 1 ? 4 : 2;
 		caret.MoveCaretBy( 2 ); //glyphDataFormat
-		Min = new( minX, minY );
-		Max = new( maxX, maxY );
+		this.Min = new( minX, minY );
+		this.Max = new( maxX, maxY );
 	}
 }

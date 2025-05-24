@@ -20,7 +20,7 @@ public sealed class FontMeshingService( FontService fontService, MeshService mes
 			return meshedFont;
 
 		Font font = this._fontService.Get( fontName );
-		meshedFont = new MeshedFont( font, _meshService );
+		meshedFont = new MeshedFont( font, this._meshService );
 		this._meshedFonts.Add( fontName, meshedFont );
 		return meshedFont;
 	}

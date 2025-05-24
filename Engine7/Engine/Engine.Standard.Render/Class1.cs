@@ -12,11 +12,7 @@ public sealed class RenderSceneManager {
 /// <summary>
 /// Does some actual rendering during the update loop.
 /// </summary>
-public sealed class RenderPipelineService : IRenderPipeline {
-
-	public RenderPipelineService( SceneService sceneService ) {
-	}
-
+public sealed class RenderPipelineService( SceneService sceneService ) : IRenderPipeline {
 	public void PrepareRendering( double time, double deltaTime ) {
 		throw new NotImplementedException();
 	}

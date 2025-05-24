@@ -66,7 +66,7 @@ public class CompoundGlyphReader( GlyphReader glyphReader ) {
 			jHat_y = UInt16ToFixedPoint2Dot14( caret.Read<ushort>() );
 		}
 
-		IGlyphData componentGlyphData = _glyphReader.GetGlyphData( glyphIndex );
+		IGlyphData componentGlyphData = this._glyphReader.GetGlyphData( glyphIndex );
 		CompoundGlyphComponentData componentGlyph = new( componentGlyphData );
 		if (componentGlyphData is ElementalGlyphData)
 			componentGlyph.Transform( offsetX, offsetY, iHat_x, iHat_y, jHat_x, jHat_y );
@@ -78,5 +78,5 @@ public class CompoundGlyphReader( GlyphReader glyphReader ) {
 		return (short) raw / (double) (1 << 14);
 	}
 
-	private static bool ReadFlagBit( ushort flag, int bit ) => (flag >> bit & 1) == 1;
+	private static bool ReadFlagBit( ushort flag, int bit ) => ((flag >> bit) & 1) == 1;
 }
