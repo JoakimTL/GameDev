@@ -1,4 +1,4 @@
-﻿using Civlike.WorldOld;
+﻿using Civlike.World.GameplayState;
 using Engine;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
@@ -35,20 +35,25 @@ public sealed class TileDebugDisplay : UserInterfaceElementBase {
 		}
 
 		StringBuilder sb = new StringBuilder();
+		Vector3<float> center = selectedTile.Blueprint.GetCenter();
 		sb.AppendLine( $"Tile: {selectedTile.Id}" );
 		sb.AppendLine( $"Terrain: {selectedTile.State.TerrainType.Name}" );
-		sb.AppendLine( $"Seismic activity: {selectedTile.State.SeismicActivity:N4}" );
-		sb.AppendLine( $"Height: {selectedTile.State.Height:N2}m" );
-		sb.AppendLine( $"Length: {selectedTile.Globe.ApproximateTileLength:N2}m" );
-		sb.AppendLine( $"Temperature: {selectedTile.State.Temperature}" );
-		sb.AppendLine( $"Pressure: {selectedTile.State.StaticPressure}" );
-		sb.AppendLine( $"Moisture capacity mm: {selectedTile.State.GetMoistureCapacityMm():N2}" );
-		sb.AppendLine( $"Evaporation mm: {selectedTile.State.EvaporationMm:N2}" );
-		sb.AppendLine( $"Moisture mm: {selectedTile.State.AbsoluteHumidityMm:N2}" );
-		sb.AppendLine( $"Precipitation mm: {selectedTile.State.PrecipitationMm:N2}" );
-		sb.AppendLine( $"Local relief: {selectedTile.State.LocalRelief:N2}m" );
-		sb.AppendLine( $"Ruggedness: {selectedTile.State.LocalRelief * selectedTile.State.Ruggedness:N2}m ({selectedTile.State.Ruggedness:N4}%)" );
-		sb.AppendLine( $"Gradient: {(selectedTile.State.Gradient.Magnitude<Vector3<float>, float>() * 100):N4}% {selectedTile.State.Gradient}" );
+		if (selectedTile.GenerationFace is not null) {
+			Civlike.World.TectonicGeneration.TectonicFaceState tectonicState = selectedTile.GenerationFace.Get<Civlike.World.TectonicGeneration.TectonicFaceState>();
+			sb.AppendLine( $"Seismic activity: {tectonicState.BaselineValues.SeismicActivity:N4}" );
+			sb.AppendLine( $"Height: {tectonicState.BaselineValues.ElevationMean:N2}m" );
+			sb.AppendLine( $"Vertex Elevations: {selectedTile.Blueprint.Vertices[ 0 ].Height:N2}m {selectedTile.Blueprint.Vertices[ 1 ].Height:N2}m {selectedTile.Blueprint.Vertices[ 2 ].Height:N2}m" );
+			sb.AppendLine( $"Gradient: {(tectonicState.BaselineValues.Gradient.Magnitude<Vector3<float>, float>() * 100):N4}% {tectonicState.BaselineValues.Gradient}" );
+			//sb.AppendLine( $"Length: {selectedTile.GenerationFace.G.ApproximateTileLength:N2}m" );
+			sb.AppendLine( $"Average Temperature: {tectonicState.AverageTemperature}" );
+			sb.AppendLine( $"Pressure: {tectonicState.Pressure}" );
+			//sb.AppendLine( $"Moisture capacity mm: {tectonicState.GetMoistureCapacityMm():N2}" );
+			//sb.AppendLine( $"Evaporation mm: {selectedTile.State.EvaporationMm:N2}" );
+			//sb.AppendLine( $"Moisture mm: {selectedTile.State.AbsoluteHumidityMm:N2}" );
+			//sb.AppendLine( $"Precipitation mm: {selectedTile.State.PrecipitationMm:N2}" );
+			//sb.AppendLine( $"Local relief: {selectedTile.State.LocalRelief:N2}m" );
+			//sb.AppendLine( $"Ruggedness: {selectedTile.State.LocalRelief * selectedTile.State.Ruggedness:N2}m ({selectedTile.State.Ruggedness:N4}%)" );
+		}
 
 		this._infoLabel.Text = sb.ToString();
 	}

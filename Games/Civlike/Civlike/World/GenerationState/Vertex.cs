@@ -18,6 +18,7 @@ public sealed class Vertex( int id, PackedNormal vector ) {
 
 	public int Id { get; } = id;
 	public float Height { get; set; }
+	public float HeightFactor { get; set; } = 1;
 
 	public override bool Equals( object? obj ) => obj is Vertex vertex && vertex == this;
 	public override int GetHashCode() => unchecked((int) this._packedNormal.RawData);

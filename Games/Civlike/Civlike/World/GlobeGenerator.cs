@@ -28,16 +28,30 @@ public static class GlobeGenerator {
 
 		object[] steps = [ .. typeSequence.Select( p => p.Resolve().CreateInstance( null ) ?? throw new Exception( $"Failed to create instance of {p}" ) ) ];
 
+		/*
+		 * Insolation & radiation → net SW/LW
+		 * Energy balance → update temperature
+		 * Evaporation → update humidity
+		 * Pressure & density → ideal-gas law
+		 * Wind solver → pressure gradients, Coriolis, drag
+		 * Ocean currents → wind stress → Ekman drift
+		 * Advection → T, humidity, SST
+		 * Cloud/precipitation → RH threshold → rain/snow
+		 * Hydrology → infiltration, runoff routing, soil-moisture update
+		 * Vegetation & z0z0​ update
+		 * Accumulate daily metrics → check annual drift
+		 */
+
 		for (int i = 0; i < steps.Length; i++) {
 			object step = steps[ i ];
 			if (step is GlobeGenerationProcessingStepBase<TGlobeType, TParameters> stepAsSpecific) {
 				MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Step {i + 1}/{steps.Length}: {stepAsSpecific.StepDisplayName}" ) );
-				stepAsSpecific.Process( globeInProgress, parameters );
+				RunStep( stepAsSpecific, globeInProgress, parameters );
 				continue;
 			}
 			if (step is GlobeGenerationProcessingStepBase<GeneratingGlobeBase, GlobeGeneratorParameterBase> stepAsBase) {
 				MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Step {i + 1}/{steps.Length}: {stepAsBase.StepDisplayName}" ) );
-				stepAsBase.Process( globeInProgress, parameters );
+				RunStep( stepAsBase, globeInProgress, parameters );
 				continue;
 			}
 			throw new InvalidOperationException( $"Step {i + 1}/{steps.Length} is not of the expected type." );
@@ -47,16 +61,32 @@ public static class GlobeGenerator {
 		return ConvertInProgressToFinishedGlobe<TGlobeType, TParameters>( globeInProgress );
 	}
 
+	private static void RunStep<TGlobeType, TParameters>( GlobeGenerationProcessingStepBase<TGlobeType, TParameters> step, TGlobeType globe, TParameters parameters ) where TGlobeType : GeneratingGlobeBase where TParameters : GlobeGeneratorParameterBase {
+		int loopCount = step.GetLoopCount( globe, parameters );
+		if (loopCount <= 0)
+			throw new ArgumentOutOfRangeException( nameof( loopCount ), "Loop count must be greater than zero." );
+		if (loopCount == 1) {
+			step.Process( globe, parameters );
+			return;
+		}
+
+		for (int i = 0; i < loopCount; i++) {
+			MessageBus.PublishAnonymously( new WorldGenerationSubProgressMessage( $"Step {step.StepDisplayName} iteration {i + 1}/{loopCount}" ) );
+			step.Process( globe, parameters );
+		}
+	}
+
 	public static Globe ConvertInProgressToFinishedGlobe<TGlobeType, TParameters>( TGlobeType globeInProgress ) where TGlobeType : GeneratingGlobeBase where TParameters : GlobeGeneratorParameterBase {
-		(GenerationState.Vertex generated, GameplayState.Vertex.Builder builder)[] vertexBuilders = [ .. globeInProgress.Vertices.Select( p => (generated: p, builder: new GameplayState.Vertex.Builder( p.PackedNormal, p.Height )) ) ];
+		(GenerationState.Vertex generated, GameplayState.Vertex.Builder builder)[] vertexBuilders = [ .. globeInProgress.Vertices.Select( p => (generated: p, builder: new GameplayState.Vertex.Builder( p.PackedNormal, p.Height, globeInProgress.Radius )) ) ];
 		(GenerationState.Face generated, GameplayState.Face.Builder builder)[] faceBuilders = [ .. globeInProgress.Faces.Select( p => (generated: p, builder: new GameplayState.Face.Builder( p.Id, p.TerrainType )) ) ];
 		GameplayState.Edge[] edges = [ .. globeInProgress.Edges.Select( p => new GameplayState.Edge( vertexBuilders[ p.VertexA.Id ].builder.Vertex, vertexBuilders[ p.VertexB.Id ].builder.Vertex, faceBuilders[ p.FaceA.Id ].builder.Face, faceBuilders[ p.FaceB.Id ].builder.Face ) ) ];
 		foreach ((GenerationState.Face generated, GameplayState.Face.Builder builder) in faceBuilders) {
 			builder.Vertices.AddRange( generated.Vertices.Select( p => vertexBuilders[ p.Id ].builder.Vertex ) );
 			builder.Edges.AddRange( generated.Edges.Select( p => edges[ p.Id ] ) );
 			builder.Neighbours.AddRange( generated.Neighbours.Select( p => faceBuilders[ p.Id ].builder.Face ) );
+			builder.GenerationFace = generated;
 			builder.Debug_Arrow = generated.Get<TectonicFaceState>().BaselineValues.Gradient;
-			builder.Debug_Color = (generated.Get<TectonicFaceState>().BaselineValues.MeanSlope / 0.35f, generated.Get<TectonicFaceState>().BaselineValues.RuggednessFactor, generated.Get<TectonicFaceState>().BaselineValues.SeismicActivity, 1);
+			builder.Debug_Color = (float.Max(generated.Get<TectonicFaceState>().AverageTemperature.Celsius, 0) / 50, float.Max( -generated.Get<TectonicFaceState>().AverageTemperature.Celsius, 0 ) / 30, generated.IsOcean ? 1 : 0, 1);
 			builder.Complete();
 		}
 		foreach ((GenerationState.Vertex generated, GameplayState.Vertex.Builder builder) in vertexBuilders) {

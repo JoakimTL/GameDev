@@ -8,4 +8,5 @@ public sealed class TectonicParameters {
 	public int PlateHeight { get; init; }
 	public int PlateCountVariance { get; init; }
 	public int PlateCountBase { get; init; }
+	public int OceanSeeds { get; init; }
 }

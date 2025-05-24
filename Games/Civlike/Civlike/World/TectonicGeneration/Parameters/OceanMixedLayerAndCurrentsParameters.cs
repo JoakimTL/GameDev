@@ -20,4 +20,9 @@ public sealed class OceanMixedLayerAndCurrentsParameters {
 	/// Defined in m^2/s
 	/// </summary>
 	public double EddyDiffusivity { get; set; } = 1000;
+	/// <summary>
+	/// Reference salinity of ocean surface water<br/>
+	/// Defined in parts per thousand (ppt), typical value is around 35 ppt
+	/// </summary>
+	public double OceanSalinityReference { get; set; } = 35.0;
 }

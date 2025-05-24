@@ -109,8 +109,8 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Wo
 			this._customYawRotation += this._lastRotation.X * 0.002f;
 			this._customPitchRotation += this._lastRotation.Y * 0.002f;
 			this._lastRotation = 0;
-			if (this._customPitchRotation < -float.Pi / 3)
-				this._customPitchRotation = -float.Pi / 3;
+			if (this._customPitchRotation < -float.Pi * 0.8f)
+				this._customPitchRotation = -float.Pi * 0.8f;
 			if (this._customPitchRotation > 0)
 				this._customPitchRotation = 0;
 

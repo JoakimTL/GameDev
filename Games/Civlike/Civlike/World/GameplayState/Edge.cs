@@ -19,6 +19,9 @@ public sealed class Edge( Vertex vertexA, Vertex vertexB, Face faceA, Face faceB
 
 	public Vector3<float> VectorA => this.VertexA.Vector;
 	public Vector3<float> VectorB => this.VertexB.Vector;
+	public Vector3<float> DisplayVectorA => this.VertexA.DisplayVector;
+	public Vector3<float> DisplayVectorB => this.VertexB.DisplayVector;
+
 
 	public static Vector3<float> GetNormal( Vector3<float> a, Vector3<float> b ) {
 		Vector3<float> right = (b - a).Cross( -a ).Normalize<Vector3<float>, float>();

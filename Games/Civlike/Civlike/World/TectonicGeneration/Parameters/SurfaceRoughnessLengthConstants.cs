@@ -2,10 +2,15 @@
 
 public sealed class SurfaceRoughnessLengthConstants {
 	/// <summary>
-	/// The surface roughness length for bare ground.<br/>
+	/// The surface lowest roughness length for bare ground.<br/>
 	/// Defined in meters.
 	/// </summary>
-	public float BareGround { get; set; } = 0.001f;
+	public float BareGroundMinimum { get; set; } = 0.001f;
+	/// <summary>
+	/// The surface highest roughness length for bare ground.<br/>
+	/// Defined in meters.
+	/// </summary>
+	public float BareGroundMaximum { get; set; } = 0.05f;
 	/// <summary>
 	/// The surface roughness length for full vegetation.<br/>
 	/// Defined in meters.

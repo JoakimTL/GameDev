@@ -23,6 +23,8 @@ public sealed class Render3PipelineState : DisposableIdentifiable {
 		this.TerrainSceneRenderer = new BufferedSceneRenderer( sceneService.GetScene( RenderConstants.TerrainSceneName ), windowService, framebufferStateService );
 		this.GameObjectSceneRenderer = new BufferedSceneRenderer( sceneService.GetScene( RenderConstants.GameObjectSceneName ), windowService, framebufferStateService );
 		this.GridSceneRenderer = new BufferedMultisampledSceneRenderer( sceneService.GetScene( RenderConstants.GridSceneName ), windowService, framebufferStateService );
+		cameraService.Main.Projection3.ZNear = 0.00048828125F;
+		cameraService.Main.Projection3.ZFar = 32;
 	}
 
 	protected override bool InternalDispose() {

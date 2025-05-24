@@ -10,12 +10,12 @@ public sealed class DefineGradientStep : GlobeGenerationProcessingStepBase<Tecto
 		ParallelProcessing.Range( globe.Faces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
 				Face face = globe.Faces[ i ];
-				Vector3<float> center = face.GetCenter();
+				Vector3<float> center = face.Center;
 				TectonicFaceState state = face.Get<TectonicFaceState>();
 				Vector3<float> gradient = 0;
 				foreach (Vertex vertex in face.Vertices) {
 					Vector3<float> direction = (vertex.Vector - center).Normalize<Vector3<float>, float>();
-					gradient += direction * (state.BaselineValues.ElevationMean - vertex.Height);
+					gradient += direction * (vertex.Height - state.BaselineValues.ElevationMean);
 				}
 				gradient /= (float) globe.ApproximateTileLength;
 				state.BaselineValues.Gradient = gradient;

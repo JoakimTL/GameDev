@@ -1,5 +1,6 @@
 ﻿namespace Civlike.World.GenerationState.Steps;
 
+[Engine.Processing.Do<IGenerationStep>.After<CreateFacesStep>]
 public sealed class SetGlobePropertiesStep : GlobeGenerationProcessingStepBase<GeneratingGlobeBase, GlobeGeneratorParameterBase> {
 	public override string StepDisplayName => "Setting globe properties";
 

@@ -5,12 +5,14 @@ using Engine.Module.Render.Input;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
 using Civlike.World.TectonicGeneration;
+using Civlike.World.TectonicGeneration.Steps;
 
 namespace Civlike.Client.Render.Ui;
 
 public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b(?:globe-tracking|ui_newgame)\b" ) {
 
 	private readonly List<string> _worldGenerationMessages = [];
+	private string? _subProgressMessage = null;
 	private double? _currentStepProgress = null;
 	private Label _progressLabel = null!;
 	private InteractableButton _btnCreateWorld = null!;
@@ -38,7 +40,8 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 			PlateHeight = -1100,
 			PlateHeightVariance = 1400,
 			FaultMaxHeight = 14000,
-			MountainHeight = 7000
+			MountainHeight = 7000,
+			OceanSeeds = 8
 		};
 		Publish( new CreateNewGlobeRequestMessage<TectonicGeneratingGlobe, TectonicGlobeParameters>( new( 8, 6378000, 43, 128, tectonicParameters ) ), "gamelogic", true );
 	}
@@ -55,10 +58,15 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 		if (message.Content is WorldGenerationProgressMessage worldGenerationProgress) {
 			this._worldGenerationMessages.Add( worldGenerationProgress.ProgressMessage );
 			this._currentStepProgress = null;
+			_subProgressMessage = null;
 			UpdateGenerationDisplay();
 		}
 		if (message.Content is WorldGenerationStepProgressPercentMessage worldGenerationStepProgressPercent) {
 			this._currentStepProgress = worldGenerationStepProgressPercent.ProgressPercent;
+			UpdateGenerationDisplay();
+		}
+		if (message.Content is WorldGenerationSubProgressMessage worldGenerationSubProgress) {
+			this._subProgressMessage = worldGenerationSubProgress.SubProgressMessage;
 			UpdateGenerationDisplay();
 		}
 	}
@@ -73,6 +81,8 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 				continue;
 			}
 			labelText += $"{message}...{(this._currentStepProgress.HasValue ? $"{this._currentStepProgress.Value:N1}%" : "")}{Environment.NewLine}";
+			if (_subProgressMessage is not null)
+				labelText += $"{_subProgressMessage}{Environment.NewLine}";
 		}
 		this._progressLabel.Text = labelText;
 	}

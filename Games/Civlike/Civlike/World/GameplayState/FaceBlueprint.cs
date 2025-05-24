@@ -15,6 +15,9 @@ public sealed class FaceBlueprint( Face owner, Vertex[] vertices, Edge[] edges, 
 	public Vector3<float> VectorA => this._vertices[ 0 ].Vector;
 	public Vector3<float> VectorB => this._vertices[ 1 ].Vector;
 	public Vector3<float> VectorC => this._vertices[ 2 ].Vector;
+	public Vector3<float> DisplayVectorA => this._vertices[ 0 ].DisplayVector;
+	public Vector3<float> DisplayVectorB => this._vertices[ 1 ].DisplayVector;
+	public Vector3<float> DisplayVectorC => this._vertices[ 2 ].DisplayVector;
 
 	public AABB<Vector3<float>> Bounds => AABB.Create( [ this.VectorA, this.VectorB, this.VectorC ] );
 

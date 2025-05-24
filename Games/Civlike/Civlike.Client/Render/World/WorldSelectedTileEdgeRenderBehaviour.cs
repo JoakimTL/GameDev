@@ -64,14 +64,17 @@ public sealed class WorldSelectedTileEdgeRenderBehaviour : DependentRenderBehavi
 		this._innerLineCollection.SetActiveElements( activeLines );
 	}
 
-	private static void AddInnerLines( Face? face, ref uint activeLines, Span<Line3SceneData> edges, double time ) {
+	private void AddInnerLines( Face? face, ref uint activeLines, Span<Line3SceneData> edges, double time ) {
 		if (face is null)
 			return;
+		Vector3<float> vectorA = face.Blueprint.DisplayVectorA;
+		Vector3<float> vectorB = face.Blueprint.DisplayVectorB;
+		Vector3<float> vectorC = face.Blueprint.DisplayVectorC;
 		Span<(Vector3<float>, Vector3<float>)> edgeSpan =
 		[
-			(face.Blueprint.VectorA, face.Blueprint.VectorB),
-			(face.Blueprint.VectorB, face.Blueprint.VectorC),
-			(face.Blueprint.VectorC, face.Blueprint.VectorA),
+			(vectorA, vectorB),
+			(vectorB, vectorC),
+			(vectorC, vectorA),
 		];
 		float timeSine = (MathF.Sin( (float) time * MathF.PI * 1.618f ) * 0.5f) + 0.5f;
 		Span<float> timeSineThickness =
@@ -108,11 +111,14 @@ public sealed class WorldSelectedTileEdgeRenderBehaviour : DependentRenderBehavi
 	private static void AddOuterLines( Face? face, ref uint activeEdges, Span<Line3SceneData> edges ) {
 		if (face is null)
 			return;
+		Vector3<float> vectorA = face.Blueprint.DisplayVectorA;
+		Vector3<float> vectorB = face.Blueprint.DisplayVectorB;
+		Vector3<float> vectorC = face.Blueprint.DisplayVectorC;
 		Span<(Vector3<float>, Vector3<float>)> edgeSpan =
 		[
-			(face.Blueprint.VectorA, face.Blueprint.VectorB),
-			(face.Blueprint.VectorB, face.Blueprint.VectorC),
-			(face.Blueprint.VectorC, face.Blueprint.VectorA),
+			(vectorA, vectorB),
+			(vectorB, vectorC),
+			(vectorC, vectorA),
 		];
 		Vector4<byte> outerColor = (255, 255, 255, 255);
 		foreach ((Vector3<float>, Vector3<float>) edge in edgeSpan) {

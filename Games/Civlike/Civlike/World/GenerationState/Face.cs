@@ -18,6 +18,14 @@ public sealed class Face {
 		foreach (Edge edge in edges)
 			edge.AddFace( this );
 		this.TerrainType = TerrainTypeList.Default;
+		Center = (this.VectorA + this.VectorB + this.VectorC) / 3f;
+		this.LatitudeRads = float.Asin( this.Center.Y );
+		this.LatitudeRadsAbs = float.Abs( this.LatitudeRads );
+		this.LatitudeDegrees = float.RadiansToDegrees( this.LatitudeRads );
+		this.LatitudeDegreesAbs = float.Abs( this.LatitudeDegrees );
+		this.LatitudeSin = float.Sin( this.LatitudeRads );
+		this.LatitudeCos = float.Cos( this.LatitudeRads );
+		this.LatitudeTan = float.Tan( this.LatitudeRads );
 	}
 
 	public uint Id { get; }
@@ -29,12 +37,25 @@ public sealed class Face {
 	public Vector3<float> VectorA => this._vertices[ 0 ].Vector;
 	public Vector3<float> VectorB => this._vertices[ 1 ].Vector;
 	public Vector3<float> VectorC => this._vertices[ 2 ].Vector;
-	public Vector3<float> GetCenter() => (this.VectorA + this.VectorB + this.VectorC) / 3f;
+	public Vector3<float> Center { get; }
 
-	public T Get<T>() where T : new() {
+	public float LatitudeRads { get; }
+	public float LatitudeDegrees { get; }
+	public float LatitudeSin { get; }
+	public float LatitudeCos { get; }
+	public float LatitudeTan { get; }
+	public float LatitudeRadsAbs { get; }
+	public float LatitudeDegreesAbs { get; }
+
+	public bool IsOcean { get; set; }
+	public bool IsLand { get; set; } = true;
+
+	public T Get<T>() where T : StateBase, new() {
 		if (this._properties.TryGetValue( typeof( T ), out object? value ))
 			return (T) value;
-		T newValue = new();
+		T newValue = new() {
+			Face = this
+		};
 		this._properties[ typeof( T ) ] = newValue;
 		return newValue;
 	}
@@ -45,4 +66,8 @@ public sealed class Face {
 	public static bool operator ==( Face left, Face right ) => left.Id == right.Id;
 	public static bool operator !=( Face left, Face right ) => !(left == right);
 
+
+	public abstract class StateBase {
+		public Face Face { get; init; } = null!;
+	}
 }

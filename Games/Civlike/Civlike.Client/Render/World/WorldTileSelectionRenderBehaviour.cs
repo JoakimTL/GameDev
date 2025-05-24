@@ -57,8 +57,9 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
 		AABB<Vector3<float>> bounds = globe.ClusterBounds.MoveBy( intersectionPoint ).ScaleBy( 0.25f );
-		foreach (BoundedRenderCluster cluster in globe.Clusters.Where( p => p.Bounds.Intersects( bounds ) )) 			foreach (Face face in cluster.Faces) {
-				if (!RayIntersectsTriangle( this.RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.VectorA, face.Blueprint.VectorB, face.Blueprint.VectorC, out _ ))
+		foreach (BoundedRenderCluster cluster in globe.Clusters.Where( p => p.Bounds.Intersects( bounds ) ))
+			foreach (Face face in cluster.Faces) {
+				if (!RayIntersectsTriangle( this.RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.DisplayVectorA, face.Blueprint.DisplayVectorB, face.Blueprint.DisplayVectorC, out _ ))
 					continue;
 				this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", face );
 				return;

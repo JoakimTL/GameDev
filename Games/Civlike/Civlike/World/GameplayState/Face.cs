@@ -14,6 +14,7 @@ public sealed class Face : IOcTreeLeaf<float> {
 	public uint Id { get; }
 	public FaceBlueprint Blueprint { get; private set; } = null!;
 	public FaceState State { get; private set; } = null!;
+	public GenerationState.Face? GenerationFace { get; private set; } = null!;
 
 	public AABB<Vector3<float>> Bounds => this.Blueprint.Bounds;
 
@@ -32,6 +33,7 @@ public sealed class Face : IOcTreeLeaf<float> {
 		public TerrainTypeBase TerrainType { get; set; } = terrainType;
 		public Vector3<float> Debug_Arrow { get; set; } = Vector3<float>.Zero;
 		public Vector4<float> Debug_Color { get; set; } = Vector4<float>.Zero;
+		public GenerationState.Face? GenerationFace { get; set; } = null;
 
 		public void Complete() {
 			if (this.TerrainType is null)
@@ -40,7 +42,7 @@ public sealed class Face : IOcTreeLeaf<float> {
 			this.Face.State = new FaceState( this.Face, this.TerrainType );
 			this.Face.State.Arrow = this.Debug_Arrow;
 			this.Face.State.Color = this.Debug_Color;
-			this.Face.TriggerFaceStateChanged();
+			this.Face.GenerationFace = this.GenerationFace;
 		}
 
 		public Face Face { get; } = new Face( id );

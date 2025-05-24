@@ -10,7 +10,7 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 	public override string StepDisplayName => "Generating landmasses";
 
 	public override void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters ) {
-		TectonicPlateGenerator tectonicRegionGenerator = new( new( globe.SeedProvider.Next() ), parameters.TectonicParameters.PlateCountBase + (int) float.Round((globe.SeedProvider.NextSingle() * 2 - 1)*parameters.TectonicParameters.PlateCountVariance), 0.01f, (float) (parameters.TectonicParameters.PlateHeight - parameters.TectonicParameters.PlateHeightVariance), (float) (parameters.TectonicParameters.PlateHeight + parameters.TectonicParameters.PlateHeightVariance) );
+		TectonicPlateGenerator tectonicRegionGenerator = new( new( globe.SeedProvider.Next() ), parameters.TectonicParameters.PlateCountBase + (int) float.Round( (globe.SeedProvider.NextSingle() * 2 - 1) * parameters.TectonicParameters.PlateCountVariance ), 0.01f, (float) (parameters.TectonicParameters.PlateHeight - parameters.TectonicParameters.PlateHeightVariance), (float) (parameters.TectonicParameters.PlateHeight + parameters.TectonicParameters.PlateHeightVariance) );
 		Noise3 xShiftNoise = new( globe.SeedProvider.Next(), 11 );
 		Noise3 yShiftNoise = new( globe.SeedProvider.Next(), 11 );
 		Noise3 zShiftNoise = new( globe.SeedProvider.Next(), 11 );
@@ -31,7 +31,7 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 
 		float[] seismicActivity = new float[ globe.Vertices.Count ];
 		float[] ruggedness = new float[ globe.Vertices.Count ];
-		ParallelProcessing.Range(globe.Vertices.Count, (start, end, taskId) => {
+		ParallelProcessing.Range( globe.Vertices.Count, ( start, end, taskId ) => {
 			List<(TectonicPlate plate, float gradient)> neighbourPlates = [];
 			for (int i = start; i < end; i++) {
 				Vertex vertex = globe.Vertices[ i ];
@@ -67,7 +67,7 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 				float nHeight = currentHeight + otherAverageHeight + faultHeight + mountainHeight;
 
 				vertex.Height = nHeight;
-				seismicActivity[vertex.Id ] = faultIntensity;
+				seismicActivity[ vertex.Id ] = faultIntensity;
 				ruggedness[ vertex.Id ] = localRuggedness;
 			}
 		} );
@@ -81,17 +81,11 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 				float height = 0;
 				float faceSeismicActivity = 0;
 				float faceRuggedness = 0;
-				float minHeight = float.MaxValue;
-				float maxHeight = float.MinValue;
 
 				foreach (Vertex vertex in face.Vertices) {
 					height += vertex.Height;
 					faceSeismicActivity += seismicActivity[ vertex.Id ];
 					faceRuggedness += ruggedness[ vertex.Id ];
-					if (vertex.Height < minHeight)
-						minHeight = vertex.Height;
-					if (vertex.Height > maxHeight)
-						maxHeight = vertex.Height;
 				}
 
 				height /= 3;
@@ -101,7 +95,6 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 				state.BaselineValues.ElevationMean = height;
 				state.BaselineValues.SeismicActivity = faceSeismicActivity;
 				state.BaselineValues.RuggednessFactor = faceRuggedness;
-				state.BaselineValues.MeanSlope = (maxHeight - minHeight) / (float) globe.ApproximateTileLength;
 
 				float stddev = 0;
 				foreach (Vertex vertex in face.Vertices) {

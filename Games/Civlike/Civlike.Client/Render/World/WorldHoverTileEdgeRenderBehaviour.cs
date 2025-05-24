@@ -114,8 +114,8 @@ public sealed class WorldHoverTileEdgeRenderBehaviour : DependentRenderBehaviour
 	}
 
 	private static void AddEdge( Vector3<float> center, float maxRadius, Edge edge, Span<Line3SceneData> edges, ref int activeEdges ) {
-		Vector3<float> a = edge.VectorA;
-		Vector3<float> b = edge.VectorB;
+		Vector3<float> a = edge.DisplayVectorA;
+		Vector3<float> b = edge.DisplayVectorB;
 
 		float dstSqA = (a - center).MagnitudeSquared();
 		float dstSqB = (b - center).MagnitudeSquared();
