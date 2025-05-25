@@ -14,15 +14,15 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 		Noise3 porosityCoarseNoise = new( globe.SeedProvider.Next(), 12 );
 		Noise3 porosityFineNoise = new( globe.SeedProvider.Next(), 88 );
 
-		List<TectonicFaceState> states = globe.Faces.Select( f => f.Get<TectonicFaceState>() ).ToList();
+		List<TectonicFaceState> states = globe.Faces.OfType<Face<TectonicFaceState>>().Select( f => f.State ).ToList();
 		double sigmaMin = states.Min( f => f.BaselineValues.ElevationStandardDeviation );
 		double sigmaMax = states.Max( f => f.BaselineValues.ElevationStandardDeviation );
 		double barometricExponent = globe.PlanetaryParameters.Gravity / (globe.DynamicInitializationConstants.LapseRate * globe.UniversalConstants.UniversalGasConstant);
 		ParallelProcessing.Range( globe.Faces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
-				Face face = globe.Faces[ i ];
+				Face<TectonicFaceState> face = globe.Faces[ i ] as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Face at index {i} is not of type TectonicFaceState." );
+				TectonicFaceState state = face.State;
 				Vector3<float> center = face.Center;
-				TectonicFaceState state = face.Get<TectonicFaceState>();
 
 				double latitude = double.RadiansToDegrees( Math.Asin( center.Y ) );
 				double latitudeFraction = latitude / 90;

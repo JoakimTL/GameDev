@@ -7,7 +7,7 @@ public sealed class BoundedRenderCluster {
 
 	public event Action? FaceStateChangedInCluster;
 
-	public BoundedRenderCluster( uint id, AABB<Vector3<float>> bounds, IReadOnlyList<Face> faces, IReadOnlyList<Edge> edges ) {
+	private BoundedRenderCluster( uint id, AABB<Vector3<float>> bounds, IReadOnlyList<Face> faces, IReadOnlyList<Edge> edges ) {
 		this.Id = id;
 		this.Bounds = bounds;
 		this.Faces = faces;
@@ -37,5 +37,18 @@ public sealed class BoundedRenderCluster {
 		}
 
 		return result;
+	}
+
+	public sealed class Builder( AABB<Vector3<float>> bounds ) {
+		public List<Face> Faces { get; } = [];
+		public List<Edge> Edges { get; } = [];
+		public AABB<Vector3<float>> Bounds { get; } = bounds;
+
+		public bool HasFaces => this.Faces.Count > 0;
+
+		public BoundedRenderCluster Build( uint id ) {
+			return new BoundedRenderCluster( id, this.Bounds, this.Faces, this.Edges );
+		}
+
 	}
 }

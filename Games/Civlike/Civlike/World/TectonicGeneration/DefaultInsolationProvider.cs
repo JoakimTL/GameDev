@@ -34,7 +34,7 @@ public class DefaultInsolationProvider( TectonicGeneratingGlobe globe ) : IInsol
 		_dailyMeanPreprocessConstant = ((float) Globe.PlanetaryParameters.MeanSolarConstant / float.Pi) * _invRRelSq;
 	}
 
-	public float GetDailyMeanInsolation( Face face ) {
+	public float GetDailyMeanInsolation( FaceBase face ) {
 		float sinLat = face.LatitudeSin;
 		float cosLat = face.LatitudeCos;
 		float tanLat = face.LatitudeTan;

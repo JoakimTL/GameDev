@@ -11,22 +11,9 @@ namespace Civlike.Client.Render.Ui;
 
 public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b(?:globe-tracking|ui_newgame)\b" ) {
 
-	private readonly List<string> _worldGenerationMessages = [];
-	private string? _subProgressMessage = null;
-	private double? _currentStepProgress = null;
-	private Label _progressLabel = null!;
 	private InteractableButton _btnCreateWorld = null!;
 
 	protected override void Initialize() {
-		this._progressLabel = new Label( this ) {
-			Text = "No world generation in progress",
-			FontName = "calibrib",
-			TextScale = 0.06f,
-			Color = (1, 1, 1, 1),
-			HorizontalAlignment = Alignment.Positive,
-			VerticalAlignment = Alignment.Negative
-		};
-		this._progressLabel.Placement.Set( new( (-.4, .3 ), 0, (.4, .3 ) ), Alignment.Positive, Alignment.Negative );
 		this._btnCreateWorld = new InteractableButton( this, "Create World" );
 		this._btnCreateWorld.Placement.Set( new( (.3, -.15), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
 		this._btnCreateWorld.OnClicked += OnNewGameButtonClicked;
@@ -45,9 +32,6 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 		};
 		Publish( new CreateNewGlobeRequestMessage<TectonicGeneratingGlobe, TectonicGlobeParameters>( new( 8, 6378000, 43, 128, tectonicParameters ) ), "gamelogic", true );
 	}
-
-	//=> Publish( new CreateNewGlobeRequestMessage( new( 8, 6378000, 43, 1400, -1100, 1400, 14000, 7000, double.Pi * 2 / (24 * 60 * 60), double.Pi * 2 / (365.2422 * 24 * 60 * 60), 23.5f, 128, 6 ) ), "gamelogic", true );
-
 	protected override bool ShouldDisplay() {
 		return this.GameStateProvider.Get<bool>( UiElementConstants.ShowNewGameMenu ); //TODO: Create a more complex state machine for ui?
 	}
@@ -55,10 +39,59 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 	protected override void OnMessageReceived( Message message ) {
 		if (message.Content is CreateNewWorldRequestResponseMessage)
 			this.GameStateProvider.SetNewState( UiElementConstants.ShowNewGameMenu, false );
+	}
+}
+
+public sealed class GlobeGenerationMessagesDisplay() : UserInterfaceElementWithMessageNodeBase( "ui_globegen" ) {
+
+	private readonly List<string> _worldGenerationMessages = [];
+	private readonly List<double> _worldGenerationTimes = [];
+	private string? _subProgressMessage = null;
+	private double? _currentStepProgress = null;
+	private double _lastStepStarted = 0;
+	private double _lastUpdateTime = 0;
+	private Label _progressLabel = null!;
+
+	protected override void Initialize() {
+		this._progressLabel = new Label( this ) {
+			Text = "No world generation in progress",
+			FontName = "calibrib",
+			TextScale = 0.06f,
+			Color = (1, 1, 1, 1),
+			HorizontalAlignment = Alignment.Positive,
+			VerticalAlignment = Alignment.Negative
+		};
+		this._progressLabel.Placement.Set( new( (-.4, .3), 0, (.4, .3) ), Alignment.Positive, Alignment.Negative );
+	}
+
+	protected override bool ShouldDisplay() {
+		return true; //TODO: Create a more complex state machine for ui?
+	}
+
+	protected override void OnUpdate( double time, double deltaTime ) {
+		_lastUpdateTime = time;
+		base.OnUpdate( time, deltaTime );
+	}
+
+	protected override void OnMessageReceived( Message message ) {
 		if (message.Content is WorldGenerationProgressMessage worldGenerationProgress) {
 			this._worldGenerationMessages.Add( worldGenerationProgress.ProgressMessage );
+			if (_lastStepStarted != 0) {
+				double timeTaken = _lastUpdateTime - _lastStepStarted;
+				this._worldGenerationTimes.Add( timeTaken );
+			}
 			this._currentStepProgress = null;
 			_subProgressMessage = null;
+			_lastStepStarted = _lastUpdateTime;
+			UpdateGenerationDisplay();
+		}
+		if (message.Content is WorldGenerationCompleteMessage worldGenerationComplete) {
+			this._worldGenerationMessages.Add( worldGenerationComplete.Message );
+			double timeTaken = _lastUpdateTime - _lastStepStarted;
+			this._worldGenerationTimes.Add( timeTaken );
+			this._currentStepProgress = null;
+			_subProgressMessage = null;
+			_lastStepStarted = _lastUpdateTime;
 			UpdateGenerationDisplay();
 		}
 		if (message.Content is WorldGenerationStepProgressPercentMessage worldGenerationStepProgressPercent) {
@@ -77,7 +110,7 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 			string message = this._worldGenerationMessages[ i ];
 			bool isLastMessage = i == this._worldGenerationMessages.Count - 1;
 			if (!isLastMessage) {
-				labelText += $"{message}...Done!{Environment.NewLine}";
+				labelText += $"{message}...Done! ({_worldGenerationTimes[ i ]:N2}s){Environment.NewLine}";
 				continue;
 			}
 			labelText += $"{message}...{(this._currentStepProgress.HasValue ? $"{this._currentStepProgress.Value:N1}%" : "")}{Environment.NewLine}";

@@ -11,7 +11,8 @@ public sealed class SimulationStep : GlobeGenerationProcessingStepBase<TectonicG
 
 	public SimulationStep() {
 		_internalSteps = [
-			new RadiationStep()
+			new RadiationStep(),
+			new EvaporationStep()
 		];
 	}
 

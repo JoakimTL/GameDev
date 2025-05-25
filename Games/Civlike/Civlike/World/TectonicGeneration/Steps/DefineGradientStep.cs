@@ -9,9 +9,9 @@ public sealed class DefineGradientStep : GlobeGenerationProcessingStepBase<Tecto
 	public override void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters ) {
 		ParallelProcessing.Range( globe.Faces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
-				Face face = globe.Faces[ i ];
+				Face<TectonicFaceState> face = globe.Faces[ i ] as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Face at index {i} is not of type TectonicFaceState." );
+				TectonicFaceState state = face.State;
 				Vector3<float> center = face.Center;
-				TectonicFaceState state = face.Get<TectonicFaceState>();
 				Vector3<float> gradient = 0;
 				foreach (Vertex vertex in face.Vertices) {
 					Vector3<float> direction = (vertex.Vector - center).Normalize<Vector3<float>, float>();

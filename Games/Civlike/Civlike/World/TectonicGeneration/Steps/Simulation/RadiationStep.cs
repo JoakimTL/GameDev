@@ -1,4 +1,5 @@
 ﻿using Civlike.World.GenerationState;
+using System.Numerics;
 
 namespace Civlike.World.TectonicGeneration.Steps.Simulation;
 
@@ -12,8 +13,8 @@ public sealed class RadiationStep : ISimulationStep {
 			float α_lw = (float) globe.RadiativeAndCloudParameters.AtmosphericLongwaveAbsorption;
 			float f_downsw = 0.5f;
 			for (int i = start; i < end; i++) {
-				Face face = globe.Faces[ i ];
-				TectonicFaceState state = face.Get<TectonicFaceState>();
+				Face<TectonicFaceState> face = globe.Faces[ i ] as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Face at index {i} is not of type TectonicFaceState." );
+				TectonicFaceState state = face.State;
 
 				float T0 = state.Temperature;
 				float I = globe.InsolationProvider.GetDailyMeanInsolation( face );

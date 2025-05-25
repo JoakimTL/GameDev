@@ -3,7 +3,7 @@ using Civlike.World.TectonicGeneration.Parameters;
 
 namespace Civlike.World.TectonicGeneration;
 public sealed class TectonicGeneratingGlobe : GeneratingGlobeBase {
-	public TectonicGeneratingGlobe() {
+	public TectonicGeneratingGlobe() : base(typeof(TectonicFaceState)) {
 		InsolationProvider = new DefaultInsolationProvider( this );
 	}
 
@@ -19,5 +19,6 @@ public sealed class TectonicGeneratingGlobe : GeneratingGlobeBase {
 	public SoilDepthGenerationConstants SoilDepthGenerationConstants { get; } = new();
 	public DynamicInitializationConstants DynamicInitializationConstants { get; } = new();
 	public EvaporationParameters EvaporationParameters { get; } = new();
+	public AtmosphericParameters AtmosphericParameters { get; } = new();
 	public IInsolationProvider InsolationProvider { get; set; }
 }

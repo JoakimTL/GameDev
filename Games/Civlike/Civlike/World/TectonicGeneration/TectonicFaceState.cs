@@ -1,15 +1,16 @@
-﻿using Civlike.World.GenerationState;
+﻿using Civlike.World.GameplayState;
+using Civlike.World.GenerationState;
 using Engine;
 
 namespace Civlike.World.TectonicGeneration;
 
-public class TectonicFaceState : Face.StateBase {
+public class TectonicFaceState : FaceStateBase {
 	public BaselineValues BaselineValues { get; } = new();
 
 	/// <summary>
 	/// The face's downslope neighbour; used for hydrology and erosion. This is the face that receives runoff from this face.
 	/// </summary>
-	public Face? DownslopeNeighbour { get; set; } = null!;
+	public FaceBase? DownslopeNeighbour { get; set; } = null!;
 	public Temperature Temperature { get; set; }
 	public Temperature AverageTemperature { get; set; }
 	public Pressure Pressure { get; set; }
@@ -81,6 +82,10 @@ public class TectonicFaceState : Face.StateBase {
 	/// The emissivity of the face, which is a measure of how efficiently it emits thermal radiation. This value ranges from 0 to 1, where 1 indicates perfect emission.
 	/// </summary>
 	public float Emissivity { get; set; }
+	/// <summary>
+	/// The wind speed at the face, represented as a vector in 3D space. This vector indicates the direction and magnitude of the wind. The magnitude is in m/s.
+	/// </summary>
+	public Vector3<float> Wind { get; set; } = 0;
 	public double ElevationMeanAboveSea {
 		get {
 			float delta = this.FreshwaterDepth;
@@ -88,5 +93,10 @@ public class TectonicFaceState : Face.StateBase {
 				delta = -this.BaselineValues.ElevationMean;
 			return BaselineValues.ElevationMean + delta;
 		}
+	}
+
+	public override void Apply( Face.Builder builder ) {
+		builder.Debug_Arrow = BaselineValues.Gradient;
+		builder.Debug_Color = (SpecificHumidity / 0.002f, float.Max( -AverageTemperature.Celsius, 0 ) / 120, Face.IsOcean ? 1 : 0, 1);
 	}
 }

@@ -6,6 +6,9 @@ public readonly struct Temperature( float kelvin ) {
 	public float Celsius => this.Kelvin - 273.15f;
 	public float Fahrenheit => this.Celsius * 9 / 5 + 32;
 
+	public const float ZeroCelsius = 273.15f;
+	public const float ZeroFahrenheit = 459.67f;
+
 	public override int GetHashCode() => this.Kelvin.GetHashCode();
 	public override bool Equals( object? obj ) => obj is Temperature temperature && temperature == this;
 	public override string ToString() => $"{this.Celsius:N2} °C";

@@ -38,12 +38,14 @@ public sealed class DynamicInitializationConstants {
 	public double PolarSSTReduction { get; set; } = 30;
 	/// <summary>
 	/// Saturation vapor pressure at T=273.15 K, used as base in Clausius–Clapeyron equation.<br/>
-	/// Define in Pascals (Pa).
+	/// Define in Pascals (Pa).<br/>
+	/// Default value is 610.94 Pa, which is the saturation vapor pressure of water at 0 degrees Celsius (273.15 K).
 	/// </summary>
 	public double ReferenceSaturationVaporPressure { get; set; } = 610.94;
 	/// <summary>
 	/// The molar mass of dry air.<br/>
-	/// Defined in kilograms per mole (kg/mol).
+	/// Defined in kilograms per mole (kg/mol).<br/>
+	/// Default value is 0.0289644 kg/mol, which is the molar mass of dry air at sea level.
 	/// </summary>
 	public double DryAirMolarMass { get;  set; } = 0.0289644;
 }

@@ -1,4 +1,5 @@
 ﻿using Civlike.World.GameplayState;
+using Civlike.World.TectonicGeneration;
 using Engine;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
@@ -38,8 +39,8 @@ public sealed class TileDebugDisplay : UserInterfaceElementBase {
 		Vector3<float> center = selectedTile.Blueprint.GetCenter();
 		sb.AppendLine( $"Tile: {selectedTile.Id}" );
 		sb.AppendLine( $"Terrain: {selectedTile.State.TerrainType.Name}" );
-		if (selectedTile.GenerationFace is not null) {
-			Civlike.World.TectonicGeneration.TectonicFaceState tectonicState = selectedTile.GenerationFace.Get<Civlike.World.TectonicGeneration.TectonicFaceState>();
+		if (selectedTile.GenerationFace is not null && selectedTile.GenerationFace is Civlike.World.GenerationState.Face<TectonicFaceState> tectonicFace) {
+			Civlike.World.TectonicGeneration.TectonicFaceState tectonicState = tectonicFace.State;
 			sb.AppendLine( $"Seismic activity: {tectonicState.BaselineValues.SeismicActivity:N4}" );
 			sb.AppendLine( $"Height: {tectonicState.BaselineValues.ElevationMean:N2}m" );
 			sb.AppendLine( $"Vertex Elevations: {selectedTile.Blueprint.Vertices[ 0 ].Height:N2}m {selectedTile.Blueprint.Vertices[ 1 ].Height:N2}m {selectedTile.Blueprint.Vertices[ 2 ].Height:N2}m" );
@@ -47,6 +48,7 @@ public sealed class TileDebugDisplay : UserInterfaceElementBase {
 			//sb.AppendLine( $"Length: {selectedTile.GenerationFace.G.ApproximateTileLength:N2}m" );
 			sb.AppendLine( $"Average Temperature: {tectonicState.AverageTemperature}" );
 			sb.AppendLine( $"Pressure: {tectonicState.Pressure}" );
+			sb.AppendLine( $"Specific Humidity: {tectonicState.SpecificHumidity:N4} kg/kg" );
 			//sb.AppendLine( $"Moisture capacity mm: {tectonicState.GetMoistureCapacityMm():N2}" );
 			//sb.AppendLine( $"Evaporation mm: {selectedTile.State.EvaporationMm:N2}" );
 			//sb.AppendLine( $"Moisture mm: {selectedTile.State.AbsoluteHumidityMm:N2}" );

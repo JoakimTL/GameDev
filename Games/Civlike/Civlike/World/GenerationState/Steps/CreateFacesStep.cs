@@ -1,4 +1,5 @@
-﻿using Engine.Generation.Meshing;
+﻿using Engine;
+using Engine.Generation.Meshing;
 
 namespace Civlike.World.GenerationState.Steps;
 
@@ -15,8 +16,10 @@ public sealed class CreateFacesStep : GlobeGenerationProcessingStepBase<Generati
 			throw new InvalidOperationException( "Vertices are null." );
 		IReadOnlyList<Vertex> vertices = globe.Vertices;
 
+		Type faceWithStateType = typeof( Face<> ).MakeGenericType(globe.FaceStateType);
+		var resolvedType = faceWithStateType.Resolve();
 		IReadOnlyList<uint> indices = sphere.GetIndices();
-		Face[] faces = new Face[ indices.Count / 3 ];
+		FaceBase[] faces = new FaceBase[ indices.Count / 3 ];
 		Edge[] edges = new Edge[ indices.Count / 2 ];
 		int edgeId = 0;
 		Dictionary<EdgeIndices, Edge> allEdges = [];
@@ -43,7 +46,7 @@ public sealed class CreateFacesStep : GlobeGenerationProcessingStepBase<Generati
 				faceEdges[ j ] = edge;
 			}
 
-			Face face = new( (uint) id, faceVertices, faceEdges );
+			FaceBase face = resolvedType.CreateInstance( [(uint) id, faceVertices, faceEdges] ) as FaceBase ?? throw new InvalidOperationException( $"Failed to create instance of {faceWithStateType}" );
 			faces[ id ] = face;
 		}
 

@@ -9,7 +9,9 @@ using Engine.Structures;
 namespace Civlike.World;
 public static class GlobeGenerator {
 
-	public static Globe Generate<TGlobeType, TParameters>( TParameters parameters, Type[]? stepsToIgnore = null ) where TGlobeType : GeneratingGlobeBase, new() where TParameters : GlobeGeneratorParameterBase {
+	public static Globe Generate<TGlobeType, TParameters>( TParameters parameters, Type[]? stepsToIgnore = null ) 
+		where TGlobeType : GeneratingGlobeBase, new()
+		where TParameters : GlobeGeneratorParameterBase {
 		TGlobeType globeInProgress = new();
 		globeInProgress.Initialize( parameters );
 
@@ -57,7 +59,6 @@ public static class GlobeGenerator {
 			throw new InvalidOperationException( $"Step {i + 1}/{steps.Length} is not of the expected type." );
 		}
 
-		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Generation complete, converting to gameplay world" ) );
 		return ConvertInProgressToFinishedGlobe<TGlobeType, TParameters>( globeInProgress );
 	}
 
@@ -77,16 +78,17 @@ public static class GlobeGenerator {
 	}
 
 	public static Globe ConvertInProgressToFinishedGlobe<TGlobeType, TParameters>( TGlobeType globeInProgress ) where TGlobeType : GeneratingGlobeBase where TParameters : GlobeGeneratorParameterBase {
+		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Building world" ) );
 		(GenerationState.Vertex generated, GameplayState.Vertex.Builder builder)[] vertexBuilders = [ .. globeInProgress.Vertices.Select( p => (generated: p, builder: new GameplayState.Vertex.Builder( p.PackedNormal, p.Height, globeInProgress.Radius )) ) ];
-		(GenerationState.Face generated, GameplayState.Face.Builder builder)[] faceBuilders = [ .. globeInProgress.Faces.Select( p => (generated: p, builder: new GameplayState.Face.Builder( p.Id, p.TerrainType )) ) ];
+		(FaceBase generated, GameplayState.Face.Builder builder)[] faceBuilders = [ .. globeInProgress.Faces.Select( p => (generated: p, builder: new GameplayState.Face.Builder( p.Id, p.TerrainType )) ) ];
 		GameplayState.Edge[] edges = [ .. globeInProgress.Edges.Select( p => new GameplayState.Edge( vertexBuilders[ p.VertexA.Id ].builder.Vertex, vertexBuilders[ p.VertexB.Id ].builder.Vertex, faceBuilders[ p.FaceA.Id ].builder.Face, faceBuilders[ p.FaceB.Id ].builder.Face ) ) ];
-		foreach ((GenerationState.Face generated, GameplayState.Face.Builder builder) in faceBuilders) {
+		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Populating vertices and faces" ) );
+		foreach ((GenerationState.FaceBase generated, GameplayState.Face.Builder builder) in faceBuilders) {
 			builder.Vertices.AddRange( generated.Vertices.Select( p => vertexBuilders[ p.Id ].builder.Vertex ) );
 			builder.Edges.AddRange( generated.Edges.Select( p => edges[ p.Id ] ) );
 			builder.Neighbours.AddRange( generated.Neighbours.Select( p => faceBuilders[ p.Id ].builder.Face ) );
+			generated.Apply( builder );
 			builder.GenerationFace = generated;
-			builder.Debug_Arrow = generated.Get<TectonicFaceState>().BaselineValues.Gradient;
-			builder.Debug_Color = (float.Max(generated.Get<TectonicFaceState>().AverageTemperature.Celsius, 0) / 50, float.Max( -generated.Get<TectonicFaceState>().AverageTemperature.Celsius, 0 ) / 30, generated.IsOcean ? 1 : 0, 1);
 			builder.Complete();
 		}
 		foreach ((GenerationState.Vertex generated, GameplayState.Vertex.Builder builder) in vertexBuilders) {
@@ -97,25 +99,49 @@ public static class GlobeGenerator {
 		GameplayState.Vertex[] vertices = [ .. vertexBuilders.Select( p => p.builder.Vertex ) ];
 		GameplayState.Face[] faces = [ .. faceBuilders.Select( p => p.builder.Face ) ];
 
+		MessageBus.PublishAnonymously( new WorldGenerationProgressMessage( $"Creating clusters" ) );
 		BoundedRenderCluster[] renderClusters = GetRenderClusters( edges, faces );
 
+		MessageBus.PublishAnonymously( new WorldGenerationCompleteMessage( $"Globe generation complete!" ) );
 		return new Globe( Guid.NewGuid(), vertices, faces, renderClusters, globeInProgress.Radius, globeInProgress.TileArea, globeInProgress.ApproximateTileLength );
 	}
 
 	public static BoundedRenderCluster[] GetRenderClusters( GameplayState.Edge[] edges, GameplayState.Face[] faces ) {
-		OcTree<GameplayState.Face, float> faceTree = new( AABB.Create<Vector3<float>>( [ -1, 1 ] ), 3, false );
-		OcTree<GameplayState.Edge, float> edgeTree = new( AABB.Create<Vector3<float>>( [ -1, 1 ] ), 3, false );
+		int clustersPerAxis = 16; // This can be adjusted based on the desired granularity of the clusters
+		int totalClusters = clustersPerAxis * clustersPerAxis * clustersPerAxis;
+		int GetIndex(Vector3<int> xyz) => xyz.X + xyz.Y * clustersPerAxis + xyz.Z * clustersPerAxis * clustersPerAxis;
+		Vector3<int> TurnIntoXyz( Vector3<float> vector ) => vector.Add(1).ScalarMultiply(clustersPerAxis / 2).CastSaturating<float,int>();
+		AABB<Vector3<float>> baseBounds = AABB.Create<Vector3<float>>( [ 0, 2f / clustersPerAxis ] );
+		var length = baseBounds.GetLengths() * clustersPerAxis; // Assuming uniform length for simplicity
 
-		foreach (GameplayState.Edge edge in edges)
-			edgeTree.Add( edge );
-		foreach (GameplayState.Face face in faces)
-			faceTree.Add( face );
+		BoundedRenderCluster.Builder[] clusterBuilders = new BoundedRenderCluster.Builder[totalClusters];
+		for (int x = 0; x < clustersPerAxis; x++) {
+			for (int y = 0; y < clustersPerAxis; y++) {
+				for (int z = 0; z < clustersPerAxis; z++) {
+					Vector3<float> offset = new Vector3<float>( x, y, z ) - clustersPerAxis / 2;
+					clusterBuilders[ GetIndex( (x, y, z) ) ] = new BoundedRenderCluster.Builder( baseBounds.MoveBy(offset.ScalarDivide( clustersPerAxis / 2)) );
+				}
+			}
+		}
+		foreach (GameplayState.Edge edge in edges) {
+			var center = (edge.VertexA.Vector + edge.VertexB.Vector) / 2;
+			Vector3<int> xyz = TurnIntoXyz( center );
+			int index = GetIndex( xyz );
+			clusterBuilders[ index ].Edges.Add( edge );
+		}
+		foreach (GameplayState.Face face in faces) {
+			var center = face.Blueprint.GetCenter();
+			Vector3<int> xyz = TurnIntoXyz( center );
+			int index = GetIndex( xyz );
+			clusterBuilders[ index ].Faces.Add( face );
+		}
 
-		List<IReadOnlyBranch<GameplayState.Face, float>> faceBranches = [ .. faceTree.GetBranches().Where( p => p.Contents.Count > 0 ) ];
-		List<IReadOnlyBranch<GameplayState.Edge, float>> edgeBranches = [ .. edgeTree.GetBranches().Where( p => p.Contents.Count > 0 ) ];
-		List<BoundedRenderCluster> clusters = new( faceBranches.Count );
-		foreach ((AABB<Vector3<float>> bounds, IReadOnlyBranch<GameplayState.Face, float> faces, IReadOnlyBranch<GameplayState.Edge, float>? edges) pair in BoundedRenderCluster.CreateClusterPairs( faceBranches, edgeBranches ))
-			clusters.Add( new BoundedRenderCluster( (uint) clusters.Count, pair.bounds, [ .. pair.faces.Contents ], pair.edges?.Contents.ToList() ?? [] ) );
+		List<BoundedRenderCluster> clusters = [];
+
+		for (int i = 0; i < clusterBuilders.Length; i++) 
+			if (clusterBuilders[ i ].HasFaces) 
+				clusters.Add( clusterBuilders[ i ].Build( (uint) clusters.Count ) );
+
 		return [ .. clusters ];
 	}
 
