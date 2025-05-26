@@ -16,15 +16,16 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 		Noise3 zShiftNoise = new( globe.SeedProvider.Next(), 11 );
 
 		uint baseCoarseSeed = unchecked((uint) globe.SeedProvider.Next());
-		float baseCoarseScale = 26;
+		float baseCoarseScale = 11;
 		uint baseFineSeed = unchecked((uint) globe.SeedProvider.Next());
-		float baseFineScale = 79;
+		float baseFineScale = 23;
 
 		Noise3 coarseFaultNoise = new( globe.SeedProvider.Next(), 7 );
 		Noise3 fineFaultNoise = new( globe.SeedProvider.Next(), 27 );
 
-		Noise3 mountainExistingNoise = new( globe.SeedProvider.Next(), 14 );
-		FiniteVoronoiNoise3 mountainRidgeNoise = new( new( globe.SeedProvider.Next() ), 0.03125f, 1 );
+		Noise3 mountainExistingNoise = new( globe.SeedProvider.Next(), 11 );
+		Noise3 mountainStrengthNoise = new( globe.SeedProvider.Next(), 6 );
+		FiniteVoronoiNoise3 mountainRidgeNoise = new( new( globe.SeedProvider.Next() ), 0.0625f, 1 );
 
 		Noise3 coarseRuggednessNoise = new( globe.SeedProvider.Next(), 4 );
 		Noise3 fineRuggednessNoise = new( globe.SeedProvider.Next(), 19 );
@@ -40,7 +41,7 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 				Vector3<float> shift = (new Vector3<float>( xShiftNoise.Noise( point ), yShiftNoise.Noise( point ), zShiftNoise.Noise( point ) ) * 2) - 1;
 				Vector3<float> translation = point + (shift * 0.05f);
 
-				TectonicPlate current = tectonicRegionGenerator.Get( translation, neighbourPlates, 23, 0.0001f );
+				TectonicPlate current = tectonicRegionGenerator.Get( translation, neighbourPlates, 70, 0.0001f );
 				float localRuggedness = (coarseRuggednessNoise.Noise( point ) * 0.65f) + (fineRuggednessNoise.Noise( point ) * 0.35f);
 				float currentHeight = current.Height + (((((Noise3.Noise( baseCoarseSeed + (uint) current.Id, baseCoarseScale, point ) * 0.65f) + (Noise3.Noise( baseFineSeed + (uint) current.Id, baseFineScale, point ) * 0.35f)) * 2) - 1) * (float) parameters.TectonicParameters.BaseHeightVariance);
 
@@ -61,7 +62,7 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 					faultIntensity += current.GetFaultReactionIntensity( other ) * float.Sqrt( gradient );
 				}
 
-				float mountainFactor = mountainRidgeNoise.BorderNoise( translation, 12 ) * mountainExistingNoise.Noise( point );
+				float mountainFactor = mountainRidgeNoise.BorderNoise( translation, 45 ) * mountainExistingNoise.Noise( point ) * mountainStrengthNoise.Noise( point );
 				float mountainHeight = mountainFactor * mountainFactor * (float) parameters.TectonicParameters.MountainHeight;
 
 				float nHeight = currentHeight + otherAverageHeight + faultHeight + mountainHeight;

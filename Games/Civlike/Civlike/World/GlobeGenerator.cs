@@ -103,7 +103,7 @@ public static class GlobeGenerator {
 		BoundedRenderCluster[] renderClusters = GetRenderClusters( edges, faces );
 
 		MessageBus.PublishAnonymously( new WorldGenerationCompleteMessage( $"Globe generation complete!" ) );
-		return new Globe( Guid.NewGuid(), vertices, faces, renderClusters, globeInProgress.Radius, globeInProgress.TileArea, globeInProgress.ApproximateTileLength );
+		return new Globe( Guid.NewGuid(), vertices, faces, renderClusters, globeInProgress.Radius, globeInProgress.TileArea, globeInProgress.TileLength );
 	}
 
 	public static BoundedRenderCluster[] GetRenderClusters( GameplayState.Edge[] edges, GameplayState.Face[] faces ) {

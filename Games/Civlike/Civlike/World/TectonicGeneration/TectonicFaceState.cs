@@ -108,6 +108,14 @@ public class TectonicFaceState : FaceStateBase {
 	/// The wind speed at the face, represented as a vector in 3D space. This vector indicates the direction and magnitude of the wind. The magnitude is in m/s.
 	/// </summary>
 	public Vector3<float> Wind { get; set; } = 0;
+	/// <summary>
+	/// The wind portion tangential to the surface of this face.
+	/// </summary>
+	public Vector3<float> TangentialWind { get; set; } = 0;
+	public float CoriolisFactor { get; set; }
+	public float CoriolisCosF { get; set; }
+	public float CoriolisSinF { get; set; }
+
 	public float ElevationMeanAboveSea {
 		get {
 			float delta = this.FreshwaterDepth;
@@ -118,7 +126,7 @@ public class TectonicFaceState : FaceStateBase {
 	}
 
 	public override void Apply( Face.Builder builder ) {
-		builder.Debug_Arrow = (DownslopeNeighbour is not null) ? (DownslopeNeighbour.Center - Face.Center).Normalize<Vector3<float>, float>() * 0.33f : Vector3<float>.Zero;//Wind.Normalize<Vector3<float>, float>();
+		builder.Debug_Arrow = Wind * 0.02f;//(DownslopeNeighbour is not null) ? (DownslopeNeighbour.Center - Face.Center).Normalize<Vector3<float>, float>() * 0.33f : Vector3<float>.Zero;//Wind.Normalize<Vector3<float>, float>();
 		builder.Debug_Color = (SpecificHumidity / 0.002f, float.Max( -AverageAirTemperature.Celsius, 0 ) / 120, Face.IsOcean ? 1 : 0, 1);
 	}
 }

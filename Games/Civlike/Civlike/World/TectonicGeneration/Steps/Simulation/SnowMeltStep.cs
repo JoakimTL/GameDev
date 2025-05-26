@@ -26,7 +26,7 @@ public sealed class SnowMeltStep : ISimulationStep {
 
 				float T_a = state.AirTemperature.Celsius;
 				float T_s = state.SurfaceTemperature.Celsius;
-				float windSpeed = state.Wind.Magnitude<Vector3<float>, float>();
+				float windSpeed = state.TangentialWind.Magnitude<Vector3<float>, float>();
 
 				float dT_a = T_a - snowMeltThreshold;
 				float Q_H = state.AirDensity * specificHeatAir * landBulkTransferCoefficient * windSpeed * dT_a;

@@ -17,7 +17,7 @@ public sealed class DefineGradientStep : GlobeGenerationProcessingStepBase<Tecto
 					Vector3<float> direction = (vertex.Vector - center).Normalize<Vector3<float>, float>();
 					gradient += direction * (vertex.Height - state.BaselineValues.ElevationMean);
 				}
-				gradient /= (float) globe.ApproximateTileLength;
+				gradient /= (float) globe.TileLength;
 				state.BaselineValues.Gradient = gradient;
 
 				Face<TectonicFaceState> downslopeNeighbour = null!;
@@ -35,7 +35,7 @@ public sealed class DefineGradientStep : GlobeGenerationProcessingStepBase<Tecto
 					if (gradientNbrDirectionDot > maxGradientDot) {
 						maxGradientDot = gradientNbrDirectionDot;
 						downslopeNeighbour = nbrFace;
-						slope = -gradient.Magnitude<Vector3<float>, float>() / (float) globe.ApproximateTileLength;
+						slope = -gradient.Magnitude<Vector3<float>, float>() / (float) globe.TileLength;
 					}
 				}
 

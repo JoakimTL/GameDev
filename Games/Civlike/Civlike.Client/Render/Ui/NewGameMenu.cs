@@ -21,13 +21,13 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 
 	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event ) {
 		TectonicParameters tectonicParameters = new() {
-			BaseHeightVariance = 1400,
-			PlateCountBase = 60,
-			PlateCountVariance = 20,
-			PlateHeight = -1100,
-			PlateHeightVariance = 1400,
-			FaultMaxHeight = 14000,
-			MountainHeight = 7000,
+			BaseHeightVariance = 150,
+			PlateCountBase = 40,
+			PlateCountVariance = 10,
+			PlateHeight = -200,
+			PlateHeightVariance = 400,
+			FaultMaxHeight = 8000,
+			MountainHeight = 5000,
 			OceanSeeds = 8
 		};
 		Publish( new CreateNewGlobeRequestMessage<TectonicGeneratingGlobe, TectonicGlobeParameters>( new( 8, 6378000, 43, 128, tectonicParameters ) ), "gamelogic", true );

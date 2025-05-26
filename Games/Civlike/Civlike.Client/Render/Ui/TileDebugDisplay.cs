@@ -46,12 +46,13 @@ public sealed class TileDebugDisplay : UserInterfaceElementBase {
 			sb.AppendLine( $"Height: {tectonicState.BaselineValues.ElevationMean:N2}m" );
 			sb.AppendLine( $"Vertex Elevations: {selectedTile.Blueprint.Vertices[ 0 ].Height:N2}m {selectedTile.Blueprint.Vertices[ 1 ].Height:N2}m {selectedTile.Blueprint.Vertices[ 2 ].Height:N2}m" );
 			sb.AppendLine( $"Gradient: {(tectonicState.BaselineValues.Gradient.Magnitude<Vector3<float>, float>() * 100):N4}% {tectonicState.BaselineValues.Gradient}" );
+			sb.AppendLine( $"Elevation std. dev.: {tectonicState.BaselineValues.ElevationStandardDeviation:N4}m" );
 			//sb.AppendLine( $"Length: {selectedTile.GenerationFace.G.ApproximateTileLength:N2}m" );
 			sb.AppendLine( $"Average Temperature: {tectonicState.AverageAirTemperature}" );
 			sb.AppendLine( $"Average surface temperature: {tectonicState.AverageSurfaceTemperature}" );
-			sb.AppendLine( $"Pressure: {tectonicState.Pressure}" );
+			sb.AppendLine( $"Pressure: {tectonicState.Pressure.Pascal:N2}Pa" );
 			sb.AppendLine( $"Specific Humidity: {tectonicState.SpecificHumidity:N4} kg/kg" );
-			sb.AppendLine( $"Wind: {tectonicState.Wind} {tectonicState.Wind.Magnitude<Vector3<float>, float>():N3}m/s" );
+			sb.AppendLine( $"Tangential wind: {tectonicState.TangentialWind} {tectonicState.TangentialWind.Magnitude<Vector3<float>, float>():N3}m/s" );
 			sb.AppendLine( $"Soil moisture: {tectonicState.SoilMoisture:N2}mm" );
 			sb.AppendLine( $"Runoff accumulation: {tectonicState.RunoffAccumulation:N2}m^3/s" );
 			//sb.AppendLine( $"Moisture capacity mm: {tectonicState.GetMoistureCapacityMm():N2}" );

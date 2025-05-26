@@ -53,7 +53,7 @@ public sealed class HydrologyRoutingStep : ISimulationStep {
 			if (state.RunoffAccumulatedArea < streamAreaThreshold)
 				continue;
 
-			float h = MathF.Pow( Q * manningN / (state.DownslopeSlopeSqrt * (float) globe.ApproximateTileLength), 3f/5f );
+			float h = MathF.Pow( Q * manningN / (state.DownslopeSlopeSqrt * (float) globe.TileLength), 3f/5f );
 			state.RiverDischarge = Q; //7) What units are we working with here?
 			state.ChannelDepth = h;
 		}

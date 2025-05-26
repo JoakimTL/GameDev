@@ -65,7 +65,9 @@ public abstract class FaceBase : IOcTreeLeaf<float> {
 
 public sealed class NeighbouringFace {
 	public NeighbouringFace( Vector3<float> center, FaceBase neighbour ) {
-		NormalizedDirection = (neighbour.Center - center).Normalize<Vector3<float>, float>();
+		NormalizedDirection = neighbour.Center - center;
+		NormalizedDirection = NormalizedDirection - NormalizedDirection.Dot( center ) * center;
+		NormalizedDirection = NormalizedDirection.Normalize<Vector3<float>, float>();
 		this.Face = neighbour;
 	}
 

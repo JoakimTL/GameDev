@@ -10,6 +10,10 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 	public override string StepDisplayName => "Defining starting values per tile";
 
 	public override void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters ) {
+
+		float Ω = 2f * float.Pi / (float) globe.PlanetaryConstants.RotationPeriod;
+		float dt = (float) parameters.GenerationParameters.SimulationTimeStepSeconds;
+
 		Noise3 soilCoarseNoise = new( globe.SeedProvider.Next(), 18 );
 		Noise3 soilFineNoise = new( globe.SeedProvider.Next(), 79 );
 		Noise3 porosityCoarseNoise = new( globe.SeedProvider.Next(), 12 );
@@ -42,6 +46,10 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 				state.RunoffAccumulation = 0;
 				state.FreshwaterDepth = 0;
 				state.RiverDischarge = 0;
+
+				state.CoriolisFactor = 2 * Ω * center.Y;
+				state.CoriolisCosF = float.Cos( state.CoriolisFactor * dt );
+				state.CoriolisSinF = float.Sin( state.CoriolisFactor * dt );
 
 				if (!face.IsOcean)
 					continue;

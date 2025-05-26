@@ -26,7 +26,7 @@ public abstract class GeneratingGlobeBase {
 	public double Radius { get; private set; }
 	public double Area => 4 * double.Pi * this.Radius * this.Radius;
 	public double TileArea { get; private set; }
-	public double ApproximateTileLength { get; private set; }
+	public double TileLength { get; private set; }
 	public Type FaceStateType { get; }
 
 	public void SetIcosphere( Icosphere icosphere ) => this.Icosphere = icosphere;
@@ -40,5 +40,5 @@ public abstract class GeneratingGlobeBase {
 	protected abstract void OnFacesSet();
 	public void SetRadius( double radius ) => this.Radius = radius;
 	public void SetTileArea( double tileArea ) => this.TileArea = tileArea;
-	public void SetApproximateTileLength( double approximateTileLength ) => this.ApproximateTileLength = approximateTileLength;
+	public void SetTileLength( double approximateTileLength ) => this.TileLength = approximateTileLength;
 }

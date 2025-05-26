@@ -13,7 +13,7 @@ public sealed class AdvectionStep : ISimulationStep {
 		float dt = (float) secondsToSimulate;
 		float area = (float) globe.TileArea;
 		float dtArea = dt / area;
-		float edgeLen = (float) globe.ApproximateTileLength * 2;
+		float edgeLen = (float) globe.TileLength * 2;
 		float maxWindMagnitude = float.Sqrt( globe.TectonicFaces.Max( p => p.State.Wind.MagnitudeSquared() ) );
 		float dtLoop = dt / float.Max( 1, maxWindMagnitude * dt / edgeLen );
 
@@ -79,14 +79,14 @@ public sealed class SphericalTriangleLocator {
 	private List<Face<TectonicFaceState>> _faceList = [];
 
 	public Face<TectonicFaceState> LocateFace( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters, Vector3<float> point ) {
-		var normalizedPoint = point.Normalize<Vector3<float>, float>();
+		Vector3<float> normalizedPoint = point.Normalize<Vector3<float>, float>();
 
-		var L = 1.17557f / (1 << (int) parameters.Subdivisions);
+		float L = 1.17557f / (1 << (int) parameters.Subdivisions);
 
 		_faceList.Clear();
 		globe.FaceTree.Get( _faceList, normalizedPoint.CreateBounds( L * 3 ) );
 
-		foreach (var face in _faceList) {
+		foreach (Face<TectonicFaceState> face in _faceList) {
 			if (RayIntersectsTriangle( 0, normalizedPoint, face.VectorA, face.VectorB, face.VectorC, out _ ))
 				return face;
 		}
