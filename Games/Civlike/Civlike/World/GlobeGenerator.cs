@@ -86,7 +86,7 @@ public static class GlobeGenerator {
 		foreach ((GenerationState.FaceBase generated, GameplayState.Face.Builder builder) in faceBuilders) {
 			builder.Vertices.AddRange( generated.Vertices.Select( p => vertexBuilders[ p.Id ].builder.Vertex ) );
 			builder.Edges.AddRange( generated.Edges.Select( p => edges[ p.Id ] ) );
-			builder.Neighbours.AddRange( generated.Neighbours.Select( p => faceBuilders[ p.Id ].builder.Face ) );
+			builder.Neighbours.AddRange( generated.Neighbours.Select( p => faceBuilders[ p.Face.Id ].builder.Face ) );
 			generated.Apply( builder );
 			builder.GenerationFace = generated;
 			builder.Complete();
@@ -112,7 +112,7 @@ public static class GlobeGenerator {
 		int GetIndex(Vector3<int> xyz) => xyz.X + xyz.Y * clustersPerAxis + xyz.Z * clustersPerAxis * clustersPerAxis;
 		Vector3<int> TurnIntoXyz( Vector3<float> vector ) => vector.Add(1).ScalarMultiply(clustersPerAxis / 2).CastSaturating<float,int>();
 		AABB<Vector3<float>> baseBounds = AABB.Create<Vector3<float>>( [ 0, 2f / clustersPerAxis ] );
-		var length = baseBounds.GetLengths() * clustersPerAxis; // Assuming uniform length for simplicity
+		Vector3<float> length = baseBounds.GetLengths() * clustersPerAxis; // Assuming uniform length for simplicity
 
 		BoundedRenderCluster.Builder[] clusterBuilders = new BoundedRenderCluster.Builder[totalClusters];
 		for (int x = 0; x < clustersPerAxis; x++) {
@@ -124,13 +124,13 @@ public static class GlobeGenerator {
 			}
 		}
 		foreach (GameplayState.Edge edge in edges) {
-			var center = (edge.VertexA.Vector + edge.VertexB.Vector) / 2;
+			Vector3<float> center = (edge.VertexA.Vector + edge.VertexB.Vector) / 2;
 			Vector3<int> xyz = TurnIntoXyz( center );
 			int index = GetIndex( xyz );
 			clusterBuilders[ index ].Edges.Add( edge );
 		}
 		foreach (GameplayState.Face face in faces) {
-			var center = face.Blueprint.GetCenter();
+			Vector3<float> center = face.Blueprint.GetCenter();
 			Vector3<int> xyz = TurnIntoXyz( center );
 			int index = GetIndex( xyz );
 			clusterBuilders[ index ].Faces.Add( face );

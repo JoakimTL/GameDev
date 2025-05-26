@@ -8,4 +8,6 @@ public sealed class RadiativeAndCloudParameters {
 	public double LongwaveAbsorptionCoefficient { get; set; } = 0.9;
 	public double AtmosphericShortwaveAbsorption { get; set; } = 0.2;
 	public double AtmosphericLongwaveAbsorption { get; set; } = 0.4;
+	public double AirSeaCouplingCoefficient { get; set; } = 0.5;
+	public float SnowEmissivity { get; internal set; }
 }

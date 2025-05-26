@@ -6,6 +6,8 @@ public static class NumberExtensions {
 	internal static string ToFormattedString<T>( this T number, bool isFirstNumber = false )
 		where T :
 			unmanaged, INumber<T> {
+		if (T.IsNaN( number ))
+			return "NaN";
 		int sign = T.Sign( number );
 		string numberString = number.ToString( "#,##0.###", CultureInfo.InvariantCulture )[ (sign >= 0 ? 0 : 1).. ];
 		return isFirstNumber ? $"{(sign < 0 ? "-" : "")}{numberString}" : $"{(sign >= 0 ? "+" : "-")} {numberString}";

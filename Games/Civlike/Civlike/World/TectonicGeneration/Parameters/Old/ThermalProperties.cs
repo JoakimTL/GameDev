@@ -1,4 +1,4 @@
-﻿namespace Civlike.World.TectonicGeneration.Parameters;
+﻿namespace Civlike.World.TectonicGeneration.Parameters.Old;
 
 public sealed class ThermalProperties( double density, double heatCapacity, double thermalConductivity ) {
 	/// <summary>
@@ -8,7 +8,7 @@ public sealed class ThermalProperties( double density, double heatCapacity, doub
 	/// <summary>
 	/// Heat capacity of the material in J/(m^3*K)
 	/// </summary>
-	public double HeatCapacity { get; set; } = heatCapacity;
+	public double ThermalCapacity { get; set; } = heatCapacity;
 	/// <summary>
 	/// Thermal conductivity of the material in W/(m*K)
 	/// </summary>

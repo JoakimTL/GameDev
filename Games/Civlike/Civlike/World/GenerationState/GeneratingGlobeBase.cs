@@ -1,10 +1,11 @@
 ﻿using Engine;
 using Engine.Generation.Meshing;
+using Engine.Structures;
 
 namespace Civlike.World.GenerationState;
 public abstract class GeneratingGlobeBase {
-	protected GeneratingGlobeBase(Type faceStateType) {
-		if (!faceStateType.IsClass || faceStateType.IsAbstract || !faceStateType.Resolve().HasParameterlessConstructor || !faceStateType.IsAssignableTo(typeof(FaceStateBase)))
+	protected GeneratingGlobeBase( Type faceStateType ) {
+		if (!faceStateType.IsClass || faceStateType.IsAbstract || !faceStateType.Resolve().HasParameterlessConstructor || !faceStateType.IsAssignableTo( typeof( FaceStateBase ) ))
 			throw new ArgumentException( "faceStateType must be a non-abstract class with a parameterless constructor and must derive from FaceStateBase.", nameof( faceStateType ) );
 		this.Vertices = [];
 		this.Edges = [];
@@ -31,8 +32,12 @@ public abstract class GeneratingGlobeBase {
 	public void SetIcosphere( Icosphere icosphere ) => this.Icosphere = icosphere;
 	public void SetVertices( IReadOnlyList<Vertex> vertices ) => this.Vertices = vertices;
 	public void SetEdges( IReadOnlyList<Edge> edges ) => this.Edges = edges;
-	public void SetFaces( IReadOnlyList<FaceBase> faces ) => this.Faces = faces;
+	public void SetFaces( IReadOnlyList<FaceBase> faces ) {
+		this.Faces = faces;
+		OnFacesSet();
+	}
 
+	protected abstract void OnFacesSet();
 	public void SetRadius( double radius ) => this.Radius = radius;
 	public void SetTileArea( double tileArea ) => this.TileArea = tileArea;
 	public void SetApproximateTileLength( double approximateTileLength ) => this.ApproximateTileLength = approximateTileLength;

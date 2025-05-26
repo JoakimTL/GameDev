@@ -68,6 +68,8 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 
 	public void Remove( T item ) => _root.Remove( item );
 
+	public void Clear() => _root.Clear();
+
 	private sealed class Branch : IReadOnlyBranch<T, TScalar> {
 
 		public AABB<Vector3<TScalar>> BranchBounds { get; }
@@ -214,6 +216,18 @@ public sealed class OcTree<T, TScalar>( AABB<Vector3<TScalar>> bounds, uint laye
 			for (int i = 0; i < 8; i++)
 				if (_subBranches[ i ].BranchBounds.Intersects( item.Bounds ))
 					_subBranches[ i ].Remove( item );
+		}
+
+		public void Clear() {
+			if (Level == 0) {
+				_contents.Clear();
+				SetActualBounds( BranchBounds );
+				return;
+			}
+			if (_subBranches is null)
+				throw new InvalidOperationException( "Subbranches are null, but level is not 0." );
+			for (int i = 0; i < 8; i++)
+				_subBranches[ i ].Clear();
 		}
 
 		private void OnActualBoundsChanged() {

@@ -19,12 +19,13 @@ public sealed class CreateOceansStep : GlobeGenerationProcessingStepBase<Tectoni
 		}
 
 		while ( newOceanFaces.TryDequeue(out Face<TectonicFaceState>? oceanFace )) {
-			foreach (Face<TectonicFaceState> neighbour in oceanFace.Neighbours) {
-				if (neighbour.IsOcean || neighbour.State.BaselineValues.ElevationMean >= 0)
+			foreach (NeighbouringFace neighbour in oceanFace.Neighbours) {
+				Face<TectonicFaceState> neighbourFace = neighbour.Face as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Neighbouring face {neighbour.Face.Id} is not of type TectonicFaceState." );
+				if (neighbourFace.IsOcean || neighbourFace.State.BaselineValues.ElevationMean >= 0)
 					continue;
-				neighbour.IsOcean = true;
-				neighbour.IsLand = false;
-				newOceanFaces.Enqueue( neighbour );
+				neighbourFace.IsOcean = true;
+				neighbourFace.IsLand = false;
+				newOceanFaces.Enqueue( neighbourFace );
 			}
 		}
 	}

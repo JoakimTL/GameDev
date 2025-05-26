@@ -7,7 +7,7 @@ using Engine.Benchmarks;
 //BenchmarkRunner.Run<DictionaryKeyAddingTests>();
 //BenchmarkRunner.Run<CodeMark>();
 //BenchmarkRunner.Run( [ typeof( ReferenceEqualsVsGuid ) ], ManualConfig.Create( DefaultConfig.Instance ).WithOptions( ConfigOptions.JoinSummary ).KeepBenchmarkFiles() );
-BenchmarkRunner.Run( [ typeof( AdditionMultiplicationBenchmark ) ], ManualConfig.Create( DefaultConfig.Instance ).WithOptions( ConfigOptions.JoinSummary ).KeepBenchmarkFiles() );
+BenchmarkRunner.Run( [ typeof( PowExpLogBenchmark ) ], ManualConfig.Create( DefaultConfig.Instance ).WithOptions( ConfigOptions.JoinSummary ).KeepBenchmarkFiles() );
 //BenchmarkRunner.Run( typeof( Program ).Assembly, ManualConfig.Create( DefaultConfig.Instance ).WithOptions( ConfigOptions.JoinSummary ).KeepBenchmarkFiles() );
 
 Console.WriteLine( "Press any key to exit..." );

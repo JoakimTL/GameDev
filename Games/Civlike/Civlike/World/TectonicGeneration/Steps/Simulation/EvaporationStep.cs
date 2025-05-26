@@ -1,26 +1,28 @@
 ﻿using Civlike.World.GenerationState;
 using Engine;
+using System.Numerics;
+using System.Runtime.Intrinsics.X86;
 
 namespace Civlike.World.TectonicGeneration.Steps.Simulation;
 
 public sealed class EvaporationStep : ISimulationStep {
 	public void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters, double daysSimulated, double secondsToSimulate ) {
-		ParallelProcessing.Range( globe.Faces.Count, ( start, end, taskId ) => {
+		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
-				Face<TectonicFaceState> face = globe.Faces[ i ] as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Face at index {i} is not of type TectonicFaceState." );
+				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
 				TectonicFaceState state = face.State;
 
-				float T = state.Temperature;
+				float T = state.AirTemperature;
 				float P = state.Pressure;
 
 				//Pa = kg*m⁻¹*s⁻²
 				//J = kg*m²*s⁻²
 				//Pa/(J/(kg*K)*K) -> Pa / (J/kg) -> kg/(m*s²)/(J/kg) -> (kg²)/(m*s²*J) -> kg²/(m*s²*kg*m²*s⁻²) -> kg/m³
 				//Air density at pressure and temperature
-				float rho = P / ((float) globe.UniversalConstants.SpecificGasConstant * T);
+				float rho = state.AirDensity = P / ((float) globe.UniversalConstants.SpecificGasConstant * T);
 
-				float e_sat = float.Min( ComputeEsat( globe, T ), 0.999f * P );
-				float q_sat = (float) globe.UniversalConstants.MolecularWeightRatioVaporDryAir * e_sat / (P - e_sat);
+				float e_sat = state.SaturationVaporPressure = float.Min( ComputeEsat( globe, T ), 0.999f * P );
+				float q_sat = state.SaturationSpecificHumidity = (float) globe.SeaLandAirConstants.MolecularWeightRatioVaporDryAir * e_sat / (P - e_sat);
 
 				float windSpeed = state.Wind.Magnitude<Vector3<float>, float>();
 
@@ -53,20 +55,6 @@ public sealed class EvaporationStep : ISimulationStep {
 		float invT = 1f / t;
 		float exponent = (float) globe.UniversalConstants.ClausiusClapeyronExponent * (invT0 - invT);
 		// Pa * e^(K/K) -> Pa * e^(0) -> Pa -> kg/(m*s²)
-		return (float) globe.DynamicInitializationConstants.ReferenceSaturationVaporPressure * float.Exp( exponent );
-	}
-}
-
-public sealed class AtmosphericDynamicsStep : ISimulationStep {
-	public void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters, double daysSimulated, double secondsToSimulate ) {
-		float omega = 2f * float.Pi / (float) globe.PlanetaryParameters.RotationPeriod; // Angular velocity in rad/s
-		ParallelProcessing.Range( globe.Faces.Count, ( start, end, taskId ) => {
-			for (int i = start; i < end; i++) {
-				Face<TectonicFaceState> face = globe.Faces[ i ] as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Face at index {i} is not of type TectonicFaceState." );
-				TectonicFaceState state = face.State;
-
-
-			}
-		} );
+		return (float) globe.SeaLandAirConstants.ReferenceSaturationVaporPressure * float.Exp( exponent );
 	}
 }

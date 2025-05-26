@@ -1,6 +1,6 @@
 ﻿namespace Civlike.World.TectonicGeneration.Parameters;
 
-public sealed class PlanetaryParameters {
+public sealed class PlanetaryConstants {
 	/// <summary>
 	/// How fast matter is moving towards the surface of the planet.<br/>
 	/// Defined in m/s.
@@ -34,10 +34,4 @@ public sealed class PlanetaryParameters {
 	/// The variation in the Earth's orbit around the Sun.<br/>
 	/// Defined in degrees.
 	public double Eccentricity { get; set; } = 0.0167;
-
-	/// <summary>
-	/// The depth of the surface thermal layer, which is the layer of the Earth's crust that is directly affected by solar heating and atmospheric conditions.<br/>
-	/// Defined in meters.
-	/// </summary>
-	public double SurfaceThermalLayerDepth { get; set; } = 1;
 }

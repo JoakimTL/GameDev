@@ -1,4 +1,4 @@
-﻿namespace Civlike.World.TectonicGeneration.Parameters;
+﻿namespace Civlike.World.TectonicGeneration.Parameters.Old;
 
 public sealed class SurfaceRoughnessLengthConstants {
 	/// <summary>

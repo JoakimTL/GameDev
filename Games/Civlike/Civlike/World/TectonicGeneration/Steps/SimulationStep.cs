@@ -11,8 +11,14 @@ public sealed class SimulationStep : GlobeGenerationProcessingStepBase<TectonicG
 
 	public SimulationStep() {
 		_internalSteps = [
+			new UpdateFacePropertiesStep(),
 			new RadiationStep(),
-			new EvaporationStep()
+			new AtmosphericDynamicsStep(),
+			//new AdvectionStep(),
+			new EvaporationStep(),
+			new PrecipitationStep(),
+			new SnowMeltStep(),
+			new HydrologyRoutingStep(),
 		];
 	}
 
@@ -22,8 +28,8 @@ public sealed class SimulationStep : GlobeGenerationProcessingStepBase<TectonicG
 		=> (int) Math.Ceiling( parameters.GenerationParameters.SpinUpDurationSeconds / parameters.GenerationParameters.SimulationTimeStepSeconds );
 
 	public override void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters ) {
-		var secondsToSimulate = parameters.GenerationParameters.SimulationTimeStepSeconds;
-		var daysToSimulate = globe.PlanetaryParameters.RotationPeriod / secondsToSimulate;
+		double secondsToSimulate = parameters.GenerationParameters.SimulationTimeStepSeconds;
+		double daysToSimulate = globe.PlanetaryConstants.RotationPeriod / secondsToSimulate;
 		for (int i = 0; i < _internalSteps.Length; i++) {
 			_internalSteps[ i ].Process( globe, parameters, _daysSimulated, secondsToSimulate );
 		}

@@ -1,5 +1,6 @@
 ﻿using Civlike.World.GenerationState;
 using Civlike.World.NoiseProviders;
+using Civlike.World.TectonicGeneration.Parameters.Old;
 using Engine;
 
 namespace Civlike.World.TectonicGeneration.Steps;
@@ -17,7 +18,6 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 		List<TectonicFaceState> states = globe.Faces.OfType<Face<TectonicFaceState>>().Select( f => f.State ).ToList();
 		double sigmaMin = states.Min( f => f.BaselineValues.ElevationStandardDeviation );
 		double sigmaMax = states.Max( f => f.BaselineValues.ElevationStandardDeviation );
-		double barometricExponent = globe.PlanetaryParameters.Gravity / (globe.DynamicInitializationConstants.LapseRate * globe.UniversalConstants.UniversalGasConstant);
 		ParallelProcessing.Range( globe.Faces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
 				Face<TectonicFaceState> face = globe.Faces[ i ] as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Face at index {i} is not of type TectonicFaceState." );
@@ -30,13 +30,9 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 				state.SoilMoistureCapacity = GetSoilMoistureCapacity( globe, state, center, porosityCoarseNoise, porosityFineNoise );
 
 				state.SurfaceRoughness = GetSurfaceRoughness( globe, state, center, sigmaMin, sigmaMax );
-				state.Albedo = 0.2f;
-				state.ThermalCapacity = (float) globe.EndMemberThermalProperties.DrySoil.HeatCapacity;
-				state.ThermalConductivity = (float) globe.EndMemberThermalProperties.DrySoil.ThermalConductivity;
 
-				state.Emissivity = (float) (face.IsOcean ? globe.RadiativeAndCloudParameters.OceanEmissivity : globe.RadiativeAndCloudParameters.LandEmissivity);
-
-				state.Temperature = GetTemperatureFromLatitude( globe, state, center );
+				state.AirTemperature = GetTemperatureFromLatitude( globe, state, center );
+				state.SurfaceTemperature = GetSurfaceTemperature( globe, center );
 				state.Pressure = GetPressure( globe, state );
 				state.SpecificHumidity = GetSpecificHumidity( globe, state, center, latitude );
 
@@ -50,54 +46,55 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 				if (!face.IsOcean)
 					continue;
 
-				state.SeaSurfaceTemperature = GetSoilDepth( globe, latitudeFraction );
-				state.SeaSalinity = (float) globe.OceanMixedLayerAndCurrents.OceanSalinityReference;
+				state.SeaSalinity = (float) globe.SeaLandAirConstants.OceanSalinityReference;
 				state.OceanCurrent = 0;
 
 			}
 		} );
 	}
 
-	private float GetSoilDepth( TectonicGeneratingGlobe globe, double latitudeFraction ) {
-		Parameters.DynamicInitializationConstants dynamicConstants = globe.DynamicInitializationConstants;
-		double absoluteLatitudeFraction = Math.Abs( latitudeFraction );
+	private float GetSurfaceTemperature( TectonicGeneratingGlobe globe, Vector3<float> center ) {
+		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
+		double absoluteLatitudeFraction = Math.Abs( center.Y );
 
-		return (float) (dynamicConstants.EquatorSST - dynamicConstants.PolarSSTReduction * absoluteLatitudeFraction);
+		return (float) (initializationParameters.EquatorialSeaSurfaceTemperature - initializationParameters.PolarSeaSurfaceTemperatureReduction * absoluteLatitudeFraction);
 	}
 
 	private float GetSpecificHumidity( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center, double latitude ) {
-		var universalConstants = globe.UniversalConstants;
-		var dynamicConstants = globe.DynamicInitializationConstants;
+		Parameters.UniversalConstants universalConstants = globe.UniversalConstants;
+		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
+		Parameters.SeaLandAirConstants seaLandAirConstants = globe.SeaLandAirConstants;
 
-		double invT0 = 1.0 / dynamicConstants.EquatorialAirTemperature;
-		double invT = 1.0 / state.Temperature;
-		double esat = dynamicConstants.ReferenceSaturationVaporPressure * Math.Exp( universalConstants.ClausiusClapeyronExponent * (invT0 - invT) );
-		return (float) (dynamicConstants.InitialRelativeHumidity * universalConstants.MolecularWeightRatioVaporDryAir * esat / (state.Pressure - esat));
+		double invT0 = 1.0 / initializationParameters.EquatorialAirTemperature;
+		double invT = 1.0 / state.AirTemperature;
+		double esat = seaLandAirConstants.ReferenceSaturationVaporPressure * Math.Exp( universalConstants.ClausiusClapeyronExponent * (invT0 - invT) );
+		return (float) (initializationParameters.InitialRelativeHumidity * seaLandAirConstants.MolecularWeightRatioVaporDryAir * esat / (state.Pressure - esat));
 	}
 
 	private Pressure GetPressure( TectonicGeneratingGlobe globe, TectonicFaceState state ) {
-		Parameters.DynamicInitializationConstants dynamicConstants = globe.DynamicInitializationConstants;
+		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
+		Parameters.SeaLandAirConstants seaLandAirConstants = globe.SeaLandAirConstants;
 
-		var exponent = globe.UniversalConstants.SpecificHeatCapacity * dynamicConstants.DryAirMolarMass / globe.UniversalConstants.UniversalGasConstant;
-		var @exponentBase = 1 - globe.PlanetaryParameters.Gravity * state.ElevationMeanAboveSea / (globe.UniversalConstants.UniversalGasConstant * state.Temperature.Kelvin);
+		double exponent = globe.UniversalConstants.SpecificHeatCapacity * seaLandAirConstants.DryAirMolarMass / globe.UniversalConstants.UniversalGasConstant;
+		double @exponentBase = 1 - globe.PlanetaryConstants.Gravity * state.ElevationMeanAboveSea / (globe.UniversalConstants.UniversalGasConstant * state.AirTemperature.Kelvin);
 
-		var barometricExponent = Math.Pow( @exponentBase, exponent );
+		double barometricExponent = Math.Pow( @exponentBase, exponent );
 
-		return dynamicConstants.SeaLevelPressure * float.Exp( -(float) (globe.PlanetaryParameters.Gravity * state.ElevationMeanAboveSea * dynamicConstants.DryAirMolarMass / (state.Temperature.Kelvin * globe.UniversalConstants.UniversalGasConstant)) );
+		return seaLandAirConstants.SeaLevelPressure * float.Exp( -(float) (globe.PlanetaryConstants.Gravity * state.ElevationMeanAboveSea * seaLandAirConstants.DryAirMolarMass / (state.AirTemperature.Kelvin * globe.UniversalConstants.UniversalGasConstant)) );
 	}
 
 	private Temperature GetTemperatureFromLatitude( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center ) {
-		Parameters.DynamicInitializationConstants dynamicConstants = globe.DynamicInitializationConstants;
+		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
 		double absoluteLatitudeFraction = Math.Abs( center.Y );
 
-		return dynamicConstants.EquatorialAirTemperature
-			- dynamicConstants.PolarAirTemperatureReduction * absoluteLatitudeFraction
-			- dynamicConstants.LapseRate * state.ElevationMeanAboveSea;
+		return initializationParameters.EquatorialAirTemperature
+			- initializationParameters.PolarAirTemperatureReduction * absoluteLatitudeFraction
+			- initializationParameters.LapseRate * state.ElevationMeanAboveSea;
 	}
 
 	private float GetSurfaceRoughness( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center, double sigmaMin, double sigmaMax ) {
-		var bareGroundMinimum = globe.SurfaceRoughnessLengthConstants.BareGroundMinimum;
-		var bareGroundMaximum = globe.SurfaceRoughnessLengthConstants.BareGroundMaximum;
+		double bareGroundMinimum = globe.EndMemberProperties.DrySoil.MinimumRoughnessLength;
+		double bareGroundMaximum = globe.EndMemberProperties.DrySoil.MaximumRoughnessLength;
 
 		double σ = state.BaselineValues.ElevationStandardDeviation;
 		double normSigma = (σ - sigmaMin) / (sigmaMax - sigmaMin);
@@ -106,23 +103,28 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 	}
 
 	private float GetSoilDepth( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center, double latitude, Noise3 soilCoarseNoise, Noise3 soilFineNoise ) {
+		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
+		Parameters.SeaLandAirConstants seaLandAirConstants = globe.SeaLandAirConstants;
+
 		double S = state.BaselineValues.Gradient.Magnitude<Vector3<float>, float>();
-		double baseDepth = globe.SoilDepthGenerationConstants.MaxSoilDepth * Math.Exp( -globe.SoilDepthGenerationConstants.SlopeDecayConstant * S );
+		double baseDepth = initializationParameters.SoilDepthBase * Math.Exp( -seaLandAirConstants.SlopeDecayConstant * S );
 		double latNorm = Math.Abs( latitude ) / 90.0;
 		double climateFactor = 1.0 - 0.5 * latNorm;
 
 		double soilNoise = soilCoarseNoise.Noise( center ) * 0.65 + soilFineNoise.Noise( center ) * 0.35;
 		soilNoise = soilNoise * 2 - 1;
-		baseDepth *= 1 + globe.SoilDepthGenerationConstants.SoilNoiseAmplitude * soilNoise;
+		baseDepth *= 1 + initializationParameters.SoilNoiseAmplitude * soilNoise;
 
 		return (float) (baseDepth * climateFactor);
 	}
 
 	private float GetSoilMoistureCapacity( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center, Noise3 porosityCoarseNoise, Noise3 porosityFineNoise ) {
+		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
+
 		double porosityNoise = porosityCoarseNoise.Noise( center ) * 0.65 + porosityFineNoise.Noise( center ) * 0.35;
 		porosityNoise = porosityNoise * 2 - 1;
 
-		float porosity = (float) (globe.SoilDepthGenerationConstants.SoilPorosityBase * (1 + globe.SoilDepthGenerationConstants.SoilPorosityNoiseAmplitude * porosityNoise));
+		float porosity = (float) (initializationParameters.SoilPorosityBase * (1 + initializationParameters.SoilPorosityNoiseAmplitude * porosityNoise));
 
 		return state.SoilDepth * porosity * 1000.0f;
 	}

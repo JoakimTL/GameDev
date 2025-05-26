@@ -106,5 +106,7 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 				state.BaselineValues.ElevationStandardDeviation = stddev;
 			}
 		} );
+
+		globe.UpdateFaceLists();
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace Civlike.World.TectonicGeneration;
+﻿namespace Civlike.World.TectonicGeneration.Parameters.Old;
 
 public sealed class SoilDepthGenerationConstants {
 	/// <summary>

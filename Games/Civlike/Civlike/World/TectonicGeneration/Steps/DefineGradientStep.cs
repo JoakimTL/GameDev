@@ -19,6 +19,32 @@ public sealed class DefineGradientStep : GlobeGenerationProcessingStepBase<Tecto
 				}
 				gradient /= (float) globe.ApproximateTileLength;
 				state.BaselineValues.Gradient = gradient;
+
+				Face<TectonicFaceState> downslopeNeighbour = null!;
+				float maxGradientDot = float.MinValue;
+				float slope = 0;
+				for (int j = 0; j < face.Neighbours.Count; j++) {
+					NeighbouringFace neighbour = face.Neighbours[ j ];
+					Face<TectonicFaceState> nbrFace = neighbour.Face as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Neighbouring face at index {j} is not of type TectonicFaceState." );
+
+					if (nbrFace.State.BaselineValues.ElevationMean >= state.BaselineValues.ElevationMean)
+						continue;
+
+					float gradientNbrDirectionDot = -gradient.Dot( neighbour.NormalizedDirection );
+
+					if (gradientNbrDirectionDot > maxGradientDot) {
+						maxGradientDot = gradientNbrDirectionDot;
+						downslopeNeighbour = nbrFace;
+						slope = -gradient.Magnitude<Vector3<float>, float>() / (float) globe.ApproximateTileLength;
+					}
+				}
+
+				if (downslopeNeighbour is null)
+					continue;
+
+				state.DownslopeNeighbour = downslopeNeighbour;
+				state.DownslopeSlope = float.Max( slope, 1e-6f );
+				state.DownslopeSlopeSqrt = float.Sqrt( state.DownslopeSlope );
 			}
 		} );
 	}

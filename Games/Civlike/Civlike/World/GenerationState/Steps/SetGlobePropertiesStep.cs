@@ -9,6 +9,6 @@ public sealed class SetGlobePropertiesStep : GlobeGenerationProcessingStepBase<G
 			throw new InvalidOperationException( "Faces are null." );
 		globe.SetRadius( parameters.GlobeRadius );
 		globe.SetTileArea( globe.Area / globe.Faces.Count );
-		globe.SetApproximateTileLength( /*2 **/ parameters.GlobeRadius * Math.Sin( Math.PI / (10 * Math.Pow( 2, parameters.Subdivisions )) ) );
+		globe.SetApproximateTileLength( 2 * parameters.GlobeRadius * Math.Sin( Math.PI / (10 * Math.Pow( 2, parameters.Subdivisions )) ) );
 	}
 }

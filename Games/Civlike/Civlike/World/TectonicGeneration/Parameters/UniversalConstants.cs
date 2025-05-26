@@ -44,8 +44,9 @@ public sealed class UniversalConstants {
 	/// </summary>
 	public double ClausiusClapeyronExponent { get; set; } = 5410;
 	/// <summary>
-	/// Ratio of molecular weight of water vapor to dry air (M_v/M_d).<br/>
-	/// Default value is 0.622, which is the ratio of the molecular weight of water vapor (18.01528 g/mol) to that of dry air (28.9644 g/mol).<br/>
+	/// The latent heat of fusion is the amount of energy required to change a substance from a solid to a liquid at constant temperature and pressure. It is used in the calculation of the amount of energy required to melt ice or freeze water.<br/>
+	/// Defined in J/kg.<br/>
+	/// Default value is 334000 J/kg, which is the latent heat of fusion for water at 0 degrees Celsius.<br/>
 	/// </summary>
-	public double MolecularWeightRatioVaporDryAir { get; set; } = 0.622;
+	public double LatentHeatOfFusion { get; set; } = 334000;
 }

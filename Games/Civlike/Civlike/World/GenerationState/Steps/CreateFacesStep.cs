@@ -17,7 +17,7 @@ public sealed class CreateFacesStep : GlobeGenerationProcessingStepBase<Generati
 		IReadOnlyList<Vertex> vertices = globe.Vertices;
 
 		Type faceWithStateType = typeof( Face<> ).MakeGenericType(globe.FaceStateType);
-		var resolvedType = faceWithStateType.Resolve();
+		ResolvedType resolvedType = faceWithStateType.Resolve();
 		IReadOnlyList<uint> indices = sphere.GetIndices();
 		FaceBase[] faces = new FaceBase[ indices.Count / 3 ];
 		Edge[] edges = new Edge[ indices.Count / 2 ];

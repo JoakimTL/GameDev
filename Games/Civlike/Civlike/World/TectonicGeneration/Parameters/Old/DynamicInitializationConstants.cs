@@ -1,4 +1,4 @@
-﻿namespace Civlike.World.TectonicGeneration.Parameters;
+﻿namespace Civlike.World.TectonicGeneration.Parameters.Old;
 
 public sealed class DynamicInitializationConstants {
 	/// <summary>
@@ -36,12 +36,6 @@ public sealed class DynamicInitializationConstants {
 	/// Defined in Kelvin (K).
 	/// </summary>
 	public double PolarSSTReduction { get; set; } = 30;
-	/// <summary>
-	/// Saturation vapor pressure at T=273.15 K, used as base in Clausius–Clapeyron equation.<br/>
-	/// Define in Pascals (Pa).<br/>
-	/// Default value is 610.94 Pa, which is the saturation vapor pressure of water at 0 degrees Celsius (273.15 K).
-	/// </summary>
-	public double ReferenceSaturationVaporPressure { get; set; } = 610.94;
 	/// <summary>
 	/// The molar mass of dry air.<br/>
 	/// Defined in kilograms per mole (kg/mol).<br/>

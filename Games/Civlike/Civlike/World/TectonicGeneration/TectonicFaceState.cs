@@ -1,5 +1,6 @@
 ﻿using Civlike.World.GameplayState;
 using Civlike.World.GenerationState;
+using Civlike.World.TectonicGeneration.Parameters.Old;
 using Engine;
 
 namespace Civlike.World.TectonicGeneration;
@@ -10,20 +11,35 @@ public class TectonicFaceState : FaceStateBase {
 	/// <summary>
 	/// The face's downslope neighbour; used for hydrology and erosion. This is the face that receives runoff from this face.
 	/// </summary>
-	public FaceBase? DownslopeNeighbour { get; set; } = null!;
-	public Temperature Temperature { get; set; }
-	public Temperature AverageTemperature { get; set; }
+	public Face<TectonicFaceState>? DownslopeNeighbour { get; set; } = null!;
+	public float DownslopeSlope { get; set; }
+	public float DownslopeSlopeSqrt { get; set; }
+	public float RunoffAccumulatedArea { get; set; }
+	public float ChannelDepth { get; set; }
+
+	public Temperature AirTemperature { get; set; }
+	public Temperature AverageAirTemperature { get; set; }
+	/// <summary>
+	/// The temperature of the surface, be it land or water.
+	/// </summary>
+	public Temperature SurfaceTemperature { get; set; }
+	public Temperature AverageSurfaceTemperature { get; set; }
 	public Pressure Pressure { get; set; }
 	/// <summary>
 	/// Water‑vapor mixing ratio; updated by evaporation and advection. In kg/kg.
 	/// </summary>
 	public float SpecificHumidity { get; set; }
+
+	public float AirDensity { get; set; }
+	public float SaturationVaporPressure { get; set; }
+	public float SaturationSpecificHumidity { get; set; }
+
 	/// <summary>
 	/// Fractional canopy cover; evolves via ET/PET balance
 	/// </summary>
 	public float VegetationFraction { get; set; }
 	/// <summary>
-	/// Effective roughness; blend of <see cref="TectonicGeneratingGlobe.SurfaceRoughnessLengthConstants"/>.<see cref="Parameters.SurfaceRoughnessLengthConstants.BareGround"/> and <see cref="TectonicGeneratingGlobe.SurfaceRoughnessLengthConstants"/>.<see cref="Parameters.SurfaceRoughnessLengthConstants.FullVegetation"/> using <see cref="VegetationFraction"/>
+	/// Effective roughness; blend of <see cref="TectonicGeneratingGlobe.SurfaceRoughnessLengthConstants"/>.<see cref="SurfaceRoughnessLengthConstants.BareGround"/> and <see cref="TectonicGeneratingGlobe.SurfaceRoughnessLengthConstants"/>.<see cref="SurfaceRoughnessLengthConstants.FullVegetation"/> using <see cref="VegetationFraction"/>
 	/// </summary>
 	public float SurfaceRoughness { get; set; }
 	/// <summary>
@@ -38,6 +54,12 @@ public class TectonicFaceState : FaceStateBase {
 	/// Fractional seasonal snow cover
 	/// </summary>
 	public float SnowFraction { get; set; }
+	/// <summary>
+	/// The snow depth in meters.
+	/// </summary>
+	public float SnowDepth { get; set; }
+	public float SnowMeltRate { get; set; }
+	public float PrecipitationRate { get; set; }
 	/// <summary>
 	/// Surface and channel runoff volume. In m^3/s.
 	/// </summary>
@@ -55,10 +77,6 @@ public class TectonicFaceState : FaceStateBase {
 	/// </summary>
 	public Vector3<float> OceanCurrent { get; set; }
 	/// <summary>
-	/// Temperature of ocean mixed layer; updated via advection and heat exchange. In K.
-	/// </summary>
-	public float SeaSurfaceTemperature { get; set; }
-	/// <summary>
 	/// The salinity of the ocean surface water, in parts per thousand (ppt). This is a measure of the concentration of dissolved salts in seawater.
 	/// </summary>
 	public float SeaSalinity { get; set; }
@@ -71,9 +89,13 @@ public class TectonicFaceState : FaceStateBase {
 	/// </summary>
 	public float SoilMoistureCapacity { get; set; }
 	/// <summary>
-	/// The thermal capacity of the face, in J/(m^3*K).
+	/// The thermal capacity of the face per volume, in J/(m^3*K).
 	/// </summary>
-	public float ThermalCapacity { get; set; }
+	public float ThermalCapacityPerVolume { get; set; }
+	/// <summary>
+	/// The thermal capacity of the face per area, in J/(m^2*K). This thermal capacity has taken into account the depth of the face, so it is effectively the thermal capacity per unit area of the face's surface.
+	/// </summary>
+	public float ThermalCapacityPerArea { get; set; }
 	/// <summary>
 	/// The thermal conductivity of the face, in W/(m*K).
 	/// </summary>
@@ -86,7 +108,7 @@ public class TectonicFaceState : FaceStateBase {
 	/// The wind speed at the face, represented as a vector in 3D space. This vector indicates the direction and magnitude of the wind. The magnitude is in m/s.
 	/// </summary>
 	public Vector3<float> Wind { get; set; } = 0;
-	public double ElevationMeanAboveSea {
+	public float ElevationMeanAboveSea {
 		get {
 			float delta = this.FreshwaterDepth;
 			if (this.Face.IsOcean) 
@@ -96,7 +118,7 @@ public class TectonicFaceState : FaceStateBase {
 	}
 
 	public override void Apply( Face.Builder builder ) {
-		builder.Debug_Arrow = BaselineValues.Gradient;
-		builder.Debug_Color = (SpecificHumidity / 0.002f, float.Max( -AverageTemperature.Celsius, 0 ) / 120, Face.IsOcean ? 1 : 0, 1);
+		builder.Debug_Arrow = (DownslopeNeighbour is not null) ? (DownslopeNeighbour.Center - Face.Center).Normalize<Vector3<float>, float>() * 0.33f : Vector3<float>.Zero;//Wind.Normalize<Vector3<float>, float>();
+		builder.Debug_Color = (SpecificHumidity / 0.002f, float.Max( -AverageAirTemperature.Celsius, 0 ) / 120, Face.IsOcean ? 1 : 0, 1);
 	}
 }

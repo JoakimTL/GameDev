@@ -17,13 +17,13 @@ public class DefaultInsolationProvider( TectonicGeneratingGlobe globe ) : IInsol
 	private float _dailyMeanPreprocessConstant;
 
 	public void Preprocess( double daysSimulated ) {
-		float orbitDays = (float) (Globe.PlanetaryParameters.OrbitPeriod / Globe.PlanetaryParameters.RotationPeriod);
+		float orbitDays = (float) (Globe.PlanetaryConstants.OrbitPeriod / Globe.PlanetaryConstants.RotationPeriod);
 		float dayOfYear = 1 + (int) double.Floor( daysSimulated % orbitDays );
-		float obliquityRad = float.DegreesToRadians( (float) Globe.PlanetaryParameters.Obliquity );
+		float obliquityRad = float.DegreesToRadians( (float) Globe.PlanetaryConstants.Obliquity );
 
 		float gamma = 2 * float.Pi * (dayOfYear - 3) / (float) orbitDays;
 		float theta = 2 * float.Pi * (dayOfYear - 81) / (float) orbitDays;
-		_rRel = 1 + (float) Globe.PlanetaryParameters.Eccentricity * float.Cos( gamma );
+		_rRel = 1 + (float) Globe.PlanetaryConstants.Eccentricity * float.Cos( gamma );
 		_rRelSq = _rRel * _rRel;
 		_invRRelSq = 1 / _rRelSq;
 
@@ -31,7 +31,7 @@ public class DefaultInsolationProvider( TectonicGeneratingGlobe globe ) : IInsol
 		_sinDelta = float.Sin( _delta );
 		_cosDelta = float.Cos( _delta );
 		_tanDelta = float.Tan( _delta );
-		_dailyMeanPreprocessConstant = ((float) Globe.PlanetaryParameters.MeanSolarConstant / float.Pi) * _invRRelSq;
+		_dailyMeanPreprocessConstant = ((float) Globe.PlanetaryConstants.MeanSolarConstant / float.Pi) * _invRRelSq;
 	}
 
 	public float GetDailyMeanInsolation( FaceBase face ) {

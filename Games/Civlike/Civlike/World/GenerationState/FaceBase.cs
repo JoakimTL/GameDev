@@ -1,11 +1,12 @@
 ﻿using Engine;
+using Engine.Structures;
 
 namespace Civlike.World.GenerationState;
 
-public abstract class FaceBase {
+public abstract class FaceBase : IOcTreeLeaf<float> {
 	private readonly Vertex[] _vertices;
 	private readonly Edge[] _edges;
-	private FaceBase[]? _neighbours;
+	private NeighbouringFace[]? _neighbours;
 
 	public FaceBase( uint id, Vertex[] vertices, Edge[] edges ) {
 		this.Id = id;
@@ -24,12 +25,15 @@ public abstract class FaceBase {
 		this.LatitudeSin = float.Sin( this.LatitudeRads );
 		this.LatitudeCos = float.Cos( this.LatitudeRads );
 		this.LatitudeTan = float.Tan( this.LatitudeRads );
+		Bounds = AABB.Create( [ this.VectorA, this.VectorB, this.VectorC ] );
 	}
 
 	public uint Id { get; }
 	public IReadOnlyList<Vertex> Vertices => this._vertices;
 	public IReadOnlyList<Edge> Edges => this._edges;
-	public IReadOnlyList<FaceBase> Neighbours => this._neighbours ??= [ .. this._edges.Select( p => p.GetOther( this ) ) ];
+	public IReadOnlyList<NeighbouringFace> Neighbours => this._neighbours ??= GetNeighbouringFaces();
+	private NeighbouringFace[] GetNeighbouringFaces() => [ .. this._edges.Select( p => new NeighbouringFace( Center, p.GetOther( this ) ) ) ];
+
 	public TerrainTypeBase TerrainType { get; set; }
 
 	public Vector3<float> VectorA => this._vertices[ 0 ].Vector;
@@ -48,6 +52,8 @@ public abstract class FaceBase {
 	public bool IsOcean { get; set; }
 	public bool IsLand { get; set; } = true;
 
+	public AABB<Vector3<float>> Bounds { get; }
+
 	public abstract void Apply( GameplayState.Face.Builder builder );
 
 	public override bool Equals( object? obj ) => obj is FaceBase vertex && vertex == this;
@@ -55,4 +61,14 @@ public abstract class FaceBase {
 
 	public static bool operator ==( FaceBase left, FaceBase right ) => left.Id == right.Id;
 	public static bool operator !=( FaceBase left, FaceBase right ) => !(left == right);
+}
+
+public sealed class NeighbouringFace {
+	public NeighbouringFace( Vector3<float> center, FaceBase neighbour ) {
+		NormalizedDirection = (neighbour.Center - center).Normalize<Vector3<float>, float>();
+		this.Face = neighbour;
+	}
+
+	public Vector3<float> NormalizedDirection { get; }
+	public FaceBase Face { get; }
 }
