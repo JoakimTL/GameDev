@@ -25,6 +25,7 @@ public class TectonicFaceState : FaceStateBase {
 	public Temperature SurfaceTemperature { get; set; }
 	public Temperature AverageSurfaceTemperature { get; set; }
 	public Pressure Pressure { get; set; }
+	public Pressure EffectivePressure { get; set; }
 	/// <summary>
 	/// Water‑vapor mixing ratio; updated by evaporation and advection. In kg/kg.
 	/// </summary>
@@ -126,7 +127,7 @@ public class TectonicFaceState : FaceStateBase {
 	}
 
 	public override void Apply( Face.Builder builder ) {
-		builder.Debug_Arrow = Wind * 0.02f;//(DownslopeNeighbour is not null) ? (DownslopeNeighbour.Center - Face.Center).Normalize<Vector3<float>, float>() * 0.33f : Vector3<float>.Zero;//Wind.Normalize<Vector3<float>, float>();
+		builder.Debug_Arrow = TangentialWind * 0.1f;//(DownslopeNeighbour is not null) ? (DownslopeNeighbour.Center - Face.Center).Normalize<Vector3<float>, float>() * 0.33f : Vector3<float>.Zero;//Wind.Normalize<Vector3<float>, float>();
 		builder.Debug_Color = (SpecificHumidity / 0.002f, float.Max( -AverageAirTemperature.Celsius, 0 ) / 120, Face.IsOcean ? 1 : 0, 1);
 	}
 }

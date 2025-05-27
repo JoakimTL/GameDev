@@ -1,4 +1,7 @@
 ﻿using Civlike.World.GenerationState;
+using Engine;
+using System.Numerics;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Civlike.World.TectonicGeneration.Steps.Simulation;
 
@@ -30,6 +33,9 @@ public sealed class UpdateFacePropertiesStep : ISimulationStep {
 		float waterAlbedo = (float) waterProperties.Albedo;
 
 		float drySoilDensity = (float) drySoilProperties.Density;
+		float dayOfYear = (float) daysSimulated % (float) globe.PlanetaryConstants.OrbitPeriod; // Ensure dayOfYear is within 0-364 range
+		float season = 2 * MathF.PI * (dayOfYear / (float) globe.PlanetaryConstants.OrbitPeriod); // Convert to radians
+		float seasonCos = float.Cos( season );
 
 		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
@@ -77,8 +83,70 @@ public sealed class UpdateFacePropertiesStep : ISimulationStep {
 				state.ThermalCapacityPerVolume = finalThermalCapacityPerVolume;
 				state.ThermalCapacityPerArea = finalThermalCapacityPerArea;
 				state.ThermalConductivity = finalThermalConductivity;
-
+				state.Pressure = GetPressure( globe, state );
+				//state.EffectivePressure = GetEffectivePressure( globe, face, state, center, seasonCos, state.Pressure );
 			}
 		} );
 	}
+
+	private Pressure GetPressure( TectonicGeneratingGlobe globe, TectonicFaceState state ) {
+		Parameters.UniversalConstants uC = globe.UniversalConstants;
+		Parameters.PlanetaryConstants pC = globe.PlanetaryConstants;
+		Parameters.SeaLandAirConstants slaC = globe.SeaLandAirConstants;
+
+		return slaC.SeaLevelPressure * float.Exp( -(float) (pC.Gravity * state.ElevationMeanAboveSea * slaC.DryAirMolarMass / (state.AirTemperature.Kelvin * uC.UniversalGasConstant)) );
+	}
+
+	//private Pressure GetEffectivePressure( TectonicGeneratingGlobe globe, Face<TectonicFaceState> face, TectonicFaceState state, Vector3<float> center, float seasonCos, float pBaro ) {
+	//	Parameters.UniversalConstants uC = globe.UniversalConstants;
+	//	Parameters.PlanetaryConstants pC = globe.PlanetaryConstants;
+	//	Parameters.SeaLandAirConstants slaC = globe.SeaLandAirConstants;
+	//	Parameters.AtmosphericDynamicsParameters adp = globe.AtmosphericDynamicsParameters;
+
+	//	float sinφ = center.Y;
+	//	float lat = face.LatitudeRads;
+
+	//	float φ0 = adp.TropicalBeltWidthRad;
+	//	float φ1 = adp.SubTropicalBeltWidthRad;
+	//	float φs = adp.BaseSubTropicalLatRad;
+	//	float P_trop = adp.TropicalBeltAmplitude;
+	//	float P_sub = adp.SubTropicalBeltAmplitude;
+
+	//	// seasonal shift ±Δφ over the year
+	//	float Δφ = adp.SeasonalBeltShiftRad;
+	//	float centerN = φs + Δφ * seasonCos;
+	//	float centerS = -φs - Δφ * seasonCos;
+
+	//	float beltEq = P_trop * MathF.Exp( -(lat / φ0) * (lat / φ0) );
+	//	float beltN = P_sub * MathF.Exp( -((lat - centerN) / φ1) * ((lat - centerN) / φ1) );
+	//	float beltS = P_sub * MathF.Exp( -((lat - centerS) / φ1) * ((lat - centerS) / φ1) );
+
+	//	float pBelt = beltEq - beltN - beltS;
+
+	//	// 3) thermal land-sea anomaly (daily-mean)
+	//	float pTherm = 0f;
+	//	if (face.IsLand) {
+	//		// ΔT_landSea, layerHeight from your parameters
+	//		float dT = adp.MeanLandSeaDeltaT;
+	//		float h = adp.LayerHeight;
+	//		float T0 = state.AirTemperature.Kelvin;
+	//		float g = (float) pC.Gravity;
+	//		float M = (float) slaC.DryAirMolarMass; 
+	//		float R = (float) uC.UniversalGasConstant;
+
+	//		pTherm = pBaro * M * g * h * dT / (R * T0 * T0);
+	//	}
+
+	//	// 4) seasonal (annual) pressure tide
+	//	float pSeason = adp.SeasonalAmplitude * seasonCos;// e.g. ±5 Pa
+
+	//	float ΔpBg = adp.BackgroundAmplitude;    // e.g. 800 Pa
+	//	float pLegendre = 0.5f * (3f * sinφ * sinφ - 1f);
+	//	float pBg = ΔpBg * pLegendre;
+		
+	//	// 5) sum up & store
+	//	float pEffDelta = pBelt + pTherm + pSeason + pBg;
+
+	//	return pBaro + pEffDelta;
+	//}
 }

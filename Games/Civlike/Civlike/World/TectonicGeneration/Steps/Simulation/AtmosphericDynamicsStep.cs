@@ -1,8 +1,11 @@
 ﻿using Civlike.World.GameplayState;
 using Civlike.World.GenerationState;
+using Civlike.World.TectonicGeneration.Parameters;
 using Engine;
 using System;
+using System.Net;
 using System.Numerics;
+using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
 
 namespace Civlike.World.TectonicGeneration.Steps.Simulation;
@@ -49,12 +52,14 @@ namespace Civlike.World.TectonicGeneration.Steps.Simulation;
 */
 public sealed class AtmosphericDynamicsStep : ISimulationStep {
 	public void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters, double daysSimulated, double secondsToSimulate ) {
+		var adp = globe.AtmosphericDynamicsParameters;
+
 		float Ω = 2f * float.Pi / (float) globe.PlanetaryConstants.RotationPeriod; // Angular velocity in rad/s
 		float dt = (float) secondsToSimulate; // Time step in seconds
 
-		float linearDragCoefficient = (float) globe.AtmosphericDynamicsParameters.LinearFrictionCoefficient; // Linear drag coefficient
-		float quadraticDragCoefficient = (float) globe.AtmosphericDynamicsParameters.QuadraticFrictionCoefficient; // Quadratic drag coefficient
-		float minimumQuadraticDragCoefficient = (float) globe.AtmosphericDynamicsParameters.MinimumQuadraticFrictionCoefficient; // Minimum quadratic drag coefficient
+		float linearDragCoefficient = (float) adp.LinearFrictionCoefficient; // Linear drag coefficient
+		float quadraticDragCoefficient = (float) adp.QuadraticFrictionCoefficient; // Quadratic drag coefficient
+		float minimumQuadraticDragCoefficient = (float) adp.MinimumQuadraticFrictionCoefficient; // Minimum quadratic drag coefficient
 
 		float tileLength = (float) globe.TileLength; // Length of a tile in meters
 		float circleArea = tileLength * tileLength * float.Pi; // Area of a tile in m²
@@ -62,10 +67,88 @@ public sealed class AtmosphericDynamicsStep : ISimulationStep {
 
 		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
+				//for (int i = 0; i < globe.TectonicFaces.Count; i++) {
 				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
 				TectonicFaceState state = face.State;
 
-				Vector3<float> n = face.Center;
+				Vector3<float> n = face.CenterNormalized;
+				float latitude = face.LatitudeRads;
+
+				Vector3<float> hadleyWind = GetHadleyComponent( n, upAxis, face, adp );
+
+				Vector3<float> pressureGradient = GetPressureGradient( face, state, tileLength );
+				Vector3<float> pressureWind = -adp.PressureGradientCoefficient * pressureGradient;
+
+				//Vector3<float> orographicLift = GetOrographicLifting( n, face, tileLength, adp );
+
+				//Vector3<float> baseWind = hadleyWind + pressureWind /*+ orographicLift*/;
+
+				var baseWind = hadleyWind + pressureWind;
+
+				Vector3<float> coriolis = ApplyCoriolis( baseWind, upAxis, state.CoriolisFactor );
+
+				Vector3<float> windWithCoriolis = baseWind + coriolis;
+
+				var windVector = ApplyDrag( windWithCoriolis, linearDragCoefficient, quadraticDragCoefficient, minimumQuadraticDragCoefficient );
+
+				state.Wind = windVector;
+				state.TangentialWind = windVector - windVector.Dot( n ) * n;
+			}
+		} );
+	}
+
+	private Vector3<float> GetPressureGradient( Face<TectonicFaceState> face, TectonicFaceState state, float tileLength ) {
+		Vector3<float> pressureGradient = Vector3<float>.Zero;
+		foreach (NeighbouringFace nbr in face.Neighbours) {
+			Face<TectonicFaceState> nbrFace = nbr.Face as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Neighbour face at index {nbr.Face.Id} is not of type TectonicFaceState." );
+			TectonicFaceState nbrState = nbrFace.State;
+			pressureGradient += (nbrState.Pressure - state.Pressure) * nbr.NormalizedDirection / tileLength;
+		}
+		return pressureGradient;
+	}
+
+	private Vector3<float> GetHadleyComponent( Vector3<float> normal, Vector3<float> upAxis, Face<TectonicFaceState> face, AtmosphericDynamicsParameters adp ) {
+		float φ0 = adp.HadleyCellLatitudeWidth; // in radians
+		float A = adp.HadleyStrength; // m/s
+		var lat = face.LatitudeRads; // in radians
+		float sin = float.Sin( lat / φ0 * float.Pi );
+		float cos = float.Cos( lat / φ0 * float.Pi );
+
+		//var weakeningFactor = MathF.Exp( -(lat * lat) / (φ0 * φ0) );
+		Vector3<float> sideways = upAxis.Cross( normal );
+
+		Vector3<float> hadleyWind = A * (normal * cos + sideways * sin);
+		return hadleyWind;
+	}
+
+	//private Vector3<float> GetOrographicLifting( Vector3<float> normal, Face<TectonicFaceState> face, float tileLength, AtmosphericDynamicsParameters adp ) {
+	//	float liftingStrength = adp.OrographicLiftingStrength;
+
+	//	Vector3<float> orographicLift = Vector3<float>.Zero;
+	//	foreach (NeighbouringFace nbr in face.Neighbours) {
+	//		Face<TectonicFaceState> nbrFace = nbr.Face as Face<TectonicFaceState>;
+	//		float dh = nbrFace.State.Elevation - face.State.Elevation;
+	//		if (dh > 0) {
+	//			Vector3<float> gradient = dh * nbr.NormalizedDirection / tileLength;
+	//			orographicLift += gradient;
+	//		}
+	//	}
+
+	//	return liftingStrength * orographicLift.Project( normal );
+	//}
+
+	private Vector3<float> ApplyCoriolis( Vector3<float> velocity, Vector3<float> upAxis, float f ) {
+		return upAxis.Cross( velocity ) / float.CopySign( float.Max( float.Abs( f ), 1e-6f ), f );
+	}
+
+	private Vector3<float> ApplyDrag( Vector3<float> velocity, float linCoefficient, float quadCoefficient, float minQuadCoefficient ) {
+		float speed = velocity.Magnitude<Vector3<float>, float>();
+		float decay = 1f / (1f + linCoefficient + quadCoefficient * speed);
+		return velocity * decay;
+	}
+}
+
+/*Vector3<float> n = face.CenterNormalized;
 				Vector3<float> e = upAxis.Cross( n );
 				Vector3<float> t = n.Cross( e );
 
@@ -104,20 +187,6 @@ public sealed class AtmosphericDynamicsStep : ISimulationStep {
 
 				state.Wind = windVector;
 				state.TangentialWind = windVector - windVector.Dot( n ) * n;
-			}
-		} );
-	}
-
-	private Vector3<float> GetPressureGradient( Face<TectonicFaceState> face, TectonicFaceState state, float tileLength ) {
-		Vector3<float> pressureGradient = Vector3<float>.Zero;
-		foreach (NeighbouringFace nbr in face.Neighbours) {
-			Face<TectonicFaceState> nbrFace = nbr.Face as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Neighbour face at index {nbr.Face.Id} is not of type TectonicFaceState." );
-			TectonicFaceState nbrState = nbrFace.State;
-			pressureGradient += (nbrState.Pressure - state.Pressure) * nbr.NormalizedDirection / tileLength;
-		}
-		return pressureGradient;
-	}
-}
 
 /*
  * Face<TectonicFaceState> face = globe.TectonicFaces[ i ];

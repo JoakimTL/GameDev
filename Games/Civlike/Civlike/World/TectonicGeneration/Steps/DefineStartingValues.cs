@@ -37,7 +37,6 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 
 				state.AirTemperature = GetTemperatureFromLatitude( globe, state, center );
 				state.SurfaceTemperature = GetSurfaceTemperature( globe, center );
-				state.Pressure = GetPressure( globe, state );
 				state.SpecificHumidity = GetSpecificHumidity( globe, state, center, latitude );
 
 				state.VegetationFraction = 0;
@@ -77,18 +76,6 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 		double invT = 1.0 / state.AirTemperature;
 		double esat = seaLandAirConstants.ReferenceSaturationVaporPressure * Math.Exp( universalConstants.ClausiusClapeyronExponent * (invT0 - invT) );
 		return (float) (initializationParameters.InitialRelativeHumidity * seaLandAirConstants.MolecularWeightRatioVaporDryAir * esat / (state.Pressure - esat));
-	}
-
-	private Pressure GetPressure( TectonicGeneratingGlobe globe, TectonicFaceState state ) {
-		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
-		Parameters.SeaLandAirConstants seaLandAirConstants = globe.SeaLandAirConstants;
-
-		double exponent = globe.UniversalConstants.SpecificHeatCapacity * seaLandAirConstants.DryAirMolarMass / globe.UniversalConstants.UniversalGasConstant;
-		double @exponentBase = 1 - globe.PlanetaryConstants.Gravity * state.ElevationMeanAboveSea / (globe.UniversalConstants.UniversalGasConstant * state.AirTemperature.Kelvin);
-
-		double barometricExponent = Math.Pow( @exponentBase, exponent );
-
-		return seaLandAirConstants.SeaLevelPressure * float.Exp( -(float) (globe.PlanetaryConstants.Gravity * state.ElevationMeanAboveSea * seaLandAirConstants.DryAirMolarMass / (state.AirTemperature.Kelvin * globe.UniversalConstants.UniversalGasConstant)) );
 	}
 
 	private Temperature GetTemperatureFromLatitude( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center ) {
