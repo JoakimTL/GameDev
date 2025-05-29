@@ -1,10 +1,8 @@
 ﻿using Civlike.World.GenerationState;
-using Civlike.World.TectonicGeneration.Parameters;
 using Engine;
 
 namespace Civlike.World.TectonicGeneration.Steps;
 
-[Engine.Processing.Do<IGenerationStep>.After<DefineStartingValues>]
 [Engine.Processing.Do<IGenerationStep>.After<CreateOceansStep>]
 [Engine.Processing.Do<IGenerationStep>.Before<SimulationStep>]
 public sealed class SetDistancesFromLand : GlobeGenerationProcessingStepBase<TectonicGeneratingGlobe, TectonicGlobeParameters> {
@@ -69,35 +67,5 @@ public sealed class SetDistancesFromLand : GlobeGenerationProcessingStepBase<Tec
 				state.SeaPressure = spb * factor * (1 - float.Abs( face.CenterNormalized.Y ));
 			}
 		} );
-	}
-}
-
-[Engine.Processing.Do<IGenerationStep>.After<DefineStartingValues>]
-[Engine.Processing.Do<IGenerationStep>.Before<SimulationStep>]
-public sealed class SetHadleyCells : GlobeGenerationProcessingStepBase<TectonicGeneratingGlobe, TectonicGlobeParameters> {
-	public override string StepDisplayName => "Creating Hadley circulation";
-	public override void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters ) {
-		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
-			for (int i = start; i < end; i++) {
-				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
-				TectonicFaceState state = face.State;
-				state.HadleyWinds = GetHadleyComponent(face.CenterNormalized, Vector3<float>.UnitY, face, globe.AtmosphericDynamicsParameters);
-			}
-		} );
-	}
-	private Vector3<float> GetHadleyComponent( Vector3<float> normal, Vector3<float> upAxis, Face<TectonicFaceState> face, AtmosphericDynamicsParameters adp ) {
-		float φ0 = adp.HadleyCellLatitudeWidth; // in radians
-		float Ah = adp.HadleyHorizontalStrength; // m/s
-		float Av = adp.HadleyVerticalStrength; // m/s
-		float lat = face.LatitudeRads; // in radians
-		float latAbs = face.LatitudeRadsAbs;
-		float sin = float.Sin( latAbs / φ0 * float.Pi );
-		float cos = float.Cos( lat / φ0 * float.Pi );
-
-		//var weakeningFactor = MathF.Exp( -(lat * lat) / (φ0 * φ0) );
-		Vector3<float> sideways = upAxis.Cross( normal );
-
-		Vector3<float> hadleyWind = Av * normal * cos - Ah * sideways * sin;
-		return hadleyWind;
 	}
 }

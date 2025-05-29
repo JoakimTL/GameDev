@@ -1,8 +1,11 @@
-﻿using Civlike.World.GenerationState;
+﻿using Civlike.World.GameplayState;
+using Civlike.World.GenerationState;
 using Engine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,32 +22,45 @@ public static class PhysicsHelpers {
 		Parameters.PlanetaryConstants pC = globe.PlanetaryConstants;
 		Parameters.SeaLandAirConstants slaC = globe.SeaLandAirConstants;
 
-		return (float) (pC.Gravity * state.ElevationMeanAboveSea * slaC.DryAirMolarMass / uC.UniversalGasConstant);
+		return (float) (pC.Gravity * state.PressureElevationMean * slaC.DryAirMolarMass / uC.UniversalGasConstant);
 	}
 
-	public static Vector3<float> GetPressureGradient( in Face<TectonicFaceState> face, in TectonicFaceState state ) {
+	public static Vector3 GetPressureGradient( in Face<TectonicFaceState> face, in TectonicFaceState state ) {
 		float pressure = state.CombinedPressure.Pascal;
 		IReadOnlyList<NeighbouringFace<TectonicFaceState>> neighbours = face.Neighbours;
 		NeighbouringFace<TectonicFaceState> nbrA = neighbours[ 0 ];
 		NeighbouringFace<TectonicFaceState> nbrB = neighbours[ 1 ];
 		NeighbouringFace<TectonicFaceState> nbrC = neighbours[ 2 ];
-		float deltaA = nbrA.Face.State.CombinedPressure.Pascal - pressure;
-		float deltaB = nbrB.Face.State.CombinedPressure.Pascal - pressure;
-		float deltaC = nbrC.Face.State.CombinedPressure.Pascal - pressure;
-		Vector3<float> ildA = nbrA.InvLengthDirection;
-		Vector3<float> ildB = nbrB.InvLengthDirection;
-		Vector3<float> ildC = nbrC.InvLengthDirection;
-		float gx = deltaA * ildA.X + deltaB * ildB.X + deltaC * ildC.X;
-		float gy = deltaA * ildA.Y + deltaB * ildB.Y + deltaC * ildC.Y;
-		float gz = deltaA * ildA.Z + deltaB * ildB.Z + deltaC * ildC.Z;
-		return new( gx, gy, gz );
+		float pA = nbrA.Face.State.CombinedPressure.Pascal;
+		float pB = nbrB.Face.State.CombinedPressure.Pascal;
+		float pC = nbrC.Face.State.CombinedPressure.Pascal;
+		float deltaA = pA - pressure;
+		float deltaB = pB - pressure;
+		float deltaC = pC - pressure;
+		Vector3 deltas = new( deltaA, deltaB, deltaC );
+		Vector3 ildX = face.InverseLengthNeighbourDirectionX;
+		Vector3 ildY = face.InverseLengthNeighbourDirectionY;
+		Vector3 ildZ = face.InverseLengthNeighbourDirectionZ;
+		return new( Vector3.Dot( deltas, ildX ), Vector3.Dot( deltas, ildY ), Vector3.Dot( deltas, ildZ ) );
 	}
 
-	public static Vector3<float> ApplyCoriolis( in Vector3<float> velocity, in Vector3<float> upAxis, float coriolisFactor )
-		=> upAxis.Cross( velocity ) * coriolisFactor;
+	public static Vector3 ApplyCoriolis( in Vector3 velocity, in Vector3 upAxis, float coriolisFactor )
+		=> Vector3.Cross(upAxis, velocity ) * coriolisFactor;
 
-	public static Vector3<float> ApplyDrag( in Vector3<float> velocity, float linCoefficient, float quadCoefficient )
-		=> velocity / (1f + linCoefficient + quadCoefficient * velocity.ApproximateMagnitude());
+	public static Vector3 ApplyDrag( in Vector3 velocity, float linCoefficient, float quadCoefficient )
+		=> velocity / (1f + linCoefficient + quadCoefficient * velocity.Length());
+
+	//[MethodImpl( MethodImplOptions.AggressiveInlining )]
+	public static Vector3 GetWindVector(Face<TectonicFaceState> face, TectonicFaceState state, float pressureGradientCoefficient, Vector3 upAxis, float linearDragCoefficient, float quadraticDragCoefficient) {
+		Vector3 n = face.CenterNormalized;
+
+		Vector3 pressureGradient = GetPressureGradient( face, state );
+		Vector3 pressureWind = pressureGradientCoefficient * pressureGradient;
+		Vector3 coriolis = ApplyCoriolis( pressureWind, upAxis, state.CoriolisFactor );
+		Vector3 windBeforeDrag = pressureWind + coriolis + state.HadleyWinds;
+
+		return ApplyDrag( windBeforeDrag, linearDragCoefficient, quadraticDragCoefficient );
+	}
 
 	public static float GetSurfaceTemperature( TectonicGeneratingGlobe globe, in Vector3<float> center ) {
 		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
@@ -70,7 +86,7 @@ public static class PhysicsHelpers {
 
 		return initializationParameters.EquatorialAirTemperature
 			- initializationParameters.PolarAirTemperatureReduction * absoluteLatitudeFraction
-			- initializationParameters.LapseRate * state.ElevationMeanAboveSea;
+			- initializationParameters.LapseRate * state.PressureElevationMean;
 	}
 
 	public static float GetSurfaceRoughness( TectonicGeneratingGlobe globe, TectonicFaceState state, double sigmaMin, double sigmaMax ) {
@@ -87,7 +103,7 @@ public static class PhysicsHelpers {
 		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
 		Parameters.SeaLandAirConstants seaLandAirConstants = globe.SeaLandAirConstants;
 
-		double S = state.BaselineValues.Gradient.Magnitude<Vector3<float>, float>();
+		double S = state.BaselineValues.Gradient.Length();
 		double baseDepth = initializationParameters.SoilDepthBase * Math.Exp( -seaLandAirConstants.SlopeDecayConstant * S );
 		double latNorm = Math.Abs( latitude ) / 90.0;
 		double climateFactor = 1.0 - 0.5 * latNorm;

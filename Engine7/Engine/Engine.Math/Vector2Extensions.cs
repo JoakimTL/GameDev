@@ -184,6 +184,17 @@ public static class Vector2Extensions {
 			unmanaged, IFloatingPointIeee754<TScalar>
 		=> FormOuterEdges( (ReadOnlySpan<Vector2<TScalar>>) vertices, remaining, verticesInClockwiseOrder );
 
+
+	public static Vector2 ToNumerics( in this Vector2<float> vector )
+		=> new( vector.X, vector.Y );
+
+	public static Vector2 ToNumerics( in this Vector2<double> vector )
+		=> new( (float) vector.X, (float) vector.Y );
+
+	public static Vector2<TScalar> FromNumerics<TScalar>( in this Vector2 vector )
+		where TScalar :
+			unmanaged, INumber<TScalar>
+		=> new( TScalar.CreateSaturating( vector.X ), TScalar.CreateSaturating( vector.Y ) );
 	//
 	/*
 	 * (a - o) * X | (c - o) * X

@@ -1,5 +1,6 @@
 ﻿using Civlike.World.GenerationState;
 using Engine;
+using System.Numerics;
 
 namespace Civlike.World.TectonicGeneration.Steps.Simulation;
 
@@ -14,7 +15,7 @@ public sealed class AdvectionStep : ISimulationStep {
 		float area = (float) globe.TileArea;
 		float dtArea = dt / area;
 		float edgeLen = (float) globe.TileLength * 2;
-		float maxWindMagnitude = float.Sqrt( globe.TectonicFaces.Max( p => p.State.Wind.MagnitudeSquared() ) );
+		float maxWindMagnitude = float.Sqrt( globe.TectonicFaces.Max( p => p.State.Wind.LengthSquared() ) );
 		float dtLoop = dt / float.Max( 1, maxWindMagnitude * dt / edgeLen );
 
 		if (_newQ is null || _newQ.Length != globe.TectonicFaces.Count)
@@ -30,7 +31,7 @@ public sealed class AdvectionStep : ISimulationStep {
 					Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
 					TectonicFaceState state = face.State;
 
-					Vector3<float> u = state.Wind;
+					Vector3 u = state.Wind;
 
 					float divQ = 0;
 					float divT = 0;
@@ -39,8 +40,8 @@ public sealed class AdvectionStep : ISimulationStep {
 						Face<TectonicFaceState> nbrFace = neighbour.Face;
 						TectonicFaceState nbrState = nbrFace.State;
 
-						Vector3<float> dir = neighbour.NormalizedDirection;
-						float un = u.Dot( dir );
+						Vector3 dir = neighbour.NormalizedDirection;
+						float un = Vector3.Dot( u, dir );
 
 						(float qUp, float tUp) = un >= 0 ? (state.SpecificHumidity, state.AirTemperature) : (nbrState.SpecificHumidity, nbrState.AirTemperature);
 

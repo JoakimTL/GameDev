@@ -1,5 +1,6 @@
 ﻿using Civlike.World.GenerationState;
 using Engine;
+using System.Numerics;
 
 namespace Civlike.World.TectonicGeneration.Steps;
 
@@ -7,14 +8,14 @@ namespace Civlike.World.TectonicGeneration.Steps;
 public sealed class DefineGradientStep : GlobeGenerationProcessingStepBase<TectonicGeneratingGlobe, TectonicGlobeParameters> {
 	public override string StepDisplayName => "Defining gradient";
 	public override void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters ) {
-		ParallelProcessing.Range( globe.Faces.Count, ( start, end, taskId ) => {
+		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
-				Face<TectonicFaceState> face = globe.Faces[ i ] as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Face at index {i} is not of type TectonicFaceState." );
+				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
 				TectonicFaceState state = face.State;
-				Vector3<float> center = face.Center;
-				Vector3<float> gradient = 0;
+				Vector3 center = face.Center;
+				Vector3 gradient = Vector3.Zero;
 				foreach (Vertex vertex in face.Vertices) {
-					Vector3<float> direction = (vertex.Vector - center).Normalize<Vector3<float>, float>();
+					Vector3 direction = Vector3.Normalize(vertex.Vector.ToNumerics() - center);
 					gradient += direction * (vertex.Height - state.BaselineValues.ElevationMean);
 				}
 				gradient /= (float) globe.TileLength;
@@ -30,12 +31,12 @@ public sealed class DefineGradientStep : GlobeGenerationProcessingStepBase<Tecto
 					if (nbrFace.State.BaselineValues.ElevationMean >= state.BaselineValues.ElevationMean)
 						continue;
 
-					float gradientNbrDirectionDot = -gradient.Dot( neighbour.NormalizedDirection );
+					float gradientNbrDirectionDot = -Vector3.Dot(gradient, neighbour.NormalizedDirection );
 
 					if (gradientNbrDirectionDot > maxGradientDot) {
 						maxGradientDot = gradientNbrDirectionDot;
 						downslopeNeighbour = nbrFace;
-						slope = -gradient.Magnitude<Vector3<float>, float>() / (float) globe.TileLength;
+						slope = -gradient.Length() / (float) globe.TileLength;
 					}
 				}
 

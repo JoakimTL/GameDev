@@ -1,4 +1,5 @@
-﻿using System.Runtime.Intrinsics.Arm;
+﻿using System.Numerics;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Civlike.World.TectonicGeneration.Parameters;
 
@@ -20,4 +21,5 @@ public sealed class AtmosphericDynamicsParameters {
 	/// </summary>
 	public float SeaPressureDecayDistance { get; set; } = 1e-5f;
 	public float CoriolisStrength { get; set; } = 0.001f;
+	public Vector3 UpAxis { get; set; } = Vector3.UnitY;
 }

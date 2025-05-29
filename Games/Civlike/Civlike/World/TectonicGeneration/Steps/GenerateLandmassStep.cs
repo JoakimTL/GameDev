@@ -73,10 +73,10 @@ public sealed class GenerateLandmassStep : GlobeGenerationProcessingStepBase<Tec
 			}
 		} );
 
-		ParallelProcessing.Range( globe.Faces.Count, ( start, end, taskId ) => {
+		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
 			List<(TectonicPlate plate, float gradient)> neighbourPlates = [];
 			for (int i = start; i < end; i++) {
-				Face<TectonicFaceState> face = globe.Faces[ i ] as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Face at index {i} is not of type TectonicFaceState." );
+				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
 				TectonicFaceState state = face.State;
 
 				float height = 0;

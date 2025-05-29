@@ -1,6 +1,6 @@
 ﻿using Engine;
 using Engine.Structures;
-using System.Linq;
+using System.Numerics;
 
 namespace Civlike.World.GenerationState;
 
@@ -18,8 +18,8 @@ public abstract class FaceBase : IOcTreeLeaf<float> {
 		foreach (Edge edge in edges)
 			edge.AddFace( this );
 		this.TerrainType = TerrainTypeList.Default;
-		Center = (this.VectorA + this.VectorB + this.VectorC) / 3f;
-		CenterNormalized = Center.Normalize<Vector3<float>, float>();
+		Center = ((this.VectorA + this.VectorB + this.VectorC) / 3f).ToNumerics();
+		CenterNormalized = Vector3.Normalize(Center);
 		this.LatitudeRads = float.Asin( this.Center.Y );
 		this.LatitudeRadsAbs = float.Abs( this.LatitudeRads );
 		this.LatitudeDegrees = float.RadiansToDegrees( this.LatitudeRads );
@@ -41,8 +41,8 @@ public abstract class FaceBase : IOcTreeLeaf<float> {
 	public Vector3<float> VectorA => this._vertices[ 0 ].Vector;
 	public Vector3<float> VectorB => this._vertices[ 1 ].Vector;
 	public Vector3<float> VectorC => this._vertices[ 2 ].Vector;
-	public Vector3<float> Center { get; }
-	public Vector3<float> CenterNormalized { get; }
+	public Vector3 Center { get; }
+	public Vector3 CenterNormalized { get; }
 
 	public float LatitudeRads { get; }
 	public float LatitudeDegrees { get; }

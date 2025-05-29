@@ -59,7 +59,11 @@ public static class GlobeGenerator {
 			throw new InvalidOperationException( $"Step {i + 1}/{steps.Length} is not of the expected type." );
 		}
 
-		return ConvertInProgressToFinishedGlobe<TGlobeType, TParameters>( globeInProgress );
+		var globe = ConvertInProgressToFinishedGlobe<TGlobeType, TParameters>( globeInProgress );
+
+		globeInProgress.Dispose(); // Clean up the in-progress globe to free resources
+
+		return globe;
 	}
 
 	private static void RunStep<TGlobeType, TParameters>( GlobeGenerationProcessingStepBase<TGlobeType, TParameters> step, TGlobeType globe, TParameters parameters ) where TGlobeType : GeneratingGlobeBase where TParameters : GlobeGeneratorParameterBase {
@@ -146,3 +150,12 @@ public static class GlobeGenerator {
 	}
 
 }
+
+//Perf:
+/*
+ * 24.58s
+ * 21.63s
+ * 22.43s
+ * 23.29s
+ * 21.72s
+ */

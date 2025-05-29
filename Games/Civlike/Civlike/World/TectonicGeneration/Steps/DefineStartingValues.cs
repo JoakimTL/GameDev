@@ -2,18 +2,29 @@
 using Civlike.World.NoiseProviders;
 using Civlike.World.TectonicGeneration.Parameters.Old;
 using Engine;
+using System.Numerics;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Civlike.World.TectonicGeneration.Steps;
 
 [Engine.Processing.Do<IGenerationStep>.After<DefineGradientStep>]
+[Engine.Processing.Do<IGenerationStep>.After<SetDistancesFromLand>]
+[Engine.Processing.Do<IGenerationStep>.After<SetHadleyCells>]
+[Engine.Processing.Do<IGenerationStep>.Before<SimulationStep>]
 public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<TectonicGeneratingGlobe, TectonicGlobeParameters> {
 	public override string StepDisplayName => "Defining starting values per tile";
 
 	public override void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters ) {
+		var adp = globe.AtmosphericDynamicsParameters;
 
 		float Ω = 2f * float.Pi / (float) globe.PlanetaryConstants.RotationPeriod;
 		float dt = (float) parameters.GenerationParameters.SimulationTimeStepSeconds;
-		float coriolisStrength = (float) globe.AtmosphericDynamicsParameters.CoriolisStrength;
+
+		float linearDragCoefficient = (float) adp.LinearFrictionCoefficient;
+		float quadraticDragCoefficient = (float) adp.QuadraticFrictionCoefficient;
+		float coriolisStrength = (float) adp.CoriolisStrength;
+		float pressureGradientCoefficient = -(float) adp.PressureGradientCoefficient;
+		Vector3 upAxis = adp.UpAxis;
 
 		Noise3 soilCoarseNoise = new( globe.SeedProvider.Next(), 18 );
 		Noise3 soilFineNoise = new( globe.SeedProvider.Next(), 79 );
@@ -23,11 +34,11 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 		List<TectonicFaceState> states = globe.Faces.OfType<Face<TectonicFaceState>>().Select( f => f.State ).ToList();
 		double sigmaMin = states.Min( f => f.BaselineValues.ElevationStandardDeviation );
 		double sigmaMax = states.Max( f => f.BaselineValues.ElevationStandardDeviation );
-		ParallelProcessing.Range( globe.Faces.Count, ( start, end, taskId ) => {
+		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
-				Face<TectonicFaceState> face = globe.Faces[ i ] as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Face at index {i} is not of type TectonicFaceState." );
+				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
 				TectonicFaceState state = face.State;
-				Vector3<float> center = face.Center;
+				Vector3<float> center = face.Center.FromNumerics<float>();
 
 				double latitude = double.RadiansToDegrees( Math.Asin( center.Y ) );
 				double latitudeFraction = latitude / 90;
@@ -46,12 +57,13 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 				state.SnowFraction = 0;
 
 				state.RunoffAccumulation = 0;
-				state.FreshwaterDepth = 0;
+				state.WaterDepth = face.IsOcean ? -face.State.BaselineValues.ElevationMean : 0f;
 				state.RiverDischarge = 0;
 
 				float f = 2 * Ω * center.Y;
 				state.CoriolisFactor = coriolisStrength / float.CopySign( float.Max( float.Abs( f ), 1e-6f ), f );
 
+				state.PressureElevationMean = state.BaselineValues.ElevationMean + state.WaterDepth;
 				state.CachedLapseRate = PhysicsHelpers.GetLapseRate( globe, state );
 				state.Pressure = PhysicsHelpers.GetPressure( globe, state );
 				state.CombinedPressure = state.Pressure + state.SeaPressure;
@@ -60,7 +72,15 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 					continue;
 
 				state.SeaSalinity = (float) globe.SeaLandAirConstants.OceanSalinityReference;
-				state.OceanCurrent = 0;
+				state.OceanCurrent = Vector3.Zero;
+			}
+		} );
+
+		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
+			for (int i = start; i < end; i++) {
+				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
+				TectonicFaceState state = face.State;
+				state.Wind = PhysicsHelpers.GetWindVector( face, state, pressureGradientCoefficient, upAxis, linearDragCoefficient, quadraticDragCoefficient );
 			}
 		} );
 	}

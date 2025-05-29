@@ -24,7 +24,7 @@ public sealed class EvaporationStep : ISimulationStep {
 				float e_sat = state.SaturationVaporPressure = float.Min( ComputeEsat( globe, T ), 0.999f * P );
 				float q_sat = state.SaturationSpecificHumidity = (float) globe.SeaLandAirConstants.MolecularWeightRatioVaporDryAir * e_sat / (P - e_sat);
 
-				float windSpeed = state.TangentialWind.Magnitude<Vector3<float>, float>();
+				float windSpeed = state.Wind.Length();
 
 				float bulkTransferCoefficient = (float) (face.IsLand ? globe.EvaporationParameters.LandBulkTransferCoefficient : globe.EvaporationParameters.WaterBulkTransferCoefficient);
 

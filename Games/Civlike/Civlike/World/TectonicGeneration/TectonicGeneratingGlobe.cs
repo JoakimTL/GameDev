@@ -2,6 +2,7 @@
 using Civlike.World.TectonicGeneration.Parameters;
 using Engine.Structures;
 using Engine;
+using System.Numerics;
 
 namespace Civlike.World.TectonicGeneration;
 public sealed class TectonicGeneratingGlobe : GeneratingGlobeBase {
@@ -19,7 +20,7 @@ public sealed class TectonicGeneratingGlobe : GeneratingGlobeBase {
 	//public SoilDepthGenerationConstants SoilDepthGenerationConstants { get; } = new();
 	//public DynamicInitializationConstants DynamicInitializationConstants { get; } = new();
 
-	public IReadOnlyList<float> Latitudes { get; private set; }
+	public IReadOnlyList<Latitude> Latitudes { get; private set; }
 	public UniversalConstants UniversalConstants { get; } = new();
 	public PlanetaryConstants PlanetaryConstants { get; } = new();
 	public SeaLandAirConstants SeaLandAirConstants { get; } = new();
@@ -37,40 +38,45 @@ public sealed class TectonicGeneratingGlobe : GeneratingGlobeBase {
 	public OcTree<Face<TectonicFaceState>, float> FaceTree { get; } = new( AABB.Create<Vector3<float>>( [ -1, 1 ] ), 4, false );
 
 	protected override void OnFacesSet() {
-		TectonicFaces = Faces.OfType<Face<TectonicFaceState>>().ToList();
+		TectonicFaces = [ .. Faces.OfType<Face<TectonicFaceState>>() ];
 		FaceTree.Clear();
 		foreach (Face<TectonicFaceState> face in TectonicFaces)
 			FaceTree.Add( face );
 	}
 
 	public void UpdateFaceLists() {
-		NonOceanTectonicFacesByElevationMean = TectonicFaces
+		NonOceanTectonicFacesByElevationMean = [ .. TectonicFaces
 			.Where( face => !face.IsOcean )
-			.OrderByDescending( face => face.State.BaselineValues.ElevationMean )
-			.ToList();
-		var latitudeGroups = TectonicFaces
+			.OrderByDescending( face => face.State.BaselineValues.ElevationMean ) ];
+		List<IGrouping<float, Face<TectonicFaceState>>> latitudeGroups = TectonicFaces
 			.GroupBy( face => face.LatitudeRads )
 			.OrderBy( group => group.Key )
 			.ToList();
-		float[] latitudeArray = new float[ latitudeGroups.Count ];
+		Latitude[] latitudeArray = new Latitude[ latitudeGroups.Count ];
 		for (int i = 0; i < latitudeGroups.Count; i++) {
-			latitudeArray[ i ] = latitudeGroups[ i ].Key;
-			foreach (var face in latitudeGroups[ i ]) {
+			latitudeArray[ i ] = new( latitudeGroups[ i ].Key );
+			foreach (Face<TectonicFaceState>? face in latitudeGroups[ i ]) {
 				face.LatitudeId = i;
 			}
 		}
 		Latitudes = latitudeArray;
 	}
 
-	public float GetGreatCircleDistance( Vector3<float> globePointA, Vector3<float> globePointB ) {
-		float dot = globePointA.Dot( globePointB );
+	public float GetGreatCircleDistance( Vector3 globePointA, Vector3 globePointB ) {
+		float dot = Vector3.Dot( globePointA, globePointB );
 		float angle = float.Acos( dot );
 		return (float) (Radius * angle);
 	}
+
+	protected override bool InternalDispose() {
+		InsolationProvider.Dispose();
+		return true;
+	}
 }
 
-public sealed class GlobeLatitudeCaches {
-	public GlobeLatitudeCaches( IReadOnlyList<Face<TectonicFaceState>> faces ) {
-
-	}
+public readonly struct Latitude( float rads ) {
+	public float Rads { get; } = rads;
+	public float Sin { get; } = float.Sin( rads );
+	public float Cos { get; } = float.Cos( rads );
+	public float Tan { get; } = float.Tan( rads );
 }

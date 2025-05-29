@@ -3,7 +3,7 @@ using Engine.Generation.Meshing;
 using Engine.Structures;
 
 namespace Civlike.World.GenerationState;
-public abstract class GeneratingGlobeBase {
+public abstract class GeneratingGlobeBase : DisposableIdentifiable {
 	protected GeneratingGlobeBase( Type faceStateType ) {
 		if (!faceStateType.IsClass || faceStateType.IsAbstract || !faceStateType.Resolve().HasParameterlessConstructor || !faceStateType.IsAssignableTo( typeof( FaceStateBase ) ))
 			throw new ArgumentException( "faceStateType must be a non-abstract class with a parameterless constructor and must derive from FaceStateBase.", nameof( faceStateType ) );

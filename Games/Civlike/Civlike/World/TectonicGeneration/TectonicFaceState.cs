@@ -1,7 +1,7 @@
 ﻿using Civlike.World.GameplayState;
 using Civlike.World.GenerationState;
-using Civlike.World.TectonicGeneration.Parameters.Old;
 using Engine;
+using System.Numerics;
 
 namespace Civlike.World.TectonicGeneration;
 
@@ -73,7 +73,7 @@ public class TectonicFaceState : FaceStateBase {
 	/// <summary>
 	/// The depth of the water table; updated via infiltration, runoff, and evapotranspiration. In m.
 	/// </summary>
-	public float FreshwaterDepth { get; set; }
+	public float WaterDepth { get; set; }
 	/// <summary>
 	/// Flow in river channels after stream initiation. In m^3/s.
 	/// </summary>
@@ -81,7 +81,7 @@ public class TectonicFaceState : FaceStateBase {
 	/// <summary>
 	/// Surface ocean currents; driven by wind stress. In m/s.
 	/// </summary>
-	public Vector3<float> OceanCurrent { get; set; }
+	public Vector3 OceanCurrent { get; set; }
 	/// <summary>
 	/// The salinity of the ocean surface water, in parts per thousand (ppt). This is a measure of the concentration of dissolved salts in seawater.
 	/// </summary>
@@ -110,30 +110,30 @@ public class TectonicFaceState : FaceStateBase {
 	/// The emissivity of the face, which is a measure of how efficiently it emits thermal radiation. This value ranges from 0 to 1, where 1 indicates perfect emission.
 	/// </summary>
 	public float Emissivity { get; set; }
-	public Vector3<float> HadleyWinds { get; set; }
+	public Vector3 HadleyWinds { get; set; }
 	/// <summary>
 	/// The wind speed at the face, represented as a vector in 3D space. This vector indicates the direction and magnitude of the wind. The magnitude is in m/s.
 	/// </summary>
-	public Vector3<float> Wind { get; set; } = 0;
+	public Vector3 Wind { get; set; } = Vector3.Zero;
 	/// <summary>
 	/// The wind portion tangential to the surface of this face.
 	/// </summary>
-	public Vector3<float> TangentialWind { get; set; } = 0;
+	public Vector3 TangentialWind { get; set; } = Vector3.Zero;
 	public float CoriolisFactor { get; set; }
 
 	public int LatitudeIndex { get; set; }
 
-	public float ElevationMeanAboveSea {
-		get {
-			float delta = this.FreshwaterDepth;
-			if (this.Face.IsOcean) 
-				delta = -this.BaselineValues.ElevationMean;
-			return BaselineValues.ElevationMean + delta;
-		}
-	}
+	public float PressureElevationMean { get; set; }
+		//get {
+		//	float delta = this.FreshwaterDepth;
+		//	if (this.Face.IsOcean) 
+		//		delta = -this.BaselineValues.ElevationMean;
+		//	return BaselineValues.ElevationMean + delta;
+		//}
+	//}
 
 	public override void Apply( Face.Builder builder ) {
-		builder.Debug_Arrow = TangentialWind * 0.1f;//(DownslopeNeighbour is not null) ? (DownslopeNeighbour.Center - Face.Center).Normalize<Vector3<float>, float>() * 0.33f : Vector3<float>.Zero;//Wind.Normalize<Vector3<float>, float>();
+		builder.Debug_Arrow = TangentialWind.FromNumerics<float>() * 0.1f;//(DownslopeNeighbour is not null) ? (DownslopeNeighbour.Center - Face.Center).Normalize<Vector3<float>, float>() * 0.33f : Vector3<float>.Zero;//Wind.Normalize<Vector3<float>, float>();
 		builder.Debug_Color = (SpecificHumidity / 0.002f, float.Max( -AverageAirTemperature.Celsius, 0 ) / 120, Face.IsOcean ? 1 : 0, 1);
 	}
 }

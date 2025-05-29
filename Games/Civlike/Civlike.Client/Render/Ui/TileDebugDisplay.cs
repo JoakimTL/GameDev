@@ -45,7 +45,7 @@ public sealed class TileDebugDisplay : UserInterfaceElementBase {
 			sb.AppendLine( $"Seismic activity: {tectonicState.BaselineValues.SeismicActivity:N4}" );
 			sb.AppendLine( $"Height: {tectonicState.BaselineValues.ElevationMean:N2}m" );
 			sb.AppendLine( $"Vertex Elevations: {selectedTile.Blueprint.Vertices[ 0 ].Height:N2}m {selectedTile.Blueprint.Vertices[ 1 ].Height:N2}m {selectedTile.Blueprint.Vertices[ 2 ].Height:N2}m" );
-			sb.AppendLine( $"Gradient: {(tectonicState.BaselineValues.Gradient.Magnitude<Vector3<float>, float>() * 100):N4}% {tectonicState.BaselineValues.Gradient}" );
+			sb.AppendLine( $"Gradient: {(tectonicState.BaselineValues.Gradient.Length() * 100):N4}% {tectonicState.BaselineValues.Gradient}" );
 			sb.AppendLine( $"Elevation std. dev.: {tectonicState.BaselineValues.ElevationStandardDeviation:N4}m" );
 			//sb.AppendLine( $"Length: {selectedTile.GenerationFace.G.ApproximateTileLength:N2}m" );
 			sb.AppendLine( $"Average Temperature: {tectonicState.AverageAirTemperature}" );
@@ -54,8 +54,8 @@ public sealed class TileDebugDisplay : UserInterfaceElementBase {
 			sb.AppendLine( $"Sea pressure: {(tectonicState.Pressure.Pascal + tectonicFace.State.SeaPressure.Pascal):N2}Pa" );
 			sb.AppendLine( $"Distance from land {tectonicState.DistanceFromLand:N2}m" );
 			sb.AppendLine( $"Specific Humidity: {tectonicState.SpecificHumidity:N4} kg/kg" );
-			sb.AppendLine( $"Wind: {tectonicState.Wind} {tectonicState.Wind.Magnitude<Vector3<float>, float>():N3}m/s" );
-			sb.AppendLine( $"Tangential wind: {tectonicState.TangentialWind} {tectonicState.TangentialWind.Magnitude<Vector3<float>, float>():N3}m/s" );
+			sb.AppendLine( $"Wind: {tectonicState.Wind} {tectonicState.Wind.Length():N3}m/s" );
+			sb.AppendLine( $"Tangential wind: {tectonicState.TangentialWind} {tectonicState.TangentialWind.Length():N3}m/s" );
 			sb.AppendLine( $"Soil moisture: {tectonicState.SoilMoisture:N2}mm" );
 			sb.AppendLine( $"Runoff accumulation: {tectonicState.RunoffAccumulation:N2}m^3/s" );
 			//sb.AppendLine( $"Moisture capacity mm: {tectonicState.GetMoistureCapacityMm():N2}" );

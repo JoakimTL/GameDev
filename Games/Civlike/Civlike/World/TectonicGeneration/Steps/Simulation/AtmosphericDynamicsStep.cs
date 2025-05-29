@@ -54,33 +54,36 @@ public sealed class AtmosphericDynamicsStep : ISimulationStep {
 	public void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters, double daysSimulated, double secondsToSimulate ) {
 		AtmosphericDynamicsParameters adp = globe.AtmosphericDynamicsParameters;
 
-		float linearDragCoefficient = (float) adp.LinearFrictionCoefficient; // Linear drag coefficient
-		float quadraticDragCoefficient = (float) adp.QuadraticFrictionCoefficient; // Quadratic drag coefficient
-		float minimumQuadraticDragCoefficient = (float) adp.MinimumQuadraticFrictionCoefficient; // Minimum quadratic drag coefficient
-		float coriolisStrength = (float) adp.CoriolisStrength; // Coriolis strength factor
-		float pressureGradientCoefficient = -(float) adp.PressureGradientCoefficient; // Pressure gradient coefficient
-
-		Vector3<float> upAxis = Vector3<float>.UnitY;
+		float linearDragCoefficient = (float) adp.LinearFrictionCoefficient;
+		float quadraticDragCoefficient = (float) adp.QuadraticFrictionCoefficient;
+		float coriolisStrength = (float) adp.CoriolisStrength;
+		float pressureGradientCoefficient = -(float) adp.PressureGradientCoefficient;
+		Vector3 upAxis = adp.UpAxis;
 
 		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
 			for (int i = start; i < end; i++) {
-				//for (int i = 0; i < globe.TectonicFaces.Count; i++) {
 				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
+				if (face.IsOcean)
+					continue;
+
 				TectonicFaceState state = face.State;
+				state.Wind = PhysicsHelpers.GetWindVector( face, state, pressureGradientCoefficient, upAxis, linearDragCoefficient, quadraticDragCoefficient );
+				//for (int i = 0; i < globe.TectonicFaces.Count; i++) {
+				//Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
+				//TectonicFaceState state = face.State;
 
-				Vector3<float> n = face.CenterNormalized;
+				//Vector3 n = face.CenterNormalized;
 
-				Vector3<float> pressureGradient = PhysicsHelpers.GetPressureGradient( face, state );
-				Vector3<float> pressureWind = pressureGradientCoefficient * pressureGradient;
+				//Vector3 pressureGradient = PhysicsHelpers.GetPressureGradient( face, state );
+				//Vector3 pressureWind = pressureGradientCoefficient * pressureGradient;
 
-				Vector3<float> coriolis = PhysicsHelpers.ApplyCoriolis( pressureWind, upAxis, state.CoriolisFactor );
+				//Vector3 coriolis = PhysicsHelpers.ApplyCoriolis( pressureWind, upAxis, state.CoriolisFactor );
 
-				Vector3<float> windBeforeDrag = pressureWind + coriolis + state.HadleyWinds;
+				//Vector3 windBeforeDrag = pressureWind + coriolis + state.HadleyWinds;
 
-				Vector3<float> windVector = PhysicsHelpers.ApplyDrag( windBeforeDrag, linearDragCoefficient, quadraticDragCoefficient );
+				//Vector3 windVector = PhysicsHelpers.ApplyDrag( windBeforeDrag, linearDragCoefficient, quadraticDragCoefficient );
 
-				state.Wind = windVector;
-				state.TangentialWind = windVector - windVector.Dot( n ) * n;
+				//state.Wind = windVector;
 			}
 		} );
 	}
