@@ -5,6 +5,7 @@ using Engine;
 
 namespace Civlike.World.TectonicGeneration;
 public sealed class TectonicGeneratingGlobe : GeneratingGlobeBase {
+
 	public TectonicGeneratingGlobe() : base( typeof( TectonicFaceState ) ) {
 		InsolationProvider = new DefaultInsolationProvider( this );
 	}
@@ -18,6 +19,7 @@ public sealed class TectonicGeneratingGlobe : GeneratingGlobeBase {
 	//public SoilDepthGenerationConstants SoilDepthGenerationConstants { get; } = new();
 	//public DynamicInitializationConstants DynamicInitializationConstants { get; } = new();
 
+	public IReadOnlyList<float> Latitudes { get; private set; }
 	public UniversalConstants UniversalConstants { get; } = new();
 	public PlanetaryConstants PlanetaryConstants { get; } = new();
 	public SeaLandAirConstants SeaLandAirConstants { get; } = new();
@@ -46,5 +48,29 @@ public sealed class TectonicGeneratingGlobe : GeneratingGlobeBase {
 			.Where( face => !face.IsOcean )
 			.OrderByDescending( face => face.State.BaselineValues.ElevationMean )
 			.ToList();
+		var latitudeGroups = TectonicFaces
+			.GroupBy( face => face.LatitudeRads )
+			.OrderBy( group => group.Key )
+			.ToList();
+		float[] latitudeArray = new float[ latitudeGroups.Count ];
+		for (int i = 0; i < latitudeGroups.Count; i++) {
+			latitudeArray[ i ] = latitudeGroups[ i ].Key;
+			foreach (var face in latitudeGroups[ i ]) {
+				face.LatitudeId = i;
+			}
+		}
+		Latitudes = latitudeArray;
+	}
+
+	public float GetGreatCircleDistance( Vector3<float> globePointA, Vector3<float> globePointB ) {
+		float dot = globePointA.Dot( globePointB );
+		float angle = float.Acos( dot );
+		return (float) (Radius * angle);
+	}
+}
+
+public sealed class GlobeLatitudeCaches {
+	public GlobeLatitudeCaches( IReadOnlyList<Face<TectonicFaceState>> faces ) {
+
 	}
 }

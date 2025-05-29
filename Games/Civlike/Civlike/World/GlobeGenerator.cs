@@ -86,7 +86,7 @@ public static class GlobeGenerator {
 		foreach ((GenerationState.FaceBase generated, GameplayState.Face.Builder builder) in faceBuilders) {
 			builder.Vertices.AddRange( generated.Vertices.Select( p => vertexBuilders[ p.Id ].builder.Vertex ) );
 			builder.Edges.AddRange( generated.Edges.Select( p => edges[ p.Id ] ) );
-			builder.Neighbours.AddRange( generated.Neighbours.Select( p => faceBuilders[ p.Face.Id ].builder.Face ) );
+			builder.Neighbours.AddRange( generated.Edges.Select( p => faceBuilders[p.GetOther( generated ).Id ].builder.Face ) );
 			generated.Apply( builder );
 			builder.GenerationFace = generated;
 			builder.Complete();

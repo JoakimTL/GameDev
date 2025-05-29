@@ -35,8 +35,8 @@ public sealed class AdvectionStep : ISimulationStep {
 					float divQ = 0;
 					float divT = 0;
 
-					foreach (NeighbouringFace neighbour in face.Neighbours) {
-						Face<TectonicFaceState> nbrFace = neighbour.Face as Face<TectonicFaceState> ?? throw new InvalidOperationException( "Neighbour face is not of type TectonicFaceState." );
+					foreach (NeighbouringFace<TectonicFaceState> neighbour in face.Neighbours) {
+						Face<TectonicFaceState> nbrFace = neighbour.Face;
 						TectonicFaceState nbrState = nbrFace.State;
 
 						Vector3<float> dir = neighbour.NormalizedDirection;

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Engine;
 public static class NumberExtensions {
@@ -47,4 +48,10 @@ public static class NumberExtensions {
 		=> periodMs > 0
 			? T.CreateSaturating( T.CreateSaturating( 1000 ) / T.CreateSaturating( periodMs ) )
 			: throw new ArgumentException( "Period must be greater than zero." );
+
+	[MethodImpl( MethodImplOptions.AggressiveInlining )]
+	public static unsafe float FastAbs( this float a ) {
+		int r = (*(int*) &a) & 0x7FFFFFFF;
+		return *(float*) &r;
+	}
 }

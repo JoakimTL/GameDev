@@ -24,8 +24,8 @@ public sealed class DefineGradientStep : GlobeGenerationProcessingStepBase<Tecto
 				float maxGradientDot = float.MinValue;
 				float slope = 0;
 				for (int j = 0; j < face.Neighbours.Count; j++) {
-					NeighbouringFace neighbour = face.Neighbours[ j ];
-					Face<TectonicFaceState> nbrFace = neighbour.Face as Face<TectonicFaceState> ?? throw new InvalidCastException( $"Neighbouring face at index {j} is not of type TectonicFaceState." );
+					NeighbouringFace<TectonicFaceState> neighbour = face.Neighbours[ j ];
+					Face<TectonicFaceState> nbrFace = neighbour.Face;
 
 					if (nbrFace.State.BaselineValues.ElevationMean >= state.BaselineValues.ElevationMean)
 						continue;

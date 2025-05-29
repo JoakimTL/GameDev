@@ -13,6 +13,7 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 
 		float Ω = 2f * float.Pi / (float) globe.PlanetaryConstants.RotationPeriod;
 		float dt = (float) parameters.GenerationParameters.SimulationTimeStepSeconds;
+		float coriolisStrength = (float) globe.AtmosphericDynamicsParameters.CoriolisStrength;
 
 		Noise3 soilCoarseNoise = new( globe.SeedProvider.Next(), 18 );
 		Noise3 soilFineNoise = new( globe.SeedProvider.Next(), 79 );
@@ -30,14 +31,16 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 
 				double latitude = double.RadiansToDegrees( Math.Asin( center.Y ) );
 				double latitudeFraction = latitude / 90;
-				state.SoilDepth = GetSoilDepth( globe, state, center, latitude, soilCoarseNoise, soilFineNoise );
-				state.SoilMoistureCapacity = GetSoilMoistureCapacity( globe, state, center, porosityCoarseNoise, porosityFineNoise );
+				float soilNoise = soilCoarseNoise.Noise( center ) * 0.65f + soilFineNoise.Noise( center ) * 0.35f;
+				state.SoilDepth = PhysicsHelpers.GetSoilDepth( globe, state, latitude, soilNoise );
+				float porosityNoise = porosityCoarseNoise.Noise( center ) * 0.65f + porosityFineNoise.Noise( center ) * 0.35f;
+				state.SoilMoistureCapacity = PhysicsHelpers.GetSoilMoistureCapacity( globe, state, porosityNoise );
 
-				state.SurfaceRoughness = GetSurfaceRoughness( globe, state, center, sigmaMin, sigmaMax );
+				state.SurfaceRoughness = PhysicsHelpers.GetSurfaceRoughness( globe, state, sigmaMin, sigmaMax );
 
-				state.AirTemperature = GetTemperatureFromLatitude( globe, state, center );
-				state.SurfaceTemperature = GetSurfaceTemperature( globe, center );
-				state.SpecificHumidity = GetSpecificHumidity( globe, state, center, latitude );
+				state.AirTemperature = PhysicsHelpers.GetTemperatureFromLatitude( globe, state, center );
+				state.SurfaceTemperature = PhysicsHelpers.GetSurfaceTemperature( globe, center );
+				state.SpecificHumidity = PhysicsHelpers.GetSpecificHumidity( globe, state );
 
 				state.VegetationFraction = 0;
 				state.SnowFraction = 0;
@@ -46,81 +49,19 @@ public sealed class DefineStartingValues : GlobeGenerationProcessingStepBase<Tec
 				state.FreshwaterDepth = 0;
 				state.RiverDischarge = 0;
 
-				state.CoriolisFactor = 2 * Ω * center.Y;
-				state.CoriolisCosF = float.Cos( state.CoriolisFactor * dt );
-				state.CoriolisSinF = float.Sin( state.CoriolisFactor * dt );
+				float f = 2 * Ω * center.Y;
+				state.CoriolisFactor = coriolisStrength / float.CopySign( float.Max( float.Abs( f ), 1e-6f ), f );
+
+				state.CachedLapseRate = PhysicsHelpers.GetLapseRate( globe, state );
+				state.Pressure = PhysicsHelpers.GetPressure( globe, state );
+				state.CombinedPressure = state.Pressure + state.SeaPressure;
 
 				if (!face.IsOcean)
 					continue;
 
 				state.SeaSalinity = (float) globe.SeaLandAirConstants.OceanSalinityReference;
 				state.OceanCurrent = 0;
-
 			}
 		} );
-	}
-
-	private float GetSurfaceTemperature( TectonicGeneratingGlobe globe, Vector3<float> center ) {
-		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
-		double absoluteLatitudeFraction = Math.Abs( center.Y );
-
-		return (float) (initializationParameters.EquatorialSeaSurfaceTemperature - initializationParameters.PolarSeaSurfaceTemperatureReduction * absoluteLatitudeFraction);
-	}
-
-	private float GetSpecificHumidity( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center, double latitude ) {
-		Parameters.UniversalConstants universalConstants = globe.UniversalConstants;
-		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
-		Parameters.SeaLandAirConstants seaLandAirConstants = globe.SeaLandAirConstants;
-
-		double invT0 = 1.0 / initializationParameters.EquatorialAirTemperature;
-		double invT = 1.0 / state.AirTemperature;
-		double esat = seaLandAirConstants.ReferenceSaturationVaporPressure * Math.Exp( universalConstants.ClausiusClapeyronExponent * (invT0 - invT) );
-		return (float) (initializationParameters.InitialRelativeHumidity * seaLandAirConstants.MolecularWeightRatioVaporDryAir * esat / (state.Pressure - esat));
-	}
-
-	private Temperature GetTemperatureFromLatitude( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center ) {
-		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
-		double absoluteLatitudeFraction = Math.Abs( center.Y );
-
-		return initializationParameters.EquatorialAirTemperature
-			- initializationParameters.PolarAirTemperatureReduction * absoluteLatitudeFraction
-			- initializationParameters.LapseRate * state.ElevationMeanAboveSea;
-	}
-
-	private float GetSurfaceRoughness( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center, double sigmaMin, double sigmaMax ) {
-		double bareGroundMinimum = globe.EndMemberProperties.DrySoil.MinimumRoughnessLength;
-		double bareGroundMaximum = globe.EndMemberProperties.DrySoil.MaximumRoughnessLength;
-
-		double σ = state.BaselineValues.ElevationStandardDeviation;
-		double normSigma = (σ - sigmaMin) / (sigmaMax - sigmaMin);
-		normSigma = Math.Clamp( normSigma, 0.0, 1.0 );
-		return (float) (bareGroundMinimum + (bareGroundMaximum - bareGroundMinimum) * normSigma);
-	}
-
-	private float GetSoilDepth( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center, double latitude, Noise3 soilCoarseNoise, Noise3 soilFineNoise ) {
-		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
-		Parameters.SeaLandAirConstants seaLandAirConstants = globe.SeaLandAirConstants;
-
-		double S = state.BaselineValues.Gradient.Magnitude<Vector3<float>, float>();
-		double baseDepth = initializationParameters.SoilDepthBase * Math.Exp( -seaLandAirConstants.SlopeDecayConstant * S );
-		double latNorm = Math.Abs( latitude ) / 90.0;
-		double climateFactor = 1.0 - 0.5 * latNorm;
-
-		double soilNoise = soilCoarseNoise.Noise( center ) * 0.65 + soilFineNoise.Noise( center ) * 0.35;
-		soilNoise = soilNoise * 2 - 1;
-		baseDepth *= 1 + initializationParameters.SoilNoiseAmplitude * soilNoise;
-
-		return (float) (baseDepth * climateFactor);
-	}
-
-	private float GetSoilMoistureCapacity( TectonicGeneratingGlobe globe, TectonicFaceState state, Vector3<float> center, Noise3 porosityCoarseNoise, Noise3 porosityFineNoise ) {
-		Parameters.InitializationParameters initializationParameters = globe.InitializationParameters;
-
-		double porosityNoise = porosityCoarseNoise.Noise( center ) * 0.65 + porosityFineNoise.Noise( center ) * 0.35;
-		porosityNoise = porosityNoise * 2 - 1;
-
-		float porosity = (float) (initializationParameters.SoilPorosityBase * (1 + initializationParameters.SoilPorosityNoiseAmplitude * porosityNoise));
-
-		return state.SoilDepth * porosity * 1000.0f;
 	}
 }

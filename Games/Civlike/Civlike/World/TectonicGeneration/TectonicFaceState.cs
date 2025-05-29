@@ -24,8 +24,13 @@ public class TectonicFaceState : FaceStateBase {
 	/// </summary>
 	public Temperature SurfaceTemperature { get; set; }
 	public Temperature AverageSurfaceTemperature { get; set; }
+
+	public float CachedLapseRate { get; set; }
 	public Pressure Pressure { get; set; }
-	public Pressure EffectivePressure { get; set; }
+	public Pressure SeaPressure { get; set; }
+	public Pressure CombinedPressure { get; set; }
+	public float DistanceFromLand { get; set; }
+	public Face<TectonicFaceState>? NearestLandFace { get; set; } = null!;
 	/// <summary>
 	/// Water‑vapor mixing ratio; updated by evaporation and advection. In kg/kg.
 	/// </summary>
@@ -105,6 +110,7 @@ public class TectonicFaceState : FaceStateBase {
 	/// The emissivity of the face, which is a measure of how efficiently it emits thermal radiation. This value ranges from 0 to 1, where 1 indicates perfect emission.
 	/// </summary>
 	public float Emissivity { get; set; }
+	public Vector3<float> HadleyWinds { get; set; }
 	/// <summary>
 	/// The wind speed at the face, represented as a vector in 3D space. This vector indicates the direction and magnitude of the wind. The magnitude is in m/s.
 	/// </summary>
@@ -114,8 +120,8 @@ public class TectonicFaceState : FaceStateBase {
 	/// </summary>
 	public Vector3<float> TangentialWind { get; set; } = 0;
 	public float CoriolisFactor { get; set; }
-	public float CoriolisCosF { get; set; }
-	public float CoriolisSinF { get; set; }
+
+	public int LatitudeIndex { get; set; }
 
 	public float ElevationMeanAboveSea {
 		get {

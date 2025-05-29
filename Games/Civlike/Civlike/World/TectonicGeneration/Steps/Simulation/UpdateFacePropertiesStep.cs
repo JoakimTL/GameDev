@@ -52,6 +52,8 @@ public sealed class UpdateFacePropertiesStep : ISimulationStep {
 				float finalThermalCapacityPerArea;
 				float finalThermalConductivity;
 
+				float invSnowFraction = 1 - state.SnowFraction;
+
 				if (face.IsLand) {
 					//Land albedo parts
 					float faceVegetationAlbedo = state.VegetationFraction * vegetationAlbedo;
@@ -60,8 +62,8 @@ public sealed class UpdateFacePropertiesStep : ISimulationStep {
 					float moistureFrac = state.SoilMoisture / state.SoilMoistureCapacity;
 
 					//Set values
-					finalAlbedo = faceSnowAlbedo + (1 - state.SnowFraction) * (faceVegetationAlbedo + faceBareGroundAlbedo);
-					finalEmissivity = faceSnowEmissivity + (1 - state.SnowFraction) * drySoilEmissivity;
+					finalAlbedo = faceSnowAlbedo + invSnowFraction * (faceVegetationAlbedo + faceBareGroundAlbedo);
+					finalEmissivity = faceSnowEmissivity + invSnowFraction * drySoilEmissivity;
 					finalThermalCapacityPerVolume = ((1 - moistureFrac) * drySoilCp + moistureFrac * waterCp) * drySoilDensity;
 					finalThermalCapacityPerArea = finalThermalCapacityPerVolume * landDepth;
 					finalThermalConductivity = (1 - moistureFrac) * drySoilK + moistureFrac * waterK;
@@ -71,8 +73,8 @@ public sealed class UpdateFacePropertiesStep : ISimulationStep {
 					float effectiveDepth = float.Clamp( depth, 1, waterDepth );
 
 					//Set values
-					finalAlbedo = faceSnowAlbedo + (1 - state.SnowFraction) * waterAlbedo;
-					finalEmissivity = faceSnowEmissivity + (1 - state.SnowFraction) * waterEmissivity;
+					finalAlbedo = faceSnowAlbedo + invSnowFraction * waterAlbedo;
+					finalEmissivity = faceSnowEmissivity + invSnowFraction * waterEmissivity;
 					finalThermalCapacityPerVolume = waterCp;
 					finalThermalCapacityPerArea = finalThermalCapacityPerVolume * effectiveDepth;
 					finalThermalConductivity = waterK;
@@ -83,18 +85,18 @@ public sealed class UpdateFacePropertiesStep : ISimulationStep {
 				state.ThermalCapacityPerVolume = finalThermalCapacityPerVolume;
 				state.ThermalCapacityPerArea = finalThermalCapacityPerArea;
 				state.ThermalConductivity = finalThermalConductivity;
-				state.Pressure = GetPressure( globe, state );
-				//state.EffectivePressure = GetEffectivePressure( globe, face, state, center, seasonCos, state.Pressure );
 			}
 		} );
-	}
 
-	private Pressure GetPressure( TectonicGeneratingGlobe globe, TectonicFaceState state ) {
-		Parameters.UniversalConstants uC = globe.UniversalConstants;
-		Parameters.PlanetaryConstants pC = globe.PlanetaryConstants;
-		Parameters.SeaLandAirConstants slaC = globe.SeaLandAirConstants;
+		ParallelProcessing.Range( globe.NonOceanTectonicFacesByElevationMean.Count, ( start, end, taskId ) => {
+			for (int i = start; i < end; i++) {
+				Face<TectonicFaceState> face = globe.NonOceanTectonicFacesByElevationMean[ i ];
+				TectonicFaceState state = face.State;
 
-		return slaC.SeaLevelPressure * float.Exp( -(float) (pC.Gravity * state.ElevationMeanAboveSea * slaC.DryAirMolarMass / (state.AirTemperature.Kelvin * uC.UniversalGasConstant)) );
+				state.Pressure = PhysicsHelpers.GetPressure( globe, state );
+				state.CombinedPressure = state.Pressure + state.SeaPressure;
+			}
+		} );
 	}
 
 	//private Pressure GetEffectivePressure( TectonicGeneratingGlobe globe, Face<TectonicFaceState> face, TectonicFaceState state, Vector3<float> center, float seasonCos, float pBaro ) {

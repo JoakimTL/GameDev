@@ -14,6 +14,7 @@ public sealed class RadiationStep : ISimulationStep {
 			float f_down = 0.5f;
 			float dt = (float) secondsToSimulate;
 			float cpl = (float) globe.RadiationParameters.AirSeaCouplingCoefficient;
+			float invDaysSimulated = 1f / ((float) daysSimulated + 1);
 
 			for (int i = start; i < end; i++) {
 				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
@@ -35,12 +36,12 @@ public sealed class RadiationStep : ISimulationStep {
 				float newSurfaceTemperature = LinearizedStep( T0, Q_sw, effε, σ, C, dt );
 
 				state.SurfaceTemperature = newSurfaceTemperature;
-				state.AverageSurfaceTemperature += (newSurfaceTemperature - state.AverageAirTemperature) / ((float) daysSimulated + 1);
+				state.AverageSurfaceTemperature += (newSurfaceTemperature - state.AverageAirTemperature) * invDaysSimulated;
 
 				float Ta0 = state.AirTemperature;
 				float Ta1 = Ta0 + (newSurfaceTemperature - Ta0) * cpl;
 				state.AirTemperature = Ta1;
-				state.AverageAirTemperature += (Ta1 - state.AverageAirTemperature) / ((float) daysSimulated + 1);
+				state.AverageAirTemperature += (Ta1 - state.AverageAirTemperature) * invDaysSimulated;
 			}
 		} );
 	}

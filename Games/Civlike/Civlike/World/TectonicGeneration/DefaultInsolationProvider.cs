@@ -7,6 +7,8 @@ namespace Civlike.World.TectonicGeneration;
 public class DefaultInsolationProvider( TectonicGeneratingGlobe globe ) : IInsolationProvider {
 	public TectonicGeneratingGlobe Globe { get; } = globe;
 
+	private float[] _insolationAtLatId;
+
 	private float _rRel;
 	private float _rRelSq;
 	private float _invRRelSq;
@@ -32,6 +34,11 @@ public class DefaultInsolationProvider( TectonicGeneratingGlobe globe ) : IInsol
 		_cosDelta = float.Cos( _delta );
 		_tanDelta = float.Tan( _delta );
 		_dailyMeanPreprocessConstant = ((float) Globe.PlanetaryConstants.MeanSolarConstant / float.Pi) * _invRRelSq;
+
+		for (int i = 0; i < Globe.Latitudes.Count; i++) {
+			float latitude = Globe.Latitudes[ i ];
+			_insolationAtLatId[ i ] = GetDailyMeanInsolation( latitude );
+		}
 	}
 
 	public float GetDailyMeanInsolation( FaceBase face ) {

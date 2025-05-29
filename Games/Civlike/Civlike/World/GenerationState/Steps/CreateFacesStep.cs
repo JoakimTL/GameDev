@@ -46,7 +46,7 @@ public sealed class CreateFacesStep : GlobeGenerationProcessingStepBase<Generati
 				faceEdges[ j ] = edge;
 			}
 
-			FaceBase face = resolvedType.CreateInstance( [(uint) id, faceVertices, faceEdges] ) as FaceBase ?? throw new InvalidOperationException( $"Failed to create instance of {faceWithStateType}" );
+			FaceBase face = resolvedType.CreateInstance( [(uint) id, globe, faceVertices, faceEdges] ) as FaceBase ?? throw new InvalidOperationException( $"Failed to create instance of {faceWithStateType}" );
 			faces[ id ] = face;
 		}
 

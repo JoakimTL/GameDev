@@ -15,9 +15,9 @@ public sealed class SimulationStep : GlobeGenerationProcessingStepBase<TectonicG
 			new RadiationStep(),
 			new AtmosphericDynamicsStep(),
 			//new AdvectionStep(),
-			new EvaporationStep(),
-			new PrecipitationStep(),
-			new SnowMeltStep(),
+			//new EvaporationStep(),
+			//new PrecipitationStep(),
+			//new SnowMeltStep(),
 			//new HydrologyRoutingStep(),
 		];
 	}

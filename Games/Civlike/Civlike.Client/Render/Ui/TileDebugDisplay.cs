@@ -51,7 +51,10 @@ public sealed class TileDebugDisplay : UserInterfaceElementBase {
 			sb.AppendLine( $"Average Temperature: {tectonicState.AverageAirTemperature}" );
 			sb.AppendLine( $"Average surface temperature: {tectonicState.AverageSurfaceTemperature}" );
 			sb.AppendLine( $"Pressure: {tectonicState.Pressure.Pascal:N2}Pa" );
+			sb.AppendLine( $"Sea pressure: {(tectonicState.Pressure.Pascal + tectonicFace.State.SeaPressure.Pascal):N2}Pa" );
+			sb.AppendLine( $"Distance from land {tectonicState.DistanceFromLand:N2}m" );
 			sb.AppendLine( $"Specific Humidity: {tectonicState.SpecificHumidity:N4} kg/kg" );
+			sb.AppendLine( $"Wind: {tectonicState.Wind} {tectonicState.Wind.Magnitude<Vector3<float>, float>():N3}m/s" );
 			sb.AppendLine( $"Tangential wind: {tectonicState.TangentialWind} {tectonicState.TangentialWind.Magnitude<Vector3<float>, float>():N3}m/s" );
 			sb.AppendLine( $"Soil moisture: {tectonicState.SoilMoisture:N2}mm" );
 			sb.AppendLine( $"Runoff accumulation: {tectonicState.RunoffAccumulation:N2}m^3/s" );

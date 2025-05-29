@@ -1,15 +1,16 @@
 ﻿using Engine;
 using Engine.Structures;
+using System.Linq;
 
 namespace Civlike.World.GenerationState;
 
 public abstract class FaceBase : IOcTreeLeaf<float> {
 	private readonly Vertex[] _vertices;
 	private readonly Edge[] _edges;
-	private NeighbouringFace[]? _neighbours;
 
-	public FaceBase( uint id, Vertex[] vertices, Edge[] edges ) {
+	public FaceBase( uint id, GeneratingGlobeBase globe, Vertex[] vertices, Edge[] edges ) {
 		this.Id = id;
+		this.Globe = globe;
 		this._vertices = vertices;
 		this._edges = edges;
 		foreach (Vertex vertex in vertices)
@@ -30,10 +31,10 @@ public abstract class FaceBase : IOcTreeLeaf<float> {
 	}
 
 	public uint Id { get; }
+	public GeneratingGlobeBase Globe { get; }
+
 	public IReadOnlyList<Vertex> Vertices => this._vertices;
 	public IReadOnlyList<Edge> Edges => this._edges;
-	public IReadOnlyList<NeighbouringFace> Neighbours => this._neighbours ??= GetNeighbouringFaces();
-	private NeighbouringFace[] GetNeighbouringFaces() => [ .. this._edges.Select( p => new NeighbouringFace( Center, p.GetOther( this ) ) ) ];
 
 	public TerrainTypeBase TerrainType { get; set; }
 
@@ -63,16 +64,4 @@ public abstract class FaceBase : IOcTreeLeaf<float> {
 
 	public static bool operator ==( FaceBase left, FaceBase right ) => left.Id == right.Id;
 	public static bool operator !=( FaceBase left, FaceBase right ) => !(left == right);
-}
-
-public sealed class NeighbouringFace {
-	public NeighbouringFace( Vector3<float> center, FaceBase neighbour ) {
-		NormalizedDirection = neighbour.Center - center;
-		NormalizedDirection = NormalizedDirection - NormalizedDirection.Dot( center ) * center;
-		NormalizedDirection = NormalizedDirection.Normalize<Vector3<float>, float>();
-		this.Face = neighbour;
-	}
-
-	public Vector3<float> NormalizedDirection { get; }
-	public FaceBase Face { get; }
 }
