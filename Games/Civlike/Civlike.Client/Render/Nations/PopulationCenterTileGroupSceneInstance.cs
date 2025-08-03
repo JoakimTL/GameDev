@@ -4,34 +4,34 @@ using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Providers;
 using Engine.Module.Render.Ogl.Scenes;
-using Civlike.World.GameplayState;
+using Civlike.World;
 
 namespace Civlike.Client.Render.Nations;
 
 public sealed class PopulationCenterTileGroupSceneInstance() : SceneInstanceBase( typeof( Entity3SceneData ) ) {
-	public void UpdateMesh( IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float> overrideColor ) {
+	public void UpdateMesh( IReadOnlyList<ReadOnlyFace> faces, MeshProvider meshProvider, Vector4<float> overrideColor ) {
 		this.Mesh?.Dispose();
 		SetMesh( CreateMesh( faces, meshProvider, overrideColor ) );
 	}
 
-	private IMesh CreateMesh( IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float> overrideColor ) {
+	private IMesh CreateMesh( IReadOnlyList<ReadOnlyFace> faces, MeshProvider meshProvider, Vector4<float> overrideColor ) {
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
 
-		HashSet<Face> borderFaces = [];
-		HashSet<Vertex> borderVertices = [];
+		HashSet<ReadOnlyFace> borderFaces = [];
+		HashSet<ReadOnlyVertex> borderVertices = [];
 		Span<uint> vertexIndices = stackalloc uint[ 3 ];
 		//Border faces are all faces where not all vertices are shared with other faces in the faces list.
 		for (int i = 0; i < faces.Count; i++) {
-			Face face = faces[ i ];
+			ReadOnlyFace face = faces[ i ];
 			for (int j = 0; j < 3; j++) {
-				Vertex vertex = face.Blueprint.Vertices[ j ];
+				ReadOnlyVertex vertex = face.Vertices[ j ];
 				if (!vertex.ConnectedFaces.All( faces.Contains ))
 					borderVertices.Add( vertex );
 			}
 		}
-		foreach (Vertex borderVertex in borderVertices)
-			foreach (Face potentialBorderFace in borderVertex.ConnectedFaces)
+		foreach (ReadOnlyVertex borderVertex in borderVertices)
+			foreach (ReadOnlyFace potentialBorderFace in borderVertex.ConnectedFaces)
 				if (faces.Contains( potentialBorderFace ))
 					borderFaces.Add( potentialBorderFace );
 
@@ -42,7 +42,7 @@ public sealed class PopulationCenterTileGroupSceneInstance() : SceneInstanceBase
 			.Clamp<Vector4<float>, float>( 0, 255 )
 			.CastSaturating<float, byte>();
 
-		foreach (Face borderFace in borderFaces) {
+		foreach (ReadOnlyFace borderFace in borderFaces) {
 			//                 */\
 			//                 /  \
 			//                /	   \
@@ -60,15 +60,15 @@ public sealed class PopulationCenterTileGroupSceneInstance() : SceneInstanceBase
 			//    /					 	       \
 			//   /				 	 	 	    \
 			// */_______________*________________\*
-			Vertex vertexA = borderFace.Blueprint.Vertices[ 0 ];
-			Vertex vertexB = borderFace.Blueprint.Vertices[ 1 ];
-			Vertex vertexC = borderFace.Blueprint.Vertices[ 2 ];
+			ReadOnlyVertex vertexA = borderFace.Vertices[ 0 ];
+			ReadOnlyVertex vertexB = borderFace.Vertices[ 1 ];
+			ReadOnlyVertex vertexC = borderFace.Vertices[ 2 ];
 			bool aAtBorder = borderVertices.Contains( vertexA );
 			bool bAtBorder = borderVertices.Contains( vertexB );
 			bool cAtBorder = borderVertices.Contains( vertexC );
-			bool abAtBorder = !faces.Contains( borderFace.Blueprint.Neighbours[ 0 ] );
-			bool bcAtBorder = !faces.Contains( borderFace.Blueprint.Neighbours[ 1 ] );
-			bool acAtBorder = !faces.Contains( borderFace.Blueprint.Neighbours[ 2 ] );
+			bool abAtBorder = !faces.Contains( borderFace.Neighbours[ 0 ] );
+			bool bcAtBorder = !faces.Contains( borderFace.Neighbours[ 1 ] );
+			bool acAtBorder = !faces.Contains( borderFace.Neighbours[ 2 ] );
 
 			Vector3<float> a = vertexA.Vector;
 			Vector3<float> b = vertexB.Vector;

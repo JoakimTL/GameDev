@@ -1,8 +1,8 @@
-﻿using Civlike.World.GameplayState;
+﻿using Civlike.World;
 
 namespace Civlike.Client.Render.Services;
-internal class GlobeRenderService( ActiveGlobeTrackingService activeGlobeTrackingService ) : Engine.IServiceProvider {
-	private readonly ActiveGlobeTrackingService _activeGlobeTrackingService = activeGlobeTrackingService;
+internal class GlobeRenderService( GlobeStoreService globeStore ) : Engine.IServiceProvider {
+	private readonly GlobeStoreService _globeStore = globeStore;
 
-	public Globe Globe => this._activeGlobeTrackingService.CurrentGlobe ?? throw new InvalidOperationException( "No globe is currently active." );
+	public Globe? CurrentGlobe => _globeStore.CurrentGlobe;
 }

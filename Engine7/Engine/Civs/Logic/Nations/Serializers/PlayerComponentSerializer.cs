@@ -20,9 +20,9 @@ public sealed class PlayerComponentSerializer( SerializerProvider serializerProv
 		buffer.AddRange( MemoryMarshal.AsBytes( t.Name.AsSpan() ) );
 	}
 
-	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, PlayerComponent target ) {
+	protected override void PerformDeserialization( ReadOnlySpan<byte> serializedData, PlayerComponent target ) {
 		if (serializedData.Length < 28)
-			return false;
+			throw new InvalidOperationException( "Invalid serialized data." );
 		int cursor = 0;
 		{
 			target.SetColor( MemoryMarshal.Read<Vector4<float>>( serializedData ) );
@@ -32,7 +32,7 @@ public sealed class PlayerComponentSerializer( SerializerProvider serializerProv
 			int discoveredFacesByteCount = MemoryMarshal.Read<int>( serializedData[ cursor.. ] );
 			cursor += 4;
 			if (serializedData.Length < cursor + discoveredFacesByteCount)
-				return false;
+				throw new InvalidOperationException( "Invalid serialized data." );
 			target.SetDiscoveredFaces( serializedData[ cursor..(cursor + discoveredFacesByteCount) ] );
 			cursor += discoveredFacesByteCount;
 		}
@@ -40,7 +40,7 @@ public sealed class PlayerComponentSerializer( SerializerProvider serializerProv
 			int revealedFacesByteCount = MemoryMarshal.Read<int>( serializedData[ cursor.. ] );
 			cursor += 4;
 			if (serializedData.Length < cursor + revealedFacesByteCount)
-				return false;
+				throw new InvalidOperationException( "Invalid serialized data." );
 			target.SetRevealedFaces( serializedData[ cursor..(cursor + revealedFacesByteCount) ] );
 			cursor += revealedFacesByteCount;
 		}
@@ -48,10 +48,11 @@ public sealed class PlayerComponentSerializer( SerializerProvider serializerProv
 			int nameLength = MemoryMarshal.Read<int>( serializedData[ cursor.. ] );
 			cursor += 4;
 			if (serializedData.Length < cursor + nameLength)
-				return false;
+				throw new InvalidOperationException( "Invalid serialized data." );
 			target.SetName( MemoryMarshal.Cast<byte, char>( serializedData[ cursor..(cursor + nameLength) ] ).ToString() );
 			cursor += nameLength;
 		}
-		return true;
 	}
+
+	protected override bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData ) => true;
 }

@@ -84,7 +84,7 @@ public sealed class CameraPanOnTribeCreated( CameraService cameraService, Active
 			.FirstOrDefault();
 		if (popCenter is null)
 			return;
-		_gameStateProvider.SetNewState( "startLocation", popCenter.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Single().Blueprint.GetCenter() );
+		_gameStateProvider.SetNewState( "startLocation", popCenter.GetComponentOrThrow<TileOwnershipComponent>().OwnedFaces.Single().Blueprint.GetCenter() );
 		_newGlobe = false;
 	}
 }

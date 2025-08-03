@@ -1,0 +1,823 @@
+{
+  "main": {
+    "id": "c57d3f41096f63a0",
+    "type": "split",
+    "children": [
+      {
+        "id": "a2fd20f760df650c",
+        "type": "tabs",
+        "dimension": 66.9750231267345,
+        "children": [
+          {
+            "id": "d326bfd9d4f33beb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Templates/Default Template.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Default Template"
+            }
+          },
+          {
+            "id": "5d459660656cc8ba",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Production Concepts.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Production Concepts"
+            }
+          },
+          {
+            "id": "23f1693f737ad444",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Production Concepts.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Production Concepts"
+            }
+          },
+          {
+            "id": "921f0c3649650652",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Warfare Concepts.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Warfare Concepts"
+            }
+          },
+          {
+            "id": "731bc1cd2654af6b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Culture Concepts.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Culture Concepts"
+            }
+          },
+          {
+            "id": "9de3545ce24d814b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Technology Concepts.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Technology Concepts"
+            }
+          },
+          {
+            "id": "fe2c3732820e439d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Culture Aspects/Religion.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Religion"
+            }
+          },
+          {
+            "id": "187cbd9e5d1e4622",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Culture Aspects/Foodstuff.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Foodstuff"
+            }
+          },
+          {
+            "id": "66748ebfc4edfdb9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Culture Aspects/Opinion of Culture.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Opinion of Culture"
+            }
+          },
+          {
+            "id": "2ee8d8469d9864ed",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Culture Aspects/Opinion of Nation.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Opinion of Nation"
+            }
+          },
+          {
+            "id": "c6a3fd687f341f8d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Culture Aspects/Opinion of Religion.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Opinion of Religion"
+            }
+          },
+          {
+            "id": "a8fb4603441285dc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Templates/Culture Aspects Template.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Culture Aspects Template"
+            }
+          },
+          {
+            "id": "998f7e6719785719",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Subsistence/Earthenware Pottery.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Earthenware Pottery"
+            }
+          },
+          {
+            "id": "d27c087bc09b3782",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Subsistence/Weaving.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Weaving"
+            }
+          },
+          {
+            "id": "7be7104dfc1d0361",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Subsistence/Threading.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Threading"
+            }
+          },
+          {
+            "id": "8ee273b29dc9594d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Subsistence/Toolmaking.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Toolmaking"
+            }
+          },
+          {
+            "id": "8d34a10363a53652",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Subsistence/Plant Cultivation.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Plant Cultivation"
+            }
+          },
+          {
+            "id": "a04352efac8aa957",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Subsistence/Toolmaking.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Toolmaking"
+            }
+          },
+          {
+            "id": "0892f7e0b944fc48",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/_Technologies.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "_Technologies"
+            }
+          },
+          {
+            "id": "653a59d0cf19bc2e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Calendar.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Calendar"
+            }
+          },
+          {
+            "id": "42f4662b7045f989",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Electricity.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Electricity"
+            }
+          },
+          {
+            "id": "57a839a408427905",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Electricity.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Electricity"
+            }
+          },
+          {
+            "id": "17bac67e747105f3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Templates/Technology Template.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Technology Template"
+            }
+          },
+          {
+            "id": "0ad17b2e3bad8f39",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Subsistence/Twine Making.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Twine Making"
+            }
+          },
+          {
+            "id": "3d908381e11b064b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Technologies/Subsistence/Manual Weaving.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Manual Weaving"
+            }
+          },
+          {
+            "id": "8c41e9d3f1f29d23",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Templates/Culture Aspects Template.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Culture Aspects Template"
+            }
+          },
+          {
+            "id": "3ad1f1a71316e7a0",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Culture Aspects/Opinion Events/Schism.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Schism"
+            }
+          },
+          {
+            "id": "b75d7b71dd0a8b30",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Culture Aspects/Opinion Events/War declared.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "War declared"
+            }
+          },
+          {
+            "id": "7c7f73a1160b0cdc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Culture Aspects/Opinion Events/Peace treaty signed.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Peace treaty signed"
+            }
+          },
+          {
+            "id": "cd4e1c42944e38bd",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Culture Aspects/Opinion of Religion.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Opinion of Religion"
+            }
+          },
+          {
+            "id": "b97fe927eed04359",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Culture Concepts.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Culture Concepts"
+            }
+          },
+          {
+            "id": "3bc951f43b7a0326",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Cultures/16. June 1518.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "16. June 1518"
+            }
+          },
+          {
+            "id": "831f51ccb2ba83ed",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Cultures/16. June 1746.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "16. June 1746"
+            }
+          },
+          {
+            "id": "a816d087673cc33a",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Cultures/Culture2506162352.md",
+                "mode": "source",
+                "source": true,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Culture2506162352"
+            }
+          },
+          {
+            "id": "cf1c95c0181cf4b5",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Cultures/Culture2506172235.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Culture2506172235"
+            }
+          },
+          {
+            "id": "55faef769a52543e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/TradeAndMarket/TradeAndMarket2507050102.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "TradeAndMarket2507050102"
+            }
+          },
+          {
+            "id": "5531decca41d975e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Concepts/Cultures/Culture2507091324.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Culture2507091324"
+            }
+          },
+          {
+            "id": "5f26d40ae68609ef",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Game/Design Document.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
+              "icon": "lucide-file",
+              "title": "Design Document"
+            }
+          }
+        ],
+        "currentTab": 37
+      },
+      {
+        "id": "b6ee86f53e07594b",
+        "type": "tabs",
+        "dimension": 33.024976873265494,
+        "children": [
+          {
+            "id": "1c14399839a2a24a",
+            "type": "leaf",
+            "pinned": true,
+            "state": {
+              "type": "graph",
+              "state": {},
+              "pinned": true,
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          },
+          {
+            "id": "4f117e87c88ba48c",
+            "type": "leaf",
+            "pinned": true,
+            "state": {
+              "type": "juggl_view",
+              "state": {},
+              "pinned": true,
+              "icon": "lucide-file",
+              "title": "Plugin no longer active"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f71b16f1a37f252c",
+    "type": "split",
+    "children": [
+      {
+        "id": "d78168c37e9685bf",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b21811e8f2b2e644",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": true
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "9606a04d6fdd6ceb",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "tag:#culture-aspect",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "5cd7f460a3ae1128",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 353.5
+  },
+  "right": {
+    "id": "ba18df271e612c09",
+    "type": "split",
+    "children": [
+      {
+        "id": "6d63df0e9aae37a9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "743d3201d4539be9",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Game/Production.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": false
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Production"
+            }
+          },
+          {
+            "id": "65df0daae2aa1d69",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Game/Production.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Production"
+            }
+          },
+          {
+            "id": "89663266d0ca6e66",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "28cb4dec57d86acf",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Game/Production.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Production"
+            }
+          },
+          {
+            "id": "37e9c71e4f8f77de",
+            "type": "leaf",
+            "state": {
+              "type": "juggl_nodes",
+              "state": {},
+              "icon": "ag-node-list",
+              "title": "Juggl nodes"
+            }
+          },
+          {
+            "id": "25ad6d790915324b",
+            "type": "leaf",
+            "state": {
+              "type": "juggl_style",
+              "state": {},
+              "icon": "ag-style",
+              "title": "Juggl style"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "obisidian-note-linker:Note Linker": false,
+      "juggl:Juggl global graph": false
+    }
+  },
+  "active": "1c14399839a2a24a",
+  "lastOpenFiles": [
+    "Game/Concepts/Cultures/Culture2507091919.md",
+    "Game/Design Document.md",
+    "Game/Concepts/Population/Population2507050216.md",
+    "Game/Concepts/Environment/Environment2507082201.md",
+    "Game/Concepts/Endgame/Endgame2507271955.md",
+    "Game/Concepts/Endgame/_Endgame.md",
+    "Game/Concepts/Endgame",
+    "Game/Concepts/Warfare/Warfare2507061401.md",
+    "Game/Concepts/TradeAndMarket/Untitled.md",
+    "Game/Concepts/TradeAndMarket/TradeAndMarket2507061407.md",
+    "Game/Concepts/DiseaseAndHealth/DiseaseAndHealth2507060316.md",
+    "Game/Concepts/Diplomacy/Diplomacy2507061942.md",
+    "Game/Concepts/Cultures/Culture2507091324.md",
+    "Game/Concepts/Culture Concepts.md",
+    "Game/Concepts/Environment/_Environment.md",
+    "Game/Concepts/Environment",
+    "Game/Concepts/Diplomacy/_Diplomacy.md",
+    "Game/Concepts/Diplomacy",
+    "Game/Concepts/TradeAndMarket/TradeAndMarket2507050102.md",
+    "Game/Concepts/Warfare/_Warfare.md",
+    "Game/Concepts/Warfare Concepts.md",
+    "Game/Concepts/Warfare",
+    "Game/Concepts/Cultures/Culture2506271137.md",
+    "Game/Concepts/Cultures/Culture2506172235.md",
+    "Game/Concepts/Cultures/Culture2506162352.md",
+    "Game/Concepts/Untitled.md",
+    "Game/Concepts/Cultures/16. June 1518.md",
+    "Game/Concepts/Cultures/16. June 1746.md",
+    "Game/Concepts/Untitled 1.md",
+    "Game/Concepts/Technology Concepts.md",
+    "Game/Concepts/DiseaseAndHealth",
+    "Game/Concepts/Population",
+    "Game/Concepts/TradeAndMarket/Untitled",
+    "Game/Concepts/TradeAndMarket",
+    "Game/Concepts/Laws",
+    "Game/Concepts/BuildingsAndRecipes",
+    "Images/Exhaustion Antiderivative.png",
+    "Untitled.canvas"
+  ]
+}

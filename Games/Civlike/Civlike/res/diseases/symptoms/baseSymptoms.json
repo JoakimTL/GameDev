@@ -1,0 +1,14 @@
+[
+	{
+		"tag": "symptom_fever",
+		"name": "Fever",
+		"severity": 4,
+		"detectability": 7
+	},
+	{
+		"tag": "symptom_...",
+		"name": "...",
+		"severity": ...,
+		"detectability": ...
+	}
+]

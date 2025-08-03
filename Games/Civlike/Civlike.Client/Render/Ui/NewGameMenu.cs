@@ -1,15 +1,15 @@
 ﻿using Civlike.Messages;
+using Civlike.World;
+using Civlike.World.TectonicGeneration;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Input;
 using Engine.Standard.Render.UserInterface;
 using Engine.Standard.Render.UserInterface.Standard;
-using Civlike.World.TectonicGeneration;
-using Civlike.World.TectonicGeneration.Steps;
 
 namespace Civlike.Client.Render.Ui;
 
-public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b(?:globe-tracking|ui_newgame)\b" ) {
+public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b(?:globe-store|ui_newgame)\b" ) {
 
 	private InteractableButton _btnCreateWorld = null!;
 
@@ -20,24 +20,24 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 	}
 
 	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event ) {
-		TectonicParameters tectonicParameters = new() {
-			BaseHeightVariance = 150,
-			PlateCountBase = 40,
-			PlateCountVariance = 10,
-			PlateHeight = -200,
-			PlateHeightVariance = 400,
-			FaultMaxHeight = 8000,
-			MountainHeight = 5000,
-			OceanSeeds = 8
-		};
-		Publish( new CreateNewGlobeRequestMessage<TectonicGeneratingGlobe, TectonicGlobeParameters>( new( 7, 6378000, 43, 128, tectonicParameters ) ), "gamelogic", true );
+		//TectonicParameters tectonicParameters = new() {
+		//	BaseHeightVariance = 150,
+		//	PlateCountBase = 40,
+		//	PlateCountVariance = 10,
+		//	PlateHeight = -200,
+		//	PlateHeightVariance = 400,
+		//	FaultMaxHeight = 8000,
+		//	MountainHeight = 5000,
+		//	OceanSeeds = 8
+		//};
+		Publish( new CreateNewGlobeRequestMessage( new TectonicGlobeGenerator() /*new( 7, 6378000, 43, 128, tectonicParameters )*/ ), "gamelogic", true );
 	}
 	protected override bool ShouldDisplay() {
 		return this.GameStateProvider.Get<bool>( UiElementConstants.ShowNewGameMenu ); //TODO: Create a more complex state machine for ui?
 	}
 
 	protected override void OnMessageReceived( Message message ) {
-		if (message.Content is CreateNewWorldRequestResponseMessage)
+		if (message.Content is GlobeCreatedMessage globeCreatedMessage)
 			this.GameStateProvider.SetNewState( UiElementConstants.ShowNewGameMenu, false );
 	}
 }

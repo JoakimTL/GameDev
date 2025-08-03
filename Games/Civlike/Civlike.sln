@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Civlike", "Civlike\Civlike.csproj", "{3A026D4C-F26D-4A51-A079-A779634B3E8E}"
 EndProject
@@ -10,6 +10,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine.Standard.Render", "..\..\Engine7\Engine\Engine.Standard.Render\Engine.Standard.Render.csproj", "{B3298803-2716-795A-BE56-69040FCC1782}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine.Standard", "..\..\Engine7\Engine\Engine.Standard\Engine.Standard.csproj", "{0852B047-E645-E245-6607-B91D8C258A0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Civlike.World.TectonicGeneration", "Civlike.World.TectonicGeneration\Civlike.World.TectonicGeneration.csproj", "{931A0FFE-5AC9-4C2B-A872-F9049009EA86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OldGen", "OldGen\OldGen.csproj", "{E85D9C03-9179-44EB-9556-012A8F778BE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Civlike.World", "Civlike.World\Civlike.World.csproj", "{4DE73AC0-A16E-4A88-B5DA-FE4E6B2BB5CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Civlike.World.Render", "Civlike.World.Render\Civlike.World.Render.csproj", "{215C959E-2F03-48B2-8CBE-96C07CDC1DB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +41,22 @@ Global
 		{0852B047-E645-E245-6607-B91D8C258A0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0852B047-E645-E245-6607-B91D8C258A0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0852B047-E645-E245-6607-B91D8C258A0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{931A0FFE-5AC9-4C2B-A872-F9049009EA86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{931A0FFE-5AC9-4C2B-A872-F9049009EA86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{931A0FFE-5AC9-4C2B-A872-F9049009EA86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{931A0FFE-5AC9-4C2B-A872-F9049009EA86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E85D9C03-9179-44EB-9556-012A8F778BE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E85D9C03-9179-44EB-9556-012A8F778BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E85D9C03-9179-44EB-9556-012A8F778BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E85D9C03-9179-44EB-9556-012A8F778BE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DE73AC0-A16E-4A88-B5DA-FE4E6B2BB5CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DE73AC0-A16E-4A88-B5DA-FE4E6B2BB5CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DE73AC0-A16E-4A88-B5DA-FE4E6B2BB5CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DE73AC0-A16E-4A88-B5DA-FE4E6B2BB5CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{215C959E-2F03-48B2-8CBE-96C07CDC1DB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{215C959E-2F03-48B2-8CBE-96C07CDC1DB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{215C959E-2F03-48B2-8CBE-96C07CDC1DB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{215C959E-2F03-48B2-8CBE-96C07CDC1DB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

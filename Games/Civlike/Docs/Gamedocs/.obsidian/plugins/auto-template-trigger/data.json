@@ -1,0 +1,24 @@
+{
+  "folderSpecificTemplates": [
+    {
+      "folderPath": "Game/Culture Aspects",
+      "templateName": "Culture Aspects Template"
+    },
+    {
+      "folderPath": "/",
+      "templateName": "Default Template"
+    },
+    {
+      "folderPath": "Game/Technologies",
+      "templateName": "Technology Template"
+    },
+    {
+      "folderPath": "Game/Resources",
+      "templateName": "Resource Template"
+    },
+    {
+      "folderPath": "Game/Culture Aspects/Opinion Events",
+      "templateName": "Culture Aspects Opinion Events Template"
+    }
+  ]
+}

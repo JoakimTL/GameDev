@@ -31,7 +31,7 @@ public sealed class PopulationCenterMenu() : UserInterfaceElementWithMessageNode
 
 	protected override void OnUpdate( double time, double deltaTime ) {
 		base.OnUpdate( time, deltaTime );
-		FaceOwnershipComponent? populationCenter = GetSelectedTileOwner();
+		TileOwnershipComponent? populationCenter = GetSelectedTileOwner();
 		if (populationCenter is null) {
 			_populationCenterNameLabel.Text = "No population center selected";
 			return;
@@ -43,7 +43,7 @@ public sealed class PopulationCenterMenu() : UserInterfaceElementWithMessageNode
 		return GetSelectedTileOwner() is not null;
 	}
 
-	private FaceOwnershipComponent? GetSelectedTileOwner() {
+	private TileOwnershipComponent? GetSelectedTileOwner() {
 		Face? selectedTile = GameStateProvider.Get<Face>( "selectedTile" );
 		if (selectedTile is null)
 			return null;
@@ -55,7 +55,7 @@ public sealed class PopulationCenterMenu() : UserInterfaceElementWithMessageNode
 		if (container is null)
 			return null;
 		List<Engine.Module.Entities.Container.SynchronizedEntity> entitiesOwnedByPlayer = container.SynchronizedEntities.Where( p => p.EntityCopy?.ParentId == localPlayer.Value ).ToList();
-		List<FaceOwnershipComponent> focs = entitiesOwnedByPlayer.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		List<TileOwnershipComponent> focs = entitiesOwnedByPlayer.Select( p => p.EntityCopy?.GetComponentOrDefault<TileOwnershipComponent>() ).OfType<TileOwnershipComponent>().ToList();
 		return focs.FirstOrDefault( p => p.OwnedFaces.Contains( selectedTile ) );
 	}
 }

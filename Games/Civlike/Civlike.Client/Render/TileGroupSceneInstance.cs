@@ -1,33 +1,32 @@
-﻿using Civlike.World.GameplayState;
+﻿using Civlike.World;
 using Engine;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Providers;
 using Engine.Module.Render.Ogl.Scenes;
 using Engine.Standard.Render;
-using System.Runtime.CompilerServices;
 
 namespace Civlike.Client.Render;
 
 public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity3SceneData ) ) {
-	public void UpdateMesh( Globe globe, IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
+	public void UpdateMesh( Globe globe, IReadOnlyList<ReadOnlyFace> faces, MeshProvider meshProvider, Vector4<float>? overrideColor = null ) {
 		this.Mesh?.Dispose();
 		SetMesh( CreateMesh( globe, faces, meshProvider, overrideColor ) );
 	}
 
-	private static IMesh CreateMesh( Globe globe, IReadOnlyList<Face> faces, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
+	private static IMesh CreateMesh( Globe globe, IReadOnlyList<ReadOnlyFace> faces, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
 		float globeRadius = (float) globe.Radius;
 		for (int i = 0; i < faces.Count; i++) {
-			Face face = faces[ i ];
-			Vertex vertexA = face.Blueprint.Vertices[ 0 ];
-			Vertex vertexB = face.Blueprint.Vertices[ 1 ];
-			Vertex vertexC = face.Blueprint.Vertices[ 2 ];
-			Vector3<float> a = vertexA.Vector * ((vertexA.Height + globeRadius) / globeRadius);
-			Vector3<float> b = vertexB.Vector * ((vertexB.Height + globeRadius) / globeRadius);
-			Vector3<float> c = vertexC.Vector * ((vertexC.Height + globeRadius) / globeRadius);
-			Vector4<byte> color = ((overrideColor ?? face.State /*.TerrainType*/.Color) * 255)
+			ReadOnlyFace face = faces[ i ];
+			ReadOnlyVertex vertexA = face.Vertices[ 0 ];
+			ReadOnlyVertex vertexB = face.Vertices[ 1 ];
+			ReadOnlyVertex vertexC = face.Vertices[ 2 ];
+			Vector3<float> a = vertexA.Vector/* * ((vertexA.Height + globeRadius) / globeRadius)*/;
+			Vector3<float> b = vertexB.Vector/* * ((vertexB.Height + globeRadius) / globeRadius)*/;
+			Vector3<float> c = vertexC.Vector/* * ((vertexC.Height + globeRadius) / globeRadius)*/;
+			Vector4<byte> color = new Vector4<float>( 255,255,255,255) /* ((overrideColor ?? face.State /*.TerrainType* /.Color) * 255)*/
 				.Clamp<Vector4<float>, float>( 0, 255 )
 				.CastSaturating<float, byte>();
 

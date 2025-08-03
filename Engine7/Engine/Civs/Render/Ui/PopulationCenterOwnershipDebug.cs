@@ -126,11 +126,11 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 			_ownerLabel.Text = "No owner";
 			return;
 		}
-		List<FaceOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		List<TileOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<TileOwnershipComponent>() ).OfType<TileOwnershipComponent>().ToList();
 		List<Face> neighbours = selectedTile.Blueprint.Connections.Select( p => p.GetOther( selectedTile ) ).ToList();
 		for (int i = 0; i < neighbours.Count; i++) {
 			Face neighbourFace = neighbours[ i ];
-			FaceOwnershipComponent? neighbourOwner = focs.FirstOrDefault( p => p.OwnedFaces.Contains( neighbourFace ) );
+			TileOwnershipComponent? neighbourOwner = focs.FirstOrDefault( p => p.OwnedFaces.Contains( neighbourFace ) );
 			InteractableButton button = _setNeighbourOwner[ i ];
 			if (neighbourOwner is not null) {
 				button.Label.Text = $"Give";
@@ -150,7 +150,7 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 			.FirstOrDefault();
 		if (container is null) 
 			return false;
-		List<FaceOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>().ToList();
+		List<TileOwnershipComponent> focs = container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<TileOwnershipComponent>() ).OfType<TileOwnershipComponent>().ToList();
 		if (focs.Any(p => p.OwnedFaces.Contains( selectedTile ) ))
 			return false;
 		return true;

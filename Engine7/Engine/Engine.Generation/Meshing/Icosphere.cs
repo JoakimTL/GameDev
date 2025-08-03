@@ -16,7 +16,8 @@ public sealed class Icosphere {
 		_locked = false;
 		IcosphereGenerator.CreateIcosphere( out _vertices, out _indices );
 		_edgeMidpointCache = [];
-		for (int i = 0; i < subdivisions; i++) 			Subdivide();
+		for (int i = 0; i < subdivisions; i++)
+			Subdivide();
 		NormalizeVectors( _vertices );
 		_locked = true;
 	}

@@ -1,6 +1,5 @@
 ﻿using Civlike.Client.Render.Ui;
 using Civlike.Messages;
-using Civlike.WorldOld;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render;
@@ -24,7 +23,7 @@ public sealed class CivsRenderModule : RenderModuleBase {
 		context.InstanceProvider.Catalog.Host<Render3Pipeline>();
 		//context.InstanceProvider.Catalog.Host<ContextTest>();
 		context.InstanceProvider.Catalog.Host<UserInterfaceRenderPipeline>();
-		context.InstanceProvider.Catalog.Host<CameraPanOnTribeCreated>();
+		//context.InstanceProvider.Catalog.Host<CameraPanOnTribeCreated>();
 		UserInterfaceService ui = context.InstanceProvider.Get<UserInterfaceService>();
 		ui.UserInterfaceStateManager.AddAllElements();
 		this.InstanceProvider.Get<GameStateService>().SetNewState( UiElementConstants.ShowStartMenu, true );

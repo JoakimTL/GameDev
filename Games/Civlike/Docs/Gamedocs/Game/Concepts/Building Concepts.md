@@ -1,0 +1,5 @@
+Buildings are located on Tiles and is used by cities to perform a function. Buildings by itself has a very transparent cost in the form of capital expenditure for initial construction and operational expenditure for maintenance and upgrades.
+The cost of both are detemined by the city's building code, which the nation define. The building code essentially demands buildings be built in a certain way with certain materials.
+
+I have yet to figure out how extensive this mechanic will be. It's such a rabbit hole to delve into, and I want to keep it maintainable. Early drafts went as far as having the player define what materials the facade should be built from.
+The idea is fun in concept, but I don't want it to become tedious. I imagined a fully modular system where you could weigh the benefits of using certain materials versus the cost of using them, and ultimately choose based on that. What do you think?

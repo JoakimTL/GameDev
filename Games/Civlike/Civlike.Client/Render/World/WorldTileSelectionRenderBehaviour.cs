@@ -1,16 +1,16 @@
-﻿using Civlike.Logic.World;
-using Engine;
+﻿using Engine;
 using Engine.Module.Render.Entities;
 using Engine.Module.Render.Glfw.Enums;
 using Engine.Module.Render.Input;
 using Engine.Standard.Render.Input.Services;
 using Engine.Standard;
 using Engine.Transforms;
-using Civlike.World.GameplayState;
+using Civlike.World;
+using Civlike.World.Components;
 
 namespace Civlike.Client.Render.World;
 
-public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviourBase<WorldArchetype> {
+public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviourBase<GlobeArchetype> {
 
 	private bool _changed = true;
 
@@ -33,7 +33,7 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 		if (@event.Button != MouseButton.Left || @event.InputType != TactileInputType.Press)
 			return;
 
-		this.RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "selectedTile", this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Face>( "hoveringTile" ) );
+		this.RenderEntity.ServiceAccess.Get<GameStateProvider>().SetNewState( "selectedTile", this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Get<Tile>( "hoveringTile" ) );
 	}
 
 	public override void Update( double time, double deltaTime ) {
@@ -56,10 +56,10 @@ public sealed class WorldTileSelectionRenderBehaviour : DependentRenderBehaviour
 
 		//Use octree to find the tile to check. We can use the intersection point to find the base tile, but not the hovered tile.
 
-		AABB<Vector3<float>> bounds = globe.ClusterBounds.MoveBy( intersectionPoint ).ScaleBy( 0.25f );
-		foreach (BoundedRenderCluster cluster in globe.Clusters.Where( p => p.Bounds.Intersects( bounds ) ))
-			foreach (Face face in cluster.Faces) {
-				if (!RayIntersectsTriangle( this.RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.DisplayVectorA, face.Blueprint.DisplayVectorB, face.Blueprint.DisplayVectorC, out _ ))
+		AABB<Vector3<float>> bounds = globe.Model.ClusterBounds.MoveBy( intersectionPoint ).ScaleBy( 0.25f );
+		foreach (BoundedRenderCluster cluster in globe.Model.Clusters.Where( p => p.Bounds.Intersects( bounds ) ))
+			foreach (ReadOnlyFace face in cluster.Faces) {
+				//if (!RayIntersectsTriangle( this.RenderEntity.ServiceAccess.CameraProvider.Main.View3.Translation, pointerDirection, face.Blueprint.DisplayVectorA, face.Blueprint.DisplayVectorB, face.Blueprint.DisplayVectorC, out _ ))
 					continue;
 				this.RenderEntity.ServiceAccess.Get<InternalStateProvider>().Set( "hoveringTile", face );
 				return;

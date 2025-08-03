@@ -1,7 +1,7 @@
 ﻿using Civlike.Client.Render.Ui.Components;
-using Civlike.Logic.Nations;
+using Civlike.Logic.Nations.ECS;
 using Civlike.Messages;
-using Civlike.World.GameplayState;
+using Civlike.World;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Entities.Providers;
@@ -47,17 +47,17 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	}
 
 	private void OnSetNeighbourToOwner( int i ) {
-		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" ) ?? throw new InvalidOperationException( "No tile selected" );
+		Tile? selectedTile = this.GameStateProvider.Get<Tile>( "selectedTile" ) ?? throw new InvalidOperationException( "No tile selected" );
 		this.MessageBusNode.Publish( new SetNeighbourOwnerMessage( selectedTile, i ), "gamelogic", true );
 	}
 
 	private void OnRemoveOwner( InteractableButton button, MouseButtonEvent @event ) {
-		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" ) ?? throw new InvalidOperationException( "No tile selected" );
+		Tile? selectedTile = this.GameStateProvider.Get<Tile>( "selectedTile" ) ?? throw new InvalidOperationException( "No tile selected" );
 		this.MessageBusNode.Publish( new RemoveOwnerMessage( selectedTile ), "gamelogic", true );
 	}
 
 	private void OnNewOwnerClicked( InteractableButton button, MouseButtonEvent @event ) {
-		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" ) ?? throw new InvalidOperationException( "No tile selected" );
+		Tile? selectedTile = this.GameStateProvider.Get<Tile>( "selectedTile" ) ?? throw new InvalidOperationException( "No tile selected" );
 		if (this._playerSelection.SelectedValue is null)
 			return;
 		this.MessageBusNode.Publish( new CreateNewPopulationCenterMessage( selectedTile, this._playerSelection.SelectedValue.PlayerId ), "gamelogic", true );
@@ -98,20 +98,19 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	}
 
 	private void NeighbourButtonsUpdate() {
-		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" );
+		Tile? selectedTile = this.GameStateProvider.Get<Tile>( "selectedTile" );
 		if (selectedTile is null) {
 			return;
 		}
 		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = this.UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
-		if (container is null) {
+		if (container is null)
 			return;
-		}
 		List<FaceOwnershipComponent> focs = [ .. container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>() ];
-		IReadOnlyList<Face> neighbours = selectedTile.Blueprint.Neighbours;
+		IReadOnlyList<Tile> neighbours = [ .. selectedTile.Neighbours ];
 		for (int i = 0; i < neighbours.Count; i++) {
-			Face neighbourFace = neighbours[ i ];
-			FaceOwnershipComponent? neighbourOwner = focs.FirstOrDefault( p => p.OwnedFaces.Contains( neighbourFace ) );
+			Tile neighbourFace = neighbours[ i ];
+			FaceOwnershipComponent? neighbourOwner = focs.FirstOrDefault( p => p.OwnedTiles.Contains( neighbourFace ) );
 			InteractableButton button = this._setNeighbourOwner[ i ];
 			if (neighbourOwner is not null) {
 				button.Label.Text = $"Give";
@@ -124,17 +123,17 @@ public sealed class PopulationCenterOwnershipDebug() : UserInterfaceElementWithM
 	}
 
 	private bool InternalShouldDisplay() {
-		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" );
+		Tile? selectedTile = this.GameStateProvider.Get<Tile>( "selectedTile" );
 		if (selectedTile is null)
 			return false;
-		if (!selectedTile.State.TerrainType.Claimable)
-			return false;
+		//if (!selectedTile.GetState<TerrainState>().TerrainType.Claimable)
+		//	return false;
 		Engine.Module.Entities.Container.SynchronizedEntityContainer? container = this.UserInterfaceServiceAccess.Get<SynchronizedEntityContainerProvider>().SynchronizedContainers
 			.FirstOrDefault();
 		if (container is null)
 			return false;
 		List<FaceOwnershipComponent> focs = [ .. container.SynchronizedEntities.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>() ];
-		if (focs.Any( p => p.OwnedFaces.Contains( selectedTile ) ))
+		if (focs.Any( p => p.OwnedTiles.Contains( selectedTile ) ))
 			return false;
 		return true;
 	}

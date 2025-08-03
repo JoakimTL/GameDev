@@ -33,29 +33,29 @@ public sealed class GlobeGenerationMessagesDisplay() : UserInterfaceElementWithM
 	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
-		_lastUpdateTime = time;
+		this._lastUpdateTime = time;
 		base.OnUpdate( time, deltaTime );
 	}
 
 	protected override void OnMessageReceived( Message message ) {
 		if (message.Content is WorldGenerationProgressMessage worldGenerationProgress) {
 			this._worldGenerationMessages.Add( worldGenerationProgress.ProgressMessage );
-			if (_lastStepStarted != 0) {
-				double timeTaken = _lastUpdateTime - _lastStepStarted;
+			if (this._lastStepStarted != 0) {
+				double timeTaken = this._lastUpdateTime - this._lastStepStarted;
 				this._worldGenerationTimes.Add( timeTaken );
 			}
 			this._currentStepProgress = null;
-			_subProgressMessage = null;
-			_lastStepStarted = _lastUpdateTime;
+			this._subProgressMessage = null;
+			this._lastStepStarted = this._lastUpdateTime;
 			UpdateGenerationDisplay();
 		}
 		if (message.Content is WorldGenerationCompleteMessage worldGenerationComplete) {
 			this._worldGenerationMessages.Add( worldGenerationComplete.Message );
-			double timeTaken = _lastUpdateTime - _lastStepStarted;
+			double timeTaken = this._lastUpdateTime - this._lastStepStarted;
 			this._worldGenerationTimes.Add( timeTaken );
 			this._currentStepProgress = null;
-			_subProgressMessage = null;
-			_lastStepStarted = _lastUpdateTime;
+			this._subProgressMessage = null;
+			this._lastStepStarted = this._lastUpdateTime;
 			UpdateGenerationDisplay();
 		}
 		if (message.Content is WorldGenerationStepProgressPercentMessage worldGenerationStepProgressPercent) {
@@ -74,12 +74,12 @@ public sealed class GlobeGenerationMessagesDisplay() : UserInterfaceElementWithM
 			string message = this._worldGenerationMessages[ i ];
 			bool isLastMessage = i == this._worldGenerationMessages.Count - 1;
 			if (!isLastMessage) {
-				labelText += $"{message}...Done! ({_worldGenerationTimes[ i ]:N2}s){Environment.NewLine}";
+				labelText += $"{message}...Done! ({this._worldGenerationTimes[ i ]:N2}s){Environment.NewLine}";
 				continue;
 			}
 			labelText += $"{message}...{(this._currentStepProgress.HasValue ? $"{this._currentStepProgress.Value:N1}%" : "")}{Environment.NewLine}";
-			if (_subProgressMessage is not null)
-				labelText += $"{_subProgressMessage}{Environment.NewLine}";
+			if (this._subProgressMessage is not null)
+				labelText += $"{this._subProgressMessage}{Environment.NewLine}";
 		}
 		this._progressLabel.Text = labelText;
 	}

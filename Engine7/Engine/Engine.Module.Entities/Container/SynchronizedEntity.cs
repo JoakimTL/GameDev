@@ -16,12 +16,14 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 	private PooledBufferData? _synchronizationData;
 	private readonly ConcurrentQueue<PooledBufferData> _componentSerializationResults;
 	private readonly ConcurrentQueue<Type> _removedComponents;
+	private readonly Dictionary<Type, PooledBufferData> _failedDeserializations;
 
 	public SynchronizedEntity( EntitySerializerPair original ) {
 		_originalPair = original;
 		_synchronizationData = null;
 		_removedComponents = [];
 		_componentSerializationResults = [];
+		_failedDeserializations = [];
 	}
 
 	public Guid EntityId => _originalPair.Entity.EntityId;
@@ -40,28 +42,52 @@ public sealed class SynchronizedEntity : DisposableIdentifiable {
 			return;
 		if (_synchronizationData is not null) {
 			ISerializer? serializer = _copyPair.SerializerProvider.GetSerializerFor<Entity>() ?? throw new InvalidOperationException( "Serializer for Entity not found." );
-			serializer.DeserializeInto( _synchronizationData.Payload.Span, _copyPair.Entity );
-			_synchronizationData.Dispose();
-			_synchronizationData = null;
-		}
-		while (_componentSerializationResults.TryDequeue( out PooledBufferData? componentSerializationData )) {
-			using (componentSerializationData) {
-				ISerializer? serializer = _copyPair.SerializerProvider.GetSerializerFor( MemoryMarshal.Read<Guid>( componentSerializationData.Payload.Span[ ^16.. ] ) );
-				if (serializer is null)
-					continue;
-				if (!_copyPair.Entity.TryGetComponent( serializer.Target, out ComponentBase? component )) {
-					component = _copyPair.Entity.CreateComponent( serializer.Target );
-					serializer.DeserializeInto( componentSerializationData.Payload.Span, component );
-					_copyPair.Entity.AddComponent( serializer.Target, component );
-				} else {
-					serializer.DeserializeInto( componentSerializationData.Payload.Span, component );
-				}
+			if (serializer.CanDeserialize( _synchronizationData.Payload.Span )) {
+				serializer.DeserializeInto( _synchronizationData.Payload.Span, _copyPair.Entity );
+				_synchronizationData.Dispose();
+				_synchronizationData = null;
 			}
 		}
-		while (_removedComponents.TryDequeue( out Type? removedComponentType ))
+		//Process failed deserializations, this happens before processing the newest changes in case any of the failed deserializations are the same type as the newest changes.
+		while (_failedDeserializations.Count > 0) {
+			var failedComponentSerializationData = _failedDeserializations.First();
+			_failedDeserializations.Remove( failedComponentSerializationData.Key );
+			DeserializeComponentData( failedComponentSerializationData.Value );
+		}
+		while (_componentSerializationResults.TryDequeue( out PooledBufferData? componentSerializationData )) {
+			DeserializeComponentData( componentSerializationData );
+		}
+		while (_removedComponents.TryDequeue( out Type? removedComponentType )) {
 			_copyPair.Entity.RemoveComponent( removedComponentType );
+			//If this component had a failed deserialization, let's remove it too to avoid a memory leak.
+			if (_failedDeserializations.Remove( removedComponentType, out PooledBufferData? data ))
+				data.Dispose();
+		}
 		if (!_rewritingParentId && _newParent != _copyPair.Entity.ParentId)
 			_copyPair.Entity.SetParent( _newParent );
+	}
+
+	//Called from other thread (render thread)
+	private void DeserializeComponentData( PooledBufferData data ) {
+		ISerializer? serializer = _copyPair!.SerializerProvider.GetSerializerFor( MemoryMarshal.Read<Guid>( data.Payload.Span[ ^16.. ] ) );
+		if (serializer is null) {
+			data.Dispose();//There is no serializer for these changes, discard!
+			return;
+		}
+		if (!serializer.CanDeserialize( data.Payload.Span )) {
+			//We can't deserialize the component, let's overwrite the existing failed deserialization if it exists. We assume this is the newest change.
+			_failedDeserializations[ serializer.Target ] = data;
+			return;
+		}
+		//At this point we know the data is deserializable, so let's deserialize into the existing component, or create a new component instance if it doesn't already exist.
+		if (!_copyPair.Entity.TryGetComponent( serializer.Target, out ComponentBase? component )) {
+			component = _copyPair.Entity.CreateComponent( serializer.Target );
+			serializer.DeserializeInto( data.Payload.Span, component );
+			_copyPair.Entity.AddComponent( serializer.Target, component );
+		} else {
+			serializer.DeserializeInto( data.Payload.Span, component );
+		}
+		data.Dispose();
 	}
 
 	//Called from Entity

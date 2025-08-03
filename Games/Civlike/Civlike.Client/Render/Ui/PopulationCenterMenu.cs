@@ -1,5 +1,5 @@
-﻿using Civlike.Logic.Nations;
-using Civlike.World.GameplayState;
+﻿using Civlike.Logic.Nations.ECS;
+using Civlike.World;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Entities.Providers;
@@ -44,7 +44,7 @@ public sealed class PopulationCenterMenu() : UserInterfaceElementWithMessageNode
 	}
 
 	private FaceOwnershipComponent? GetSelectedTileOwner() {
-		Face? selectedTile = this.GameStateProvider.Get<Face>( "selectedTile" );
+		Tile? selectedTile = this.GameStateProvider.Get<Tile>( "selectedTile" );
 		if (selectedTile is null)
 			return null;
 		Guid? localPlayer = this.GameStateProvider.Get<Guid?>( "localPlayerId" );
@@ -56,6 +56,6 @@ public sealed class PopulationCenterMenu() : UserInterfaceElementWithMessageNode
 			return null;
 		List<Engine.Module.Entities.Container.SynchronizedEntity> entitiesOwnedByPlayer = [ .. container.SynchronizedEntities.Where( p => p.EntityCopy?.ParentId == localPlayer.Value ) ];
 		List<FaceOwnershipComponent> focs = [ .. entitiesOwnedByPlayer.Select( p => p.EntityCopy?.GetComponentOrDefault<FaceOwnershipComponent>() ).OfType<FaceOwnershipComponent>() ];
-		return focs.FirstOrDefault( p => p.OwnedFaces.Contains( selectedTile ) );
+		return focs.FirstOrDefault( p => p.OwnedTiles.Contains( selectedTile ) );
 	}
 }

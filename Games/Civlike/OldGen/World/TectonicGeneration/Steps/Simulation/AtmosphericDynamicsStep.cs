@@ -1,0 +1,88 @@
+﻿//using OldGen.World.GenerationState;
+//using OldGen.World.TectonicGeneration.Parameters;
+//using System.Numerics;
+//using System.Runtime.CompilerServices;
+
+//namespace OldGen.World.TectonicGeneration.Steps.Simulation;
+
+///*
+// * Momentum balance terms
+// * - Pressure-gradient force (from your height/pressure field)
+// * - Coriolis acceleration (with local f=2Ωsin⁡φf=2Ωsinφ on each tile)
+// * - Non-linear advection (u⋅∇uu⋅∇u) to cap runaway speeds and spawn eddies
+// * - Quadratic surface drag (Fdrag=−Cd ∣u∣uFdrag​=−Cd​∣u∣u) rather than a simple linear sink
+// * - Horizontal diffusion (ν∇2uν∇2u or biharmonic) to smooth grid‐scale noise
+// * Tile geometry & projection
+// * - Compute each triangle’s outward normal nn
+// * - Solve in 3D but enforce “no-through-flow”: u⋅n=0u⋅n=0
+// * - Project uu onto the local tangent plane:
+// *   - utan=u−(u⋅n)n
+// * Continuity / mass conservation
+// * - For a single layer: enforce ∇⋅(H utan)=0∇⋅(Hutan​)=0 (or diagnose vertical velocity ww)
+// * - If you hold layer depth HH fixed, you’re in a barotropic regime—vertical ww is purely a by-product
+// * Boundary-layer closure
+// * - Ekman‐layer or vertical‐mixing parameterization to turn and slow the lowest-level wind
+// * - Yields realistic cross-isobar flow and reduces purely geostrophic extremes
+// * Thermal / thickness forcing
+// * - Prescribe or solve for horizontal gradients in layer thickness or geopotential to drive jets and trades
+// * - Even a simple latitudinal profile of “effective” gHgH gives realistic belts
+// * Numerical solution strategy
+// * - Form your steady 2×2 (horizontal) momentum balance on each tile
+// * - Solve algebraically (e.g. Newton–Raphson) for uu given local forcing and drag
+// * - Optionally iterate with neighbor exchanges for advection and diffusion coupling
+// * Parameter choices & scaling
+// * - Drag coefficient CdCd​ depends on surface type (land vs. sea)
+// * - Eddy viscosity νν tuned to your tile size (smaller tiles need smaller νν)
+// * - Vertical mixing length ≃10–50 m for the lowest model level
+// * Diagnostics & sanity checks
+// * - Check geostrophic limit: u≈1f k^×∇pu≈f1​k^×∇p when drag ≪ Coriolis
+// * - Verify maximum wind speeds are O(10 m/s) not O(100 m/s) on Earth-like setups
+// * - Inspect convergence: ensure your “steady” solve actually reaches a residual ≪1 %
+// * Use of vertical velocity
+// * - Treat w=(u⋅n)w=(u⋅n) as a diagnostic only (e.g. for dust/cloud schemes)
+// * - Do not re-inject ww into your 2D momentum unless you upgrade to a full 3D solver
+// * Extension paths (optional)
+// * - Add multi-layer or shallow-water with thickness evolution for baroclinic effects
+// * - Couple to temperature/advection for seasonal or diurnal cycles
+//*/
+//public sealed class AtmosphericDynamicsStep : ISimulationStep {
+
+//	[MethodImpl( MethodImplOptions.AggressiveOptimization )]
+//	public void Process( TectonicGeneratingGlobe globe, TectonicGlobeParameters parameters, double daysSimulated, double secondsToSimulate ) {
+//		AtmosphericDynamicsParameters adp = globe.AtmosphericDynamicsParameters;
+
+//		float linearDragCoefficient = (float) adp.LinearFrictionCoefficient;
+//		float quadraticDragCoefficient = (float) adp.QuadraticFrictionCoefficient;
+//		float coriolisStrength = (float) adp.CoriolisStrength;
+//		float pressureGradientCoefficient = -(float) adp.PressureGradientCoefficient;
+//		Vector3 upAxis = adp.UpAxis;
+
+//		ParallelProcessing.Range( globe.TectonicFaces.Count, ( start, end, taskId ) => {
+//			for (int i = start; i < end; i++) {
+//				Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
+//				if (face.IsOcean)
+//					continue;
+
+//				TectonicFaceState state = face.State;
+//				state.Wind = PhysicsHelpers.GetWindVector( face, state, pressureGradientCoefficient, upAxis, linearDragCoefficient, quadraticDragCoefficient );
+//				state.TangentialWind = state.Wind - Vector3.Dot( state.Wind, face.CenterNormalized ) * face.CenterNormalized;
+//				//for (int i = 0; i < globe.TectonicFaces.Count; i++) {
+//				//Face<TectonicFaceState> face = globe.TectonicFaces[ i ];
+//				//TectonicFaceState state = face.State;
+
+//				//Vector3 n = face.CenterNormalized;
+
+//				//Vector3 pressureGradient = PhysicsHelpers.GetPressureGradient( face, state );
+//				//Vector3 pressureWind = pressureGradientCoefficient * pressureGradient;
+
+//				//Vector3 coriolis = PhysicsHelpers.ApplyCoriolis( pressureWind, upAxis, state.CoriolisFactor );
+
+//				//Vector3 windBeforeDrag = pressureWind + coriolis + state.HadleyWinds;
+
+//				//Vector3 windVector = PhysicsHelpers.ApplyDrag( windBeforeDrag, linearDragCoefficient, quadraticDragCoefficient );
+
+//				//state.Wind = windVector;
+//			}
+//		} );
+//	}
+//}

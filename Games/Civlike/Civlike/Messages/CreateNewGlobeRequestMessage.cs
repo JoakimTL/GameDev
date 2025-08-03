@@ -1,5 +1,4 @@
-﻿using Civlike.World.GameplayState;
-using Civlike.World.GenerationState;
+﻿using Civlike.World;
 
 namespace Civlike.Messages;
 
@@ -19,4 +18,4 @@ namespace Civlike.Messages;
 //	}
 //}
 
-public sealed record CreateNewGlobeRequestMessage<TGlobeType, TParameter>( TParameter Parameters, Type[]? StepsToIgnore = null ) where TGlobeType : GeneratingGlobeBase, new() where TParameter : GlobeGeneratorParameterBase;
+public sealed record CreateNewGlobeRequestMessage( IGlobeGenerator Generator );

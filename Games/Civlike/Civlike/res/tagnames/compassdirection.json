@@ -1,0 +1,6 @@
+﻿{
+	"north": [ "norr", "northwind", "uprealm", "boreal", "frostward", "septent", "auror", "hyperbore", "northmere", "glaciador", "arctia", "highreach", "nivalis", "polaris" ],
+	"west": [ "occide", "westreach", "twilighton", "evenfall", "westing", "hesperis", "eventide", "duskward", "sunsethe", "westray", "westmark", "windwest", "occident", "duskmarch" ],
+	"south": [ "suncrown", "australis", "downrealm", "southron", "notos", "austral", "maritrop", "solstice", "noonward", "warmward", "tropicline", "sirocco", "auster", "meridion" ],
+	"east": [ "eastmark", "oriens", "daybreak", "mornglow", "dawnward", "ostrand", "sunrise", "levant", "aurora", "eastron", "eastwind", "eastrise", "orient", "solrise" ]
+}

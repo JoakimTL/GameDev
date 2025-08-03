@@ -15,17 +15,19 @@ public sealed class GlobeComponentSerializer( SerializerProvider serializerProvi
 		buffer.AddRange( data );
 	}
 
-	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, GlobeComponent target ) {
+	protected override void PerformDeserialization( ReadOnlySpan<byte> serializedData, GlobeComponent target ) {
 		if (serializedData.Length < 16)
-			return false;
+			throw new InvalidOperationException( "Invalid serialized data." );
 		Guid globeId = MemoryMarshal.Read<Guid>( serializedData );
 		if (globeId == Guid.Empty)
-			return true;
 		if (_activeGlobeTrackingService.CurrentGlobe is null)
 			throw new InvalidOperationException( "No active globe available." );
 		if (globeId != _activeGlobeTrackingService.CurrentGlobe.Id)
-			return false;
+			throw new InvalidOperationException( "Invalid serialized data." );
 		target.SetGlobe( _activeGlobeTrackingService.CurrentGlobe );
+	}
+
+	protected override bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData ) {
 		return true;
 	}
 }
@@ -42,17 +44,20 @@ public sealed class BoundedRenderClusterComponentSerializer( SerializerProvider 
 		buffer.AddRange( data );
 	}
 
-	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, BoundedRenderClusterComponent target ) {
+	protected override void PerformDeserialization( ReadOnlySpan<byte> serializedData, BoundedRenderClusterComponent target ) {
 		if (serializedData.Length < 20)
-			return false;
+			throw new InvalidOperationException( "Invalid serialized data." );
 		Guid globeId = MemoryMarshal.Read<Guid>( serializedData );
 		if (globeId == Guid.Empty)
-			return true;
+			return;
 		if (_activeGlobeTrackingService.CurrentGlobe is null)
 			throw new InvalidOperationException( "No active globe available." );
 		if (globeId != _activeGlobeTrackingService.CurrentGlobe.Id)
-			return false;
+			throw new InvalidOperationException( "Invalid serialized data." );
 		target.Set( _activeGlobeTrackingService.CurrentGlobe, MemoryMarshal.Read<int>( serializedData[ 16.. ] ) );
+	}
+
+	protected override bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData ) {
 		return true;
 	}
 }

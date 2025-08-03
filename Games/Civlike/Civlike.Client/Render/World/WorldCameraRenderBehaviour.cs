@@ -1,4 +1,5 @@
 ﻿using Civlike.Logic.World;
+using Civlike.World.Components;
 using Engine;
 using Engine.Module.Render.Entities;
 using Engine.Module.Render.Glfw.Enums;
@@ -7,7 +8,7 @@ using Engine.Standard;
 using Engine.Transforms.Camera;
 
 namespace Civlike.Client.Render.World;
-public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<WorldArchetype> {
+public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<GlobeArchetype> {
 
 	private Rotor3<float> _rotation = Rotor3<float>.MultiplicativeIdentity;
 	private Vector2<float> _velocity;

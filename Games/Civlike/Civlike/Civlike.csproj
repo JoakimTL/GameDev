@@ -9,10 +9,163 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Logic\Nations\Systems\" />
+    <None Remove="res\diseases\symptoms\baseSymptoms.json" />
+    <None Remove="res\names\fantasticalRealistic\cities.txt" />
+    <None Remove="res\names\fantasticalRealistic\cultures.txt" />
+    <None Remove="res\names\fantasticalRealistic\diseases.txt" />
+    <None Remove="res\names\fantasticalRealistic\dynasties.txt" />
+    <None Remove="res\names\fantasticalRealistic\firstnames.txt" />
+    <None Remove="res\names\fantasticalRealistic\lastnames.txt" />
+    <None Remove="res\names\fantasticalRealistic\locations.txt" />
+    <None Remove="res\names\fantasy\cities.txt" />
+    <None Remove="res\names\fantasy\cultures.txt" />
+    <None Remove="res\names\fantasy\diseases.txt" />
+    <None Remove="res\names\fantasy\dynasties.txt" />
+    <None Remove="res\names\fantasy\firstnames.txt" />
+    <None Remove="res\names\fantasy\lastnames.txt" />
+    <None Remove="res\names\fantasy\locations.txt" />
+    <None Remove="res\names\roman\cities.txt" />
+    <None Remove="res\names\roman\cultures.txt" />
+    <None Remove="res\names\roman\diseases.txt" />
+    <None Remove="res\names\roman\dynasties.txt" />
+    <None Remove="res\names\roman\firstnames.txt" />
+    <None Remove="res\names\roman\lastnames.txt" />
+    <None Remove="res\names\roman\locations.txt" />
+    <None Remove="res\names\template\cities.txt" />
+    <None Remove="res\names\template\cultures.txt" />
+    <None Remove="res\names\template\diseases.txt" />
+    <None Remove="res\names\template\dynasties.txt" />
+    <None Remove="res\names\template\firstnames.txt" />
+    <None Remove="res\names\template\lastnames.txt" />
+    <None Remove="res\names\template\locations.txt" />
+    <None Remove="res\names\viking\cities.txt" />
+    <None Remove="res\names\viking\cultures.txt" />
+    <None Remove="res\names\viking\diseases.txt" />
+    <None Remove="res\names\viking\dynasties.txt" />
+    <None Remove="res\names\viking\firstnames.txt" />
+    <None Remove="res\names\viking\lastnames.txt" />
+    <None Remove="res\names\viking\locations.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="res\diseases\symptoms\baseSymptoms.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasticalRealistic\cities.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasticalRealistic\cultures.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasticalRealistic\diseases.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasticalRealistic\dynasties.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasticalRealistic\firstnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasticalRealistic\lastnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasticalRealistic\locations.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasy\cities.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasy\cultures.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasy\diseases.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasy\dynasties.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasy\firstnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasy\lastnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\fantasy\locations.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\roman\cities.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\roman\cultures.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\roman\diseases.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\roman\dynasties.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\roman\firstnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\roman\lastnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\roman\locations.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\template\cities.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\template\cultures.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\template\diseases.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\template\dynasties.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\template\firstnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\template\lastnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\template\locations.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\viking\cities.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\viking\cultures.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\viking\diseases.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\viking\dynasties.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\viking\firstnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\viking\lastnames.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="res\names\viking\locations.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logic\Nations\ECS\Systems\" />
+    <Folder Include="Logic\Setup\Resources\Materials\" />
+    <Folder Include="Resources\Foods\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Engine7\Engine\Engine.Standard\Engine.Standard.csproj" />
+    <ProjectReference Include="..\Civlike.World\Civlike.World.csproj" />
   </ItemGroup>
 </Project>

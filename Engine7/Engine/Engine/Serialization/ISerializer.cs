@@ -6,6 +6,7 @@ public interface ISerializer {
 	public Guid Guid { get; }
 	public Type Target { get; }
 	int SerializeInto( ThreadedByteBuffer buffer, object t );
-	bool DeserializeInto( ReadOnlyMemory<byte> serializedData, object t );
-	bool DeserializeInto( ReadOnlySpan<byte> serializedData, object t );
+	void DeserializeInto( ReadOnlyMemory<byte> serializedData, object t );
+	void DeserializeInto( ReadOnlySpan<byte> serializedData, object t );
+	bool CanDeserialize( ReadOnlySpan<byte> serializedData );
 }

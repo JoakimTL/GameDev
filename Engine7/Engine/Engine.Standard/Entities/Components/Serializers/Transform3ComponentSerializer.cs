@@ -13,10 +13,11 @@ public sealed class Transform3ComponentSerializer( SerializerProvider serializer
 		buffer.AddRange( data );
 	}
 
-	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, Transform3Component target ) {
+	protected override void PerformDeserialization( ReadOnlySpan<byte> serializedData, Transform3Component target ) {
 		if (serializedData.Length < 80)
-			return false;
+			throw new ArgumentException( "Invalid serialized data", nameof( serializedData ) );
 		target.Transform.SetData( MemoryMarshal.Read<TransformData<Vector3<double>, Rotor3<double>, Vector3<double>>>( serializedData ) );
-		return true;
 	}
+
+	protected override bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData ) => true;
 }

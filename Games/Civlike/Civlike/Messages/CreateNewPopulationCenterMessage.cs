@@ -1,10 +1,10 @@
-﻿using Civlike.World.GameplayState;
+﻿using Civlike.World;
 
 namespace Civlike.Messages;
 
-public sealed record CreateNewPopulationCenterMessage( Face Face, Guid PlayerGuid );
-public sealed record RemoveOwnerMessage( Face Face );
-public sealed record SetNeighbourOwnerMessage( Face Face, int Index );
+public sealed record CreateNewPopulationCenterMessage( Tile Tile, Guid PlayerGuid );
+public sealed record RemoveOwnerMessage( Tile Tile );
+public sealed record SetNeighbourOwnerMessage( Tile Tile, int Index );
 
 public sealed record CreateNewPlayerMessage;
 public sealed record CreateNewPlayerMessageResponse(Guid PlayerEntityId);

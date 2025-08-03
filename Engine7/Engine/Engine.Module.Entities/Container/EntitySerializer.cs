@@ -29,7 +29,7 @@ public sealed class EntitySerializer( SerializerProvider serializerProvider ) : 
 			buffer.AddRange( output.Payload.Span );
 	}
 
-	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, Entity target ) {
+	protected override void PerformDeserialization( ReadOnlySpan<byte> serializedData, Entity target ) {
 		Desegmenter desegmenter = new();
 		Span<byte> output = stackalloc byte[ serializedData.DetermineSpanLength() ];
 		bool hasComponents = desegmenter.ReadInto( serializedData, output, out int readBytes );
@@ -40,7 +40,7 @@ public sealed class EntitySerializer( SerializerProvider serializerProvider ) : 
 		if ((target.ParentId ?? Guid.Empty) != parentId)
 			throw new Exception( "Parent ID does not match." );
 		if (!hasComponents)
-			return true;
+			return;
 		while (desegmenter.ReadInto( serializedData, output, out readBytes )) {
 			ISerializer? serializer = SerializerProvider.GetSerializerFor( MemoryMarshal.Read<Guid>( output[ (readBytes - 16)..readBytes ] ) );
 			if (serializer is null)
@@ -48,6 +48,21 @@ public sealed class EntitySerializer( SerializerProvider serializerProvider ) : 
 			ComponentBase component = target.CreateComponent( serializer.Target );
 			serializer.DeserializeInto( output[ ..readBytes ], component );
 			target.AddComponent( serializer.Target, component );
+		}
+	}
+
+	protected override bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData ) {
+		Desegmenter desegmenter = new();
+		Span<byte> output = stackalloc byte[ serializedData.DetermineSpanLength() ];
+		bool hasComponents = desegmenter.ReadInto( serializedData, output, out int readBytes );
+		if (!hasComponents)
+			return true;
+		while (desegmenter.ReadInto( serializedData, output, out readBytes )) {
+			ISerializer? serializer = SerializerProvider.GetSerializerFor( MemoryMarshal.Read<Guid>( output[ (readBytes - 16)..readBytes ] ) );
+			if (serializer is null)
+				return false;
+			if (!serializer.CanDeserialize( output[ ..readBytes ] ))
+				return false;
 		}
 		return true;
 	}

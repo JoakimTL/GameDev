@@ -13,10 +13,11 @@ public sealed class Transform2ComponentSerializer( SerializerProvider serializer
 		buffer.AddRange( data );
 	}
 
-	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, Transform2Component target ) {
+	protected override void PerformDeserialization( ReadOnlySpan<byte> serializedData, Transform2Component target ) {
 		if (serializedData.Length < 40)
-			return false;
+			throw new ArgumentException( "Invalid serialized data", nameof( serializedData ) );
 		target.Transform.SetData( MemoryMarshal.Read<TransformData<Vector2<double>, double, Vector2<double>>>( serializedData ) );
-		return true;
 	}
+
+	protected override bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData ) => true;
 }

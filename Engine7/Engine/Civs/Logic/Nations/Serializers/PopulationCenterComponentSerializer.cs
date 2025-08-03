@@ -9,7 +9,9 @@ public sealed class PopulationCenterComponentSerializer( SerializerProvider seri
 	protected override void PerformSerialization( ThreadedByteBuffer buffer, PopulationCenterComponent t ) {
 		// No data to serialize
 	}
-	protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, PopulationCenterComponent target ) {
-		return true;
+	protected override void PerformDeserialization( ReadOnlySpan<byte> serializedData, PopulationCenterComponent target ) {
+		// No data to deserialize
 	}
+
+	protected override bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData ) => true;
 }

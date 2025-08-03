@@ -91,6 +91,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Engine7\Engine\Engine.Standard.Render\Engine.Standard.Render.csproj" />
+    <ProjectReference Include="..\Civlike.Generation.Tectonic\Civlike.World.TectonicGeneration.csproj" />
+    <ProjectReference Include="..\Civlike.World.Render\Civlike.World.Render.csproj" />
+    <ProjectReference Include="..\Civlike.World.TectonicGeneration\Civlike.World.TectonicGeneration.csproj" />
     <ProjectReference Include="..\Civlike\Civlike.csproj" />
   </ItemGroup>
 

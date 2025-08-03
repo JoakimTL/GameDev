@@ -1,0 +1,18 @@
+{
+  "create-note-in-folder:aaa": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": " "
+    }
+  ],
+  "create-note-in-folder:Current": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": " "
+    }
+  ]
+}

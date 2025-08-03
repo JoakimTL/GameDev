@@ -1,0 +1,22 @@
+{
+	"foods": [
+		{
+			"name": "Beef",
+			"tags": [ "food", "meat", "cow" ],
+			"renewable-behaviour": null,
+			"composition": {
+				"carbohydrates": 0,
+				"fat": 0.047,
+				"protein": 0.22,
+				"water": 0.73
+			}
+		}
+	],
+	"animals": [
+		{
+			"name": "Cow",
+			"tags": [ "animal", "cow" ],
+			"renewable-behaviour": "Logic.Resources.RenewableBehaviours.CowRenewableBehaviour"
+		}
+	]
+}

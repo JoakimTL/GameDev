@@ -29,7 +29,7 @@ public sealed class Segmenter : IDisposable {
 		_buffer = null;
 	}
 }
-public sealed unsafe class Desegmenter {
+public unsafe struct Desegmenter {
 	private int _caret;
 	private int _readsPerformed;
 

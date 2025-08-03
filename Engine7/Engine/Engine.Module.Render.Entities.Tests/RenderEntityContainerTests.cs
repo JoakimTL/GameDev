@@ -50,11 +50,10 @@ public class RenderEntityContainerTests {
 
 	[Guid( "62F2FFD7-743E-4294-B791-57B854BAC5B7" )]
 	public sealed class Translation3ComponentSerializer( SerializerProvider serializerProvider ) : SerializerBase<Translation3Component>( serializerProvider ) {
-		protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, Translation3Component target ) {
+		protected override void PerformDeserialization( ReadOnlySpan<byte> serializedData, Translation3Component target ) {
 			if (serializedData.Length < 24)
-				return false;
+				throw new ArgumentException();
 			target.Translation = MemoryMarshal.Read<Vector3<double>>( serializedData );
-			return true;
 		}
 
 		protected override void PerformSerialization( ThreadedByteBuffer buffer, Translation3Component t ) {
@@ -62,15 +61,16 @@ public class RenderEntityContainerTests {
 			MemoryMarshal.Write( data, t.Translation );
 			buffer.AddRange( data );
 		}
+
+		protected override bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData ) => true;
 	}
 
 	[Guid( "C9EBF287-2BEE-44E0-8DB3-685BDC68EF13" )]
 	public sealed class Motion3ComponentSerializer( SerializerProvider serializerProvider ) : SerializerBase<Motion3Component>( serializerProvider ) {
-		protected override bool PerformDeserialization( ReadOnlySpan<byte> serializedData, Motion3Component target ) {
+		protected override void PerformDeserialization( ReadOnlySpan<byte> serializedData, Motion3Component target ) {
 			if (serializedData.Length < 24)
-				return false;
+				throw new ArgumentException();
 			target.Velocity = MemoryMarshal.Read<Vector3<double>>( serializedData );
-			return true;
 		}
 
 		protected override void PerformSerialization( ThreadedByteBuffer buffer, Motion3Component t ) {
@@ -78,6 +78,8 @@ public class RenderEntityContainerTests {
 			MemoryMarshal.Write( data, t.Velocity );
 			buffer.AddRange( data );
 		}
+
+		protected override bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData ) => true;
 	}
 
 	public class Moving3RenderBehaviour : DependentRenderBehaviourBase<Moving3Archetype> {

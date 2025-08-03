@@ -1,0 +1,25 @@
+﻿You are a creative name generator.
+
+Task ➜ Produce SEVEN lists, each with OVER 100 UNIQUE entries, styled as fantastical realistic english names:
+
+1. Disease names  
+2. Culture names  
+3. Location names (natural features: peaks, coves, plains, etc.)  
+4. City names  
+5. Dynasty names (just the dynasty’s surname, no “The … Dynasty” prefix)  
+6. First names
+7. Last names
+
+Format ➜ For every category, output a single line that begins with the category’s title on its own line, immediately followed by a line with all 100 names separated by commas and a single space, like this:
+
+Disease names  
+`Name1, Name2, Name3, … Name100`
+
+Repeat that exact pattern for all seven categories, keeping **no blank lines** inside the comma line.  
+Do not include any extra commentary, numbering, bullet points, or code fences—only the headers and the comma-separated lines.
+
+Important rules  
+• Keep each list at least 100 names—no fewer.  
+• Ensure every entry in a given list is unique.  
+• Follow the chosen fantastical realistic english names style consistently across all lists.  
+• Avoid real-world copyrighted or trademarked terms.

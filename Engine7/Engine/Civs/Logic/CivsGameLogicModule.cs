@@ -43,9 +43,9 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		}
 
 		if (message.Content is CreateNewPopulationCenterMessage createNewOwnerMessage) {
-			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Contains( createNewOwnerMessage.Face ) );
+			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedFaces.Contains( createNewOwnerMessage.Face ) );
 			if (currentOwner is not null) {
-				FaceOwnershipComponent toc = currentOwner.GetComponentOrThrow<FaceOwnershipComponent>();
+				TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
 				toc.RemoveFace( createNewOwnerMessage.Face );
 				if (toc.OwnedFaces.Count == 0) {
 					_entities.RemoveEntity( currentOwner );
@@ -59,16 +59,16 @@ public sealed class CivsGameLogicModule : ModuleBase {
 				Entity newOwner = _entities.CreateEntity();
 				newOwner.SetParent( createNewOwnerMessage.PlayerGuid );
 				newOwner.AddComponent<PopulationCenterComponent>();
-				FaceOwnershipComponent toc = newOwner.AddComponent<FaceOwnershipComponent>();
+				TileOwnershipComponent toc = newOwner.AddComponent<TileOwnershipComponent>();
 				toc.AddFace( createNewOwnerMessage.Face );
 				newOwner.AddComponent<RenderComponent>();
 				_populationCenters.Add( newOwner );
 			}
 		}
 		if (message.Content is RemoveOwnerMessage removeOwnerMessage) {
-			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Contains( removeOwnerMessage.Face ) );
+			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedFaces.Contains( removeOwnerMessage.Face ) );
 			if (currentOwner is not null) {
-				FaceOwnershipComponent toc = currentOwner.GetComponentOrThrow<FaceOwnershipComponent>();
+				TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
 				toc.RemoveFace( removeOwnerMessage.Face );
 				if (toc.OwnedFaces.Count == 0) {
 					_entities.RemoveEntity( currentOwner );
@@ -78,12 +78,12 @@ public sealed class CivsGameLogicModule : ModuleBase {
 		}
 		if (message.Content is SetNeighbourOwnerMessage setNeighbourOwnerMessage) {
 			Face otherTile = setNeighbourOwnerMessage.Face.Blueprint.Connections[ setNeighbourOwnerMessage.Index ].GetOther( setNeighbourOwnerMessage.Face );
-			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Contains( setNeighbourOwnerMessage.Face ) );
-			Entity? newOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<FaceOwnershipComponent>().OwnedFaces.Contains( otherTile ) );
+			Entity? currentOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedFaces.Contains( setNeighbourOwnerMessage.Face ) );
+			Entity? newOwner = _populationCenters.FirstOrDefault( p => p.GetComponentOrThrow<TileOwnershipComponent>().OwnedFaces.Contains( otherTile ) );
 			if (newOwner is null)
 				return;
 			if (currentOwner is not null) {
-				FaceOwnershipComponent toc = currentOwner.GetComponentOrThrow<FaceOwnershipComponent>();
+				TileOwnershipComponent toc = currentOwner.GetComponentOrThrow<TileOwnershipComponent>();
 				toc.RemoveFace( setNeighbourOwnerMessage.Face );
 				if (toc.OwnedFaces.Count == 0) {
 					_entities.RemoveEntity( currentOwner );
@@ -91,7 +91,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 				}
 			}
 			{
-				FaceOwnershipComponent toc = newOwner.GetComponentOrThrow<FaceOwnershipComponent>();
+				TileOwnershipComponent toc = newOwner.GetComponentOrThrow<TileOwnershipComponent>();
 				toc.AddFace( setNeighbourOwnerMessage.Face );
 			}
 		}
@@ -170,7 +170,7 @@ public sealed class CivsGameLogicModule : ModuleBase {
 			popCenter.SetParent( player.EntityId );
 			popCenter.AddComponent<PopulationCenterComponent>();
 			popCenter.AddComponent<RenderComponent>();
-			FaceOwnershipComponent foc = popCenter.AddComponent<FaceOwnershipComponent>();
+			TileOwnershipComponent foc = popCenter.AddComponent<TileOwnershipComponent>();
 			foc.AddFace( facesToDistribute[ i ] );
 		}
 	}

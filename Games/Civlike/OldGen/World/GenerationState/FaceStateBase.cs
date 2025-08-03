@@ -1,0 +1,7 @@
+﻿namespace OldGen.World.GenerationState;
+
+//public abstract class FaceStateBase {
+//	public FaceBase Face { get; init; } = null!;
+
+//	public abstract void Apply( Face.Builder builder );
+//}

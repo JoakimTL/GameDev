@@ -1,9 +1,9 @@
 ﻿using Engine;
 using Engine.Module.Render.Entities;
 using Engine.Standard.Render;
-using Civlike.Logic.Nations;
 using Engine.Module.Entities.Container;
 using Civlike.Client.Render.World.Shaders;
+using Civlike.Logic.Nations.ECS;
 
 namespace Civlike.Client.Render.Nations;
 public sealed class PopulationCenterTileRenderBehaviour : DependentRenderBehaviourBase<PopulationCenterArchetype>, IInitializable {
@@ -40,7 +40,7 @@ public sealed class PopulationCenterTileRenderBehaviour : DependentRenderBehavio
 		//	SetLocalPlayer();
 		if (this._sceneInstance.Allocated && this._needsMeshUpdate) {
 			Entity? parent = this.Archetype.Entity.Parent;
-			this._sceneInstance.UpdateMesh( [ .. this.Archetype.TileOwnership.OwnedFaces ], this.RenderEntity.ServiceAccess.MeshProvider, parent?.GetComponentOrDefault<PlayerComponent>()?.MapColor ?? 1 );
+			//this._sceneInstance.UpdateMesh( [ .. this.Archetype.TileOwnership.OwnedTiles ], this.RenderEntity.ServiceAccess.MeshProvider, parent?.GetComponentOrDefault<PlayerComponent>()?.MapColor ?? 1 );
 			this._sceneInstance.Write( new Entity3SceneData( Matrix4x4<float>.MultiplicativeIdentity, ushort.MaxValue ) );
 			this._needsMeshUpdate = false;
 		}

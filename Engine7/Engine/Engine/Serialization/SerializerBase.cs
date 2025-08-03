@@ -30,8 +30,8 @@ public abstract class SerializerBase<TTarget> : ISerializer {
 	}
 	protected abstract void PerformSerialization( ThreadedByteBuffer buffer, TTarget t );
 
-	public bool DeserializeInto( ReadOnlyMemory<byte> serializedData, object t ) => DeserializeInto( serializedData.Span, t );
-	public bool DeserializeInto( ReadOnlySpan<byte> serializedData, object t ) {
+	public void DeserializeInto( ReadOnlyMemory<byte> serializedData, object t ) => DeserializeInto( serializedData.Span, t );
+	public void DeserializeInto( ReadOnlySpan<byte> serializedData, object t ) {
 		if (t is not TTarget target)
 			throw new InvalidOperationException( $"Invalid type {t.GetType()} for deserialization using {this.GetType()}." );
 		if (serializedData.Length < 16)
@@ -40,7 +40,13 @@ public abstract class SerializerBase<TTarget> : ISerializer {
 		Guid receivedGuid = MemoryMarshal.Read<Guid>( serializedData[ ^16.. ] );
 		if (receivedGuid != Guid)
 			throw new InvalidOperationException( $"Received GUID {receivedGuid} does not match expected GUID {Guid}." );
-		return PerformDeserialization( serializedData[ ..^16 ], target );
+		PerformDeserialization( serializedData[ ..^16 ], target );
 	}
-	protected abstract bool PerformDeserialization( ReadOnlySpan<byte> serializedData, TTarget target );
+	protected abstract void PerformDeserialization( ReadOnlySpan<byte> serializedData, TTarget target );
+	public bool CanDeserialize( ReadOnlySpan<byte> serializedData ) {
+		if (serializedData.Length < 16)
+			return false;
+		return CanDeserializeCheck( serializedData[ ..^16 ] );
+	}
+	protected abstract bool CanDeserializeCheck( ReadOnlySpan<byte> serializedData );
 }
