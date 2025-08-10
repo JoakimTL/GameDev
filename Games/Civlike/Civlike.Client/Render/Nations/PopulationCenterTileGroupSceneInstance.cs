@@ -4,7 +4,7 @@ using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;
 using Engine.Module.Render.Ogl.Providers;
 using Engine.Module.Render.Ogl.Scenes;
-using Civlike.World;
+using Civlike.World.Geometry;
 
 namespace Civlike.Client.Render.Nations;
 

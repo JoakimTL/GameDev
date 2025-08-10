@@ -132,6 +132,7 @@ public sealed class Temporary_TextureAssetService {
 				throw new InvalidOperationException( $"Unsupported bit depth: {bitDepth}. Only 8-bit and 16-bit are supported." );
 
 			image.Format = MagickFormat.Rgba;
+			image.Flip();
 
 			imageDimensions = ((int) image.Width, (int) image.Height);
 			pixelData = image.GetPixels().ToByteArray( PixelMapping.RGBA );

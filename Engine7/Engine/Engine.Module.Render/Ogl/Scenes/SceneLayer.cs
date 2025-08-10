@@ -72,8 +72,8 @@ public sealed class SceneLayer : DisposableIdentifiable, IComparable<SceneLayer>
 			this._sceneObjectsByBindIndex.Add( bindIndex, sceneObject = new( this.RenderLayer, vertexArrayObject, shaderBundle, this._bufferService, 8 ) );
 			this._indirectCommandProviders.Add( sceneObject );
 			sceneObject.OnChanged += OnProviderChanged;
+			sceneObject.OnInstanceRemoved += OnInstanceRemovedFromSceneObject;
 		}
-		sceneObject.OnInstanceRemoved += OnInstanceRemovedFromSceneObject;
 		sceneObject.AddSceneInstance( sceneInstance );
 		sceneInstance.OnBindIndexChanged -= OnBindIndexChanged;
 		sceneInstance.OnLayerChanged -= OnLayerChanged;

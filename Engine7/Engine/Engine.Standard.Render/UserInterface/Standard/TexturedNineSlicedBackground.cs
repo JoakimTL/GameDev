@@ -79,6 +79,11 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 
 
 	protected override void OnPlacementChanged() => UpdateInstance();
+	protected override void RenderLayerChanged() {
+		for (int i = 0; i < this._sceneInstances.Length; i++)
+			this._sceneInstances[ i ].SetLayer( this.RenderLayer );
+		this._changed = true;
+	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
 		if (!this._changed)
@@ -94,26 +99,30 @@ public sealed class TexturedNineSlicedBackground : UserInterfaceComponentBase {
 		Span<Vector2<float>> sliceUvOffsets = stackalloc Vector2<float>[ this._sceneInstances.Length ];
 		Span<Vector2<float>> sliceUvDimensions = stackalloc Vector2<float>[ this._sceneInstances.Length ];
 
-		float centerUvLength = 1 - (this.EdgeWidth * 2);
+		Vector2<float> textureSize = this.Texture.Level0.CastSaturating<int, float>();
+		Vector2<float> textureAspectRatioVector = textureSize.Y > textureSize.X ? (1, textureSize.X / textureSize.Y) : (textureSize.Y / textureSize.X, 1);
+
+		Vector2<float> edgeSize = textureAspectRatioVector * this.EdgeWidth;
+		Vector2<float> centerUvLength = 1 - (edgeSize * 2);
 
 		sliceUvOffsets[ 0 ] = (0, 0);
-		sliceUvDimensions[ 0 ] = (this.EdgeWidth, this.EdgeWidth);
-		sliceUvOffsets[ 1 ] = (this.EdgeWidth, 0);
-		sliceUvDimensions[ 1 ] = (centerUvLength, this.EdgeWidth);
-		sliceUvOffsets[ 2 ] = (1 - this.EdgeWidth, 0);
-		sliceUvDimensions[ 2 ] = (this.EdgeWidth, this.EdgeWidth);
-		sliceUvOffsets[ 3 ] = (0, this.EdgeWidth);
-		sliceUvDimensions[ 3 ] = (this.EdgeWidth, centerUvLength);
-		sliceUvOffsets[ 4 ] = (this.EdgeWidth, this.EdgeWidth);
-		sliceUvDimensions[ 4 ] = (centerUvLength, centerUvLength);
-		sliceUvOffsets[ 5 ] = (1 - this.EdgeWidth, this.EdgeWidth);
-		sliceUvDimensions[ 5 ] = (this.EdgeWidth, centerUvLength);
-		sliceUvOffsets[ 6 ] = (0, 1 - this.EdgeWidth);
-		sliceUvDimensions[ 6 ] = (this.EdgeWidth, this.EdgeWidth);
-		sliceUvOffsets[ 7 ] = (this.EdgeWidth, 1 - this.EdgeWidth);
-		sliceUvDimensions[ 7 ] = (centerUvLength, this.EdgeWidth);
-		sliceUvOffsets[ 8 ] = (1 - this.EdgeWidth, 1 - this.EdgeWidth);
-		sliceUvDimensions[ 8 ] = (this.EdgeWidth, this.EdgeWidth);
+		sliceUvDimensions[ 0 ] = (edgeSize.X, edgeSize.Y);
+		sliceUvOffsets[ 1 ] = (edgeSize.X, 0);
+		sliceUvDimensions[ 1 ] = (centerUvLength.X, edgeSize.Y);
+		sliceUvOffsets[ 2 ] = (1 - edgeSize.X, 0);
+		sliceUvDimensions[ 2 ] = (edgeSize.X, edgeSize.Y);
+		sliceUvOffsets[ 3 ] = (0, edgeSize.Y);
+		sliceUvDimensions[ 3 ] = (edgeSize.X, centerUvLength.Y);
+		sliceUvOffsets[ 4 ] = (edgeSize.X, edgeSize.Y);
+		sliceUvDimensions[ 4 ] = (centerUvLength.X, centerUvLength.Y);
+		sliceUvOffsets[ 5 ] = (1 - edgeSize.X, edgeSize.Y);
+		sliceUvDimensions[ 5 ] = (edgeSize.X, centerUvLength.Y);
+		sliceUvOffsets[ 6 ] = (0, 1 - edgeSize.Y);
+		sliceUvDimensions[ 6 ] = (edgeSize.X, edgeSize.Y);
+		sliceUvOffsets[ 7 ] = (edgeSize.X, 1 - edgeSize.Y);
+		sliceUvDimensions[ 7 ] = (centerUvLength.X, edgeSize.Y);
+		sliceUvOffsets[ 8 ] = (1 - edgeSize.X, 1 - edgeSize.Y);
+		sliceUvDimensions[ 8 ] = (edgeSize.X, edgeSize.Y);
 
 		Vector2<float> scale = this.TransformInterface.GlobalScale.CastSaturating<double, float>();
 		float lowestScale = scale.X < scale.Y ? scale.X : scale.Y;

@@ -4,6 +4,7 @@ using Engine.Standard.Render;
 using Engine.Module.Entities.Container;
 using Civlike.Client.Render.World.Shaders;
 using Civlike.Logic.Nations.ECS;
+using Civlike.World.Render.Shaders;
 
 namespace Civlike.Client.Render.Nations;
 public sealed class PopulationCenterTileRenderBehaviour : DependentRenderBehaviourBase<PopulationCenterArchetype>, IInitializable {

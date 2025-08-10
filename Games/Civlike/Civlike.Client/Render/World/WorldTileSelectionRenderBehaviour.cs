@@ -5,8 +5,9 @@ using Engine.Module.Render.Input;
 using Engine.Standard.Render.Input.Services;
 using Engine.Standard;
 using Engine.Transforms;
-using Civlike.World;
-using Civlike.World.Components;
+using Civlike.World.Render;
+using Civlike.World.State;
+using Civlike.World.Geometry;
 
 namespace Civlike.Client.Render.World;
 

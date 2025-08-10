@@ -1,4 +1,7 @@
-﻿namespace Civlike.World;
+﻿using Civlike.World.Geometry;
+using Civlike.World.State;
+
+namespace Civlike.World;
 
 public static class GlobeGenerator {
 	public static Globe CreateNew( IGlobeGenerator generator ) {

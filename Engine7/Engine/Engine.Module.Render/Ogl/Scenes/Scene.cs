@@ -31,12 +31,7 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 		instance.Setup();
 		if (overrideSetupLayer || instance.RenderLayer == 0)
 			instance.SetLayer( renderLayer );
-		if (!this._sceneLayersByLayer.TryGetValue( renderLayer, out SceneLayer? layer )) {
-			this._sceneLayersByLayer.Add( renderLayer, layer = new( renderLayer, this._bufferService ) );
-			this._sortedLayers.Add( layer );
-			layer.OnChanged += OnLayerChanged;
-		}
-		layer.AddSceneInstance( instance );
+		GetLayer( renderLayer ).AddSceneInstance( instance );
 		return instance;
 	}
 
@@ -49,14 +44,24 @@ public sealed class Scene : DisposableIdentifiable, ISceneRender {
 	public SceneObjectFixedCollection<TVertexData, TInstanceData> CreateFixedCollection<TVertexData, TInstanceData>( uint renderLayer, OglVertexArrayObjectBase vao, ShaderBundleBase shaderBundle, IMesh mesh, uint count )
 		where TVertexData : unmanaged
 		where TInstanceData : unmanaged {
+		return GetLayer( renderLayer ).CreateFixedCollection<TVertexData, TInstanceData>( vao, shaderBundle, mesh, count );
+	}
+
+	private SceneLayer GetLayer( uint renderLayer ) {
 		if (!this._sceneLayersByLayer.TryGetValue( renderLayer, out SceneLayer? layer )) {
 			this._sceneLayersByLayer.Add( renderLayer, layer = new( renderLayer, this._bufferService ) );
 			this._sortedLayers.Add( layer );
 			layer.OnChanged += OnLayerChanged;
+			layer.OnInstanceRemoved += OnLayerInstanceRemoved;
 		}
-		return layer.CreateFixedCollection<TVertexData, TInstanceData>( vao, shaderBundle, mesh, count );
+		return layer;
 	}
 
+	private void OnLayerInstanceRemoved( SceneInstanceBase instance ) {
+		if (!instance.Removed)
+			GetLayer( instance.RenderLayer ).AddSceneInstance( instance );
+		this._needsUpdate = true;
+	}
 
 	private void OnLayerChanged() {
 		this._needsUpdate = true;

@@ -19,8 +19,12 @@
     <None Remove="assets\fonts\COURBI.TTF" />
     <None Remove="assets\fonts\COURI.TTF" />
     <None Remove="assets\textures\earthHeightmapLow.png" />
+    <None Remove="assets\textures\mainMenuBackground.png" />
+    <None Remove="assets\textures\mainMenuBackground2.png" />
+    <None Remove="assets\textures\mainMenuBackground3.png" />
     <None Remove="assets\textures\sampleTexture.png" />
     <None Remove="assets\textures\test.png" />
+    <None Remove="assets\textures\test2.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -81,10 +85,22 @@
     <Content Include="assets\textures\earthHeightmapLow.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="assets\textures\mainMenuBackground.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\mainMenuBackground2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\mainMenuBackground3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="assets\textures\sampleTexture.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="assets\textures\test.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="assets\textures\test2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

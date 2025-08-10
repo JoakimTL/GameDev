@@ -1,4 +1,6 @@
-﻿namespace Civlike.World;
+﻿using Civlike.World.State;
+
+namespace Civlike.World;
 
 public interface IGlobeGenerator {
 	int Subdivisions { get; }

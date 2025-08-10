@@ -1,5 +1,4 @@
-﻿using Civlike.Logic.World;
-using Civlike.World.Components;
+﻿using Civlike.World.Render;
 using Engine;
 using Engine.Module.Render.Entities;
 using Engine.Module.Render.Glfw.Enums;
@@ -68,16 +67,27 @@ public sealed class WorldCameraRenderBehaviour : DependentRenderBehaviourBase<Gl
 	public override void Update( double time, double deltaTime ) {
 		if (!this._initialized) {
 			Vector3<float>? startLocation = this.RenderEntity.ServiceAccess.Get<GameStateProvider>().Get<Vector3<float>?>( "startLocation" );
-			if (!startLocation.HasValue)
+			if (!startLocation.HasValue) {
+				Vector2<float> polar = 0;
+				float yaw = (float.Pi * 3 / 2) - polar.X;
+				float pitch = (float.Pi * 3 / 2) - polar.Y;
+				Rotor3<float> yawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, yaw );
+				Rotor3<float> pitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, pitch );
+				this._rotation = (yawRotor * pitchRotor).Normalize<Rotor3<float>, float>();
+				this._zoom = 1.1f;
+				this._initialized = true;
 				return;
-			Vector2<float> polar = startLocation.Value.ToNormalizedPolar();
-			float yaw = (float.Pi * 3 / 2) - polar.X;
-			float pitch = (float.Pi * 3 / 2) - polar.Y;
-			Rotor3<float> yawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, yaw );
-			Rotor3<float> pitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, pitch );
-			this._rotation = (yawRotor * pitchRotor).Normalize<Rotor3<float>, float>();
-			this._zoom = 1.1f;
-			this._initialized = true;
+			}
+			{
+				Vector2<float> polar = startLocation.Value.ToNormalizedPolar();
+				float yaw = (float.Pi * 3 / 2) - polar.X;
+				float pitch = (float.Pi * 3 / 2) - polar.Y;
+				Rotor3<float> yawRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitY, yaw );
+				Rotor3<float> pitchRotor = Rotor3.FromAxisAngle( Vector3<float>.UnitX, pitch );
+				this._rotation = (yawRotor * pitchRotor).Normalize<Rotor3<float>, float>();
+				this._zoom = 1.1f;
+				this._initialized = true;
+			}
 			return;
 		}
 		//Handle zooming

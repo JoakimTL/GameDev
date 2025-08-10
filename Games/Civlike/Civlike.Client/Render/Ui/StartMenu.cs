@@ -1,4 +1,5 @@
-﻿using Civlike.Messages;
+﻿using Civlike.Client.Render.Ui.Components;
+using Civlike.Messages;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Input;
@@ -8,16 +9,21 @@ using Engine.Standard.Render.UserInterface.Standard;
 namespace Civlike.Client.Render.Ui;
 public sealed class StartMenu() : UserInterfaceElementWithMessageNodeBase( "ui_startmenu" ) {
 
+	private MenuBackground _background = null!;
 	private InteractableButton _btnNewGame = null!;
 	private InteractableButton _btnExit = null!;
 
 	protected override void Initialize() {
+		_background = new MenuBackground( this, this.UserInterfaceServiceAccess.Textures.Get( "mainMenuBackground3" ) );
 		this._btnNewGame = new InteractableButton( this, "New Game" );
+		this._btnNewGame.Label.Color = (0.937f, 0.749f, 0.016f, 1);
 		this._btnNewGame.Placement.Set( new( (.3, -.15), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
 		this._btnNewGame.OnClicked += OnNewGameButtonClicked;
-		this._btnExit = new InteractableButton( this, "Exit");
+		this._btnNewGame.SetRenderLayer( 1 );
+		this._btnExit = new InteractableButton( this, "Exit" );
 		this._btnExit.Placement.Set( new( (.3, -.4), 0, (.25, .1) ), Alignment.Negative, Alignment.Positive );
 		this._btnExit.OnClicked += OnExitButtonClicked;
+		this._btnNewGame.SetRenderLayer( 1 );
 	}
 
 	private void OnNewGameButtonClicked( InteractableButton btn, MouseButtonEvent @event ) => Publish( new NewGameMessage(), "gamelogic", true );

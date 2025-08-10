@@ -9,6 +9,10 @@ public sealed class UserInterfaceComponentPlacement {
 	public TransformData<Vector2<double>, double, Vector2<double>> Transform { get; private set; }
 	public Alignment HorizontalAlignment { get; private set; }
 	public Alignment VerticalAlignment { get; private set; }
+	public bool HorizontalScaling { get; private set; }
+	public bool VerticalScaling { get; private set; }
+	public bool InvertScalingOnTranslation { get; private set; }
+	public bool InvertScalingOnScaling { get; private set; }
 	public bool Changed { get; private set; }
 
 	public UserInterfaceComponentPlacement( UserInterfaceComponentBase component ) {
@@ -17,6 +21,10 @@ public sealed class UserInterfaceComponentPlacement {
 		this.Transform = new( 0, 0, 1 );
 		this.HorizontalAlignment = 0;
 		this.VerticalAlignment = 0;
+		this.HorizontalScaling = false;
+		this.VerticalScaling = false;
+		InvertScalingOnTranslation = false;
+		InvertScalingOnScaling = false;
 		this.Changed = true;
 	}
 
@@ -34,6 +42,25 @@ public sealed class UserInterfaceComponentPlacement {
 
 	public void SetVerticalAlignment( Alignment verticalAlignment ) {
 		this.VerticalAlignment = verticalAlignment;
+		this.Changed = true;
+	}
+
+	public void SetHorizontalScaling( bool horizontalScaling ) {
+		this.HorizontalScaling = horizontalScaling;
+		this.Changed = true;
+	}
+
+	public void SetVerticalScaling( bool verticalScaling ) {
+		this.VerticalScaling = verticalScaling;
+		this.Changed = true;
+	}
+
+	public void Set( TransformData<Vector2<double>, double, Vector2<double>> transform, Alignment horizontalAlignment, Alignment verticalAlignment, bool horizontalScaling, bool verticalScaling ) {
+		this.Transform = transform;
+		this.HorizontalAlignment = horizontalAlignment;
+		this.VerticalAlignment = verticalAlignment;
+		this.HorizontalScaling = horizontalScaling;
+		this.VerticalScaling = verticalScaling;
 		this.Changed = true;
 	}
 
@@ -55,11 +82,16 @@ public sealed class UserInterfaceComponentPlacement {
 		if (!this.Changed)
 			return;
 		this.Changed = false;
-		Vector2<double> placementCenter = this._component.PlacementBounds.GetCenter();
-		Vector2<double> placementLengths = this._component.PlacementBounds.GetLengths() * 0.5;
-		Vector2<double> newTranslation = placementCenter + placementLengths.MultiplyEntrywise( ((int) this.HorizontalAlignment, (int) this.VerticalAlignment) ) + this.Transform.Translation;
+		Vector2<double> boundsCenter = this._component.PlacementBounds.GetCenter();
+		Vector2<double> boundsLengths = this._component.PlacementBounds.GetLengths();
 
-		TransformData<Vector2<double>, double, Vector2<double>> newTransform = new( newTranslation, this.Transform.Rotation, this.Transform.Scale );
+		Vector2<double> placementLengths = boundsLengths * 0.5;
+		Vector2<double> newTranslation = boundsCenter + placementLengths.MultiplyEntrywise( ((int) this.HorizontalAlignment, (int) this.VerticalAlignment) ) + this.Transform.Translation;
+
+		Vector2<double> scaling = (HorizontalScaling ? placementLengths.X : 1, VerticalScaling ? placementLengths.Y : 1);
+		Vector2<double> newScale = this.Transform.Scale.MultiplyEntrywise( scaling );
+
+		TransformData<Vector2<double>, double, Vector2<double>> newTransform = new( newTranslation, this.Transform.Rotation, newScale );
 
 		this._component.TransformInterface.SetData( newTransform );
 	}

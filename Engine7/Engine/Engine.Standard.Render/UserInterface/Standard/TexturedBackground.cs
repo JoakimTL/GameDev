@@ -4,7 +4,7 @@ using Engine.Standard.Render.Shaders;
 
 namespace Engine.Standard.Render.UserInterface.Standard;
 
-public sealed class TexturedBackground : UserInterfaceComponentBase {
+public class TexturedBackground : UserInterfaceComponentBase {
 	private readonly SceneInstance<Entity2TexturedSceneData> _sceneInstance;
 
 	private Vector4<double> _color = (1, 1, 1, 1);
@@ -49,6 +49,11 @@ public sealed class TexturedBackground : UserInterfaceComponentBase {
 
 
 	protected override void OnPlacementChanged() => UpdateInstance();
+
+	protected override void RenderLayerChanged() {
+		this._sceneInstance.SetLayer( this.RenderLayer );
+		this._changed = true;
+	}
 
 	protected override void OnUpdate( double time, double deltaTime ) {
 		if (!this._changed)

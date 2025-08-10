@@ -1,4 +1,4 @@
-﻿using Civlike.World;
+﻿using Civlike.World.State;
 
 namespace Civlike.Messages;
 

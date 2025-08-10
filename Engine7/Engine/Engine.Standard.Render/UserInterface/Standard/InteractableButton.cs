@@ -89,7 +89,7 @@ public sealed class InteractableButton : InteractableUserInterfaceComponentBase<
 	public Label Label { get; }
 
 	public InteractableButton( UserInterfaceElementBase element, string text ) : base( element ) {
-		this.Background = AddChild( new TexturedNineSlicedBackground( element, element.UserInterfaceServiceAccess.Textures.Get( "test" ) ) );
+		this.Background = AddChild( new TexturedNineSlicedBackground( element, element.UserInterfaceServiceAccess.Textures.Get( "test2" ) ) );
 		this.Label = AddChild( new Label( element ) {
 			Text = text,
 			FontName = DefaultFontName,
@@ -97,7 +97,7 @@ public sealed class InteractableButton : InteractableUserInterfaceComponentBase<
 			Color = (0, 0, 0, 1),
 			HorizontalAlignment = Alignment.Center,
 			VerticalAlignment = Alignment.Center
-		} );
+		}, 2 );
 
 		this.ClickEnabled = true;
 		OnMouseEntered += DefaultOnEnter;

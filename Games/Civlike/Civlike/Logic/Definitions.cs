@@ -114,7 +114,7 @@ public static class Syllabifier {
 
 	public static string[] HeuristicSyllabify( string word ) {
 		const string V = "aeiouy";
-		List<string> parts = new();
+		List<string> parts = [];
 		int start = 0;
 		word = word.ToLowerInvariant();
 
@@ -229,7 +229,7 @@ public class SyllableMarkovGenerator {
 		while (true) {
 			// initialize the sliding window with start tokens
 			Queue<string> window = new( Enumerable.Repeat( "^", this._order ) );
-			List<string> result = new();
+			List<string> result = [];
 			bool endedOnToken = false;
 
 			while (result.Count < maxSylls) {
@@ -260,13 +260,13 @@ public class SyllableMarkovGenerator {
 
 	public long CountPossibleNames( int maxSylls ) {
 		// 1) Build a map from each context-key to a list of “next keys”
-		Dictionary<string, List<string>> graph = new();
+		Dictionary<string, List<string>> graph = [];
 		string startKey = string.Join( "|", Enumerable.Repeat( "^", this._order ) );
 		const string END = "$";
 
 		foreach (KeyValuePair<string, List<string>> kv in this._transitions) {
 			string key = kv.Key;
-			List<string> nextKeys = new();
+			List<string> nextKeys = [];
 
 			foreach (string syll in kv.Value) {
 				if (syll == END)

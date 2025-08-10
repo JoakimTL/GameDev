@@ -26,7 +26,7 @@ public abstract class UserInterfaceComponentBase : Identifiable, IRemovable {
 
 	private bool _placementChanged = false;
 
-	public UserInterfaceComponentBase( UserInterfaceElementBase element) {
+	public UserInterfaceComponentBase( UserInterfaceElementBase element ) {
 		this.Element = element;
 		this.Transform = new();
 		this.Transform.Nickname = GetType().Name;
@@ -52,11 +52,11 @@ public abstract class UserInterfaceComponentBase : Identifiable, IRemovable {
 	}
 
 	private void SetParent( UserInterfaceComponentBase parent, uint renderLayerOffset = 1 ) {
-		if (this.Parent is not null) 
+		if (this.Parent is not null)
 			throw new Exception( "Cannot set parent, already has one." );
 		this.Parent = parent;
 		this.Transform.SetParent( parent.Transform, false );
-		this.RenderLayer = parent.RenderLayer + renderLayerOffset;
+		SetRenderLayer( parent.RenderLayer + renderLayerOffset );
 	}
 
 	internal bool OnCharacter( KeyboardCharacterEvent @event ) {
@@ -185,8 +185,22 @@ public abstract class UserInterfaceComponentBase : Identifiable, IRemovable {
 		this._children.Remove( child );
 	}
 
+	public void SetRenderLayer( uint layer ) {
+		uint previousLayer = this.RenderLayer;
+		if (this.RenderLayer == layer)
+			return;
+		this.RenderLayer = layer;
+		RenderLayerChanged();
+		foreach (UserInterfaceComponentBase child in this._children) {
+			uint delta = child.RenderLayer - previousLayer;
+			child.SetRenderLayer( layer + delta );
+		}
+	}
+
 	/// <summary>
 	/// Used to remove and clean up scene instances and other resources.
 	/// </summary>
 	protected virtual void InternalRemove() { }
+
+	protected virtual void RenderLayerChanged() { }
 }

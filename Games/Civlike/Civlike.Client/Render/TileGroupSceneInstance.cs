@@ -1,4 +1,5 @@
-﻿using Civlike.World;
+﻿using Civlike.World.Geometry;
+using Civlike.World.State;
 using Engine;
 using Engine.Module.Render.Ogl.OOP.Shaders;
 using Engine.Module.Render.Ogl.OOP.VertexArrays;

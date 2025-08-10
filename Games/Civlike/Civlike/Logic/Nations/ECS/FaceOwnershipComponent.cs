@@ -1,4 +1,4 @@
-﻿using Civlike.World;
+﻿using Civlike.World.State;
 using Engine.Module.Entities.Container;
 
 namespace Civlike.Logic.Nations.ECS;

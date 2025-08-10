@@ -33,6 +33,7 @@ public sealed class FlatBackground : UserInterfaceComponentBase {
 
 
 	protected override void OnPlacementChanged() => UpdateInstance();
+	protected override void RenderLayerChanged() => this._sceneInstance.SetLayer( this.RenderLayer );
 
 	protected override void OnUpdate( double time, double deltaTime ) {
 		if (!this._colorChanged)

@@ -5,7 +5,7 @@ public static class Syllabifier {
 
 	public static string[] HeuristicSyllabify( string word ) {
 		const string V = "aeiouyæøå";
-		List<string> parts = new();
+		List<string> parts = [];
 		int start = 0;
 		word = word.ToLowerInvariant();
 

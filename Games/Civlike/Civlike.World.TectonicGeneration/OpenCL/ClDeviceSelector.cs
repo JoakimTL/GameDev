@@ -13,7 +13,7 @@ public static unsafe class ClDeviceSelector {
 		fixed (nint* pp = plats)
 			cl.GetPlatformIDs( nplat, pp, null );
 
-		List<DevicePick> candidates = new();
+		List<DevicePick> candidates = [];
 		foreach (nint plat in plats) {
 			// 2) Get all GPU devices on this platform
 			uint ndev = 0;

@@ -1,4 +1,4 @@
-﻿using Civlike.World;
+﻿using Civlike.World.State;
 using System.Text.Json;
 
 namespace Civlike.Diseases;

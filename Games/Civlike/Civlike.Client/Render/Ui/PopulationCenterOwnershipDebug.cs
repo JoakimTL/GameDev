@@ -1,7 +1,7 @@
 ﻿using Civlike.Client.Render.Ui.Components;
 using Civlike.Logic.Nations.ECS;
 using Civlike.Messages;
-using Civlike.World;
+using Civlike.World.State;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Entities.Providers;

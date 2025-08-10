@@ -1,4 +1,4 @@
-﻿using Civlike.World;
+﻿using Civlike.World.Geometry;
 using Engine;
 
 //TODO: Have tiles be outside the ECS systems. Incorporate them into the ECS system (and thus rendering) as tile collection components: Lists of tiles. These lists are gained from the octree in the globe class.

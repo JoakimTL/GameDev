@@ -30,7 +30,7 @@ public sealed class NewGameMenu() : UserInterfaceElementWithMessageNodeBase( "\b
 		//	MountainHeight = 5000,
 		//	OceanSeeds = 8
 		//};
-		Publish( new CreateNewGlobeRequestMessage( new TectonicGlobeGenerator() /*new( 7, 6378000, 43, 128, tectonicParameters )*/ ), "gamelogic", true );
+		Publish( new CreateNewGlobeRequestMessage( new TectonicGlobeGenerator( new() ) /*new( 7, 6378000, 43, 128, tectonicParameters )*/ ), "gamelogic", true );
 	}
 	protected override bool ShouldDisplay() {
 		return this.GameStateProvider.Get<bool>( UiElementConstants.ShowNewGameMenu ); //TODO: Create a more complex state machine for ui?

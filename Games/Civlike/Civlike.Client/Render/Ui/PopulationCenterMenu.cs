@@ -1,5 +1,5 @@
 ﻿using Civlike.Logic.Nations.ECS;
-using Civlike.World;
+using Civlike.World.State;
 using Engine;
 using Engine.Modularity;
 using Engine.Module.Render.Entities.Providers;

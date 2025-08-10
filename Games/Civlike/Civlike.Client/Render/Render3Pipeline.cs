@@ -19,6 +19,7 @@ public sealed class Render3Pipeline( WindowService windowService, DataBlockServi
 	private Render3PipelineState? _state = null!;
 
 	public void Initialize() {
+		_cameraService.Main.Projection3.FOV = 70;
 		this._state = new( this._windowService, this._dataBlockService, this._sceneService, this._cameraService, this._textureRenderingService, this._framebufferStateService );
 	}
 
