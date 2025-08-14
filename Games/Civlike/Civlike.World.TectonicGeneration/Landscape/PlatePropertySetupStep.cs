@@ -6,7 +6,7 @@ using Engine.Logging;
 
 namespace Civlike.World.TectonicGeneration.Landscape;
 
-[Engine.Processing.Do<IGlobeGenerationProcessingStep>.After<PlateEdgeDetectionStep>]
+[Engine.Processing.Do<IGlobeGenerationProcessingStep>.After<PlateMergingStep>]
 public sealed class PlatePropertySetupStep( TectonicGenerationParameters parameters ) : TectonicGlobeGenerationProcessingStepBase( parameters ) {
 	public override void Process( Globe globe ) {
 		List<SphericalVoronoiRegion> regions = globe.GetStateOrThrow<GlobeTectonicPlateState>().Regions;

@@ -3,6 +3,7 @@ using Civlike.World.State.States;
 using Civlike.World.TectonicGeneration.Landscape.States;
 using Civlike.World.TectonicGeneration.NoiseProviders;
 using Engine;
+using System.Drawing;
 
 namespace Civlike.World.TectonicGeneration.Landscape;
 
@@ -122,7 +123,7 @@ public sealed class TectonicLandscapeGenerationStep( TectonicGenerationParameter
 		ParallelProcessing.Range( globe.Nodes.Count, ( start, end, _ ) => {
 			for (int idx = start; idx < end; idx++) {
 				Node node = globe.Nodes[ idx ];
-				NodeTectonicLandscapeState? nState = node.GetState<NodeTectonicLandscapeState>();
+				NodeTectonicLandscapeState? nState = node.GetStateOrThrow<NodeTectonicLandscapeState>();
 
 				// sample simplex / Perlin noise in unit-sphere coordinates
 				float swell = dynamicTopoNoise.Noise( node.Vertex.Vector ) * mantleAmpMetres;
@@ -143,18 +144,25 @@ public sealed class TectonicLandscapeGenerationStep( TectonicGenerationParameter
 				Vector4<float> color = Vector4<float>.Zero;
 				float elev = 0f;
 				int edgeCount = 0;
+				bool isRidge = false;
+				bool isConvergent = false;
 				foreach (Node n in t.Nodes) {
 					color += n.GetStateOrThrow<NodeTectonicLandscapeState>()
 							  .Region.GetStateOrThrow<SphericalVoronoiRegionTectonicPlateState>()
 							  .PlateColor;
 					elev += n.GetStateOrThrow<NodeTectonicLandscapeState>().BaseElevation;
 					edgeCount += n.GetStateOrThrow<NodeTectonicLandscapeState>().IsEdgeNode ? 1 : 0;
+					isRidge |= n.GetStateOrThrow<NodeTectonicLandscapeState>().IsRidgeSeed;
+					isConvergent |= n.GetStateOrThrow<NodeTectonicLandscapeState>().IsConvergentSeed;
 				}
 				color /= 3;
 				elev /= 3;
 				t.GetStateOrThrow<TileColorState>().Color = color * float.Sqrt( (elev - lowestBaseElevation) / elevationRange );
 				if (edgeCount == 3)
 					t.GetStateOrThrow<TileColorState>().Color = color;
+
+				if (isRidge || isConvergent)
+					t.GetStateOrThrow<TileColorState>().Color = (isRidge ? 1 : 0, isConvergent ? 1 : 0, 0, 1f);
 
 				// (Optionally: store average elevation per tile as well)
 				//t.GetState<TileHeightState>().BaseHeight = elev / t.Nodes.Count;

@@ -11,5 +11,8 @@ public sealed class NodeTectonicLandscapeState : StateBase<Node> {
 	public float BaseElevation { get; set; }
 	public float DistanceToPlateEdgeRadians { get; set; }
 	public bool IsEdgeNode { get; set; } = false;
+	public bool IsRidgeSeed { get; set; }
+	public bool IsConvergentSeed { get; set; }
+	public float TransformSlipKmPerMa { get; set; }
 	public float RidgeHalfRateKmPerMa { get; set; }
 }
