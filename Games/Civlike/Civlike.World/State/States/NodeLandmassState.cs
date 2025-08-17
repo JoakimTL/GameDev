@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Civlike.World.State.States;
 public sealed class NodeLandmassState : StateBase<Node> {
 	public float Height { get; set; } = 0;
-	public float HeightFactor => (float) ((StateContainer.Globe.Radius + Height) / StateContainer.Globe.Radius);
+	public float HeightFactor => (float) ((StateContainer.Globe.RadiusMeters + Height) / StateContainer.Globe.RadiusMeters);
 	public float SeismicActivity { get; set; }
 	public float Ruggedness { get; set; }
 }

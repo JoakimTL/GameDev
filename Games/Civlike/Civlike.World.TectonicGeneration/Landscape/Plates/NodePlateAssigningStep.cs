@@ -3,7 +3,7 @@ using Civlike.World.TectonicGeneration.Landscape.States;
 using Civlike.World.TectonicGeneration.NoiseProviders;
 using Engine;
 
-namespace Civlike.World.TectonicGeneration.Landscape;
+namespace Civlike.World.TectonicGeneration.Landscape.Plates;
 
 [Engine.Processing.Do<IGlobeGenerationProcessingStep>.After<StateCreationStep>]
 public sealed class NodePlateAssigningStep( TectonicGenerationParameters parameters ) : TectonicGlobeGenerationProcessingStepBase( parameters ) {
@@ -30,11 +30,9 @@ public sealed class NodePlateAssigningStep( TectonicGenerationParameters paramet
 		foreach (SphericalVoronoiRegion region in sphericalVoronoiGenerator.Regions)
 			region.AddState( new SphericalVoronoiRegionTectonicPlateState() );
 
-		foreach (Node node in globe.Nodes) {
-			node.GetStateOrThrow<NodeTectonicLandscapeState>()
+		foreach (Node node in globe.Nodes) 			node.GetStateOrThrow<NodeTectonicLandscapeState>()
 				.Region.GetStateOrThrow<SphericalVoronoiRegionTectonicPlateState>()
 				.Nodes.Add( node );
-		}
 
 		globe.GetStateOrThrow<GlobeTectonicPlateState>().Regions.AddRange( sphericalVoronoiGenerator.Regions );
 	}

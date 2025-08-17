@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.Intrinsics;
 
-namespace Civlike.World.TectonicGeneration.Landscape;
+namespace Civlike.World.TectonicGeneration.Landscape.Plates;
 
 [Engine.Processing.Do<IGlobeGenerationProcessingStep>.After<PlateSeparationStep>]
 public sealed class PlateMergingStep( TectonicGenerationParameters parameters ) : TectonicGlobeGenerationProcessingStepBase( parameters ) {
@@ -31,14 +31,12 @@ public sealed class PlateMergingStep( TectonicGenerationParameters parameters ) 
 						neighbouringPlates.Add( nnState.Region );
 					}
 
-				if (neighbouringPlates.Count == 1) {
-					mergeOperations[ region ] = neighbouringPlates.First();
-				}
+				if (neighbouringPlates.Count == 1) 					mergeOperations[ region ] = neighbouringPlates.First();
 			}
 		} );
 
 		foreach (KeyValuePair<SphericalVoronoiRegion, SphericalVoronoiRegion> pair in mergeOperations) {
-			this.LogLine( $"Merging {pair.Key} into {pair.Value}" );
+			this.LogLine( $"Merging {pair.Key.Position} into {pair.Value.Position}" );
 			SphericalVoronoiRegion mergeFrom = pair.Key;
 			SphericalVoronoiRegion mergeTo = pair.Value;
 			while (mergeOperations.TryGetValue( mergeTo, out SphericalVoronoiRegion? finalMergeTo ))

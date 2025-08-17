@@ -18,7 +18,7 @@ public sealed class TileGroupSceneInstance() : SceneInstanceBase( typeof( Entity
 	private static IMesh CreateMesh( Globe globe, IReadOnlyList<ReadOnlyFace> faces, MeshProvider meshProvider, Vector4<float>? overrideColor ) {
 		List<Vertex3> vertices = [];
 		List<uint> indices = [];
-		float globeRadius = (float) globe.Radius;
+		float globeRadius = (float) globe.RadiusMeters;
 		for (int i = 0; i < faces.Count; i++) {
 			ReadOnlyFace face = faces[ i ];
 			ReadOnlyVertex vertexA = face.Vertices[ 0 ];

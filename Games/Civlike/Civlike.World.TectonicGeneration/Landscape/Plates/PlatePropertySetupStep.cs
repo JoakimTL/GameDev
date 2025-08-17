@@ -4,7 +4,7 @@ using Civlike.World.TectonicGeneration.NoiseProviders;
 using Engine;
 using Engine.Logging;
 
-namespace Civlike.World.TectonicGeneration.Landscape;
+namespace Civlike.World.TectonicGeneration.Landscape.Plates;
 
 [Engine.Processing.Do<IGlobeGenerationProcessingStep>.After<PlateMergingStep>]
 public sealed class PlatePropertySetupStep( TectonicGenerationParameters parameters ) : TectonicGlobeGenerationProcessingStepBase( parameters ) {
@@ -25,11 +25,12 @@ public sealed class PlatePropertySetupStep( TectonicGenerationParameters paramet
 
 			state.PlateColor = (rng.NextSingle(), rng.NextSingle(), rng.NextSingle(), 1);
 
-			float yawMovement = (rng.NextSingle() * 2 - 1) * float.Pi;
-			float pitchMovement = (rng.NextSingle() * 2 - 1) * float.Pi;
-			Vector2<float> movementSpherical = (yawMovement, pitchMovement);
+			var platePosition = region.Position.Normalize<Vector3<float>, float>();
+			var rotationPole = (rng.NextSingle() * float.Pi * 2).ToUnitVector2Radians();
+			var omegaPlane = rotationPole.RotateToPlane( platePosition );
+
 			float speed = rng.NextSingle() * (highVelocity - lowVelocity) + lowVelocity;
-			state.AngularVelocity = movementSpherical.ToCartesianFromPolar( speed / (float) (globe.Radius / 1000) );
+			state.AngularVelocity = omegaPlane * speed / (float) globe.RadiusKm;
 
 			int nodes = state.Nodes.Count;
 			totalCountedArea += areaPerNode * nodes;

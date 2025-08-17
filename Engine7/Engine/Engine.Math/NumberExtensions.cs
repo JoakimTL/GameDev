@@ -14,6 +14,14 @@ public static class NumberExtensions {
 		return isFirstNumber ? $"{(sign < 0 ? "-" : "")}{numberString}" : $"{(sign >= 0 ? "+" : "-")} {numberString}";
 	}
 
+	public static Vector2<TScalar> ToUnitVector2Radians<TScalar>( this TScalar rotationRadians )
+		where TScalar :
+			unmanaged, IFloatingPointIeee754<TScalar> => new( TScalar.Cos( rotationRadians ), TScalar.Sin( rotationRadians ) );
+
+	public static Vector2<TScalar> ToUnitVector2Degrees<TScalar>( this TScalar rotationDegrees )
+		where TScalar :
+			unmanaged, IFloatingPointIeee754<TScalar> => TScalar.DegreesToRadians( rotationDegrees ).ToUnitVector2Radians();
+
 	/// <typeparam name="T">The type which the frequency is supplied.</typeparam>
 	/// <param name="frequency">The frequency of the oscilation in Hz.</param>
 	/// <returns>Returns the oscilation period of input <paramref name="frequency"/> in milliseconds. If the period is lower than 1ms it will return 1ms.</returns>

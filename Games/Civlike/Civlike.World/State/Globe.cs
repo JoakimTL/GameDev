@@ -29,9 +29,9 @@ public sealed class Globe : StateContainerBase<Globe> {
 			n.NeighbouringNodes = neighbouringNodes.ToList().AsReadOnly();
 		}
 
-		this.Radius = radius;
+		this.RadiusMeters = radius;
 		this.TileArea = this.Area / this.Tiles.Count;
-		this.ApproximateTileLength = 2 * this.Radius * double.Sin( double.Acos( 1 / ((1 + double.Sqrt( 5 )) / 2) ) / double.Pow( 2, readonlyGlobe.Subdivisions ) * 0.5 );
+		this.ApproximateTileLength = 2 * this.RadiusMeters * double.Sin( double.Acos( 1 / ((1 + double.Sqrt( 5 )) / 2) ) / double.Pow( 2, readonlyGlobe.Subdivisions ) * 0.5 );
 	}
 
 	public Guid Id { get; }
@@ -39,8 +39,9 @@ public sealed class Globe : StateContainerBase<Globe> {
 	public IReadOnlyList<Node> Nodes { get; }
 	public IReadOnlyList<Tile> Tiles { get; }
 	public IReadOnlyList<BoundedTileCluster> Clusters { get; }
-	public double Radius { get; }
-	public double Area => 4 * double.Pi * this.Radius * this.Radius;
+	public double RadiusMeters { get; }
+	public double RadiusKm => this.RadiusMeters * 0.001;
+	public double Area => 4 * double.Pi * this.RadiusMeters * this.RadiusMeters;
 	public double TileArea { get; }
 	public double ApproximateTileLength { get; }
 

@@ -7,7 +7,7 @@ using System.Net;
 using System.Numerics;
 using System.Threading;
 
-namespace Civlike.World.TectonicGeneration.Landscape;
+namespace Civlike.World.TectonicGeneration.Landscape.Plates;
 
 [Engine.Processing.Do<IGlobeGenerationProcessingStep>.After<PlateMergingStep>]
 public sealed class PlateEdgeDetectionStep( TectonicGenerationParameters parameters ) : TectonicGlobeGenerationProcessingStepBase( parameters ) {
@@ -27,7 +27,6 @@ public sealed class PlateEdgeDetectionStep( TectonicGenerationParameters paramet
 						if (neighbouringRegion == nodeState.Region)
 							continue;
 
-						nodeState.IsEdgeNode = true;
 						if (!state.Edges.TryGetValue( neighbouringRegion, out PlateEdge? edge ))
 							state.Edges.Add( neighbouringRegion, edge = new( state, neighbouringRegion.GetStateOrThrow<SphericalVoronoiRegionTectonicPlateState>() ) );
 						edge.Nodes.Add( n );

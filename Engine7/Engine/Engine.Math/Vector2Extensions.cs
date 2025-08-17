@@ -221,4 +221,26 @@ public static class Vector2Extensions {
 	 * (x(a) * y(b) - x(a) * y(o) - x(o) * y(b) - x(b) * y(a) + x(b) * y(o) + x(o) * y(a)) * XY
 	 */
 	//
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="uHat">The unit vector which forms the plane.</param>
+	/// <returns></returns>
+	public static Vector3<TScalar> RotateToPlane<TScalar>( this in Vector2<TScalar> q, in Vector3<TScalar> uHat )
+		where TScalar :
+			unmanaged, IFloatingPointIeee754<TScalar> {
+		if (TScalar.One + uHat.Z <= TScalar.Epsilon)
+			return new Vector3<TScalar>( -q.X, -q.Y, TScalar.Zero);
+		TScalar ux = uHat.X, uy = uHat.Y, uz = uHat.Z;
+		TScalar x = q.X, y = q.Y;
+		TScalar c = uz;
+		TScalar alpha = TScalar.One / (TScalar.One + c);
+
+		return new Vector3<TScalar>(
+			(c + alpha * uy * uy) * x - alpha * ux * uy * y,
+			-(alpha * ux * uy) * x + (c + alpha * ux * ux) * y,
+			-(ux * x + uy * y)
+		);
+	}
 }
